@@ -83,6 +83,8 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   // equipment
   additem( &item[0x1517], 0x00404002, 1, 5, 1, "shirt" );
   additem( &item[0x152e], 0x08400000, 2, 4, 1, "short pants" );
+  additem( &item[0xefa], 0x00600002, 3, 1, 1, "spellbook" );
+  additem( &item[0xf5e], 0x00400002, 6, 1, 1, "broadsword" );
   additem( &item[0x203b], 0x00400002, 0, 11, 0, "short hair" );
 
   // house 0x6b

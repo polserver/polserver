@@ -23,6 +23,13 @@ endforeach
 // to commit a house at all.
 EraseGlobalProperty( "#HouseCommitHold" );
 
+// Both hooks are shard-wide too: armed, one stops every cast in the run and the
+// other stops every spellbook from opening. The spell script's hold is armed
+// from here rather than from its own package, so it is dropped from here as well.
+EraseGlobalProperty( "#CastHookCancel" );
+EraseGlobalProperty( "#OpenBookCancel" );
+EraseGlobalProperty( "#TestSpellHold" );
+
 foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );
 endforeach

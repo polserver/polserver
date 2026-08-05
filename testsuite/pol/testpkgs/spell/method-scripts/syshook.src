@@ -1,0 +1,23 @@
+// The Spellbook class method script, registered in ../syshook.cfg. It is
+// consulted for any method name the core does not know, on every spellbook of
+// the shard, so its exports are named after this package and do nothing.
+
+program Install()
+  return 1;
+endprogram
+
+// Hands back what the hook was given, so a case can tell that the object it
+// called the method on is the one that arrived here.
+exported function SpellbookProbe( book, arg )
+  var res := struct{};
+  res.+serial := book.serial;
+  res.+spells := book.spells().size();
+  res.+arg := arg;
+  return res;
+endfunction
+
+// The same name the itemdesc method script of TestBookNecro exports, for which
+// of the two answers a book carrying both.
+exported function SpellbookWhereDefined( unused book )
+  return "syshook";
+endfunction

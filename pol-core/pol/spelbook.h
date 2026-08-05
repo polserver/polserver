@@ -55,9 +55,9 @@ public:
   ~Spellbook() override = default;
   size_t estimatedSize() const override;
 
-  bool has_spellid( unsigned int spellid ) const;
-  bool remove_spellid( unsigned int spellid );
-  bool add_spellid( unsigned int spellid );
+  bool has_spellid( u32 spellid ) const;
+  bool remove_spellid( u32 spellid );
+  bool add_spellid( u32 spellid );
   u8 bitwise_contents[8];
   u8 spell_school;
   void add( Items::Item* item, const Pos2d& pos ) override;
@@ -74,6 +74,7 @@ public:
                         unsigned int* PC ) const override;
 
 private:
+  u16 spellnumber_of( u32 spellid ) const;
   bool can_add( const Items::Item& item ) const override;
   void add_bulk( int item_count_delta, int weight_delta ) override;
   void calc_current_bitwise_contents();

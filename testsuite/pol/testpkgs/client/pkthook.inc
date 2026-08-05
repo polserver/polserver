@@ -54,20 +54,6 @@ function pkthook_setup()
   return wait_for_own_create( 0 );
 endfunction
 
-// waits for the client to be told about itself, which is how a case knows the
-// character really arrived where it was put
-function wait_for_own_create( id, timeout := 10 )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
-    if ( !ev or ev.type != EVT_OWNCREATE or CInt( ev.id ) != id )
-      continue;
-    endif
-    return ev;
-  endwhile
-  return ret_error( $"client {id} never announced itself within {timeout}s" );
-endfunction
-
 // arms a hook and clears whatever an earlier case left in its log
 function arm_hook( key, log_key, arm )
   EraseGlobalProperty( log_key );

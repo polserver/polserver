@@ -15,6 +15,7 @@
 
 #include "bscript/executor.h"
 #include "clib/cfgelem.h"
+#include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/streamsaver.h"
 #include "plib/systemstate.h"
@@ -147,57 +148,49 @@ void Spellbook::double_click( Network::Client* client )
   }
 }
 
-bool Spellbook::has_spellid( unsigned int spellid ) const
+
+// returns 0 if out of bounds, or belongs to another school
+u16 Spellbook::spellnumber_of( u32 spellid ) const
 {
   u8 spellschool;
+  u16 spellnumber;
 
   // Check Mysticism here
   if ( spellid >= 678 && spellid <= 693 )
-    spellschool = 3;
-  else
-    spellschool = static_cast<u8>( spellid / 100 );
-
-  if ( spellschool == this->spell_school )
   {
-    u16 spellnumber;
-
-    // Check Mysticism here
-    if ( spellid >= 678 && spellid <= 693 )
-      spellnumber = static_cast<u16>( spellid - 677 );
-    else
-      spellnumber = static_cast<u16>( spellid % 100 );
-
-    // Limits spellnumber to be between 1-64
-    spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
-
-    u8 spellslot = spellnumber & 7;
-    if ( spellslot == 0 )
-      spellslot = 8;
-
-    if ( ( ( bitwise_contents[( spellnumber - 1 ) >> 3] ) & ( 1 << ( spellslot - 1 ) ) ) != 0 )
-      return true;
+    spellschool = 3;
+    spellnumber = Clib::clamp_convert<u16>( spellid - 677 );
   }
-  return false;
+  else
+  {
+    spellschool = Clib::clamp_convert<u8>( spellid / 100 );
+    spellnumber = Clib::clamp_convert<u16>( spellid % 100 );
+  }
+
+  if ( spellschool != spell_school || spellnumber < 1 || spellnumber > 64 )
+    return 0;
+
+  return spellnumber;
 }
 
-bool Spellbook::remove_spellid( unsigned int spellid )
+bool Spellbook::has_spellid( u32 spellid ) const
+{
+  u16 spellnumber = spellnumber_of( spellid );
+  if ( spellnumber == 0 )
+    return false;
+
+  u8 spellslot = spellnumber & 7;
+  if ( spellslot == 0 )
+    spellslot = 8;
+
+  return ( ( bitwise_contents[( spellnumber - 1 ) >> 3] ) & ( 1 << ( spellslot - 1 ) ) ) != 0;
+}
+
+bool Spellbook::remove_spellid( u32 spellid )
 {
   if ( has_spellid( spellid ) )
   {
-    u16 spellnumber;
-
-    // Check Mysticism here
-    if ( spellid >= 678 && spellid <= 693 )
-      spellnumber = static_cast<u16>( spellid - 677 );
-    else
-      spellnumber = static_cast<u16>( spellid % 100 );
-
-    // Limits spellnumber to be between 1-64
-    spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
+    u16 spellnumber = spellnumber_of( spellid );
 
     u8 spellslot = spellnumber & 7;
     if ( spellslot == 0 )
@@ -208,23 +201,11 @@ bool Spellbook::remove_spellid( unsigned int spellid )
   return false;
 }
 
-bool Spellbook::add_spellid( unsigned int spellid )
+bool Spellbook::add_spellid( u32 spellid )
 {
-  if ( !has_spellid( spellid ) )
+  u16 spellnumber = spellnumber_of( spellid );
+  if ( spellnumber != 0 && !has_spellid( spellid ) )
   {
-    u16 spellnumber;
-
-    // Check Mysticism here
-    if ( spellid >= 678 && spellid <= 693 )
-      spellnumber = static_cast<u16>( spellid - 677 );
-    else
-      spellnumber = static_cast<u16>( spellid % 100 );
-
-    // Limits spellnumber to be between 1-64
-    spellnumber = spellnumber & 63;
-    if ( spellnumber == 0 )
-      spellnumber = 64;
-
     u8 spellslot = spellnumber & 7;
     if ( spellslot == 0 )
       spellslot = 8;
@@ -400,7 +381,7 @@ void send_spellbook_contents( Network::Client* client, Spellbook& spellbook )
     if ( ( ( spellbook.bitwise_contents[( ( spellnumber - 1 ) >> 3 )] ) &
            ( 1 << ( spellpos - 1 ) ) ) != 0 )
     {
-      msg->Write<u32>( 0x7FFFFFFFu - spellnumber );
+      msg->WriteFlipped<u32>( 0x7FFFFFFFu - spellnumber );
       msg->WriteFlipped<u16>( objtype );
       msg->offset++;                          // unk6
       msg->WriteFlipped<u16>( spellnumber );  // amount

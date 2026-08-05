@@ -143,7 +143,7 @@ inline unsigned short USpell::spell_id() const
 
 inline bool VALID_SPELL_ID( int spellid )
 {
-  return ( spellid >= 1 && spellid <= int( gamestate.spells.size() ) );
+  return ( spellid >= 1 && spellid < int( gamestate.spells.size() ) );
 }
 
 void do_cast( Network::Client* client, u16 spellid );

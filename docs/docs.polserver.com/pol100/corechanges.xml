@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-04-2026</datemodified>
+		<datemodified>08-05-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-05-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">Spellbook.addspell()/hasspell()/removespell() accepted a spellid of another school or past the 64 spells a book holds, wrapping it onto a spell of its own school</change>
+			<change type="Fixed">uo::GetSpellDifficulty/StartSpellEffect/ConsumeReagents/SpeakPowerWords and vitals::ConsumeMana read out-of-bounds for a spellid one past the highest defined spell</change>
+			<change type="Fixed">uo::ConsumeReagents consumed the reagents it had already found when a later one was missing</change>
+		</entry>
 		<entry>
 			<date>08-03-2026</date>
 			<author>Turley:</author>

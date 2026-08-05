@@ -1,0 +1,454 @@
+// handle_open_spellbook and the packet it ends in: which book the core finds,
+// which schools it will open for a given expansion, and what the contents
+// packet says about the one it opens.
+//
+// The request is 0x12 subcommand 0x43 and carries nothing at all - the core
+// picks the book itself, looking at the casting hand first and then at the top
+// level of the pack. The answer for an AOS client is 0xBF sub 0x1B, eight bytes
+// of one bit per spell; for anything older it is the container-and-contents
+// pair a spellbook used to be drawn as, which is not decoded here.
+//
+// The bits are indexed by the place a spell has in its own school, so magery
+// spell 1 and necromancy spell 101 both sit in bit 0 - the school is carried
+// separately, as the first spell id of that school.
+
+include "spellcast";
+
+program test_client_spellbook()
+  return spell_setup();
+endprogram
+
+// A magery book in the pack is found and its contents sent. The packet names
+// the book, its graphic and the school it belongs to.
+exported function book_opens_from_pack( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+
+  open_spellbook( 0 );
+
+  var ev := wait_for_book( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != book.serial )
+    return ret_error( $"the contents came from 0x{ev.serial:x}, not from the book" );
+  endif
+  if ( CInt( ev.graphic ) != book.graphic )
+    return ret_error( $"the packet gave graphic 0x{ev.graphic:x}, not 0x{book.graphic:x}" );
+  endif
+  if ( CInt( ev.firstspell ) != SPELL_CIRCLE )
+    return ret_error( $"a magery book named first spell {ev.firstspell}, not {SPELL_CIRCLE}" );
+  endif
+  return 1;
+endfunction
+
+// A book held in the casting hand is found before the pack is looked in.
+exported function book_opens_from_hand( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var packed := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !packed )
+    return packed;
+  endif
+  var held := equip_book( resmgn, BOOK_MAGIC, { SPELL_SEVEN } );
+  if ( !held )
+    return held;
+  endif
+
+  open_spellbook( 0 );
+
+  var ev := wait_for_book( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != held.serial )
+    return ret_error( "the book in the pack was opened rather than the one in hand" );
+  endif
+  return 1;
+endfunction
+
+// One bit per spell, counted from the school's first. Two spells far enough
+// apart to land in different bytes prove the indexing rather than the offset.
+exported function book_contents_bits( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE, SPELL_SEVEN } );
+  if ( !book )
+    return book;
+  endif
+
+  open_spellbook( 0 );
+
+  var ev := wait_for_book( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.contents.size() != 8 )
+    return ret_error( $"the packet carried {ev.contents.size()} content bytes, not 8" );
+  endif
+  if ( !book_has_bit( ev.contents, SPELL_CIRCLE ) )
+    return ret_error( $"spell {SPELL_CIRCLE} is in the book but not in the packet" );
+  endif
+  if ( !book_has_bit( ev.contents, SPELL_SEVEN ) )
+    return ret_error( $"spell {SPELL_SEVEN} is in the book but not in the packet" );
+  endif
+  if ( book_has_bit( ev.contents, 2 ) )
+    return ret_error( "the packet claims a spell the book was never given" );
+  endif
+  return 1;
+endfunction
+
+// The school is carried as the id its first spell has, so a necromancy book
+// says 101 while its own spell still sits in bit 0.
+exported function book_necro_school( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_NECRO, { SPELL_NECRO } );
+  if ( !book )
+    return book;
+  endif
+
+  open_spellbook( 0 );
+
+  var ev := wait_for_book( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.firstspell ) != SPELL_NECRO )
+    return ret_error( $"a necromancy book named first spell {ev.firstspell}, not {SPELL_NECRO}" );
+  endif
+  if ( !book_has_bit( ev.contents, 1 ) )
+    return ret_error( $"spell {SPELL_NECRO} should sit in the first bit of its own school" );
+  endif
+  return 1;
+endfunction
+
+// Mysticism is the exception the core spells out: its ids do not follow the
+// hundred-per-school rule, so the packet names 678 rather than the 301 the
+// school number would give.
+//
+// It is also the one school whose expansion is Stygian Abyss rather than the
+// AOS everything else here runs on, so this case moves the account up and puts
+// it back.
+exported function book_mysticism_school( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MYSTICISM, { SPELL_MYSTICISM } );
+  if ( !book )
+    return book;
+  endif
+  var was := set_expansion( "testclient0", "SA" );
+  if ( !was )
+    return was;
+  endif
+
+  open_spellbook( 0 );
+
+  var ev := wait_for_book( 0 );
+  set_expansion( "testclient0", was );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.firstspell ) != SPELL_MYSTICISM )
+    return ret_error( $"a mysticism book named first spell {ev.firstspell}, not {SPELL_MYSTICISM}" );
+  endif
+  return 1;
+endfunction
+
+// Each school has an expansion behind it. This account is on AOS, so a bushido
+// book is refused with the message naming the one it would need, and nothing is
+// sent.
+exported function book_needs_expansion( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_BUSHIDO );
+  if ( !book )
+    return book;
+  endif
+
+  open_spellbook( 0 );
+
+  res := wait_for_speech( 0, MSG_NEEDS_SE );
+  if ( !res )
+    return res;
+  endif
+  return no_book_for( 0 );
+endfunction
+
+// A character carrying no book at all: the core looks in the hand, looks in the
+// pack, finds nothing and says nothing either.
+exported function book_none_carried( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  open_spellbook( 0 );
+
+  return no_book_for( 0 );
+endfunction
+
+// The dead check comes before the book is looked for, so it answers even for a
+// character carrying one.
+//
+// Dying is the most destructive thing any case in this package does to the
+// shared character - it empties the pack onto a corpse and swaps the body for a
+// ghost - so the character is put back together before the case ends and the
+// corpse is taken away with it. The book itself belongs to the resource
+// manager, which finds it on the corpse and destroys it there.
+exported function book_while_dead( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  char.Kill();
+  // the corpse and the death packets, so the refusal is not read out of them
+  drain_events();
+
+  open_spellbook( 0 );
+
+  res := wait_for_speech( 0, MSG_DEAD );
+  if ( !res )
+    return revive( res );
+  endif
+  return revive( no_book_for( 0 ) );
+endfunction
+
+// Brings the character back and clears away what dying left behind, then hands
+// back whatever the case had to say.
+function revive( res )
+  var corpse := char.getcorpse();
+  Resurrect( char );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return res;
+endfunction
+
+// The OpenSpellbook hook is called first of all, above even the dead check, so
+// it fires for a character carrying nothing.
+exported function book_hook_is_called( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  open_spellbook( 0 );
+
+  var deadline := ReadMillisecondClock() + CAST_TIMEOUT;
+  var call;
+  while ( ReadMillisecondClock() < deadline )
+    call := GetGlobalProperty( "#OpenBookCall" );
+    if ( call )
+      break;
+    endif
+    Sleepms( CAST_POLL );
+  endwhile
+  if ( !call )
+    return ret_error( "the OpenSpellbook hook was never called" );
+  endif
+  if ( CInt( call.character ) != char.serial )
+    return ret_error( $"the hook was told 0x{call.character:x}, not the client character" );
+  endif
+  return 1;
+endfunction
+
+// A true answer from the hook means the core does nothing else: the book is
+// there and openable, and it is not opened.
+exported function book_hook_cancels( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  SetGlobalProperty( "#OpenBookCancel", 1 );
+
+  open_spellbook( 0 );
+
+  return no_book_for( 0 );
+endfunction
+
+// What the old way really puts on the wire. Every spell in the book becomes an
+// entry of a container listing: a serial counted down from the top of the
+// range, the scroll's *objtype* where a real item would carry its graphic, and
+// the spell's place in its school where a real item would carry its stack size.
+//
+// The two spells are the pair the core swaps, so this also pins that the entry
+// at the lowest objtype is spell 7 rather than spell 1.
+exported function book_old_lists_spells( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE, SPELL_SEVEN } );
+  if ( !book )
+    return book;
+  endif
+  var was := set_expansion( "testclient0", "T2A" );
+  if ( !was )
+    return was;
+  endif
+
+  open_spellbook( 0 );
+
+  res := old_listing_is_right( book );
+  set_expansion( "testclient0", was );
+  return res;
+endfunction
+
+// The assertions of the case above, kept apart so that the expansion is put
+// back whichever of them fails.
+function old_listing_is_right( book )
+  var entries := array{};
+  entries.append( { SPELL_SEVEN, SCROLL_OBJTYPE_SEVEN } );
+  entries.append( { SPELL_CIRCLE, SCROLL_OBJTYPE_ONE } );
+
+  foreach entry in ( entries )
+    var [ spellnumber, objtype ] := entry;
+    var serial := old_book_serial( spellnumber );
+    var obj := client_finds_obj( clientcon, 0, serial, book.serial );
+    if ( !obj )
+      return obj;
+    endif
+    if ( CInt( obj.graphic ) != objtype )
+      return ret_error( $"spell {spellnumber} was listed as 0x{obj.graphic:x}, not 0x{objtype:x}" );
+    endif
+    if ( CInt( obj.amount ) != spellnumber )
+      return ret_error( $"spell {spellnumber} was listed with amount {obj.amount}" );
+    endif
+    if ( CInt( obj.parent ) != book.serial )
+      return ret_error( $"spell {spellnumber} was listed inside 0x{obj.parent:x}, not the book" );
+    endif
+  endforeach
+
+  var ev := list_client_objs( clientcon, 0, book.serial );
+  if ( !ev )
+    return ev;
+  endif
+  var listed := ev.objs.size();
+  if ( listed != entries.size() )
+    return ret_error( $"the book was drawn with {listed} entries, expected {entries.size()}" );
+  endif
+  return 1;
+endfunction
+
+// The old way is for magery books alone. A book of any other school is refused
+// at this expansion with the message naming the one it would need, and nothing
+// is drawn - which is what keeps send_spellbook_contents, whose entries are all
+// worked out from the magery objtypes, off the other schools.
+exported function book_old_other_school( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_NECRO, { SPELL_NECRO } );
+  if ( !book )
+    return book;
+  endif
+  var was := set_expansion( "testclient0", "T2A" );
+  if ( !was )
+    return was;
+  endif
+
+  open_spellbook( 0 );
+
+  res := wait_for_speech( 0, MSG_NEEDS_AOS );
+  if ( res )
+    res := book_holds_nothing( book );
+  endif
+  set_expansion( "testclient0", was );
+  return res;
+endfunction
+
+// A locked book is the one refusal on the old path itself: the gump and the
+// listing are both skipped and the player is told so.
+exported function book_old_locked( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  book.locked := 1;
+  var was := set_expansion( "testclient0", "T2A" );
+  if ( !was )
+    return was;
+  endif
+
+  open_spellbook( 0 );
+
+  res := wait_for_speech( 0, MSG_LOCKED );
+  if ( res )
+    res := book_holds_nothing( book );
+  endif
+  set_expansion( "testclient0", was );
+  return res;
+endfunction
+
+// That the client was shown no contents for the book. It knows the book itself
+// either way - the core announces it before it decides what to do with it - so
+// this is a listing of the book that comes back empty, not a missing object.
+function book_holds_nothing( book )
+  var ev := list_client_objs( clientcon, 0, book.serial );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.objs.size() != 0 )
+    return ret_error( $"the book was drawn with {ev.objs.size()} entries" );
+  endif
+  return 1;
+endfunction
+
+// Below AOS a magery book is drawn the old way - as a container and its
+// contents - and the newer packet is not sent at all. The other schools are
+// refused outright at that expansion, which is what the magery book proves is
+// not happening here.
+exported function book_before_aos( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  var was := set_expansion( "testclient0", "T2A" );
+  if ( !was )
+    return was;
+  endif
+
+  open_spellbook( 0 );
+
+  res := no_book_for( 0 );
+  set_expansion( "testclient0", was );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction

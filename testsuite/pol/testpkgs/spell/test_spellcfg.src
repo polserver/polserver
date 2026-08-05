@@ -1,0 +1,275 @@
+use os;
+use uo;
+use vitals;
+
+include "spell";
+
+program testspellcfg()
+  return 1;
+endprogram
+
+// a spell naming a circle takes the circle's numbers, one spelling them out
+// takes its own
+exported function cfg_difficulty()
+  var difficulty := GetSpellDifficulty( SPELL_CIRCLE );
+  if ( difficulty != CIRCLE1_DIFFICULTY )
+    return ret_error( $"circle 1 spell has difficulty {difficulty}, expected {CIRCLE1_DIFFICULTY}" );
+  endif
+
+  difficulty := GetSpellDifficulty( SPELL_REAGENTS );
+  if ( difficulty != CIRCLE2_DIFFICULTY )
+    return ret_error( $"circle 2 spell has difficulty {difficulty}, expected {CIRCLE2_DIFFICULTY}" );
+  endif
+
+  difficulty := GetSpellDifficulty( SPELL_PARAMS );
+  if ( difficulty != PARAMS_DIFFICULTY )
+    return ret_error( $"the spell's own difficulty is {difficulty}, expected {PARAMS_DIFFICULTY}" );
+  endif
+
+  // the school an id belongs to does not enter into it
+  difficulty := GetSpellDifficulty( SPELL_MYSTICISM );
+  if ( difficulty != CIRCLE1_DIFFICULTY )
+    return ret_error( $"the mysticism spell has difficulty {difficulty}" );
+  endif
+
+  return 1;
+endfunction
+
+// the range check every spell id goes through
+exported function cfg_bad_spell_ids( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var out_of_range := array{};
+  out_of_range.append( { "GetSpellDifficulty", GetSpellDifficulty( 0 ) } );
+  out_of_range.append( { "StartSpellEffect", StartSpellEffect( npc, 0 ) } );
+  out_of_range.append( { "ConsumeReagents", ConsumeReagents( npc, 0 ) } );
+  out_of_range.append( { "SpeakPowerWords", SpeakPowerWords( npc, 0 ) } );
+  out_of_range.append( { "ConsumeMana", ConsumeMana( npc, 0 ) } );
+  // one past the highest id defined is one past the end of the table
+  out_of_range.append( { "GetSpellDifficulty", GetSpellDifficulty( SPELL_PAST_END ) } );
+  out_of_range.append( { "StartSpellEffect", StartSpellEffect( npc, SPELL_PAST_END ) } );
+  out_of_range.append( { "ConsumeReagents", ConsumeReagents( npc, SPELL_PAST_END ) } );
+  out_of_range.append( { "SpeakPowerWords", SpeakPowerWords( npc, SPELL_PAST_END ) } );
+  out_of_range.append( { "ConsumeMana", ConsumeMana( npc, SPELL_PAST_END ) } );
+
+  foreach call in ( out_of_range )
+    var [ name, res ] := call;
+    if ( res != error )
+      return ret_error( $"{name} accepted an id out of range: {res}" );
+    endif
+    if ( !res.errortext.find( "Spell ID out of range" ) )
+      return ret_error( $"{name}: wrong error: {res.errortext}" );
+    endif
+  endforeach
+
+  // an id the table has room for but nothing behind
+  var undefined := array{};
+  undefined.append( { "GetSpellDifficulty", GetSpellDifficulty( SPELL_UNDEFINED ) } );
+  undefined.append( { "StartSpellEffect", StartSpellEffect( npc, SPELL_UNDEFINED ) } );
+  undefined.append( { "ConsumeReagents", ConsumeReagents( npc, SPELL_UNDEFINED ) } );
+  undefined.append( { "SpeakPowerWords", SpeakPowerWords( npc, SPELL_UNDEFINED ) } );
+  undefined.append( { "ConsumeMana", ConsumeMana( npc, SPELL_UNDEFINED ) } );
+
+  foreach call in ( undefined )
+    var [ name, res ] := call;
+    if ( res != error )
+      return ret_error( $"{name} accepted an undefined spell: {res}" );
+    endif
+    if ( !res.errortext.find( "No such spell" ) )
+      return ret_error( $"{name}: wrong error: {res.errortext}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// StartSpellEffect runs the spell's script, attached to the character it names
+exported function cfg_start_spell_effect( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  forget_cast();
+
+  var res := StartSpellEffect( npc, SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"StartSpellEffect answered {res}" );
+  endif
+
+  var cast := wait_for_cast();
+  if ( !cast )
+    return cast;
+  endif
+  if ( cast.spellid != SPELL_CIRCLE )
+    return ret_error( $"the script ran for spell {cast.spellid}, expected {SPELL_CIRCLE}" );
+  endif
+  if ( cast.caster != npc.serial )
+    return ret_error( $"the script ran for 0x{cast.caster:x}, expected 0x{npc.serial:x}" );
+  endif
+
+  return 1;
+endfunction
+
+// a spell with no script at all still answers 1, and runs nothing
+exported function cfg_spell_without_script( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+  forget_cast();
+
+  var res := StartSpellEffect( npc, SPELL_NOSCRIPT );
+  if ( res != 1 )
+    return ret_error( $"StartSpellEffect on a scriptless spell answered {res}" );
+  endif
+
+  return no_cast_for( 500 );
+endfunction
+
+// every reagent the spell names is taken, one of each
+exported function cfg_consume_reagents( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var ash := resmgn.CreateItemInContainer( npc.backpack, REAGENT_ASH, 3 );
+  var moss := resmgn.CreateItemInContainer( npc.backpack, REAGENT_MOSS, 2 );
+  if ( !ash || !moss )
+    return ret_error( $"could not fill the backpack: {ash} {moss}" );
+  endif
+
+  var res := ConsumeReagents( npc, SPELL_REAGENTS );
+  if ( res != 1 )
+    return ret_error( $"ConsumeReagents answered {res}" );
+  endif
+  if ( ash.amount != 2 || moss.amount != 1 )
+    return ret_error( $"reagents left: {ash.amount} ash, {moss.amount} moss, expected 2 and 1" );
+  endif
+
+  // a spell naming no reagents has nothing to take and succeeds
+  res := ConsumeReagents( npc, SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"a spell without reagents answered {res}" );
+  endif
+  if ( ash.amount != 2 || moss.amount != 1 )
+    return ret_error( "a spell without reagents took something" );
+  endif
+
+  return 1;
+endfunction
+
+// A spell the caster cannot pay for takes nothing at all. The reagents are
+// named in the order ash, moss - so the missing moss must leave the ash alone.
+exported function cfg_reagents_incomplete( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var ash := resmgn.CreateItemInContainer( npc.backpack, REAGENT_ASH, 3 );
+  if ( !ash )
+    return ret_error( $"could not fill the backpack: {ash}" );
+  endif
+
+  var res := ConsumeReagents( npc, SPELL_REAGENTS );
+  if ( res != 0 )
+    return ret_error( $"ConsumeReagents answered {res} with a reagent missing, expected 0" );
+  endif
+  if ( ash.amount != 3 )
+    return ret_error( $"{3 - ash.amount} ash was taken for a spell that was not cast" );
+  endif
+
+  return 1;
+endfunction
+
+// a character with no backpack can pay for nothing
+exported function cfg_reagents_no_backpack( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testspell:spell_npc", SPELL_X, SPELL_Y, 0 );
+  if ( !npc )
+    return ret_error( $"could not create the npc: {npc}" );
+  endif
+
+  var res := ConsumeReagents( npc, SPELL_REAGENTS );
+  if ( res != 0 )
+    return ret_error( $"a character without a backpack answered {res}, expected 0" );
+  endif
+
+  return 1;
+endfunction
+
+// mana is taken in whole points, and only when there is enough
+exported function cfg_consume_mana( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  // GetVital counts hundredths, a spell's Mana counts whole points
+  var before := GetVital( npc, "Mana" );
+  var res := ConsumeMana( npc, SPELL_PARAMS );
+  if ( res != 1 )
+    return ret_error( $"ConsumeMana answered {res}" );
+  endif
+
+  var after := GetVital( npc, "Mana" );
+  if ( after != before - PARAMS_MANA * 100 )
+    return ret_error( $"mana went {before} -> {after}, expected a drop of {PARAMS_MANA * 100}" );
+  endif
+
+  // less mana than the spell costs leaves it untouched
+  SetVital( npc, "Mana", ( PARAMS_MANA - 1 ) * 100 );
+  before := GetVital( npc, "Mana" );
+  res := ConsumeMana( npc, SPELL_PARAMS );
+  if ( res != 0 )
+    return ret_error( $"ConsumeMana answered {res} with too little mana, expected 0" );
+  endif
+  if ( ( after := GetVital( npc, "Mana" ) ) != before )
+    return ret_error( $"the refused cast took mana anyway: {before} -> {after}" );
+  endif
+
+  // the cheaper circle spell still fits in what is left
+  res := ConsumeMana( npc, SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"a spell costing {CIRCLE1_MANA} answered {res} with {before} mana" );
+  endif
+
+  // and a circle spell costs what its circle says, not what the spell says
+  SetVital( npc, "Mana", 9000 );
+  before := GetVital( npc, "Mana" );
+  res := ConsumeMana( npc, SPELL_REAGENTS );
+  if ( res != 1 )
+    return ret_error( $"the circle 2 spell answered {res}" );
+  endif
+  after := GetVital( npc, "Mana" );
+  if ( after != before - CIRCLE2_MANA * 100 )
+    return ret_error( $"mana went {before} -> {after}, expected a drop of {CIRCLE2_MANA * 100}" );
+  endif
+
+  return 1;
+endfunction
+
+// power words are spoken by the caster; with no client in range there is
+// nothing to hear them, but the call still reports what it did
+exported function cfg_power_words( resmgn )
+  var npc := make_caster( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := SpeakPowerWords( npc, SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"SpeakPowerWords answered {res}" );
+  endif
+
+  // a spell with no power words of its own says nothing and still succeeds
+  res := SpeakPowerWords( npc, SPELL_NOSCRIPT, 3, 0x25 );
+  if ( res != 1 )
+    return ret_error( $"SpeakPowerWords with a font and colour answered {res}" );
+  endif
+
+  return 1;
+endfunction

@@ -1,0 +1,23 @@
+// The OpenSpellbook system hook, installed by syshook.cfg.
+//
+// The core calls it at the top of handle_open_spellbook, before the dead check
+// and before it goes looking for a book - so it fires for a character carrying
+// none, and a true answer means the core does nothing else at all.
+//
+// It records every call and lets the core carry on, until a test parks
+// something in #OpenBookCancel.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+exported function OpenSpellbookHook( chr )
+  SetGlobalProperty( "#OpenBookCall", struct{ character := chr.serial } );
+
+  if ( GetGlobalProperty( "#OpenBookCancel" ) )
+    return 1;
+  endif
+  return 0;
+endfunction
