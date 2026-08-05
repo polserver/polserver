@@ -23,6 +23,7 @@
 #include "pol/item/item.h"
 #include "pol/mobile/charactr.h"
 #include "pol/multi/multi.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Core
@@ -42,14 +43,7 @@ void remove_item_from_world( Items::Item* item )
   // clear potential opponents and inform everyone
   item->clear_opponents( true );
 
-  // Unregister the item if it is on a multi
-  if ( item->container() == nullptr && !item->has_gotten_by() )
-  {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos().xyz() );
-
-    if ( multi != nullptr )
-      multi->unregister_object( item );
-  }
+  unregister_from_supporting_multi( item );
 
   Zone& zone = item->realm()->getzone( item->pos().xy() );
 

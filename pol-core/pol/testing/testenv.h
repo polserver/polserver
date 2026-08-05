@@ -106,6 +106,7 @@ void test_curlfeatures();
 void decay_test();
 void location_test();
 void zone_bookkeeping_test();
+void place_at_test();
 void container_slot_test();
 void clamp_test();
 void maptile_geometry_test();

@@ -168,4 +168,125 @@ void zone_bookkeeping_test()
     }
   }
 }
+
+// place_at() is the only way to move an item that is already in the world. The obvious hand-written
+// alternative -- setposition() then relocate( InWorld{} ) -- compiles, returns true, and leaves the
+// item at its new coordinates still listed in the zone for the old ones, because InWorld carries no
+// position and so compares equal to itself. These assertions are what tells the two apart.
+void place_at_test()
+{
+  auto* realm = Core::gamestate.Realms[0];
+  auto* other_realm = Core::gamestate.Realms[1];
+  const Core::Pos2d base = realm->area().nw();
+  const Core::Pos4d zone_a( base + Core::Vec2d( 64, 64 ), 0, realm );
+  const Core::Pos4d zone_b( base + Core::Vec2d( 192, 192 ), 0, realm );
+
+  // an item that is not in the world yet enters it
+  {
+    auto* item = Items::Item::create( 0x0eed );
+    const auto count_before = realm->toplevel_item_count();
+
+    UnitTest( [&]() { return Items::place_at( *item, zone_a ); }, true,
+              "place_at puts a detached item into the world" );
+    UnitTest( [&]() { return occurrences( realm, zone_a.xy(), item ); }, size_t( 1 ),
+              "entering the world registers exactly one zone entry" );
+    UnitTest( [&]() { return item->pos() == zone_a; }, true,
+              "entering the world sets the position" );
+    UnitTest( [&]() { return realm->toplevel_item_count(); }, count_before + 1,
+              "entering the world bumps the toplevel counter" );
+
+    discard( item );
+  }
+
+  // the assertion this test exists for: an item already in the world moves zones
+  {
+    auto* item = item_in_world( zone_a );
+
+    UnitTest( [&]() { return Items::place_at( *item, zone_b ); }, true,
+              "place_at moves an item already in the world" );
+    UnitTest( [&]() { return occurrences( realm, zone_a.xy(), item ); }, size_t( 0 ),
+              "moving in the world clears the old zone" );
+    UnitTest( [&]() { return occurrences( realm, zone_b.xy(), item ); }, size_t( 1 ),
+              "moving in the world leaves exactly one entry, in the new zone" );
+    UnitTest( [&]() { return item->pos() == zone_b; }, true,
+              "moving in the world sets the position" );
+
+    discard( item );
+  }
+
+  // crossing realms hands the item and its counters over
+  {
+    auto* item = item_in_world( zone_a );
+    const auto count_before = realm->toplevel_item_count();
+    const auto other_before = other_realm->toplevel_item_count();
+    const Core::Pos4d elsewhere( other_realm->area().nw() + Core::Vec2d( 64, 64 ), 0, other_realm );
+
+    UnitTest( [&]() { return Items::place_at( *item, elsewhere ); }, true,
+              "place_at moves an item across realms" );
+    UnitTest( [&]() { return occurrences( realm, zone_a.xy(), item ); }, size_t( 0 ),
+              "crossing realms clears the old realm's zone" );
+    UnitTest( [&]() { return occurrences( other_realm, elsewhere.xy(), item ); }, size_t( 1 ),
+              "crossing realms registers in the new realm's zone" );
+    UnitTest( [&]() { return realm->toplevel_item_count(); }, count_before - 1,
+              "crossing realms decrements the old realm counter" );
+    UnitTest( [&]() { return other_realm->toplevel_item_count(); }, other_before + 1,
+              "crossing realms increments the new realm counter" );
+
+    discard( item );
+  }
+
+  // Decay is the caller's business, not the position's: a boat carrying cargo would otherwise keep
+  // it alive forever. move_item() is the layer that restarts it.
+  //
+  // The deadline is pushed to something the itemdesc would never produce first, so that a
+  // restart_decay_timer() smuggled into place_at would be visible. Comparing the value as created
+  // would prove nothing -- the game clock does not advance during this test, so recomputing it
+  // would give the same answer.
+  {
+    auto* item = item_in_world( zone_a );
+    item->set_decay_after( 1 );
+    const auto decay_before = item->decayat();
+
+    UnitTest( [&]() { return decay_before != 0u; }, true,
+              "the fixture item has a decay clock to leave alone" );
+
+    (void)Items::place_at( *item, zone_b );
+
+    UnitTest( [&]() { return item->decayat(); }, decay_before,
+              "place_at leaves the decay clock alone" );
+
+    discard( item );
+  }
+
+  // A refusal has to leave the position alone too -- it is the one piece of an item's location that
+  // relocate() does not own, so nothing else would put it back.
+  {
+    auto* item = item_in_world( zone_a );
+    item->destroy();
+
+    UnitTest( [&]() { return Items::place_at( *item, zone_b ); }, false,
+              "place_at refuses a destroyed item" );
+    UnitTest( [&]() { return item->pos() == zone_a; }, true,
+              "a refused place_at leaves the position untouched" );
+  }
+
+  // Both branches refuse this, which is the point: an item already in the world never reaches
+  // validate(), so without its own check it would go looking for a multi in a realm that is not
+  // there.
+  {
+    auto* placed = item_in_world( zone_a );
+    auto* detached = Items::Item::create( 0x0eed );
+    const Core::Pos4d nowhere( zone_b.xyz(), nullptr );
+
+    UnitTest( [&]() { return Items::place_at( *placed, nowhere ); }, false,
+              "place_at refuses a destination with no realm, moving an item" );
+    UnitTest( [&]() { return placed->pos() == zone_a; }, true,
+              "the refused move left the item where it was" );
+    UnitTest( [&]() { return Items::place_at( *detached, nowhere ); }, false,
+              "place_at refuses a destination with no realm, placing an item" );
+
+    discard( placed );
+    detached->destroy();
+  }
+}
 }  // namespace Pol::Testing

@@ -1,5 +1,10 @@
 -- POL100.3.0 --
 08-04-2026 Nando:
+    Fixed: An item moved off a boat stayed listed as travelling with it, so players near
+           the boat were still told about the item wherever it had gone - including places
+           they could not otherwise see. The listing was corrected the next time the boat
+           moved, which is why the effect was brief and only visible to clients using the
+           newer boat packet.
     Fixed: Destroying a piece of equipment a character was wearing left their status window
            showing the old weight. Items destroyed out of a container were already refreshed;
            worn ones were not, and where a refresh was sent it went out before the item had

@@ -13,6 +13,8 @@
 #include "pol/mobile/corpse.h"
 #include "pol/mobile/wornitems.h"
 #include "pol/multi/house.h"
+#include "pol/multi/multi.h"
+#include "pol/realms/realm.h"
 #include "pol/storage.h"
 #include "pol/ufunc.h"
 #include "pol/uworld.h"
@@ -419,6 +421,84 @@ bool relocate( Item& item, Location to )
   // unaffected: restart_decay_timer() does nothing to them.
   if ( entering_world )
     item.restart_decay_timer();
+
+  return true;
+}
+
+/**
+ * A container's contents borrow their realm from whatever holds them, and nothing re-derives it, so
+ * moving the container across realms leaves them behind. Matching the hand-written copies this
+ * replaces, it reaches the immediate contents and no further -- nested containers keep the old
+ * realm, which is a wider change than this one.
+ */
+namespace
+{
+void push_realm_to_contents( Item& item, Realms::Realm* realm )
+{
+  if ( !item.isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
+    return;
+  auto& cont = static_cast<Core::UContainer&>( item );
+  cont.for_each_item( Core::setrealm, static_cast<void*>( realm ) );
+}
+}  // namespace
+
+bool place_at( Item& item, const Core::Pos4d& newpos )
+{
+  const Core::Pos4d oldpos = item.pos();
+
+  // Checked here rather than left to validate(), which only sees the entering case, so that both
+  // ways in refuse the same thing -- and so the multi lookup below has a realm to ask.
+  if ( newpos.realm() == nullptr )
+  {
+    POLLOG_ERRORLN( "place_at: refused to move item {:#x} ({}) to a position with no realm",
+                    item.serial, item.location().describe() );
+    return false;
+  }
+
+  // Both ways in have to carry it: an item dropped on the ground from a cursor is entering the
+  // world, not moving within it, and it can still be changing realm as it lands.
+  const bool changing_realm = oldpos.realm() != newpos.realm();
+
+  if ( !item.location().holds<InWorld>() )
+  {
+    // relocate() promises that a refusal leaves the item exactly as it was, and the position is
+    // part of "as it was" -- so it has to be put back by hand, being the one piece of the item's
+    // location that relocate does not own.
+    item.setposition( newpos );
+    if ( !relocate( item, InWorld{} ) )
+    {
+      item.setposition( oldpos );
+      return false;
+    }
+    if ( changing_realm )
+      push_realm_to_contents( item, newpos.realm() );
+    return true;
+  }
+
+  // Both multis are resolved before anything moves, and the pair is skipped when they match. Not
+  // an optimisation: unregister_object() erases from the traveller list and register_object()
+  // appends, so an item stepping around one deck would work its way to the end of that list, and
+  // the list is both saved and the order the boat is drawn in.
+  //
+  // This is why the two named helpers are not used here -- they each repeat the lookup, and by
+  // this point the answer is known.
+  Multi::UMulti* oldmulti = oldpos.realm()->find_supporting_multi( oldpos.xyz() );
+  Multi::UMulti* newmulti = newpos.realm()->find_supporting_multi( newpos.xyz() );
+  const bool changing_multi = oldmulti != newmulti;
+
+  // Before the position changes: the multi is found from where the item is, so once it has moved
+  // there is no way back to the one it joined.
+  if ( changing_multi && oldmulti != nullptr )
+    oldmulti->unregister_object( &item );
+
+  item.setposition( newpos );
+  Core::MoveItemWorldPosition( oldpos, &item );
+
+  if ( changing_realm )
+    push_realm_to_contents( item, newpos.realm() );
+
+  if ( changing_multi && newmulti != nullptr )
+    newmulti->register_object( &item );
 
   return true;
 }

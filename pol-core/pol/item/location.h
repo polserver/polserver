@@ -280,6 +280,33 @@ void abandon( Item& item );
 [[nodiscard]] bool relocate_loaded( Item& item, Location to );
 
 /**
+ * Put the item at a world position: relocate()'s peer, and the other half of the same question.
+ * relocate() says which home holds the item; this says where it is standing once that home is the
+ * world.
+ *
+ * It exists because InWorld is the one alternative that does not carry its own coordinates -- they
+ * live on the item -- so `setposition()` followed by `relocate( InWorld{} )` is not a move at all:
+ * the target compares equal to the current location, relocate has nothing to do, and the item ends
+ * up at the new coordinates still listed in the zone for the old ones. Every other alternative
+ * carries the data that makes the same operation work.
+ *
+ * Handles both cases: an item that is not in the world yet enters it, and an item already in the
+ * world moves. Along the way it maintains the two spatial indexes that are keyed on position -- the
+ * realm zone and the multi the item is standing on -- and pushes a realm change down to a
+ * container's immediate contents.
+ *
+ * Deliberately does *not* restart the decay timer or tell any client. Doors and boats move items
+ * without either; see move_item() for the version that does both.
+ *
+ * @returns false only if the item is in a state that cannot move at all -- destroyed, intrinsic,
+ *          absorbed, or filed in a storage area under a key that no longer names it. The
+ *          destination itself can only be refused for want of a realm, so callers do not need the
+ *          recovery paths that a relocate() into a container needs. On refusal the item is
+ *          untouched, position included.
+ */
+[[nodiscard]] bool place_at( Item& item, const Core::Pos4d& newpos );
+
+/**
  * Claim a slot in a container and move the item into it.
  *
  * Three steps that have to happen in this order, because can_add_to_slot() writes the slot it

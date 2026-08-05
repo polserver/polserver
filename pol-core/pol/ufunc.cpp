@@ -1664,11 +1664,14 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Items::Item* item, const Core::Pos4d& oldpos )
+bool move_item( Items::Item* item, const Core::Pos4d& newpos )
 {
+  const Core::Pos4d oldpos = item->pos();
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldpos, item );
+  if ( !Items::place_at( *item, newpos ) )
+    return false;
   send_item_moved( item, oldpos );
+  return true;
 }
 
 void send_item_moved( Items::Item* item, const Core::Pos4d& oldpos )
@@ -1923,6 +1926,19 @@ void register_with_supporting_multi( Item* item )
     Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
     if ( multi )
       multi->register_object( item );
+  }
+}
+
+void unregister_from_supporting_multi( Item* item )
+{
+  // The extra has_gotten_by() test is what leaving the world has always checked, and it is kept
+  // rather than matched to its twin above: an item on a cursor also has no container, so the two
+  // conditions are not the same question.
+  if ( item->container() == nullptr && !item->has_gotten_by() )
+  {
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    if ( multi != nullptr )
+      multi->unregister_object( item );
   }
 }
 

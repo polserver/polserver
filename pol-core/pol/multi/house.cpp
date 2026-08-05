@@ -1094,20 +1094,25 @@ void move_to_ground( Items::Item* item )
       // move 'self' a bit so it doesn't interfere with itself
       bool res = item->realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon, true,
                                             Plib::MOVEMODE_LAND );
+      // The displacement above was only ever for the duration of the probe, and it has to be undone
+      // before the item is moved for real: the move reads the item's current position to find the
+      // zone it is leaving, and (0,0) is not it.
+      item->setposition( oldpos );
       if ( res )
       {
-        item->setposition( newpos.z( static_cast<signed char>( newz ) ) );
-        move_item( item, oldpos );
+        if ( !move_item( item, newpos.z( static_cast<signed char>( newz ) ) ) )
+          POLLOG_ERRORLN( "move_to_ground: item {:#x} is {} and could not be put on the ground",
+                          item->serial, item->location().describe() );
         return;
       }
-      item->setposition( oldpos );
     }
   }
   short newz;
   if ( item->realm()->groundheight( item->pos2d(), &newz ) )
   {
-    item->setposition( Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) );
-    move_item( item, oldpos );
+    if ( !move_item( item, Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) ) )
+      POLLOG_ERRORLN( "move_to_ground: item {:#x} is {} and could not be put on the ground",
+                      item->serial, item->location().describe() );
     return;
   }
 }

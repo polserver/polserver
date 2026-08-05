@@ -225,7 +225,18 @@ void destroy_item( Items::Item* item );
 /// @returns false, having destroyed nothing, if the item's destroy script refused.
 [[nodiscard]] bool try_destroy_item( Items::Item* item );
 
-void move_item( Items::Item* item, const Core::Pos4d& oldpos );
+/**
+ * Move an item that is standing in the world to a new position, and show the move to everyone who
+ * can see either end of it.
+ *
+ * place_at() plus the two things place_at() deliberately leaves out: the decay clock restarts,
+ * because a move is the item being handled and handled items do not rot on schedule, and the
+ * clients are told. Doors and boats want neither and call the lower layer directly.
+ *
+ * @returns false, having moved nothing, if the item is in a state that cannot move -- see
+ *          place_at().
+ */
+[[nodiscard]] bool move_item( Items::Item* item, const Core::Pos4d& newpos );
 
 /// The broadcast half of move_item(): show the item to everyone who can see it now, and remove it
 /// for everyone who could see oldpos but cannot see it any more. Separate because oldpos can be a
@@ -251,7 +262,15 @@ void send_open_gump( Network::Client* client, const UContainer& cont );
 
 void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
 
+/**
+ * Enter and leave the multi the item is standing on -- today that only ever means a boat, since
+ * UHouse::register_object takes mobiles and nothing else implements it.
+ *
+ * Both find the multi from the item's *current* position, so the unregister has to run before the
+ * item moves: once it has gone, the multi under it is not necessarily the multi it joined.
+ */
 void register_with_supporting_multi( Items::Item* item );
+void unregister_from_supporting_multi( Items::Item* item );
 
 /**
  * Redraw the status bar of whoever is carrying this item, if they are a player and are online.

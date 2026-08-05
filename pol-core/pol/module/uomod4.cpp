@@ -135,11 +135,15 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     return new BError( "That item is being used." );
   }
 
-  Multi::UMulti* multi = nullptr;
+  // walkheight also reports the multi standing at the height it settled on. That answer is
+  // discarded: the item is registered with whatever multi supports the position it actually ends up
+  // at, which place_at() works out for itself. The two only ever disagreed when a forced location
+  // put the item at a different height from the walkable one.
   if ( flags & MOVEITEM_FORCELOCATION )
   {
     short newz;
     Item* walkon;
+    Multi::UMulti* multi;
     newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
                                 Plib::MOVEMODE_LAND );
     // note that newz is ignored...
@@ -148,6 +152,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   {
     short newz;
     Item* walkon;
+    Multi::UMulti* multi;
     if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
                                       Plib::MOVEMODE_LAND ) )
       return new BError( "Invalid location selected" );
@@ -192,8 +197,7 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
 
     if ( !Items::relocate( *item, Items::Detached{} ) )
       return new BError( "Could not remove the item from its container." );
-    item->setposition( newpos );
-    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    if ( !Items::place_at( *item, newpos ) )
       return new BError( "Could not place the item in the world." );
 
     // Not move_item: the item was never in the world at oldpos, so there is no zone entry to move
@@ -202,15 +206,10 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   }
   else
   {
-    const Pos4d oldpos = item->pos();
-    item->setposition( newpos );
-    move_item( item, oldpos );
+    if ( !move_item( item, newpos ) )
+      return new BError( "Could not move the item." );
   }
 
-  if ( multi != nullptr )
-  {
-    multi->register_object( item );
-  }
   return new BLong( 1 );
 }
 }  // namespace Pol::Module

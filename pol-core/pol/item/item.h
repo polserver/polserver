@@ -145,6 +145,8 @@ public:
   void on_invisible_changed();
 
   void set_decay_after( unsigned int seconds );
+  /// The game clock reading at which the item is due to decay; zero if it never will.
+  unsigned int decayat() const { return decayat_gameclock_; }
   bool should_decay( unsigned int gameclock ) const;
   void restart_decay_timer();
   void disable_decay();
