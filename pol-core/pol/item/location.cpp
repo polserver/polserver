@@ -346,6 +346,15 @@ bool relocate_loaded( Item& item, Location to )
   }
 
   const Location from = item.location();
+
+  // The early return below reads as "the item is already where it is going", and that inference
+  // holds for every alternative whose data determines the outcome. InWorld is the exception: it
+  // carries no coordinates, so it compares equal to itself no matter how far apart the two
+  // positions are, and approving the move would leave the item at the new ones still listed in the
+  // zone for the old. Where in the world an item stands is a question this function cannot answer.
+  if ( from.holds<InWorld>() && to.holds<InWorld>() )
+    return reject( item, from, to, "use place_at() to move an item that is already in the world" );
+
   if ( from == to )
     return true;
 

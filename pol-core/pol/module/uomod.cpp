@@ -1118,7 +1118,11 @@ BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& po
   }
 
   update_item_to_inrange( item );
-  if ( !Items::relocate( *item, Items::InWorld{} ) )
+  // Unconditionally, and at the end: the create script above was handed a reference to the item and
+  // may have moved it anywhere -- into a container, onto a character, or somewhere else in the
+  // world entirely. Whatever it did, an item created at a location belongs at that location, so
+  // this places it rather than merely checking that it is placed.
+  if ( !Items::place_at( *item, pos ) )
   {
     item->destroy();
     return new BError( "Could not place the item in the world." );

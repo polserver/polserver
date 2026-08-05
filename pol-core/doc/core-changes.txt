@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+08-05-2026 Nando:
+    Fixed: CreateItemAtLocation and CreateItemCopyAtLocation returned an item that was not
+           at the requested location if the item's create script had moved it in the
+           meantime. An item moved elsewhere in the world stayed where the script put it,
+           and one put into a container was pulled back out to whatever coordinates the
+           container had given it, usually near the corner of the map. The requested
+           location now wins in every case.
 08-04-2026 Nando:
     Fixed: An item moved off a boat stayed listed as travelling with it, so players near
            the boat were still told about the item wherever it had gone - including places

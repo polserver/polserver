@@ -170,9 +170,10 @@ void zone_bookkeeping_test()
 }
 
 // place_at() is the only way to move an item that is already in the world. The obvious hand-written
-// alternative -- setposition() then relocate( InWorld{} ) -- compiles, returns true, and leaves the
-// item at its new coordinates still listed in the zone for the old ones, because InWorld carries no
-// position and so compares equal to itself. These assertions are what tells the two apart.
+// alternative -- setposition() then relocate( InWorld{} ) -- used to compile, return true, and
+// leave the item at its new coordinates still listed in the zone for the old ones, because InWorld
+// carries no position and so compares equal to itself. These assertions are what tells the two
+// apart, and the last block is what keeps the hand-written form from coming back.
 void place_at_test()
 {
   auto* realm = Core::gamestate.Realms[0];
@@ -210,6 +211,19 @@ void place_at_test()
               "moving in the world leaves exactly one entry, in the new zone" );
     UnitTest( [&]() { return item->pos() == zone_b; }, true,
               "moving in the world sets the position" );
+
+    discard( item );
+  }
+
+  // and the hand-written alternative is refused rather than silently approved, so that the trap the
+  // block above describes cannot be walked into again
+  {
+    auto* item = item_in_world( zone_a );
+
+    UnitTest( [&]() { return Items::relocate( *item, Items::InWorld{} ); }, false,
+              "relocating an item that is already in the world is refused" );
+    UnitTest( [&]() { return occurrences( realm, zone_a.xy(), item ); }, size_t( 1 ),
+              "and the refusal leaves its zone entry alone" );
 
     discard( item );
   }

@@ -231,9 +231,15 @@ void location_test()
     UnitTest( [&]() { return inner->container() == outer; }, true,
               "a rejected relocate leaves the other item untouched" );
 
-    // and the no-op case is a success, not a rejection
-    UnitTest( [&]() { return relocate( *outer, outer->location() ); }, true,
+    // and the no-op case is a success, not a rejection -- for every alternative that carries the
+    // data its outcome depends on, which is what makes "already there" mean anything
+    UnitTest( [&]() { return relocate( *inner, inner->location() ); }, true,
               "relocating to the location it already has is a no-op success" );
+
+    // InWorld is the exception, because it carries nothing: two positions a world apart compare
+    // equal, so the question has to go to place_at() instead of being answered here
+    UnitTest( [&]() { return relocate( *outer, outer->location() ); }, false,
+              "except in the world, where the location does not say where the item is" );
 
     inner->destroy();
     outer->destroy();

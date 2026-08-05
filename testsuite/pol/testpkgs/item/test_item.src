@@ -71,6 +71,40 @@ exported function test_container_realm_move()
   return 1;
 endfunction
 
+exported function test_create_beats_createscript()
+  // An item created at a location belongs at that location, whatever its create script did with it
+  // in the meantime -- and 0x40000F's create script deliberately moves it somewhere else. The item
+  // is already in the world by the time the create call gets it back, which is the case that used
+  // to be waved through: with no coordinates of its own to compare, "put this in the world" looked
+  // like it had already been done.
+  var item := CreateItemAtLocation( 90, 90, 0, 0x40000F );
+  if ( !item )
+    return ret_error( $"Failed to create item {item}" );
+  endif
+
+  if ( item.x != 90 || item.y != 90 )
+    var err := $"The create script kept the item at {item.x},{item.y}";
+    DestroyItem( item );
+    return ret_error( err );
+  endif
+
+  // and it is filed where it stands, not merely reporting the position: the zone walk is the only
+  // thing that can tell those apart
+  var found := 0;
+  foreach nearby in ListItemsNearLocation( 90, 90, 0, 0, "britannia" )
+    if ( nearby.serial == item.serial )
+      found := 1;
+    endif
+  endforeach
+  if ( !found )
+    DestroyItem( item );
+    return ret_error( "The item is not in the world zone it says it is in" );
+  endif
+
+  DestroyItem( item );
+  return 1;
+endfunction
+
 exported function test_item_cursed()
   var cnt := CreateItemAtLocation( 0, 0, 0, 0x200001 );
   if ( !cnt )

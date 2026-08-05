@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-04-2026</datemodified>
+		<datemodified>08-05-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-05-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">CreateItemAtLocation and CreateItemCopyAtLocation returned an item that was not<br/>
+at the requested location if the item's create script had moved it in the<br/>
+meantime. An item moved elsewhere in the world stayed where the script put it,<br/>
+and one put into a container was pulled back out to whatever coordinates the<br/>
+container had given it, usually near the corner of the map. The requested<br/>
+location now wins in every case.</change>
+		</entry>
 		<entry>
 			<date>08-04-2026</date>
 			<author>Nando:</author>
