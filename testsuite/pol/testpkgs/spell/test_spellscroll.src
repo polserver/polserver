@@ -1,0 +1,212 @@
+use os;
+use uo;
+
+include "spell";
+
+program testspellscroll()
+  return 1;
+endprogram
+
+// the scroll is consumed and the book gains the bit, weighing the same
+exported function scroll_into_book( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var scroll := make_scroll( resmgn, SCROLL_ONE );
+  if ( !scroll )
+    return scroll;
+  endif
+  var serial := scroll.serial;
+  var weight := book.weight;
+
+  var res := MoveItemToContainer( scroll, book );
+  if ( !book_took_it( res ) )
+    return ret_error( $"the book refused a magery scroll: {res}" );
+  endif
+
+  if ( SystemFindObjectBySerial( serial ) )
+    return ret_error( "the scroll survived being put in the book" );
+  endif
+  if ( !book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( "the book did not gain the scroll's spell" );
+  endif
+
+  var contents := EnumerateItemsInContainer( book );
+  if ( contents.size() != 0 )
+    return ret_error( $"the book holds {contents.size()} items, expected none" );
+  endif
+  if ( book.weight != weight )
+    return ret_error( $"the book weighs {book.weight}, weighed {weight}" );
+  endif
+
+  return 1;
+endfunction
+
+// the objtypes of the magery range do not run in spell order
+exported function scroll_objtype_swap( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  // 0x1F2D, the lowest magery objtype, is spell 7
+  var res := put_scroll( resmgn, book, SCROLL_SEVEN );
+  if ( !res )
+    return res;
+  endif
+  var spells := book.spells();
+  if ( spells.size() != 1 || spells[1] != SPELL_SEVEN )
+    return ret_error( $"the lowest scroll objtype gave {spells}, expected {SPELL_SEVEN}" );
+  endif
+
+  // 0x1F2E, the second, is spell 1
+  res := put_scroll( resmgn, book, SCROLL_ONE );
+  if ( !res )
+    return res;
+  endif
+
+  // 0x1F34 is the first objtype past the swap and is its own number, 8
+  res := put_scroll( resmgn, book, SCROLL_EIGHT );
+  if ( !res )
+    return res;
+  endif
+
+  spells := book.spells();
+  if ( spells.size() != 3 || spells[1] != 1 || spells[2] != SPELL_SEVEN || spells[3] != 8 )
+    return ret_error( $"the three scrolls gave {spells}, expected 1, 7, 8" );
+  endif
+
+  return 1;
+endfunction
+
+// a book takes one of each scroll only
+exported function scroll_duplicate_refused( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var res := put_scroll( resmgn, book, SCROLL_ONE );
+  if ( !res )
+    return res;
+  endif
+
+  var second := make_scroll( resmgn, SCROLL_ONE );
+  if ( !second )
+    return second;
+  endif
+  var serial := second.serial;
+
+  res := MoveItemToContainer( second, book );
+  if ( book_took_it( res ) )
+    return ret_error( "the book took the same scroll twice" );
+  endif
+  if ( !SystemFindObjectBySerial( serial ) )
+    return ret_error( "the refused scroll was destroyed anyway" );
+  endif
+  if ( book.spells().size() != 1 )
+    return ret_error( $"the book lists {book.spells()} after a refused scroll" );
+  endif
+
+  return 1;
+endfunction
+
+// and only from its own school's objtype range
+exported function scroll_foreign_refused( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var scroll := make_scroll( resmgn, SCROLL_NECRO );
+  if ( !scroll )
+    return scroll;
+  endif
+
+  var res := MoveItemToContainer( scroll, book );
+  if ( book_took_it( res ) )
+    return ret_error( "a magery book took a necro scroll" );
+  endif
+  if ( book.spells().size() != 0 )
+    return ret_error( $"the magery book lists {book.spells()} after a necro scroll" );
+  endif
+
+  return 1;
+endfunction
+
+// the necro book takes it, as spell 101
+exported function scroll_necro_book( resmgn )
+  var book := make_book( resmgn, BOOK_NECRO );
+  if ( !book )
+    return book;
+  endif
+
+  var res := put_scroll( resmgn, book, SCROLL_NECRO );
+  if ( !res )
+    return res;
+  endif
+
+  var spells := book.spells();
+  if ( spells.size() != 1 || spells[1] != SPELL_NECRO )
+    return ret_error( $"the necro book lists {spells}, expected {SPELL_NECRO}" );
+  endif
+
+  return 1;
+endfunction
+
+// anything that is not a scroll at all is refused
+exported function scroll_non_scroll_refused( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var item := make_scroll( resmgn, PLAIN_ITEM );
+  if ( !item )
+    return item;
+  endif
+  var serial := item.serial;
+
+  var res := MoveItemToContainer( item, book );
+  if ( book_took_it( res ) )
+    return ret_error( "the book took an item that is not a scroll" );
+  endif
+  if ( !SystemFindObjectBySerial( serial ) )
+    return ret_error( "the refused item was destroyed anyway" );
+  endif
+
+  return 1;
+endfunction
+
+// whether MoveItemToContainer's answer says the book swallowed the scroll
+function book_took_it( res )
+  if ( res )
+    return 0;
+  endif
+  return res.errortext.find( "Item was destroyed in OnInsert script" ) > 0;
+endfunction
+
+function make_scroll( resmgn, name )
+  var scroll := resmgn.CreateItemAtLocation( SPELL_X, SPELL_Y, 0, name );
+  if ( !scroll )
+    return ret_error( $"could not create {name}: {scroll}" );
+  endif
+  scroll.movable := 1;
+  return scroll;
+endfunction
+
+function put_scroll( resmgn, book, name )
+  var scroll := make_scroll( resmgn, name );
+  if ( !scroll )
+    return scroll;
+  endif
+
+  var res := MoveItemToContainer( scroll, book );
+  if ( !book_took_it( res ) )
+    return ret_error( $"the book refused {name}: {res}" );
+  endif
+
+  return 1;
+endfunction

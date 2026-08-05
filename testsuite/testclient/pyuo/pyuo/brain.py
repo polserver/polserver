@@ -169,6 +169,7 @@ class Event:
   EVT_HOUSE_DESIGN = 23
   EVT_HOUSE_EDIT = 24
   EVT_HOUSE_REV = 25
+  EVT_SPELLBOOK = 26
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -279,3 +280,5 @@ class Event:
       return "house_edit"
     elif self.type==Event.EVT_HOUSE_REV:
       return "house_rev"
+    elif self.type==Event.EVT_SPELLBOOK:
+      return "spellbook"

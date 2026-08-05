@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+08-05-2026 Turley:
+    Fixed: Spellbook.addspell()/hasspell()/removespell() accepted a spellid of another school or past the 64 spells a book holds, wrapping it onto a spell of its own school
+    Fixed: uo::GetSpellDifficulty/StartSpellEffect/ConsumeReagents/SpeakPowerWords and vitals::ConsumeMana read out-of-bounds for a spellid one past the highest defined spell
+    Fixed: uo::ConsumeReagents consumed the reagents it had already found when a later one was missing
 08-03-2026 Turley:
     Fixed: several ways to crash the shard in CustomHouses
     Fixed: the wrong revision was send after erase and clear

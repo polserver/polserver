@@ -312,8 +312,9 @@ exported function api_unknown_vital( resmgn )
   return 1;
 endfunction
 
-// ConsumeMana validates the spell id. The test shard defines no spells, so
-// only the range check is reachable here, not the "No such spell" branch.
+// ConsumeMana validates the spell id. The spells the shard knows are the ones
+// testpkgs/spell defines, the highest of them 678, so 679 is past the table.
+// The "No such spell" branch belongs to that package's test_spellcfg.
 exported function api_consumemana( resmgn )
   var npc := make_npc( resmgn );
   if ( !npc )
@@ -327,9 +328,9 @@ exported function api_consumemana( resmgn )
     return ret_error( $"wrong error: {res.errortext}" );
   endif
 
-  res := ConsumeMana( npc, 1 );
+  res := ConsumeMana( npc, 679 );
   if ( res != error )
-    return ret_error( $"an undefined spell was accepted: {res}" );
+    return ret_error( $"a spell id past the table was accepted: {res}" );
   elseif ( !res.errortext.find( "Spell ID out of range" ) )
     return ret_error( $"wrong error: {res.errortext}" );
   endif

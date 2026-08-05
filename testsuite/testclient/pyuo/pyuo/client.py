@@ -1166,7 +1166,10 @@ class Client(threading.Thread):
   @clientthread
   def handleDrawGamePlayerPacket(self, pkt):
     assert self.player.serial == pkt.serial
-    assert self.player.graphic == pkt.graphic
+
+    if self.player.graphic != pkt.graphic:
+      self.log.info("Your graphic changed from 0x%X to 0x%X", self.player.graphic, pkt.graphic)
+      self.player.graphic = pkt.graphic
 
     # The core telling the player where it really is, and the only facing update
     # it ever gets: the one thing handleMovePacket's guess can resync against.
@@ -1282,6 +1285,9 @@ class Client(threading.Thread):
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
       self.brain.event(brain.Event(brain.Event.EVT_PARTY, partycmd=pkt.partycmd,
         serial=pkt.serial, members=pkt.members, msg=pkt.msg))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_SPELLBOOK:
+      self.brain.event(brain.Event(brain.Event.EVT_SPELLBOOK, serial=pkt.serial,
+        graphic=pkt.graphic, firstspell=pkt.firstspell, contents=pkt.contents))
     elif pkt.sub == packets.GeneralInfoPacket.SUB_HOUSE_REV:
       self.brain.event(brain.Event(brain.Event.EVT_HOUSE_REV, serial=pkt.serial,
         revision=pkt.rev))
@@ -1554,6 +1560,36 @@ class Client(threading.Thread):
     '''
     po = packets.GeneralInfoPacket()
     po.fill(po.SUB_PARTY, partycmd, *args)
+    self.queue(po)
+
+  @logincomplete
+  def castSpell(self, spellid, bookserial=None, select=False):
+    '''! Asks to cast a spell
+    @param spellid int: absolute spell number, 1-64 for magery and 101 upwards
+                        for the other schools
+    @param bookserial int: the book it is cast from. Without one the request
+                           goes as the short form the core reads the id alone
+                           out of; the core never looks at the serial either way
+    @param select bool: send it as the spellbook gump's 0xbf sub 0x1c instead
+                        of as a text command. That route carries the id as a
+                        ushort, so it cannot ask for one above 0xffff
+    '''
+    if select:
+      po = packets.GeneralInfoPacket()
+      po.fill(po.SUB_SPELL_SELECT, spellid)
+    else:
+      po = packets.TextCommandPacket()
+      if bookserial is None:
+        po.fill(po.CMD_CASTSPELL2, str(spellid))
+      else:
+        po.fill(po.CMD_CASTSPELL1, '{} {}'.format(spellid, bookserial))
+    self.queue(po)
+
+  @logincomplete
+  def openSpellbook(self):
+    ''' Asks the server to open the spellbook the character is carrying '''
+    po = packets.TextCommandPacket()
+    po.fill(po.CMD_SPELLBOOK)
     self.queue(po)
 
   @logincomplete

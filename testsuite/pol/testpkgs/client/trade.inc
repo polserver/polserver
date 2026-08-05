@@ -40,14 +40,6 @@ function trade_setup()
   return wait_for_own_create( 0 );
 endfunction
 
-function wait_for_own_create( id )
-  var ev := waitForClient( id, { EVT_OWNCREATE } );
-  if ( !ev )
-    return ret_error( $"client {id} was not moved into place" );
-  endif
-  return 1;
-endfunction
-
 // Opens a trade window and returns the init event of both clients.
 function open_trade()
   close_trades();

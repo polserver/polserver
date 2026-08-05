@@ -44,6 +44,7 @@ const EVT_PARTY := "party";
 const EVT_HOUSE_DESIGN := "house_design";
 const EVT_HOUSE_EDIT := "house_edit";
 const EVT_HOUSE_REV := "house_rev";
+const EVT_SPELLBOOK := "spellbook";
 
 // actions of the secure trade window packet, see PKTBI_6F in the core
 const TRADE_ACTION_INIT := 0;
@@ -177,6 +178,67 @@ function waitForClient( id, types, timeout := 10 )
     endif
     return ev;
   endwhile
+endfunction
+
+// Waits for a speech event of the given client carrying the given text. The
+// clients hear each other and the shard talks at them, so the text is what tells
+// the wanted event from the noise.
+function wait_for_speech( id, text, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
+endfunction
+
+// Asserts a client is told nothing carrying the given text.
+//
+// The whole window is always paid, so it is kept to the round trip a wrongly
+// sent message would need rather than to a comfortable-looking couple of
+// seconds. Most callers have already waited out something else the core sends,
+// which proves it has sent everything it was going to.
+function no_speech_for( id, text, timeout := QUIET_SECS )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
+      continue;
+    endif
+    return ret_error( $"client {id} heard \"{text}\", which was not meant for it" );
+  endwhile
+  return 1;
+endfunction
+
+// Waits for a client to be told about its own character, which is how a test
+// knows a move it asked for has reached that client. Bounded by the deadline
+// rather than by each wait, so a stream of other events cannot stretch it.
+function wait_for_own_create( id, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_OWNCREATE or CInt( ev.id ) != id )
+      continue;
+    endif
+    return 1;
+  endwhile
+  return ret_error( $"client {id} never announced itself within {timeout}s" );
+endfunction
+
+// Reads events until none have come for a while. Only for putting the queue
+// back into a known state after something went wrong - it costs its whole
+// window every time it is called.
+function drain_events( quiet := QUIET_SECS )
+  var deadline := ReadMillisecondClock() + quiet * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( Wait_For_Event( POLL_INTERVAL ) )
+      deadline := ReadMillisecondClock() + quiet * 1000;
+    endif
+  endwhile
+  return 1;
 endfunction
 
 function waitForClients( types )

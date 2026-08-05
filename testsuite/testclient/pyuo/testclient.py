@@ -181,6 +181,15 @@ class TestBrain(brain.Brain):
         serial=arg.get('serial', None)
         self.client.houseCommand(int(arg['sub']), *args,
           serial = None if serial is None else int(serial))
+      elif todo=="cast":
+        # a book serial picks the "cast out of this book" form of the text
+        # command, and select the spellbook gump's route instead of either
+        bookserial=arg.get('bookserial', None)
+        self.client.castSpell(int(arg['spellid']),
+          bookserial = None if bookserial is None else int(bookserial),
+          select = bool(arg.get('select', 0)))
+      elif todo=="spellbook":
+        self.client.openSpellbook()
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -405,6 +414,10 @@ class PolServer:
           res["objs"][-1]["attackable"]=o.attackable
         if getattr(o,"notoriety",None) is not None:
           res["objs"][-1]["notoriety"]=o.notoriety
+        # mobiles carry no amount; for an item it is the stack size, except in
+        # a spellbook drawn the pre-AOS way, where it is the spell number
+        if getattr(o,"amount",None) is not None:
+          res["objs"][-1]["amount"]=o.amount
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:
@@ -514,6 +527,11 @@ class PolServer:
     elif ev.type==Event.EVT_HOUSE_REV:
       res['serial']=ev.serial
       res['revision']=ev.revision
+    elif ev.type==Event.EVT_SPELLBOOK:
+      res['serial']=ev.serial
+      res['graphic']=ev.graphic
+      res['firstspell']=ev.firstspell
+      res['contents']=ev.contents
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

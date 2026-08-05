@@ -1561,6 +1561,10 @@ class GeneralInfoPacket(Packet):
   SUB_LOGIN = 0x0f
   ## MegaCliLoc
   SUB_MEGACLILOC = 0x10
+  ## The contents of a spellbook the server opened
+  SUB_SPELLBOOK = 0x1b
+  ## Cast the spell picked out of a spellbook gump
+  SUB_SPELL_SELECT = 0x1c
   ## Send House Revision State
   SUB_HOUSE_REV = 0x1d
   ## Enable map-diff files
@@ -1611,6 +1615,9 @@ class GeneralInfoPacket(Packet):
                       - PARTY_MSG: text string
                       - PARTY_MEMBER_MSG: serial int, text string
                       - PARTY_LOOT_PERMISSION: canloot int
+                  - SUB_SPELL_SELECT:
+                    - spellid int: absolute spell number, so 1-64 for magery
+                      and 101 upwards for the other schools
     '''
     self.sub = sub
 
@@ -1639,6 +1646,11 @@ class GeneralInfoPacket(Packet):
       self.serial = args[0]
       self.listid = args[1]
       self.length = 5 + 8
+
+    elif self.sub == self.SUB_SPELL_SELECT:
+      checkArgLen(1)
+      self.spellid = args[0]
+      self.length = 5 + 4
 
     elif self.sub == self.SUB_PARTY:
       self.partycmd = args[0]
@@ -1693,6 +1705,10 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_MEGACLILOC:
       self.euint(self.serial)
       self.euint(self.listid)
+
+    elif self.sub == self.SUB_SPELL_SELECT:
+      self.eushort(2)
+      self.eushort(self.spellid)
 
     elif self.sub == self.SUB_PARTY:
       self.euchar(self.partycmd)
@@ -1791,6 +1807,18 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_MEGACLILOC:
       self.serial = self.duint()
       self.revision = self.duint()
+
+    elif self.sub == self.SUB_SPELLBOOK:
+      self.dushort()
+      self.serial = self.duint()
+      self.graphic = self.dushort()
+      # the first spell id of the book's school, so 1 for magery and 101 for
+      # necromancy - mysticism answers 678 rather than its own 301
+      self.firstspell = self.dushort()
+      # one bit per spell, the school's first spell in the low bit of byte 0
+      self.contents = []
+      for _ in range(0, 8):
+        self.contents.append(self.duchar())
 
     elif self.sub == self.SUB_HOUSE_REV:
       self.serial = self.duint()
@@ -1972,6 +2000,38 @@ class AOSTooltipPacket(Packet):
     self.eulen()
     for serial in self.serials:
       self.euint(serial)
+
+
+class TextCommandPacket(Packet):
+  ''' An extended command, see PKTIN_12 and UEXTMSGID in the core
+
+  Everything the client asks for as a string: the argument is ascii and null
+  terminated, and the core drops the whole packet when that terminator is not
+  the last byte.
+  '''
+
+  cmd = 0x12
+
+  ## Cast a spell out of a book: "spellid bookserial"
+  CMD_CASTSPELL1 = 0x27
+  ## Open the spellbook the character carries, no argument
+  CMD_SPELLBOOK = 0x43
+  ## Cast a spell by id alone: "spellid"
+  CMD_CASTSPELL2 = 0x56
+
+  def fill(self, subcmd, text=''):
+    '''!
+    @param subcmd int: The command, see CMD_ constants
+    @param text str: Its argument, without the terminator
+    '''
+    self.subcmd = subcmd
+    self.text = text
+    self.length = 4 + len(text) + 1
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.subcmd)
+    self.estring(self.text, len(self.text) + 1)
 
 
 class CustomHouseCommandPacket(Packet):

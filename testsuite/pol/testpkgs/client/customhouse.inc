@@ -325,19 +325,6 @@ function quit_design( id )
   return 1;
 endfunction
 
-// Reads events until none have come for a while. Only for putting the queue
-// back into a known state after something went wrong - it costs its whole
-// window every time it is called.
-function drain_events( quiet := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + quiet * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet * 1000;
-    endif
-  endwhile
-  return 1;
-endfunction
-
 // Makes the working design the one the house is really built from, and waits
 // for the client to be taken out of the editor. A commit ends the session the
 // same way a quit does - the character is put back on the front step and the

@@ -42,22 +42,7 @@ function speech_setup()
   return wait_for_own_create( 0 );
 endfunction
 
-// Waits for a speech event of the given client carrying the given text. The
-// clients hear each other and the shard talks at them, so the text is what tells
-// the wanted event from the noise.
-function wait_for_speech( id, text, timeout := 10 )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
-      continue;
-    endif
-    return ev;
-  endwhile
-  return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
-endfunction
-
-// Same, for text both clients are meant to hear: which of them is told first is
+// For text both clients are meant to hear: which of them is told first is
 // not fixed, so they have to be collected in one loop.
 function wait_for_speeches( text, timeout := 10 )
   var found := { 0, 0 };
@@ -123,24 +108,6 @@ function wait_for_speeches_like( prefix, timeout := 10 )
   return ret_error( $"client {missing} never heard anything starting with \"{prefix}\" within {timeout}s" );
 endfunction
 
-// Asserts a client is told nothing carrying the given text.
-//
-// The whole window is always paid, so it is kept to the round trip a wrongly
-// sent message would need rather than to a comfortable-looking couple of
-// seconds. Most callers have already waited out the same message on the other
-// client, which proves the core has sent everything it was going to.
-function no_speech_for( id, text, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
-      continue;
-    endif
-    return ret_error( $"client {id} heard \"{text}\", which was not meant for it" );
-  endwhile
-  return 1;
-endfunction
-
 // The same three waits for cliloc messages, which carry no text of their own:
 // what tells one from the next is the number the client would look up, so that
 // is what they match on. The arguments come along in ev.msg.
@@ -188,13 +155,5 @@ function no_cliloc_for( id, num, timeout := QUIET_SECS )
     endif
     return ret_error( $"client {id} got cliloc {num}, which was not meant for it" );
   endwhile
-  return 1;
-endfunction
-
-function wait_for_own_create( id )
-  var ev := waitForClient( id, { EVT_OWNCREATE } );
-  if ( !ev )
-    return ret_error( $"client {id} was not moved into place" );
-  endif
   return 1;
 endfunction

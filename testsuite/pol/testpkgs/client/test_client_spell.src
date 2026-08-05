@@ -1,0 +1,488 @@
+// do_cast: the three packets that reach it, the spellbook it insists on, and
+// the six refusals above the point where the spell is finally scheduled.
+//
+// A cast that goes through is answered with nothing at all - the spell is put
+// on a task and the script it names runs a moment later - so every case here
+// either waits for that script's record or waits for the refusal text and then
+// for a quiet period proving no script ran. The refusals are checked in the
+// order the core checks them, because each one hides the ones below it.
+//
+// The spells, the circles and the books all come from testpkgs/spell; this
+// package only drives them from a client.
+
+include "spellcast";
+
+program test_client_spell()
+  return spell_setup();
+endprogram
+
+// The plain text command, 0x12 subcommand 0x56, which carries the id alone.
+// The spell script runs attached to the caster and is told which spell it was.
+exported function cast_by_id( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  var cast := wait_for_cast();
+  if ( !cast )
+    return cast;
+  endif
+  if ( CInt( cast.spellid ) != SPELL_CIRCLE )
+    return ret_error( $"the spell script ran for spell {cast.spellid}, not {SPELL_CIRCLE}" );
+  endif
+  if ( CInt( cast.caster ) != char.serial )
+    return ret_error( $"the spell was cast by 0x{cast.caster:x}, not by the client character" );
+  endif
+  return 1;
+endfunction
+
+// The other text command, 0x12 subcommand 0x27, which names a book as well.
+// The core reads the id off the front of that string and never looks at the
+// rest, so a serial belonging to nothing casts just the same.
+exported function cast_by_id_and_book( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_SEVEN } );
+  if ( !book )
+    return book;
+  endif
+
+  cast_spell( 0, SPELL_SEVEN, bookserial := 0x40000000 );
+
+  var cast := wait_for_cast();
+  if ( !cast )
+    return cast;
+  endif
+  if ( CInt( cast.spellid ) != SPELL_SEVEN )
+    return ret_error( $"the spell script ran for spell {cast.spellid}, not {SPELL_SEVEN}" );
+  endif
+  return 1;
+endfunction
+
+// The spellbook gump's own route, 0xBF subcommand 0x1C. It carries the id as a
+// ushort and lands in the same do_cast as the two text commands.
+exported function cast_by_select( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_NECRO, { SPELL_NECRO } );
+  if ( !book )
+    return book;
+  endif
+
+  cast_spell( 0, SPELL_NECRO, select := 1 );
+
+  var cast := wait_for_cast();
+  if ( !cast )
+    return cast;
+  endif
+  if ( CInt( cast.spellid ) != SPELL_NECRO )
+    return ret_error( $"the spell script ran for spell {cast.spellid}, not {SPELL_NECRO}" );
+  endif
+  return 1;
+endfunction
+
+// A book held in the casting hand is looked in before the pack, and it is the
+// only layer the core looks at - the pack walk below it never runs for a
+// character holding one.
+exported function cast_from_held_book( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := equip_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  if ( book.layer != LAYER_BOOK_HAND )
+    return ret_error( $"the book went on layer {book.layer}, not {LAYER_BOOK_HAND}" );
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  return wait_for_cast() ? 1 : ret_error( "a spell in the held book was not cast" );
+endfunction
+
+// RequireSpellbooks is on, so a character carrying nothing knows nothing. The
+// refusal is a system message and no spell is scheduled.
+exported function cast_without_book( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := wait_for_speech( 0, MSG_UNKNOWN_SPELL );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// A book of the right school that has not been given the spell is no better
+// than no book at all, and neither is a book of another school that has.
+exported function cast_spell_not_in_book( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_SEVEN } );
+  if ( !book )
+    return book;
+  endif
+  var other := make_book( resmgn, BOOK_NECRO, { SPELL_NECRO } );
+  if ( !other )
+    return other;
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := wait_for_speech( 0, MSG_UNKNOWN_SPELL );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// knows_spell walks every book in the top level of the pack, not just the
+// first one it finds, so a spell in the second book is still known.
+exported function cast_from_second_book( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var first := make_book( resmgn, BOOK_MAGIC, { SPELL_SEVEN } );
+  if ( !first )
+    return first;
+  endif
+  var second := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !second )
+    return second;
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  return wait_for_cast() ? 1 : ret_error( "a spell in the second book was not cast" );
+endfunction
+
+// An id the table has a place for but no spell in. That branch answers before
+// the spellbook is ever consulted, so it is reached without carrying one.
+exported function cast_undefined_spell( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  cast_spell( 0, SPELL_UNDEFINED );
+
+  res := wait_for_speech( 0, MSG_NO_SUCH_SPELL );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// An id past the end of the table is dropped without a word. It is the one way
+// in that the player is told nothing about, which is what tells it apart from
+// the case above.
+exported function cast_past_the_table( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  cast_spell( 0, SPELL_PAST_END );
+
+  res := no_speech_for( 0, MSG_NO_SUCH_SPELL );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// Frozen is the first thing checked after the spell has been found, so it
+// answers even for a character who does not know the spell.
+exported function cast_while_frozen( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  char.frozen := 1;
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := wait_for_speech( 0, MSG_FROZEN );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// Paralyzed is checked next, and says something different.
+exported function cast_while_paralyzed( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  char.paralyzed := 1;
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := wait_for_speech( 0, MSG_PARALYZED );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// A no-cast region refuses a spell wherever it comes from. The check is on
+// where the caster stands, not on the spell, so a book that knows it makes no
+// difference - and spell_start() walks the character back out again, so a
+// failure here cannot follow the file down.
+exported function cast_in_nocast_region( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  res := stand_at( NOCAST_X, NOCAST_Y );
+  if ( !res )
+    return res;
+  endif
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := wait_for_speech( 0, MSG_NOCAST );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// A spell script is started attached to its caster, so a character is busy for
+// as long as one runs - and the core refuses to start a second while the first
+// is still going. Without that refusal schedule_spell's assertion would fire
+// and take the shard down, which is what makes this the branch worth pinning.
+exported function cast_while_busy( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE, SPELL_SEVEN } );
+  if ( !book )
+    return book;
+  endif
+
+  var held := spell_hold( 0, SPELL_CIRCLE );
+  if ( !held )
+    return held;
+  endif
+  if ( !char.active_skill )
+    spell_release();
+    return ret_error( "the held spell script left the caster free" );
+  endif
+
+  // the record of the first cast, so that the second one has nothing to leave
+  // behind that could be read as its own
+  EraseGlobalProperty( "#TestSpellCast" );
+  cast_spell( 0, SPELL_SEVEN );
+
+  res := wait_for_speech( 0, MSG_BUSY );
+  if ( !res )
+    spell_release();
+    return res;
+  endif
+  res := no_cast_for();
+  if ( !res )
+    spell_release();
+    return res;
+  endif
+  return spell_release();
+endfunction
+
+// The tilde command, the third way in. It is ordinary speech the core reads
+// before it is spoken - so the text never reaches anybody, not even the
+// speaker - and it lands in the same do_cast as the two packets above. Nothing
+// gates it: this client has no privileges at all and casts just the same.
+exported function cast_by_tilde( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  var text := $"~IN{SPELL_CIRCLE}";
+
+  say_text( 0, text );
+
+  var cast := wait_for_cast();
+  if ( !cast )
+    return cast;
+  endif
+  if ( CInt( cast.spellid ) != SPELL_CIRCLE )
+    return ret_error( $"the spell script ran for spell {cast.spellid}, not {SPELL_CIRCLE}" );
+  endif
+  return no_speech_for( 0, text );
+endfunction
+
+// It is the same do_cast, so the same refusals apply: a character carrying no
+// book is told it does not know the spell.
+exported function cast_by_tilde_without_book( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  say_text( 0, $"~IN{SPELL_CIRCLE}" );
+
+  res := wait_for_speech( 0, MSG_UNKNOWN_SPELL );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// A tilde text that is not a command is swallowed all the same: it is not
+// spoken, and unlike an unknown . command it is not answered either.
+exported function tilde_unknown_is_dropped( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  var text := "~ZZ nothing";
+
+  say_text( 0, text );
+
+  res := no_speech_for( 0, text );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// StartSpellEffect goes straight to the spell, skipping every check do_cast
+// makes - so the two refusals of USpell::cast itself are only reachable this
+// way. A spell that names no script is one of them.
+exported function effect_without_script( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  var started := StartSpellEffect( char, SPELL_NOSCRIPT );
+  if ( started != 1 )
+    return ret_error( $"StartSpellEffect answered {started}" );
+  endif
+
+  res := wait_for_speech( 0, MSG_NO_EFFECT );
+  if ( !res )
+    return res;
+  endif
+  return 1;
+endfunction
+
+// The other one: the region is checked again inside the cast, so a spell put
+// on a character standing in a no-cast region is refused even though nothing
+// on this route consulted do_cast's own check.
+exported function effect_in_nocast_region( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  res := stand_at( NOCAST_X, NOCAST_Y );
+  if ( !res )
+    return res;
+  endif
+
+  var started := StartSpellEffect( char, SPELL_CIRCLE );
+  if ( started != 1 )
+    return ret_error( $"StartSpellEffect answered {started}" );
+  endif
+
+  res := wait_for_speech( 0, MSG_NOCAST );
+  if ( !res )
+    return res;
+  endif
+  return no_cast_for();
+endfunction
+
+// The OnCast hook is called before anything else, so it sees the character and
+// the id even for a cast the core would go on to refuse.
+exported function cast_hook_is_called( unused resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+
+  cast_spell( 0, SPELL_PAST_END );
+
+  var deadline := ReadMillisecondClock() + CAST_TIMEOUT;
+  var call;
+  while ( ReadMillisecondClock() < deadline )
+    call := GetGlobalProperty( "#CastHookCall" );
+    if ( call )
+      break;
+    endif
+    Sleepms( CAST_POLL );
+  endwhile
+  if ( !call )
+    return ret_error( "the OnCast hook was never called" );
+  endif
+  if ( CInt( call.spellid ) != SPELL_PAST_END )
+    return ret_error( $"the hook was told spell {call.spellid}, not {SPELL_PAST_END}" );
+  endif
+  if ( CInt( call.character ) != char.serial )
+    return ret_error( $"the hook was told caster 0x{call.character:x}, not the client character" );
+  endif
+  return 1;
+endfunction
+
+// A true answer from the hook stops the cast where it stands: no spell, and
+// none of the core's own refusals either, so the player is told nothing.
+exported function cast_hook_cancels( resmgn )
+  var res := spell_start();
+  if ( !res )
+    return res;
+  endif
+  var book := make_book( resmgn, BOOK_MAGIC, { SPELL_CIRCLE } );
+  if ( !book )
+    return book;
+  endif
+  SetGlobalProperty( "#CastHookCancel", 1 );
+
+  cast_spell( 0, SPELL_CIRCLE );
+
+  res := no_cast_for();
+  if ( !res )
+    return res;
+  endif
+  return no_speech_for( 0, MSG_UNKNOWN_SPELL );
+endfunction
