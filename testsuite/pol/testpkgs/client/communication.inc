@@ -45,6 +45,8 @@ const EVT_HOUSE_DESIGN := "house_design";
 const EVT_HOUSE_EDIT := "house_edit";
 const EVT_HOUSE_REV := "house_rev";
 const EVT_SPELLBOOK := "spellbook";
+const EVT_MAP := "map";
+const EVT_MAP_PIN := "map_pin";
 
 // actions of the secure trade window packet, see PKTBI_6F in the core
 const TRADE_ACTION_INIT := 0;

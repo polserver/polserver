@@ -1,0 +1,23 @@
+// The Map class method script, registered in ../syshook.cfg. It is consulted
+// for any method name the core does not know, on every map of the shard, so its
+// exports are named after this package and do nothing.
+
+program Install()
+  return 1;
+endprogram
+
+// Hands back what the hook was given, so a case can tell that the object it
+// called the method on is the one that arrived here.
+exported function MapProbe( mp, arg )
+  var res := struct{};
+  res.+serial := mp.serial;
+  res.+pins := mp.getpins().size();
+  res.+arg := arg;
+  return res;
+endfunction
+
+// The same name the itemdesc method script of testmap_method exports, for which
+// of the two answers a map carrying both.
+exported function MapWhereDefined( unused mp )
+  return "syshook";
+endfunction

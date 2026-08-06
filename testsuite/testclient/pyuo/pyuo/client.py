@@ -641,6 +641,9 @@ class Client(threading.Thread):
     ## Serial of the house whose design is being edited, None when not editing
     self.house = None
 
+    ## The last map packet seen per map serial, by serial
+    self.maps = {}
+
   @status('disconnected')
   def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
@@ -1049,6 +1052,19 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     elif isinstance(pkt, packets.SecureTradingPacket):
       self.handleSecureTradingPacket(pkt)
+    elif isinstance(pkt, packets.MapPacket):
+      # MapNewPacket is a MapPacket, so this arm takes both 0x90 and 0xf5
+      self.log.info("Map 0x%X: %d,%d-%d,%d on a %dx%d gump, facet %s",
+          pkt.serial, pkt.xwest, pkt.ynorth, pkt.xeast, pkt.ysouth,
+          pkt.gumpwidth, pkt.gumpheight, pkt.facetid)
+      self.maps[pkt.serial] = pkt
+      self.brain.event(brain.Event(brain.Event.EVT_MAP, serial=pkt.serial,
+        gumpart=pkt.gumpart, xwest=pkt.xwest, ynorth=pkt.ynorth, xeast=pkt.xeast,
+        ysouth=pkt.ysouth, gumpwidth=pkt.gumpwidth, gumpheight=pkt.gumpheight,
+        facetid=pkt.facetid))
+    elif isinstance(pkt, packets.MapPinPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_MAP_PIN, serial=pkt.serial,
+        action=pkt.type, pinidx=pkt.pinidx, x=pkt.x, y=pkt.y))
     elif isinstance(pkt, packets.CustomHouseDesignPacket):
       self.log.info("House 0x%X design rev %d: %d tiles in %d planes",
           pkt.serial, pkt.revision, pkt.numtiles, pkt.planecount)
@@ -1424,10 +1440,15 @@ class Client(threading.Thread):
     mob.equip[pkt.layer] = item
 
   @logincomplete
-  def sendVersion(self):
-    ''' Sends client version to server, should not send it twice '''
+  def sendVersion(self, version=None):
+    '''! Sends client version to server
+    @param version string: what to claim to be, self.VERSION by default.
+                           The core re-reads the version every time and only
+                           ever adds client type flags, so a version sent after
+                           login raises the client's feature level for good.
+    '''
     po = packets.ClientVersionPacket()
-    po.fill(self.VERSION)
+    po.fill(self.VERSION if version is None else version)
     self.queue(po)
 
   @logincomplete
@@ -1603,6 +1624,20 @@ class Client(threading.Thread):
     '''
     po = packets.CustomHouseCommandPacket()
     po.fill(self.player.serial if serial is None else serial, sub, *args)
+    self.queue(po)
+
+  @logincomplete
+  def mapPin(self, serial, type, pinidx=0, x=0, y=0):
+    '''! Sends a map pin command
+    @param serial int: the map to plot on. The core looks it up among the items
+                       the player can reach and ignores anything else.
+    @param type int: one of the MapPinPacket.TYPE_* constants
+    @param pinidx int: which pin insert, change and remove address
+    @param x int: gump pixel coordinates, not world ones
+    @param y int
+    '''
+    po = packets.MapPinPacket()
+    po.fill(serial, type, pinidx, x, y)
     self.queue(po)
 
   @logincomplete

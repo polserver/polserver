@@ -1,0 +1,116 @@
+// The Map class method script: a shard can hang extra methods on every map by
+// naming a script under SystemMethod in a syshook.cfg.
+//
+// It is reached only for names the core does not know, and only when the script
+// exports a function taking the object plus the call's own arguments - so a
+// wrong parameter count is the same as no method at all. A method script named
+// by an itemdesc entry is consulted before it.
+//
+// The scripts are mapmethod.src and mapmethod_itemdesc.src; syshook.cfg
+// registers the first and itemdesc.cfg the second, on testmap_method alone.
+use uo;
+use os;
+
+include "testutil";
+
+const BASE_X := 100;
+const BASE_Y := 100;
+
+// itemdesc.cfg
+const TESTMAP := 0x200015;
+const TESTMAP_METHOD := 0x200017;
+const COIN := 0x0EED;
+
+program testitemmapmethod()
+  return 1;
+endprogram
+
+// The hook is handed the map itself, not a copy of it: it reads back the serial
+// and the pins of the map the method was called on, and it is given the call's
+// own argument after that.
+exported function map_method_hook_is_called( resmngr )
+  var mp := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, TESTMAP );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( 10, 20 );
+  mp.appendpin( 30, 40 );
+
+  var res := mp.MapProbe( 42 );
+  if ( res == error )
+    return ret_error( $"the method answered {res.errortext}" );
+  endif
+  if ( res.serial != mp.serial )
+    return ret_error( $"the hook was handed 0x{res.serial:x}, not the map" );
+  endif
+  if ( res.pins != 2 )
+    return ret_error( $"the hook saw {res.pins} pins on the map, not 2" );
+  endif
+  if ( res.arg != 42 )
+    return ret_error( $"the hook was given {res.arg}, not the argument" );
+  endif
+
+  return 1;
+endfunction
+
+// A method script named by the itemdesc wins over the class one. Only
+// testmap_method carries one, so the same call on a plain test map answers with
+// the class script.
+exported function map_method_itemdesc_wins( resmngr )
+  var own := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, TESTMAP_METHOD );
+  if ( !own )
+    return own;
+  endif
+  var plain := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 1, TESTMAP );
+  if ( !plain )
+    return plain;
+  endif
+
+  var res := own.MapWhereDefined();
+  if ( res != "itemdesc" )
+    return ret_error( $"the map with a method script of its own answered {res}" );
+  endif
+  res := plain.MapWhereDefined();
+  if ( res != "syshook" )
+    return ret_error( $"the map without one answered {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// What the hook does not cover is unchanged: a name it does not export is still
+// no method, the core's own methods are still the core's, and a map is the only
+// thing the Map script is asked about.
+exported function map_method_leaves_the_rest( resmngr )
+  var mp := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, TESTMAP );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( 10, 20 );
+
+  var res := mp.MapNoSuchMethod();
+  if ( res != error )
+    return ret_error( $"a method nothing exports answered {res}" );
+  endif
+  // the same name the hook does export, called with an argument it has no
+  // function for - a method script is found by parameter count as well
+  res := mp.MapProbe();
+  if ( res != error )
+    return ret_error( $"the probe answered {res} when called with no argument" );
+  endif
+  var pins := mp.getpins();
+  if ( pins.size() != 1 )
+    return ret_error( "the core's own map methods no longer answer" );
+  endif
+
+  var coin := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 2, COIN );
+  if ( !coin )
+    return coin;
+  endif
+  res := coin.MapProbe( 42 );
+  if ( res != error )
+    return ret_error( $"an item that is no map answered {res}" );
+  endif
+
+  return 1;
+endfunction

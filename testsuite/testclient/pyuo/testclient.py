@@ -190,6 +190,11 @@ class TestBrain(brain.Brain):
           select = bool(arg.get('select', 0)))
       elif todo=="spellbook":
         self.client.openSpellbook()
+      elif todo=="map_pin":
+        self.client.mapPin(int(arg['serial']), int(arg['action']),
+          int(arg.get('pinidx', 0)), int(arg.get('x', 0)), int(arg.get('y', 0)))
+      elif todo=="client_version":
+        self.client.sendVersion(arg)
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -532,6 +537,23 @@ class PolServer:
       res['graphic']=ev.graphic
       res['firstspell']=ev.firstspell
       res['contents']=ev.contents
+    elif ev.type==Event.EVT_MAP:
+      res['serial']=ev.serial
+      res['gumpart']=ev.gumpart
+      res['xwest']=ev.xwest
+      res['ynorth']=ev.ynorth
+      res['xeast']=ev.xeast
+      res['ysouth']=ev.ysouth
+      res['gumpwidth']=ev.gumpwidth
+      res['gumpheight']=ev.gumpheight
+      # only the 0xf5 packet carries one, so this says which one arrived
+      res['facetid']=ev.facetid
+    elif ev.type==Event.EVT_MAP_PIN:
+      res['serial']=ev.serial
+      res['action']=ev.action
+      res['pinidx']=ev.pinidx
+      res['x']=ev.x
+      res['y']=ev.y
     else:
       raise NotImplementedError("Unknown event {}",format(ev.type))
 

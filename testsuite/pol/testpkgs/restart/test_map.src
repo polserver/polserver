@@ -86,3 +86,58 @@ exported function load_save_map()
   endif
   return 1;
 endfunction
+
+// The four corners are four separate members with nothing tying them together,
+// so a script may leave a map whose west edge is east of its east edge - but
+// what is written out is the normalised range, so the two come back the other
+// way round. Also: an editable flag turned off against an itemdesc that
+// defaults to on, which the case above cannot show, and that the pin list keeps
+// its order rather than just its size.
+exported function load_save_map_range()
+  if ( testrun == 1 )
+    var item := CreateItemAtLocation( 12, 11, -5, "restart_test_map", 1, "britannia2" );
+    if ( !item )
+      return ret_error( $"failed to create item {item}" );
+    endif
+    item.name := "load_save_map_range";
+    SetGlobalProperty( "test_item_storage_map_range", item.serial );
+
+    item.xwest := 100;
+    item.xeast := 10;
+    item.ynorth := 200;
+    item.ysouth := 20;
+    item.editable := 0;
+    item.appendpin( 9, 8 );
+    item.appendpin( 5, 6 );
+    item.appendpin( 7, 4 );
+  else
+    var serial := GetGlobalProperty( "test_item_storage_map_range" );
+    if ( !serial )
+      return ret_error( "Global property not found" );
+    endif
+    var item := SystemFindObjectBySerial( serial );
+    if ( !item )
+      return ret_error( $"Item with serial {serial:#x} does not exists: {item})" );
+    endif
+
+    // written as nw and se, so they are the other way round now
+    if ( item.xwest != 10 || item.xeast != 100 )
+      return ret_error( $"x came back as {item.xwest}/{item.xeast}, wanted 10/100" );
+    endif
+    if ( item.ynorth != 20 || item.ysouth != 200 )
+      return ret_error( $"y came back as {item.ynorth}/{item.ysouth}, wanted 20/200" );
+    endif
+    if ( item.editable != 0 )
+      return ret_error( $"editable came back as {item.editable}" );
+    endif
+
+    var text := "";
+    foreach pin in ( item.getpins() )
+      text := text + $"{pin.x},{pin.y};";
+    endforeach
+    if ( text != "9,8;5,6;7,4;" )
+      return ret_error( $"pins came back as {text}" );
+    endif
+  endif
+  return 1;
+endfunction
