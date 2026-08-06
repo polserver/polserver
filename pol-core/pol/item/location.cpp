@@ -44,8 +44,6 @@ std::string Location::describe() const
     return fmt::format( "storage root \"{}\"", alt->key.get() );
   if ( const auto* alt = get_if<Intrinsic>() )
     return fmt::format( "intrinsic {}", alt->kind == IntrinsicKind::Weapon ? "weapon" : "shield" );
-  if ( holds<Absorbed>() )
-    return "absorbed";
   return "destroyed";
 }
 
@@ -148,8 +146,6 @@ bool validate( const Item& item, const Location& from, const Location& to )
 {
   if ( from.holds<Destroyed>() )
     return reject( item, from, to, "the item is destroyed" );
-  if ( from.holds<Absorbed>() )
-    return reject( item, from, to, "the item has been absorbed" );
   if ( from.holds<Intrinsic>() )
     return reject( item, from, to, "intrinsic equipment is shared and cannot be moved" );
 
@@ -287,8 +283,7 @@ void attach_to_cursor( Item& item, Mobile::Character& holder, const Core::Gotten
 }
 
 /// File the item in whichever registry the target names. The alternatives that name none --
-/// Detached, Intrinsic, Absorbed -- have nothing to do here; relocate() records the location either
-/// way.
+/// Detached and Intrinsic -- have nothing to do here; relocate() records the location either way.
 void attach( Item& item, const Location& to )
 {
   if ( to.holds<InWorld>() )

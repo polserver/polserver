@@ -144,12 +144,6 @@ struct Intrinsic
   bool operator==( const Intrinsic& other ) const { return kind == other.kind; }
 };
 
-/// The item became a bit in a spellbook's bitwise_contents. Terminal.
-struct Absorbed
-{
-  bool operator==( const Absorbed& ) const { return true; }
-};
-
 /// destroy() has been called; the objecthash still holds it until Reap(). Terminal.
 struct Destroyed
 {
@@ -178,7 +172,6 @@ public:
   Location( OnCursor alt ) : alt_( alt ) {}
   Location( InStorage alt ) : alt_( std::move( alt ) ) {}
   Location( Intrinsic alt ) : alt_( alt ) {}
-  Location( Absorbed alt ) : alt_( alt ) {}
   Location( Destroyed alt ) : alt_( alt ) {}
 
   template <typename T>
@@ -227,7 +220,7 @@ public:
 
 private:
   std::variant<Preparing, Detached, InWorld, InContainer, Equipped, OnCorpse, OnCursor, InStorage,
-               Intrinsic, Absorbed, Destroyed>
+               Intrinsic, Destroyed>
       alt_;
 };
 
@@ -298,11 +291,10 @@ void abandon( Item& item );
  * Deliberately does *not* restart the decay timer or tell any client. Doors and boats move items
  * without either; see move_item() for the version that does both.
  *
- * @returns false only if the item is in a state that cannot move at all -- destroyed, intrinsic,
- *          absorbed, or filed in a storage area under a key that no longer names it. The
- *          destination itself can only be refused for want of a realm, so callers do not need the
- *          recovery paths that a relocate() into a container needs. On refusal the item is
- *          untouched, position included.
+ * @returns false only if the item is in a state that cannot move at all -- destroyed, intrinsic, or
+ *          filed in a storage area under a key that no longer names it. The destination itself can
+ *          only be refused for want of a realm, so callers do not need the recovery paths that a
+ *          relocate() into a container needs. On refusal the item is untouched, position included.
  */
 [[nodiscard]] bool place_at( Item& item, const Core::Pos4d& newpos );
 

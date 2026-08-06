@@ -148,9 +148,9 @@ void check_forward( Sweep& sweep, Item& item )
       sweep.note( item, fmt::format( "storage area does not file it under \"{}\"",
                                      in_storage->key.get() ) );
   }
-  // Preparing, Detached, Intrinsic, Absorbed and Destroyed name no registry, so there is nothing
-  // to confirm here. Belonging to none of them is a legal answer, and the backward pass is what
-  // catches one of them holding on anyway.
+  // Preparing, Detached, Intrinsic and Destroyed name no registry, so there is nothing to confirm
+  // here. Belonging to none of them is a legal answer, and the backward pass is what catches one
+  // of them holding on anyway.
 }
 
 void check_zones( Sweep& sweep )
