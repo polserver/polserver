@@ -2404,6 +2404,81 @@ class HealthBarStatusUpdate(Packet):
     self.color = self.dushort()
     self.flags = self.duchar()
 
+
+class MapPinPacket(Packet):
+  ''' A pin on a map, both directions: the server sends the pins a map already
+  carries when it is opened, the client sends the changes the player makes '''
+
+  cmd = 0x56
+  length = 11
+
+  ## Append a pin at the end of the course
+  TYPE_ADD = 1
+  ## Insert a pin before the one at pinidx
+  TYPE_INSERT = 2
+  ## Move the pin at pinidx
+  TYPE_CHANGE = 3
+  ## Drop the pin at pinidx
+  TYPE_REMOVE = 4
+  ## Drop every pin
+  TYPE_REMOVE_ALL = 5
+  ## Ask to start or stop plotting
+  TYPE_TOGGLE_EDIT = 6
+  ## The server's answer to a toggle, pinidx carries the new plotting state
+  TYPE_TOGGLE_RESPONSE = 7
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.type = self.duchar()
+    self.pinidx = self.duchar()
+    self.x = self.dushort()
+    self.y = self.dushort()
+
+  def fill(self, serial, type, pinidx=0, x=0, y=0):
+    self.serial = serial
+    self.type = type
+    self.pinidx = pinidx
+    self.x = x
+    self.y = y
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.euchar(self.type)
+    self.euchar(self.pinidx)
+    self.eushort(self.x)
+    self.eushort(self.y)
+
+
+class MapPacket(Packet):
+  ''' The map gump, sent when a map item is used. Clients before 7.0.13.0 get
+  this one; newer ones get 0xf5, which carries the facet as well '''
+
+  cmd = 0x90
+  length = 19
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    ## always 0x139d, the gump art the client draws the map on
+    self.gumpart = self.dushort()
+    self.xwest = self.dushort()
+    self.ynorth = self.dushort()
+    self.xeast = self.dushort()
+    self.ysouth = self.dushort()
+    self.gumpwidth = self.dushort()
+    self.gumpheight = self.dushort()
+    self.facetid = None
+
+
+class MapNewPacket(MapPacket):
+  ''' The map gump for clients from 7.0.13.0 on '''
+
+  cmd = 0xf5
+  length = 21
+
+  def decodeChild(self):
+    super().decodeChild()
+    self.facetid = self.dushort()
+
 ################################################################################
 # Build packet list when this module is imported, must stay at the end
 ################################################################################

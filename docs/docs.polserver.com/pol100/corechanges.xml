@@ -18,6 +18,8 @@ location now wins in every case.</change>
 		<entry>
 			<date>08-05-2026</date>
 			<author>Turley:</author>
+			<change type="Fixed">map pins from a client were bounded against the map's world area instead of its gump size, refusing valid pins on a map smaller than its gump and accepting pins outside a map larger than it</change>
+			<change type="Fixed">using a map whose gump or whose world area is empty on either axis divided by zero while converting its pins, such a map is not sent to the client anymore</change>
 			<change type="Fixed">Spellbook.addspell()/hasspell()/removespell() accepted a spellid of another school or past the 64 spells a book holds, wrapping it onto a spell of its own school</change>
 			<change type="Fixed">uo::GetSpellDifficulty/StartSpellEffect/ConsumeReagents/SpeakPowerWords and vitals::ConsumeMana read out-of-bounds for a spellid one past the highest defined spell</change>
 			<change type="Fixed">uo::ConsumeReagents consumed the reagents it had already found when a later one was missing</change>

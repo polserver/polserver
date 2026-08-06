@@ -1,0 +1,11 @@
+// The method script of testmap_method alone, named by its itemdesc entry. A
+// script named there is consulted before the class method script of
+// ../syshook.cfg, which is what MapWhereDefined is here to show.
+
+program Install()
+  return 1;
+endprogram
+
+exported function MapWhereDefined( unused mp )
+  return "itemdesc";
+endfunction

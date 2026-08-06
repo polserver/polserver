@@ -1,0 +1,558 @@
+// handle_map_pin: the six commands a client may send about a map, the plotting
+// gate in front of five of them, and the three things it checks before it will
+// look at a map at all.
+//
+// Only a toggle is answered. Every other command is applied or dropped in
+// silence, so each case sends what it wants to test, settles the connection
+// with a toggle pair, and then reads the map's pin list from script - the pin
+// list is the only readout there is.
+//
+// Coordinates on the wire are gump pixels. The map these cases build is 160
+// tiles across an 80 pixel gump, so a pin comes back at twice its offset plus
+// the west edge.
+
+include "map";
+
+program test_client_map_pin()
+  return map_setup();
+endprogram
+
+// A pin lands where gumpToWorld puts it, which is not where the client named.
+exported function pin_add_plots_pin( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_ADD, mp, 0, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var x := gump_to_world( 40 );
+  var y := gump_to_world( 30, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var text := map_pin_text( mp );
+  if ( text != $"{x},{y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// Plotting has to be turned on first: a client that never toggled is ignored.
+exported function pin_add_needs_plotting( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  send_pin( MAP_ADD, mp, 0, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != "" )
+    return ret_error( $"a pin was plotted without plotting: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// The last pixel of the gump is inside it and the first one past it is not, so
+// nothing a client sends can be scaled into a coordinate outside the area the
+// map stands for.
+exported function pin_add_at_gump_edge( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_ADD, mp, 0, MAP_GUMPWIDTH - 1, MAP_GUMPHEIGHT - 1 );
+  send_pin( MAP_ADD, mp, 0, MAP_GUMPWIDTH, 0 );
+  send_pin( MAP_ADD, mp, 0, 0, MAP_GUMPHEIGHT );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var x := gump_to_world( MAP_GUMPWIDTH - 1 );
+  var y := gump_to_world( MAP_GUMPHEIGHT - 1, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var text := map_pin_text( mp );
+  if ( text != $"{x},{y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+  if ( x > MAP_EAST || y > MAP_SOUTH )
+    return ret_error( $"the last pixel of the gump landed at {x},{y}, outside the map" );
+  endif
+
+  return 1;
+endfunction
+
+// A pixel well past the gump is refused however small the map's own area is
+// against it. This used to be accepted - the check compared the pixel against
+// the area's width in *tiles* - and 150 here scaled to a world coordinate
+// outside both the map and the realm.
+exported function pin_add_out_of_gump( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_ADD, mp, 0, 150, 10 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != "" )
+    return ret_error( $"a pin outside the gump was plotted: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// The other way round: a map standing for less ground than its gump has pixels.
+// The whole gump is still plottable - the check used to bound the pixel by the
+// area's width in tiles, so on a map like this one everything but the first few
+// pixels was silently dropped from an ordinary client.
+exported function pin_add_small_area( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  // 20 tiles across the same 80 pixel gump, so four pixels to the tile
+  mp.xeast := MAP_WEST + 20;
+  mp.ysouth := MAP_NORTH + 20;
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_ADD, mp, 0, 60, 60 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var x := gump_to_world( 60, MAP_WEST, MAP_WEST + 20 );
+  var y := gump_to_world( 60, MAP_NORTH, MAP_NORTH + 20, MAP_GUMPHEIGHT );
+  var text := map_pin_text( mp );
+  if ( text != $"{x},{y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function pin_insert_at_index( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  mp.appendpin( PIN2_X, PIN2_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_INSERT, mp, 1, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var x := gump_to_world( 40 );
+  var y := gump_to_world( 30, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN1_X},{PIN1_Y};{x},{y};{PIN2_X},{PIN2_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// Insert, change and remove all address a pin by index, and the highest one
+// they take is the last pin - unlike the script method, which lets an insert
+// name the position one past the end.
+exported function pin_insert_bad_index( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_INSERT, mp, 1, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN1_X},{PIN1_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function pin_change_moves_pin( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  mp.appendpin( PIN2_X, PIN2_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_CHANGE, mp, 0, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var x := gump_to_world( 40 );
+  var y := gump_to_world( 30, MAP_NORTH, MAP_SOUTH, MAP_GUMPHEIGHT );
+  var text := map_pin_text( mp );
+  if ( text != $"{x},{y};{PIN2_X},{PIN2_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function pin_change_bad_index( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_CHANGE, mp, 1, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN1_X},{PIN1_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function pin_remove_drops_pin( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  mp.appendpin( PIN2_X, PIN2_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_REMOVE, mp, 0 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN2_X},{PIN2_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function pin_remove_bad_index( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+
+  send_pin( MAP_REMOVE, mp, 1 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN1_X},{PIN1_Y};" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// Remove-all carries no index and no coordinate, so the plotting gate is the
+// only thing in front of it.
+exported function pin_remove_all_clears( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+  mp.appendpin( PIN1_X, PIN1_Y );
+  mp.appendpin( PIN2_X, PIN2_Y );
+
+  // still refused while the map is not plotting
+  send_pin( MAP_REMOVE_ALL, mp );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+  var text := map_pin_text( mp );
+  if ( text != $"{PIN1_X},{PIN1_Y};{PIN2_X},{PIN2_Y};" )
+    return ret_error( $"pins were cleared without plotting: {text}" );
+  endif
+
+  res := start_plotting( mp );
+  if ( !res )
+    return res;
+  endif
+  send_pin( MAP_REMOVE_ALL, mp );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+  text := map_pin_text( mp );
+  if ( text != "" )
+    return ret_error( $"pins survived a remove all: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// A map whose itemdesc says it may not be edited answers nothing at all, not
+// even a toggle - the check sits above the whole switch.
+exported function pin_not_editable( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var locked := make_map( resmgn, TESTMAP_LOCKED );
+  if ( !locked )
+    return locked;
+  endif
+  locked.appendpin( PIN1_X, PIN1_Y );
+
+  // an editable map to settle on, since the locked one will not answer
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  send_pin( MAP_TOGGLE_EDIT, locked );
+  send_pin( MAP_ADD, locked, 0, 40, 30 );
+  send_pin( MAP_REMOVE_ALL, locked );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( locked );
+  if ( text != $"{PIN1_X},{PIN1_Y};" )
+    return ret_error( $"a locked map was edited: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// The serial names an item the character cannot reach, so there is nothing to
+// plot on.
+exported function pin_out_of_reach( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var far := resmgn.CreateItemAtLocation( MAP_X + 60, MAP_Y, 0, TESTMAP );
+  if ( !far )
+    return ret_error( $"could not create the far map: {far}" );
+  endif
+  far.gumpwidth := MAP_GUMPWIDTH;
+  far.gumpheight := MAP_GUMPHEIGHT;
+  far.xwest := MAP_WEST;
+  far.ynorth := MAP_NORTH;
+  far.xeast := MAP_EAST;
+  far.ysouth := MAP_SOUTH;
+
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  send_pin( MAP_TOGGLE_EDIT, far );
+  send_pin( MAP_ADD, far, 0, 40, 30 );
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+
+  var text := map_pin_text( far );
+  if ( text != "" )
+    return ret_error( $"a map out of reach was plotted on: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// The serial names an item the character can reach that is not a map. Every
+// field the handler would read lives past the end of a plain item, so this used
+// to be applied to whatever those bytes happened to be; the class is checked
+// now. The settle afterwards is the real assertion - it says the shard is still
+// answering.
+exported function pin_serial_is_not_a_map( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var coin := resmgn.CreateItemInContainer( char.backpack, MAP_NOT_A_MAP );
+  if ( !coin )
+    return ret_error( $"could not create a coin: {coin}" );
+  endif
+
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  send_pin( MAP_TOGGLE_EDIT, coin );
+  send_pin( MAP_ADD, coin, 0, 40, 30 );
+  send_pin( MAP_INSERT, coin, 0, 40, 30 );
+  send_pin( MAP_CHANGE, coin, 0, 40, 30 );
+  send_pin( MAP_REMOVE, coin, 0 );
+  send_pin( MAP_REMOVE_ALL, coin );
+
+  res := pin_settle( mp );
+  if ( !res )
+    return res;
+  endif
+  if ( coin.objtype != MAP_NOT_A_MAP )
+    return ret_error( $"the coin became a {coin.objtype}" );
+  endif
+
+  return 1;
+endfunction
+
+// A toggle flips the state and says which way it went, in the byte that carries
+// the pin index everywhere else. The coordinates it carries are echoed back
+// untouched.
+exported function pin_toggle_reports_state( resmgn )
+  var res := map_start();
+  if ( !res )
+    return res;
+  endif
+  var mp := make_map( resmgn );
+  if ( !mp )
+    return mp;
+  endif
+
+  send_pin( MAP_TOGGLE_EDIT, mp, 0, 7, 9 );
+  var ev := wait_for_pin( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.action ) != MAP_TOGGLE_RESPONSE )
+    return ret_error( $"answered with action {ev.action}" );
+  endif
+  if ( CInt( ev.pinidx ) != 1 )
+    return ret_error( $"plotting came back as {ev.pinidx}, wanted 1" );
+  endif
+  if ( CInt( ev.x ) != 7 || CInt( ev.y ) != 9 )
+    return ret_error( $"the coordinates came back as {ev.x},{ev.y}" );
+  endif
+
+  send_pin( MAP_TOGGLE_EDIT, mp );
+  ev := wait_for_pin( mp );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.pinidx ) != 0 )
+    return ret_error( $"plotting came back as {ev.pinidx}, wanted 0" );
+  endif
+
+  return 1;
+endfunction

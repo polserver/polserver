@@ -170,7 +170,9 @@ class Event:
   EVT_HOUSE_EDIT = 24
   EVT_HOUSE_REV = 25
   EVT_SPELLBOOK = 26
-  EVT_OUT_OF_RANGE_OBJ = 27
+  EVT_MAP = 27
+  EVT_MAP_PIN = 28
+  EVT_OUT_OF_RANGE_OBJ = 29
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -294,3 +296,7 @@ class Event:
       return "house_rev"
     elif self.type==Event.EVT_SPELLBOOK:
       return "spellbook"
+    elif self.type==Event.EVT_MAP:
+      return "map"
+    elif self.type==Event.EVT_MAP_PIN:
+      return "map_pin"

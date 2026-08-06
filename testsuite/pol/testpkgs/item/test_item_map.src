@@ -1,0 +1,463 @@
+// The Map item class from the script side: the pin list and its four methods,
+// the eight members that describe the gump and the world area it stands for,
+// and what a copy of a map and a plain item make of them. The 0x56 protocol
+// that lets a client plot pins is covered from testpkgs/client.
+use uo;
+use os;
+
+include "testutil";
+
+const BASE_X := 100;
+const BASE_Y := 100;
+
+// itemdesc.cfg
+const TESTMAP := 0x200015;
+const TESTMAP_LOCKED := 0x200016;
+const CONTAINER := 0x200001;
+const COIN := 0x0EED;
+
+// britannia is 192x192, so this coordinate is outside it
+const OUT_OF_REALM := 500;
+
+program testitemmap()
+  return 1;
+endprogram
+
+// A map at BASE_X/BASE_Y carrying the pins passed as {x,y} pairs.
+function make_map( resmngr, pins := array{}, objtype := TESTMAP )
+  var mp := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, objtype );
+  if ( !mp )
+    return mp;
+  endif
+  foreach pin in pins
+    var res := mp.appendpin( pin[1], pin[2] );
+    if ( !res )
+      return ret_error( $"appendpin {pin[1]},{pin[2]} failed: {res}" );
+    endif
+  endforeach
+  return mp;
+endfunction
+
+// The whole pin list as one string, so a list can be asserted in one go and
+// says what it holds when it fails.
+function pin_text( mp )
+  var text := "";
+  foreach pin in ( mp.getpins() )
+    text := text + $"{pin.x},{pin.y};";
+  endforeach
+  return text;
+endfunction
+
+exported function map_pins_empty( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  var pins := mp.getpins();
+  var kind := TypeOf( pins );
+  if ( kind != "Array" )
+    return ret_error( $"getpins returned a {kind}" );
+  endif
+  var count := pins.size();
+  if ( count != 0 )
+    return ret_error( $"a new map has {count} pins" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_pins_append( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.appendpin( 10, 20 );
+  if ( res != 1 )
+    return ret_error( $"appendpin returned {res}" );
+  endif
+  mp.appendpin( 30, 40 );
+  mp.appendpin( 50, 60 );
+
+  // appended in call order, and each pin is a struct of x and y
+  var text := pin_text( mp );
+  if ( text != "10,20;30,40;50,60;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_pins_insert( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 }, { 30, 40 } } );
+  if ( !mp )
+    return mp;
+  endif
+
+  // index 0 is the front
+  var res := mp.insertpin( 0, 1, 2 );
+  if ( res != 1 )
+    return ret_error( $"insertpin at the front returned {res}" );
+  endif
+
+  // and in the middle everything from that index on moves up
+  mp.insertpin( 2, 3, 4 );
+
+  // the highest index a pin may be inserted at is the number of pins, which
+  // appends - unlike erasepin, whose highest is one less
+  mp.insertpin( 4, 5, 6 );
+
+  var text := pin_text( mp );
+  if ( text != "1,2;10,20;3,4;30,40;5,6;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_pins_insert_bad_index( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 }, { 30, 40 } } );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.insertpin( 3, 1, 2 );
+  var text := res.errortext;
+  if ( text != "Parameter 0 value 3 out of expected range of [0..2]" )
+    return ret_error( $"wrong error: '{text}'" );
+  endif
+
+  // and nothing was inserted
+  text := pin_text( mp );
+  if ( text != "10,20;30,40;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_pins_erase( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 }, { 30, 40 }, { 50, 60 } } );
+  if ( !mp )
+    return mp;
+  endif
+
+  // erasing in the middle shifts the rest down
+  var res := mp.erasepin( 1 );
+  if ( res != 1 )
+    return ret_error( $"erasepin returned {res}" );
+  endif
+
+  var text := pin_text( mp );
+  if ( text != "10,20;50,60;" )
+    return ret_error( $"wrong pins after erasing the middle: {text}" );
+  endif
+
+  mp.erasepin( 1 );
+  mp.erasepin( 0 );
+  text := pin_text( mp );
+  if ( text != "" )
+    return ret_error( $"wrong pins after erasing them all: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_pins_erase_bad_index( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 }, { 30, 40 } } );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.erasepin( 2 );
+  var text := res.errortext;
+  if ( text != "Parameter 0 value 2 out of expected range of [0..1]" )
+    return ret_error( $"wrong error: '{text}'" );
+  endif
+
+  text := pin_text( mp );
+  if ( text != "10,20;30,40;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// The upper bound erasepin accepts is the pin count less one, which underflows
+// on a map that has no pins - so the range it names is [0..-1] and every index
+// is refused.
+exported function map_pins_erase_empty( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.erasepin( 0 );
+  var text := res.errortext;
+  if ( text != "Parameter 0 value 0 out of expected range of [0..-1]" )
+    return ret_error( $"wrong error: '{text}'" );
+  endif
+
+  return 1;
+endfunction
+
+// A pin is a world coordinate, so it has to be one the map's realm holds.
+exported function map_pins_realm_bounds( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 } } );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.appendpin( OUT_OF_REALM, 20 );
+  var text := res.errortext;
+  if ( text != "Invalid Coordinates for Realm" )
+    return ret_error( $"wrong error for x: '{text}'" );
+  endif
+
+  res := mp.appendpin( 10, OUT_OF_REALM );
+  text := res.errortext;
+  if ( text != "Invalid Coordinates for Realm" )
+    return ret_error( $"wrong error for y: '{text}'" );
+  endif
+
+  res := mp.insertpin( 0, OUT_OF_REALM, OUT_OF_REALM );
+  text := res.errortext;
+  if ( text != "Invalid Coordinates for Realm" )
+    return ret_error( $"wrong error for insertpin: '{text}'" );
+  endif
+
+  text := pin_text( mp );
+  if ( text != "10,20;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// A map is carried, so the methods have to work on one inside a container -
+// which is where every map the client can plot on lives.
+exported function map_pins_in_container( resmngr )
+  var cont := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, CONTAINER );
+  if ( !cont )
+    return cont;
+  endif
+
+  var mp := resmngr.CreateItemInContainer( cont, TESTMAP );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.appendpin( 10, 20 );
+  if ( res != 1 )
+    return ret_error( $"appendpin on a contained map returned {res}" );
+  endif
+
+  var text := pin_text( mp );
+  if ( text != "10,20;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_members_roundtrip( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  // every one of them is r/w and starts at zero
+  var members := { "xwest", "ynorth", "xeast", "ysouth", "gumpwidth", "gumpheight", "facetid" };
+  foreach mbr in members
+    var start := mp.get_member( mbr );
+    if ( start != 0 )
+      return ret_error( $"{mbr} starts at {start}" );
+    endif
+    var wanted := 100 + _mbr_iter;
+    mp.set_member( mbr, wanted );
+    var val := mp.get_member( mbr );
+    if ( val != wanted )
+      return ret_error( $"{mbr} read back as {val}, wanted {wanted}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// All seven of them are stored as u16, so a value outside that range is pulled
+// to the nearest end rather than wrapping.
+exported function map_members_clamp( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  mp.xwest := -1;
+  if ( mp.xwest != 0 )
+    return ret_error( $"a negative xwest became {mp.xwest}" );
+  endif
+
+  mp.gumpwidth := 70000;
+  if ( mp.gumpwidth != 65535 )
+    return ret_error( $"an oversized gumpwidth became {mp.gumpwidth}" );
+  endif
+
+  return 1;
+endfunction
+
+// The corners are stored as four separate members with nothing tying them
+// together, so a west edge east of the east edge is kept exactly as it was set.
+exported function map_members_inverted( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  mp.xwest := 100;
+  mp.xeast := 10;
+  mp.ynorth := 200;
+  mp.ysouth := 20;
+
+  if ( mp.xwest != 100 || mp.xeast != 10 )
+    return ret_error( $"x read back as {mp.xwest}/{mp.xeast}" );
+  endif
+  if ( mp.ynorth != 200 || mp.ysouth != 20 )
+    return ret_error( $"y read back as {mp.ynorth}/{mp.ysouth}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_editable_flag( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  // the itemdesc property defaults to on
+  if ( mp.editable != 1 )
+    return ret_error( $"testmap is editable {mp.editable}" );
+  endif
+
+  var locked := make_map( resmngr, array{}, TESTMAP_LOCKED );
+  if ( !locked )
+    return locked;
+  endif
+  if ( locked.editable != 0 )
+    return ret_error( $"testmap_locked is editable {locked.editable}" );
+  endif
+
+  // and a script may change it either way, whatever the itemdesc said
+  locked.editable := 1;
+  if ( locked.editable != 1 )
+    return ret_error( $"editable stayed {locked.editable}" );
+  endif
+  mp.editable := 0;
+  if ( mp.editable != 0 )
+    return ret_error( $"editable stayed {mp.editable}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_isa( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  if ( !mp.isa( POLCLASS_MAP ) )
+    return ret_error( "a map is not a POLCLASS_MAP" );
+  endif
+  if ( !mp.isa( POLCLASS_ITEM ) )
+    return ret_error( "a map is not a POLCLASS_ITEM" );
+  endif
+
+  var coin := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN );
+  if ( !coin )
+    return coin;
+  endif
+  if ( coin.isa( POLCLASS_MAP ) )
+    return ret_error( "a coin is a POLCLASS_MAP" );
+  endif
+
+  return 1;
+endfunction
+
+// The four methods are the map class's own, so an item that is not a map does
+// not answer them at all.
+exported function map_methods_need_a_map( resmngr )
+  var coin := resmngr.CreateItemAtLocation( BASE_X, BASE_Y, 0, COIN );
+  if ( !coin )
+    return coin;
+  endif
+
+  var res := coin.getpins();
+  var text := res.errortext;
+  if ( !text.find( "(getpins) not found" ) )
+    return ret_error( $"wrong error for getpins: '{text}'" );
+  endif
+
+  res := coin.appendpin( 10, 20 );
+  text := res.errortext;
+  if ( !text.find( "(appendpin) not found" ) )
+    return ret_error( $"wrong error for appendpin: '{text}'" );
+  endif
+
+  return 1;
+endfunction
+
+exported function map_copy_keeps_pins( resmngr )
+  var mp := make_map( resmngr, { { 10, 20 }, { 30, 40 } } );
+  if ( !mp )
+    return mp;
+  endif
+  mp.gumpwidth := 100;
+  mp.gumpheight := 200;
+  mp.xeast := 50;
+  mp.facetid := 3;
+  mp.editable := 0;
+
+  var copied := CreateItemCopyAtLocation( BASE_X + 1, BASE_Y, 0, mp );
+  if ( !copied )
+    return copied;
+  endif
+
+  var res := 1;
+  var text := pin_text( copied );
+  if ( text != "10,20;30,40;" )
+    res := ret_error( $"the copy has pins {text}" );
+  elseif ( copied.gumpwidth != 100 || copied.gumpheight != 200 )
+    res := ret_error( $"the copy has a {copied.gumpwidth}x{copied.gumpheight} gump" );
+  elseif ( copied.xeast != 50 || copied.facetid != 3 || copied.editable != 0 )
+    res := ret_error( $"the copy has {copied.xeast}/{copied.facetid}/{copied.editable}" );
+  endif
+
+  // the copy is not held by the resource manager
+  DestroyItem( copied );
+  return res;
+endfunction
+
+// Each map carries its own list, so plotting on one is not plotting on every
+// map of that objtype.
+exported function map_pins_are_per_item( resmngr )
+  var first := make_map( resmngr, { { 10, 20 } } );
+  var second := make_map( resmngr );
+  if ( !first || !second )
+    return !first ? first : second;
+  endif
+
+  second.appendpin( 30, 40 );
+
+  var text := pin_text( first );
+  if ( text != "10,20;" )
+    return ret_error( $"the first map has {text}" );
+  endif
+  text := pin_text( second );
+  if ( text != "30,40;" )
+    return ret_error( $"the second map has {text}" );
+  endif
+
+  return 1;
+endfunction

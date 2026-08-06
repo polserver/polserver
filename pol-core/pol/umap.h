@@ -95,7 +95,7 @@ protected:
   friend void handle_map_pin( Network::Client* client, PKTBI_56* msg );
 
 private:
-  bool msgCoordsInBounds( PKTBI_56* msg, const Range2d& area ) const;
+  bool msgCoordsInBounds( PKTBI_56* msg ) const;
   Pos2d gumpToWorld( const Pos2d& gump, const Range2d& area ) const;
   Pos2d worldToGump( const Pos2d& world, const Range2d& area ) const;
 
