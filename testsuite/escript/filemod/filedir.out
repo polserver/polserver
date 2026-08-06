@@ -1,0 +1,22 @@
+--- ListDirectory
+all files:   { one.file, three.file, two.dat }
+explicit *:  { one.file, three.file, two.dat }
+extension:   { one.file, three.file }
+with dot:    { one.file, three.file }
+unknown ext: {  }
+with dirs:   { one.file, sub, three.file, two.dat }
+dirs only:   { sub }
+nothing:     {  }
+subdir:      { keep.file }
+trailing /:  { one.file, three.file, two.dat }
+no package:  { one.file, three.file, two.dat }
+missing:     error{ errortext = "Directory not found." }
+a file:      error{ errortext = "Directory not found." }
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }
+--- CreateDirectory
+created:     1
+again:       error{ errortext = "Directory already exists." }
+nested:      1
+traversal:   error{ errortext = "No parent path traversal please." }
+bad param:   error{ errortext = "Invalid parameter type" }

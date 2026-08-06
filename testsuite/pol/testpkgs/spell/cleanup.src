@@ -1,0 +1,9 @@
+use uo;
+
+program cleanup()
+  EraseGlobalProperty( "#TestSpellCast" );
+  // spelleffect.src stops every caster it runs on while this is set, so a case
+  // that failed while it was armed would hold up every cast after it
+  EraseGlobalProperty( "#TestSpellHold" );
+  return 1;
+endprogram

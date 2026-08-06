@@ -83,6 +83,8 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   // equipment
   additem( &item[0x1517], 0x00404002, 1, 5, 1, "shirt" );
   additem( &item[0x152e], 0x08400000, 2, 4, 1, "short pants" );
+  additem( &item[0xefa], 0x00600002, 3, 1, 1, "spellbook" );
+  additem( &item[0xf5e], 0x00400002, 6, 1, 1, "broadsword" );
   additem( &item[0x203b], 0x00400002, 0, 11, 0, "short hair" );
 
   // house 0x6b
@@ -731,6 +733,16 @@ void FileGenerator::modifyMultis( std::vector<std::vector<T>>& multis )
       elem( 0x31F4, 2, 0, 0, 1 ),   elem( 0x31F4, 2, 3, 0, 1 ),   elem( 0x31F4, 3, -2, 0, 1 ),
       elem( 0x31F4, 3, -1, 0, 1 ),  elem( 0x31F4, 3, 0, 0, 1 ),   elem( 0x31F4, 3, 1, 0, 1 ),
       elem( 0x31F4, 3, 2, 0, 1 ),   elem( 0x31F4, 3, 3, 0, 1 ) };
+
+  // A north facing staircase, the lowest of the multiids the custom house design
+  // editor accepts (STAIR_MULTIID_MIN). Four steps climbing north, each one a
+  // stack of blocks 5 z apart, which is the shape CustomHouseDesign::DeleteStairs
+  // walks back down when one of these is erased.
+  multis[0x1db0] = std::vector<T>{ elem( 0x0751, 0, 0, 0, 1 ),   elem( 0x0751, 0, -1, 0, 1 ),
+                                   elem( 0x0751, 0, -1, 5, 1 ),  elem( 0x0751, 0, -2, 0, 1 ),
+                                   elem( 0x0751, 0, -2, 5, 1 ),  elem( 0x0751, 0, -2, 10, 1 ),
+                                   elem( 0x0751, 0, -3, 0, 1 ),  elem( 0x0751, 0, -3, 5, 1 ),
+                                   elem( 0x0751, 0, -3, 10, 1 ), elem( 0x0751, 0, -3, 15, 1 ) };
 }
 
 template <typename T>

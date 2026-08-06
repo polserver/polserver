@@ -434,6 +434,14 @@ class Target:
     self.client.target = None
     self.client.queue(po)
 
+  def cancel(self):
+    ''' Dismisses the cursor without picking anything, the way Escape does
+    '''
+    po = packets.TargetCursorPacket()
+    po.fill(po.OBJECT, self.id, po.NEUTRAL, 0, 0xffff, 0xffff, 0, 0)
+    self.client.target = None
+    self.client.queue(po)
+
 
 class Speech:
   ''' Represents something that has been spoken '''
@@ -453,9 +461,11 @@ class Speech:
 
   def __init__(self, client, pkt):
     # a cliloc message is the same thing with a number the client looks up in
-    # its own table in place of the text, and arguments instead of a language
+    # its own table in place of the text, and arguments instead of a language.
+    # The affix variant glues a plain string to that text, before it or after
     self.cliloc = None
     self.lang = None
+    self.affix = None
     if isinstance(pkt, packets.SendSpeechPacket):
       self.unicode = False
     elif isinstance(pkt, packets.UnicodeSpeechPacket):
@@ -464,6 +474,11 @@ class Speech:
     elif isinstance(pkt, packets.ClilocMsgPacket):
       self.unicode = True
       self.cliloc = pkt.cliloc
+    elif isinstance(pkt, packets.ClilocAffixMsgPacket):
+      self.unicode = True
+      self.cliloc = pkt.cliloc
+      self.affix = pkt.affix
+      self.prepend = pkt.flag & packets.ClilocAffixMsgPacket.FLAG_PREPEND
     else:
       assert False
 
@@ -622,6 +637,9 @@ class Client(threading.Thread):
 
     ## Serial of the mobile currently traded with, None when not trading
     self.trade = None
+
+    ## Serial of the house whose design is being edited, None when not editing
+    self.house = None
 
   @status('disconnected')
   def connect(self, host, port, user, pwd):
@@ -923,7 +941,7 @@ class Client(threading.Thread):
         self.log.warn('EARLY %s', repr(speech))
       self.brain.event(brain.Event(brain.Event.EVT_SPEECH, speech=speech))
 
-    elif isinstance(pkt, packets.ClilocMsgPacket):
+    elif isinstance(pkt, (packets.ClilocMsgPacket, packets.ClilocAffixMsgPacket)):
       speech = Speech(self, pkt)
       if self.lc:
         self.log.info(repr(speech))
@@ -932,8 +950,14 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.TargetCursorPacket):
-      assert self.target is None
-      self.target = Target(self, pkt)
+      if pkt.type == packets.TargetCursorPacket.CANCEL:
+        if self.target is not None:
+          self.log.info('server cancelled target cursor 0x%X', self.target.id)
+        self.target = None
+      else:
+        if self.target is not None:
+          self.log.warn('replacing unanswered target cursor 0x%X', self.target.id)
+        self.target = Target(self, pkt)
 
     elif isinstance(pkt, packets.CharacterAnimationPacket):
       assert self.lc
@@ -1030,6 +1054,12 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_OPEN_PAPERDOLL, serial = pkt.serial, text=pkt.text, flags=pkt.flags))
     elif isinstance(pkt, packets.SecureTradingPacket):
       self.handleSecureTradingPacket(pkt)
+    elif isinstance(pkt, packets.CustomHouseDesignPacket):
+      self.log.info("House 0x%X design rev %d: %d tiles in %d planes",
+          pkt.serial, pkt.revision, pkt.numtiles, pkt.planecount)
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_DESIGN, serial=pkt.serial,
+        revision=pkt.revision, numtiles=pkt.numtiles, planecount=pkt.planecount,
+        planes=pkt.planes, tiles=pkt.tiles))
     else:
       self.log.warn("Unhandled packet {}".format(pkt.__class__))
 
@@ -1141,11 +1171,23 @@ class Client(threading.Thread):
   @clientthread
   def handleDrawGamePlayerPacket(self, pkt):
     assert self.player.serial == pkt.serial
-    assert self.player.graphic == pkt.graphic
-    assert self.player.x == pkt.x
-    assert self.player.y == pkt.y
-    assert self.player.z == pkt.z
-    #assert self.player.facing == pkt.direction
+
+    if self.player.graphic != pkt.graphic:
+      self.log.info("Your graphic changed from 0x%X to 0x%X", self.player.graphic, pkt.graphic)
+      self.player.graphic = pkt.graphic
+
+    # The core telling the player where it really is, and the only facing update
+    # it ever gets: the one thing handleMovePacket's guess can resync against.
+    resync = ( self.player.x != pkt.x or self.player.y != pkt.y
+        or self.player.z != pkt.z or self.player.facing != pkt.direction )
+    if resync:
+      self.log.info("Position corrected: %s,%s,%s facing %s -> %d,%d,%d facing %d",
+          self.player.x, self.player.y, self.player.z, self.player.facing,
+          pkt.x, pkt.y, pkt.z, pkt.direction)
+    self.player.x = pkt.x
+    self.player.y = pkt.y
+    self.player.z = pkt.z
+    self.player.facing = pkt.direction
 
     self.player.color = pkt.hue
     self.player.status = pkt.flag
@@ -1252,7 +1294,19 @@ class Client(threading.Thread):
     elif pkt.sub == packets.GeneralInfoPacket.SUB_MAPDIFF:
       pass
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
-      self.log.info("Ignoring party system data")
+      self.brain.event(brain.Event(brain.Event.EVT_PARTY, partycmd=pkt.partycmd,
+        serial=pkt.serial, members=pkt.members, msg=pkt.msg))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_SPELLBOOK:
+      self.brain.event(brain.Event(brain.Event.EVT_SPELLBOOK, serial=pkt.serial,
+        graphic=pkt.graphic, firstspell=pkt.firstspell, contents=pkt.contents))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_HOUSE_REV:
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_REV, serial=pkt.serial,
+        revision=pkt.rev))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_CUSTOMHOUSE:
+      editing = pkt.action == packets.GeneralInfoPacket.CUSTOMHOUSE_BEGIN
+      self.house = pkt.serial if editing else None
+      self.brain.event(brain.Event(brain.Event.EVT_HOUSE_EDIT, serial=pkt.serial,
+        action=pkt.action, editing=editing))
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEGUMP:
       if pkt.gumpid in self.gumps:
         self.gumps.remove(pkt.gumpid)
@@ -1274,11 +1328,14 @@ class Client(threading.Thread):
     with self.moveLock:
       # Match first move packet to be ackowledged
       mpkt = self.unmoves.popleft()
-      assert pkt.sequence == pkt.sequence
+      assert mpkt.sequence == pkt.sequence
 
       if not ack:
         # Reset sequence counter after a reject
         self.moveid = -1
+        # The core silently drops the requests still in flight, so keeping them
+        # queued would match every later ack against the wrong request.
+        self.unmoves.clear()
 
     oldx = self.player.x
     oldy = self.player.y
@@ -1287,7 +1344,9 @@ class Client(threading.Thread):
 
     if ack:
       # Need to calculate (guess) the new position, since this
-      # packets does not cointain position information
+      # packets does not cointain position information. A request whose
+      # direction is not the one we face only turns on the spot. z comes from
+      # the map and cannot be guessed, so it is kept until a 0x20 corrects it.
       if mpkt.direction == self.player.facing:
         # Moving in front of me, doing one step
         if mpkt.direction == Direction.N:
@@ -1411,10 +1470,15 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def requestStatus(self, serial=None):
-    ''' Requests basic status (0x11 packet) of the player or of a given object '''
+  def requestStatus(self, serial=None, type=None):
+    ''' Requests basic status (0x11 packet) of the player or of a given object
+    @param serial int: The object to ask about, the player itself when omitted
+    @param type int: What to request, see GetPlayerStatusPacket.TYP_ constants.
+                     Defaults to the basic status.
+    '''
     po = packets.GetPlayerStatusPacket()
-    po.fill(po.TYP_BASE, self.player.serial if serial is None else serial)
+    po.fill(po.TYP_BASE if type is None else type,
+            self.player.serial if serial is None else serial)
     self.queue(po)
 
   @logincomplete
@@ -1509,15 +1573,72 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def say(self, text, font=3, color=0, tokens=None):
+  def say(self, text, font=3, color=0, tokens=None, type=None):
     ''' Say something, in unicode
     @param text string: Any unicode string
     @param font int: Font code, usually 3
     @param colot int: Font color, usually 0
     @param tokens list of ints
+    @param type int: Speech type, see UnicodeSpeechRequestPacket.TYP_*,
+                     normal speech when not given. Guild (0x0d) and alliance
+                     (0x0e) chat are routed by the server to the guild instead
+                     of to whoever is in range
     '''
     po = packets.UnicodeSpeechRequestPacket()
-    po.fill(po.TYP_NORMAL, self.LANG, text, color, font, tokens)
+    po.fill(po.TYP_NORMAL if type is None else type, self.LANG, text, color, font, tokens)
+    self.queue(po)
+
+  @logincomplete
+  def party(self, partycmd, *args):
+    '''! Sends a party command
+    @param partycmd int: one of the GeneralInfoPacket.PARTY_* constants
+    @param *args: what that command carries, see GeneralInfoPacket.fill()
+    '''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_PARTY, partycmd, *args)
+    self.queue(po)
+
+  @logincomplete
+  def castSpell(self, spellid, bookserial=None, select=False):
+    '''! Asks to cast a spell
+    @param spellid int: absolute spell number, 1-64 for magery and 101 upwards
+                        for the other schools
+    @param bookserial int: the book it is cast from. Without one the request
+                           goes as the short form the core reads the id alone
+                           out of; the core never looks at the serial either way
+    @param select bool: send it as the spellbook gump's 0xbf sub 0x1c instead
+                        of as a text command. That route carries the id as a
+                        ushort, so it cannot ask for one above 0xffff
+    '''
+    if select:
+      po = packets.GeneralInfoPacket()
+      po.fill(po.SUB_SPELL_SELECT, spellid)
+    else:
+      po = packets.TextCommandPacket()
+      if bookserial is None:
+        po.fill(po.CMD_CASTSPELL2, str(spellid))
+      else:
+        po.fill(po.CMD_CASTSPELL1, '{} {}'.format(spellid, bookserial))
+    self.queue(po)
+
+  @logincomplete
+  def openSpellbook(self):
+    ''' Asks the server to open the spellbook the character is carrying '''
+    po = packets.TextCommandPacket()
+    po.fill(po.CMD_SPELLBOOK)
+    self.queue(po)
+
+  @logincomplete
+  def houseCommand(self, sub, *args, serial=None):
+    '''! Sends a custom house design command
+    @param sub int: one of the CustomHouseCommandPacket.SUB_* constants
+    @param *args: what that subcommand carries, see CustomHouseCommandPacket.fill()
+    @param serial int: whose editing session to address. The player's own by
+                       default - the core drops anything else as spoofed, which
+                       is what a test asking for another serial is checking.
+    '''
+    po = packets.CustomHouseCommandPacket()
+    po.fill(self.player.serial if serial is None else serial, sub, *args)
     self.queue(po)
 
   @logincomplete
@@ -1551,6 +1672,17 @@ class Client(threading.Thread):
     '''
     self.waitFor(lambda: self.target is not None, timeout)
     return self.target
+
+  @logincomplete
+  def waitForObject(self, serial, timeout=None):
+    '''! Waits until the given serial is an object this client knows about
+
+    @param serial int: The serial to wait for
+    @param timeout float: Timeout, in seconds
+    @return the object, None if it never turned up
+    '''
+    self.waitFor(lambda: serial in self.objects, timeout)
+    return self.objects.get(serial)
 
   @logincomplete
   def getAOSTooltip(self, serial, newpkt):
@@ -1611,10 +1743,13 @@ class Client(threading.Thread):
       elif todo.type == brain.Event.EVT_LIST_OBJS:
         if hasattr(todo, 'parent') and todo.parent in self.objects:
           parent = self.objects[todo.parent]
-          if isinstance(parent, Container):
+          # a container the server has not sent any contents of yet has no
+          # content list at all - that is an empty listing, not a crash, and so
+          # is a parent that is no container to begin with
+          if isinstance(parent, Container) and parent.content:
             objs = { item.serial: item for item in parent.content }
           else:
-            objs = []
+            objs = {}
         else:
           objs = self.objects.copy()
         self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = objs))

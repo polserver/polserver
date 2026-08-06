@@ -1,0 +1,276 @@
+use os;
+use uo;
+
+include "spell";
+
+program testspellbook()
+  return 1;
+endprogram
+
+// set a bit, read it back, clear it
+exported function book_add_has_remove( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  if ( book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( "a fresh book already holds spell 1" );
+  endif
+
+  var res := book.addspell( SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"addspell answered {res}" );
+  endif
+  if ( !book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( "the book does not hold the spell that was just added" );
+  endif
+
+  res := book.removespell( SPELL_CIRCLE );
+  if ( res != 1 )
+    return ret_error( $"removespell answered {res}" );
+  endif
+  if ( book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( "the book still holds the removed spell" );
+  endif
+
+  return 1;
+endfunction
+
+// .spells() answers every id the book holds, in ascending order
+exported function book_spells_listing( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var spells := book.spells();
+  if ( spells.size() != 0 )
+    return ret_error( $"a fresh book lists {spells.size()} spells" );
+  endif
+
+  book.addspell( 64 );
+  book.addspell( 1 );
+  book.addspell( 8 );
+
+  spells := book.spells();
+  if ( spells.size() != 3 )
+    return ret_error( $"the book lists {spells.size()} spells, expected 3" );
+  endif
+  if ( spells[1] != 1 || spells[2] != 8 || spells[3] != 64 )
+    return ret_error( $"the book lists {spells}, expected 1, 8, 64" );
+  endif
+
+  book.removespell( 8 );
+  spells := book.spells();
+  if ( spells.size() != 2 || spells[1] != 1 || spells[2] != 64 )
+    return ret_error( $"after a removal the book lists {spells}, expected 1, 64" );
+  endif
+
+  return 1;
+endfunction
+
+// both methods answer 0 - not an error - when there is nothing to do
+exported function book_duplicate_and_absent( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  book.addspell( SPELL_PARAMS );
+
+  var res := book.addspell( SPELL_PARAMS );
+  if ( res != 0 )
+    return ret_error( $"adding a spell twice answered {res}, expected 0" );
+  endif
+  if ( book.spells().size() != 1 )
+    return ret_error( "the second add changed the book" );
+  endif
+
+  res := book.removespell( SPELL_SEVEN );
+  if ( res != 0 )
+    return ret_error( $"removing an absent spell answered {res}, expected 0" );
+  endif
+
+  res := book.removespell( SPELL_PARAMS );
+  if ( res != 1 )
+    return ret_error( $"the removal that had something to do answered {res}" );
+  endif
+  res := book.removespell( SPELL_PARAMS );
+  if ( res != 0 )
+    return ret_error( $"removing it again answered {res}, expected 0" );
+  endif
+
+  return 1;
+endfunction
+
+// id 0 is refused by all three, and so is anything that is not an integer
+exported function book_bad_parameters( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var zeroes := array{};
+  zeroes.append( { "hasspell", book.hasspell( 0 ) } );
+  zeroes.append( { "addspell", book.addspell( 0 ) } );
+  zeroes.append( { "removespell", book.removespell( 0 ) } );
+
+  foreach call in ( zeroes )
+    var [ name, res ] := call;
+    if ( res != error )
+      return ret_error( $"{name}( 0 ) answered {res}, expected an error" );
+    endif
+    if ( !res.errortext.find( "SpellID must be >= 1" ) )
+      return ret_error( $"{name}( 0 ): wrong error: {res.errortext}" );
+    endif
+  endforeach
+
+  // a string reaches the parameter check itself
+  var bad := array{};
+  bad.append( { "hasspell", book.hasspell( "one" ) } );
+  bad.append( { "addspell", book.addspell( "one" ) } );
+  bad.append( { "removespell", book.removespell( "one" ) } );
+
+  foreach call in ( bad )
+    var [ name, res ] := call;
+    if ( res != error )
+      return ret_error( $"{name}( \"one\" ) answered {res}, expected an error" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+// a necro book holds 101-164, and nothing of the magery range
+exported function book_necro_school( resmgn )
+  var book := make_book( resmgn, BOOK_NECRO );
+  if ( !book )
+    return book;
+  endif
+
+  var res := book.addspell( SPELL_NECRO );
+  if ( res != 1 )
+    return ret_error( $"addspell( {SPELL_NECRO} ) on a necro book answered {res}" );
+  endif
+  if ( !book.hasspell( SPELL_NECRO ) )
+    return ret_error( "the necro book does not hold the necro spell" );
+  endif
+
+  var spells := book.spells();
+  if ( spells.size() != 1 || spells[1] != SPELL_NECRO )
+    return ret_error( $"the necro book lists {spells}, expected {SPELL_NECRO}" );
+  endif
+
+  // the last id of the school, which is where the core's 64-slot wrap lands
+  book.addspell( 164 );
+  spells := book.spells();
+  if ( spells.size() != 2 || spells[2] != 164 )
+    return ret_error( $"the necro book lists {spells}, expected {SPELL_NECRO}, 164" );
+  endif
+
+  return 1;
+endfunction
+
+// mysticism is the odd school: ids 678-693, not a hundred-block
+exported function book_mysticism_school( resmgn )
+  var book := make_book( resmgn, BOOK_MYSTICISM );
+  if ( !book )
+    return book;
+  endif
+
+  var res := book.addspell( SPELL_MYSTICISM );
+  if ( res != 1 )
+    return ret_error( $"addspell( {SPELL_MYSTICISM} ) on a mysticism book answered {res}" );
+  endif
+
+  // 693 is the last id of the school
+  book.addspell( 693 );
+
+  var spells := book.spells();
+  if ( spells.size() != 2 || spells[1] != SPELL_MYSTICISM || spells[2] != 693 )
+    return ret_error( $"the mysticism book lists {spells}, expected {SPELL_MYSTICISM}, 693" );
+  endif
+
+  // 694 is past the school, and .spells() only ever walks the school's own ids
+  book.addspell( 694 );
+  spells := book.spells();
+  if ( spells.size() != 2 )
+    return ret_error( $"after adding 694 the book lists {spells}" );
+  endif
+
+  return 1;
+endfunction
+
+// bushido is a plain hundred-block school, 401-464, and the one whose ids no
+// other test touches
+exported function book_bushido_school( resmgn )
+  var book := make_book( resmgn, BOOK_BUSHIDO );
+  if ( !book )
+    return book;
+  endif
+
+  var res := book.addspell( 401 );
+  if ( res != 1 )
+    return ret_error( $"addspell( 401 ) on a bushido book answered {res}" );
+  endif
+
+  // 464 is the last id of the school, 465 the first past it
+  book.addspell( 464 );
+  res := book.addspell( 465 );
+  if ( res != 0 )
+    return ret_error( $"a bushido book accepted spell 465: {res}" );
+  endif
+
+  var spells := book.spells();
+  if ( spells.size() != 2 || spells[1] != 401 || spells[2] != 464 )
+    return ret_error( $"the bushido book lists {spells}, expected 401, 464" );
+  endif
+
+  return 1;
+endfunction
+
+// A book must not accept an id belonging to another school. The magery book
+// takes necro 101 as its own spell 1.
+exported function book_cross_school_add( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var res := book.addspell( SPELL_NECRO );
+  if ( res != 0 )
+    return ret_error( $"a magery book accepted necro spell {SPELL_NECRO}: {res}" );
+  endif
+
+  if ( book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( $"adding necro {SPELL_NECRO} set magery spell 1" );
+  endif
+
+  var spells := book.spells();
+  if ( spells.size() != 0 )
+    return ret_error( $"the magery book lists {spells} after a cross-school add" );
+  endif
+
+  return 1;
+endfunction
+
+// Nor an id past the 64 a school holds. 65 lands on spell 1 through the core's
+// wrap, which makes a book claim a spell nobody put in it.
+exported function book_id_past_the_school( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+
+  var res := book.addspell( 65 );
+  if ( res != 0 )
+    return ret_error( $"a magery book accepted spell 65: {res}" );
+  endif
+
+  if ( book.hasspell( SPELL_CIRCLE ) )
+    return ret_error( "adding spell 65 set spell 1" );
+  endif
+
+  return 1;
+endfunction

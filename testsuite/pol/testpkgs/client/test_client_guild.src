@@ -1,0 +1,391 @@
+// What a guild does that only a client can see: the two chat channels the core
+// routes by membership rather than by distance, and the two ways it tells a
+// client to draw a guilded character - the colour of its name and the notoriety
+// byte of its mobile.
+//
+// Guild chat is the one kind of speech that never travels by range: the core
+// walks the client list instead, so the speaker's own client is only served
+// because it is in the guild too. A character with no guild is not served at
+// all, not even itself.
+
+include "guild";
+
+program test_guild()
+  return guild_setup();
+endprogram
+
+// Guild chat reaches every client in the guild and nobody else, and reaches the
+// speaker only because it is in the guild as well.
+exported function guild_chat_reaches_guild( unused resmgn )
+  var guild := guild_of( "both", { char, char2 } );
+  if ( !guild )
+    return guild;
+  endif
+
+  Clear_Event_Queue();
+  say_guild( 0, "for the guild" );
+
+  var res := check_heard( "for the guild", { 1, 1 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  // it arrives as the type it was sent as, attributed to the speaker
+  var ev := res[1];
+  if ( CInt( ev.texttype ) != TEXTTYPE_GUILD )
+    return guild_fail( $"guild chat arrived as texttype {ev.texttype}" );
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return guild_fail( $"guild chat was attributed to 0x{CInt( ev.serial ):x}" );
+  endif
+  if ( ev.name != char.name )
+    return guild_fail( $"guild chat was named \"{ev.name}\", expected \"{char.name}\"" );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// A character outside the guild hears none of it, however close it stands.
+exported function guild_chat_skips_outsiders( unused resmgn )
+  var guild := guild_of( "leader only", { char } );
+  if ( !guild )
+    return guild;
+  endif
+
+  Clear_Event_Queue();
+  say_guild( 0, "members only" );
+
+  var res := check_heard( "members only", { 1, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  // and a guild of its own does not help
+  var other := guild_of( "the other one", { char2 } );
+  if ( !other )
+    return guild_fail( other.errortext );
+  endif
+
+  Clear_Event_Queue();
+  say_guild( 0, "still members only" );
+
+  res := check_heard( "still members only", { 1, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// Guild chat is routed by membership, not by range: the core walks the client
+// list and never asks where anyone is standing.
+exported function guild_chat_ignores_range( unused resmgn )
+  var guild := guild_of( "far apart", { char, char2 } );
+  if ( !guild )
+    return guild;
+  endif
+
+  // open flat land seventy tiles off, far past any speech range
+  MoveObjectToLocation( char2, 120, 120, 0, flags := MOVEOBJECT_FORCELOCATION );
+
+  Clear_Event_Queue();
+  say_guild( 0, "across the shard" );
+
+  var res := check_heard( "across the shard", { 1, 1 } );
+  MoveObjectToLocation( char2, CHAR2_X, CHAR2_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// Without a guild there is nobody to route to, and the core drops the message
+// rather than falling back on ordinary speech - so the speaker does not even
+// hear itself.
+exported function guild_chat_without_a_guild( unused resmgn )
+  var res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  say_guild( 0, "into the void" );
+
+  res := check_heard( "into the void", { 0, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// Alliance chat reaches the speaker's own guild and every guild allied with it.
+exported function alliance_chat_reaches_allies( unused resmgn )
+  var guild := guild_of( "ours", { char } );
+  if ( !guild )
+    return guild;
+  endif
+  var ally := guild_of( "theirs", { char2 } );
+  if ( !ally )
+    return guild_fail( ally.errortext );
+  endif
+
+  var res := guild.addallyguild( ally );
+  if ( !res )
+    return guild_fail( $"could not ally the two guilds: {res}" );
+  endif
+
+  Clear_Event_Queue();
+  say_alliance( 0, "for the alliance" );
+
+  res := check_heard( "for the alliance", { 1, 1 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+  if ( CInt( res[1].texttype ) != TEXTTYPE_ALLIANCE )
+    return guild_fail( $"alliance chat arrived as texttype {res[1].texttype}" );
+  endif
+
+  // an ally is not a guildmate: guild chat stops at the guild border
+  Clear_Event_Queue();
+  say_guild( 0, "not for the alliance" );
+
+  res := check_heard( "not for the alliance", { 1, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// A guild that is not allied hears nothing, and neither does an enemy: only an
+// ally counts, and enmity is not the same relation.
+exported function alliance_chat_skips_the_rest( unused resmgn )
+  var guild := guild_of( "ours", { char } );
+  if ( !guild )
+    return guild;
+  endif
+  var other := guild_of( "strangers", { char2 } );
+  if ( !other )
+    return guild_fail( other.errortext );
+  endif
+
+  Clear_Event_Queue();
+  say_alliance( 0, "anyone out there" );
+
+  var res := check_heard( "anyone out there", { 1, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  res := guild.addenemyguild( other );
+  if ( !res )
+    return guild_fail( $"could not make the two guilds enemies: {res}" );
+  endif
+
+  Clear_Event_Queue();
+  say_alliance( 0, "not you either" );
+
+  res := check_heard( "not you either", { 1, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// Alliance chat needs a guild of its own to start from, the same way guild chat
+// does.
+exported function alliance_chat_without_a_guild( unused resmgn )
+  var res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  say_alliance( 0, "no alliance to speak to" );
+
+  res := check_heard( "no alliance to speak to", { 0, 0 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// With CoreGuildMessages off the core routes neither channel and leaves both to
+// the scripts. servspecopt.cfg is re-read by ReloadConfiguration, so this is
+// the one party/guild setting a test can look at both sides of.
+exported function guild_chat_can_be_turned_off( unused resmgn )
+  var guild := guild_of( "silenced", { char, char2 } );
+  if ( !guild )
+    return guild;
+  endif
+
+  var original := set_ssopt( "CoreGuildMessages", 0 );
+  if ( !original )
+    return guild_fail( original.errortext );
+  endif
+
+  Clear_Event_Queue();
+  say_guild( 0, "nobody is listening" );
+  var res := check_heard( "nobody is listening", { 0, 0 } );
+
+  if ( res )
+    Clear_Event_Queue();
+    say_alliance( 0, "nobody is listening either" );
+    res := check_heard( "nobody is listening either", { 0, 0 } );
+  endif
+
+  restore_ssopt( original );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  // and the core takes it up again once the setting is back
+  Clear_Event_Queue();
+  say_guild( 0, "listening again" );
+
+  res := check_heard( "listening again", { 1, 1 } );
+  if ( !res )
+    return guild_fail( res.errortext );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// The colour a name is drawn in, asked for by a single click. Guild standing is
+// what decides it here: the two characters are innocent to each other until a
+// guild says otherwise.
+exported function guild_name_colors( unused resmgn )
+  var res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return guild_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_INNOCENT )
+    return guild_fail( $"an unguilded character was drawn in {color}" );
+  endif
+
+  // a guildmate is an ally of itself: AreAllies answers yes for one guild
+  var guild := guild_of( "both", { char, char2 } );
+  if ( !guild )
+    return guild;
+  endif
+
+  color := click_name_color( 0, char2 );
+  if ( !color )
+    return guild_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_GUILD_ALLY )
+    return guild_fail( $"a guildmate was drawn in {color}" );
+  endif
+
+  // and so is a member of an allied guild
+  res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+  guild := guild_of( "ours", { char } );
+  if ( !guild )
+    return guild;
+  endif
+  var ally := guild_of( "theirs", { char2 } );
+  if ( !ally )
+    return guild_fail( ally.errortext );
+  endif
+  res := guild.addallyguild( ally );
+  if ( !res )
+    return guild_fail( $"could not ally the two guilds: {res}" );
+  endif
+
+  color := click_name_color( 0, char2 );
+  if ( !color )
+    return guild_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_GUILD_ALLY )
+    return guild_fail( $"an allied character was drawn in {color}" );
+  endif
+
+  // an enemy has a colour of its own
+  res := guild.removeallyguild( ally );
+  if ( !res )
+    return guild_fail( $"could not undo the alliance: {res}" );
+  endif
+  res := guild.addenemyguild( ally );
+  if ( !res )
+    return guild_fail( $"could not make the two guilds enemies: {res}" );
+  endif
+
+  color := click_name_color( 0, char2 );
+  if ( !color )
+    return guild_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_GUILD_ENEMY )
+    return guild_fail( $"an enemy was drawn in {color}" );
+  endif
+
+  return guild_finish( 1 );
+endfunction
+
+// The same standing, told to the client a second time and in another form: the
+// notoriety byte of the packet that puts the mobile on screen.
+exported function guild_notoriety( unused resmgn )
+  var res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+
+  var noto := notoriety_of( 0, char2, CHAR2_X, CHAR2_Y );
+  if ( !noto )
+    return guild_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_INNOCENT )
+    return guild_fail( $"an unguilded character came as notoriety {noto}" );
+  endif
+
+  var guild := guild_of( "both", { char, char2 } );
+  if ( !guild )
+    return guild;
+  endif
+
+  noto := notoriety_of( 0, char2, CHAR2_X, CHAR2_Y );
+  if ( !noto )
+    return guild_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_FRIEND )
+    return guild_fail( $"a guildmate came as notoriety {noto}" );
+  endif
+
+  res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+  guild := guild_of( "ours", { char } );
+  if ( !guild )
+    return guild;
+  endif
+  var enemy := guild_of( "theirs", { char2 } );
+  if ( !enemy )
+    return guild_fail( enemy.errortext );
+  endif
+  res := guild.addenemyguild( enemy );
+  if ( !res )
+    return guild_fail( $"could not make the two guilds enemies: {res}" );
+  endif
+
+  noto := notoriety_of( 0, char2, CHAR2_X, CHAR2_Y );
+  if ( !noto )
+    return guild_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_ENEMY )
+    return guild_fail( $"an enemy came as notoriety {noto}" );
+  endif
+
+  return guild_finish( 1 );
+endfunction

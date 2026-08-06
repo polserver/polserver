@@ -16,6 +16,13 @@ container had given it, usually near the corner of the map. The requested<br/>
 location now wins in every case.</change>
 		</entry>
 		<entry>
+			<date>08-05-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">Spellbook.addspell()/hasspell()/removespell() accepted a spellid of another school or past the 64 spells a book holds, wrapping it onto a spell of its own school</change>
+			<change type="Fixed">uo::GetSpellDifficulty/StartSpellEffect/ConsumeReagents/SpeakPowerWords and vitals::ConsumeMana read out-of-bounds for a spellid one past the highest defined spell</change>
+			<change type="Fixed">uo::ConsumeReagents consumed the reagents it had already found when a later one was missing</change>
+		</entry>
+		<entry>
 			<date>08-04-2026</date>
 			<author>Nando:</author>
 			<change type="Fixed">An item moved off a boat stayed listed as travelling with it, so players near<br/>
@@ -52,6 +59,13 @@ that have one, so worlds from shards not using slots are unchanged), a free<br/>
 slot is one no item occupies, and a full container is refused.</change>
 			<change type="Fixed">Splitting part of a stack out of a container gave the slot to the part being<br/>
 picked up rather than to the part left behind.</change>
+		</entry>
+		<entry>
+			<date>08-03-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">several ways to crash the shard in CustomHouses</change>
+			<change type="Fixed">the wrong revision was send after erase and clear</change>
+			<change type="Changed">syshook CloseCustomHouse now also gets called when the client commits, if no misc/customhousecommit.src exists</change>
 		</entry>
 		<entry>
 			<date>08-02-2026</date>
@@ -98,6 +112,22 @@ one. It could pick one up and keep it two ways: an item that could not be worn<b
 while the world was being read went into the backpack still reporting the<br/>
 layer it had failed to reach, and uo::CreateItemCopyAtLocation on an equipped<br/>
 item gave the copy the original's layer.</change>
+		</entry>
+		<entry>
+			<date>08-02-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">PacketHook with SubCommandOffset where the packet was too short, its now handled by the parent hook or default handler.</change>
+			<change type="Fixed">several out-of-bounds reads in packet scriptobjects</change>
+			<change type="Fixed">an outgoing PacketHook setting an encoded length larger than the packet buffer shut the server down, its sent with the buffer size now and logged.</change>
+		</entry>
+		<entry>
+			<date>08-01-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">XMLNode.AppendXMLNode/AppendXMLText/SetXMLAttribute/RemoveXMLAttribute crashed when an invalid node was used. They return now the error &quot;Node is not an element&quot;</change>
+			<change type="Fixed">XMLFile.RemoveXMLNode and XMLNode.RemoveXMLNode never removed anything when a node<br/>
+object was passed, they always returned the error &quot;Failed to find node&quot;.</change>
+			<change type="Fixed">BinaryFile could not be used anymore after a read had failed, eg after reading past the end of the file.<br/>
+Seek() and Size() work again in that case, making it possible to restore the state.</change>
 		</entry>
 		<entry>
 			<date>07-31-2026</date>

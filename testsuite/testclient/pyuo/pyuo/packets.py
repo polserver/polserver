@@ -673,7 +673,10 @@ class DrawGamePlayerPacket(Packet):
     self.x = self.dushort()
     self.y = self.dushort()
     self.dushort() # unknown
-    self.direction = self.dschar()
+    # the high bit is the running flag, the facing is the low three bits
+    direction = self.duchar()
+    self.running = bool(direction & 0x80)
+    self.direction = direction & 0x07
     self.z = self.dschar()
 
 
@@ -968,6 +971,7 @@ class TargetCursorPacket(Packet):
   NEUTRAL = 0
   HARMFUL = 1
   HELPFUL = 2
+  CANCEL = 3
 
   cmd = 0x6c
   length = 19
@@ -1193,7 +1197,10 @@ class UpdatePlayerPacket(Packet):
     self.x = self.dushort()
     self.y = self.dushort()
     self.z = self.dschar()
-    self.facing = self.dschar()
+    # the high bit is the running flag of the mobile's last move
+    facing = self.duchar()
+    self.running = bool(facing & 0x80)
+    self.facing = facing & 0x07
     self.color = self.dushort()
     self.flag = self.duchar()
     self.notoriety = self.duchar()
@@ -1650,14 +1657,45 @@ class GeneralInfoPacket(Packet):
   SUB_LOGIN = 0x0f
   ## MegaCliLoc
   SUB_MEGACLILOC = 0x10
+  ## The contents of a spellbook the server opened
+  SUB_SPELLBOOK = 0x1b
+  ## Cast the spell picked out of a spellbook gump
+  SUB_SPELL_SELECT = 0x1c
   ## Send House Revision State
   SUB_HOUSE_REV = 0x1d
   ## Enable map-diff files
   SUB_MAPDIFF = 0x18
+  ## Enter or leave the custom house design editor
+  SUB_CUSTOMHOUSE = 0x20
   ## Boat movement
   SUB_BOATMOVE = 0x33
   ## Result of the character race changer gump
   SUB_RACECHANGER = 0x2a
+
+  ## SUB_CUSTOMHOUSE: the server put the client into design mode
+  CUSTOMHOUSE_BEGIN = 0x04
+  ## SUB_CUSTOMHOUSE: the server took the client back out of it
+  CUSTOMHOUSE_END = 0x05
+
+  ## Party subcommands, both directions, see PKTBI_BF_06 in the core
+  ## Client: add a member by serial (0 asks for a target cursor)
+  ## Server: the whole member list
+  PARTY_ADD = 0x01
+  ## Client: remove a member by serial (0 asks for a target cursor)
+  ## Server: the removed member followed by the ones left
+  PARTY_REMOVE = 0x02
+  ## A private message, to a member from the client, from a member to it
+  PARTY_MEMBER_MSG = 0x03
+  ## A message to the whole party
+  PARTY_MSG = 0x04
+  ## Client: allow or forbid the party to loot this player's corpse
+  PARTY_LOOT_PERMISSION = 0x06
+  ## Server: an invitation, carrying the leader's serial
+  PARTY_INVITE_MEMBER = 0x07
+  ## Client: accept an invitation from that leader
+  PARTY_ACCEPT_INVITE = 0x08
+  ## Client: decline an invitation from that leader
+  PARTY_DECLINE_INVITE = 0x09
 
   cmd = 0xbf
 
@@ -1668,6 +1706,16 @@ class GeneralInfoPacket(Packet):
                   - SUB_LOGIN: no more arguments needed
                   - SUB_LANG:
                     - lang string: The language name
+                  - SUB_PARTY:
+                    - partycmd int: see PARTY_ constants
+                    - then, depending on partycmd:
+                      - PARTY_ADD/REMOVE/ACCEPT/DECLINE: serial int
+                      - PARTY_MSG: text string
+                      - PARTY_MEMBER_MSG: serial int, text string
+                      - PARTY_LOOT_PERMISSION: canloot int
+                  - SUB_SPELL_SELECT:
+                    - spellid int: absolute spell number, so 1-64 for magery
+                      and 101 upwards for the other schools
     '''
     self.sub = sub
 
@@ -1705,6 +1753,41 @@ class GeneralInfoPacket(Packet):
       self.beardid = args[3]
       self.beardhue = args[4]
       self.length = 5 + 10
+    elif self.sub == self.SUB_SPELL_SELECT:
+      checkArgLen(1)
+      self.spellid = args[0]
+      self.length = 5 + 4
+
+    elif self.sub == self.SUB_PARTY:
+      self.partycmd = args[0]
+      # header plus the party subcommand byte
+      self.length = 5 + 1
+
+      if self.partycmd in (self.PARTY_ADD, self.PARTY_REMOVE,
+          self.PARTY_ACCEPT_INVITE, self.PARTY_DECLINE_INVITE):
+        checkArgLen(2)
+        self.serial = args[1]
+        self.length += 4
+
+      elif self.partycmd == self.PARTY_MSG:
+        checkArgLen(2)
+        self.text = args[1]
+        # unicode text, null terminated
+        self.length += len(self.text) * 2 + 2
+
+      elif self.partycmd == self.PARTY_MEMBER_MSG:
+        checkArgLen(3)
+        self.serial = args[1]
+        self.text = args[2]
+        self.length += 4 + len(self.text) * 2 + 2
+
+      elif self.partycmd == self.PARTY_LOOT_PERMISSION:
+        checkArgLen(2)
+        self.canloot = args[1]
+        self.length += 1
+
+      else:
+        raise NotImplementedError('Party command {:02x} not implemented to send'.format(self.partycmd))
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
@@ -1735,6 +1818,22 @@ class GeneralInfoPacket(Packet):
       self.eushort(self.hairhue)
       self.eushort(self.beardid)
       self.eushort(self.beardhue)
+    elif self.sub == self.SUB_SPELL_SELECT:
+      self.eushort(2)
+      self.eushort(self.spellid)
+
+    elif self.sub == self.SUB_PARTY:
+      self.euchar(self.partycmd)
+      if self.partycmd in (self.PARTY_ADD, self.PARTY_REMOVE,
+          self.PARTY_ACCEPT_INVITE, self.PARTY_DECLINE_INVITE):
+        self.euint(self.serial)
+      elif self.partycmd == self.PARTY_MSG:
+        self.estring(self.text, len(self.text) + 1, True)
+      elif self.partycmd == self.PARTY_MEMBER_MSG:
+        self.euint(self.serial)
+        self.estring(self.text, len(self.text) + 1, True)
+      elif self.partycmd == self.PARTY_LOOT_PERMISSION:
+        self.euchar(self.canloot)
 
     else:
       raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
@@ -1762,7 +1861,36 @@ class GeneralInfoPacket(Packet):
       unk = self.dushort()
 
     elif self.sub == self.SUB_PARTY:
-      self.data = self.rpb(len(self.buf))
+      self.partycmd = self.duchar()
+      self.members = []
+      self.serial = None
+      self.msg = None
+
+      if self.partycmd == self.PARTY_ADD:
+        # the whole member list, the leader first
+        count = self.duchar()
+        for i in range(0, count):
+          self.members.append(self.duint())
+
+      elif self.partycmd == self.PARTY_REMOVE:
+        # the member that left, then the ones still in. A party of nobody is
+        # sent to a player who has just left one: no members, only the serial
+        count = self.duchar()
+        self.serial = self.duint()
+        for i in range(0, count):
+          self.members.append(self.duint())
+
+      elif self.partycmd in (self.PARTY_MSG, self.PARTY_MEMBER_MSG):
+        # who said it, and what they said - unicode, null terminated
+        self.serial = self.duint()
+        self.msg = self.ducstring(self.length - self.readCount)
+
+      elif self.partycmd == self.PARTY_INVITE_MEMBER:
+        # the leader whose party the player is invited to
+        self.serial = self.duint()
+
+      else:
+        raise NotImplementedError("Party command 0x%0.2X not implemented yet." % self.partycmd)
 
     elif self.sub == self.SUB_CURSORMAP:
       self.cursor = self.duchar()
@@ -1792,9 +1920,28 @@ class GeneralInfoPacket(Packet):
       self.serial = self.duint()
       self.revision = self.duint()
 
+    elif self.sub == self.SUB_SPELLBOOK:
+      self.dushort()
+      self.serial = self.duint()
+      self.graphic = self.dushort()
+      # the first spell id of the book's school, so 1 for magery and 101 for
+      # necromancy - mysticism answers 678 rather than its own 301
+      self.firstspell = self.dushort()
+      # one bit per spell, the school's first spell in the low bit of byte 0
+      self.contents = []
+      for _ in range(0, 8):
+        self.contents.append(self.duchar())
+
     elif self.sub == self.SUB_HOUSE_REV:
       self.serial = self.duint()
       self.rev = self.duint()
+
+    elif self.sub == self.SUB_CUSTOMHOUSE:
+      self.serial = self.duint()
+      self.action = self.duchar()
+      self.dushort()
+      self.duint()
+      self.duchar()
 
     elif self.sub == self.SUB_BOATMOVE:
       self.serial = self.duint()
@@ -1823,6 +1970,41 @@ class ClilocMsgPacket(Packet):
     # the arguments filling the placeholders of the cliloc entry, the one
     # little-endian unicode string of the protocol
     self.args = self.ducstringflipped(self.length-48)
+
+class ClilocAffixMsgPacket(Packet):
+  ''' A CliLoc message with a plain string glued to it, used wherever the text
+  the server wants to show carries a name: the party system says nearly
+  everything this way '''
+
+  ## The affix goes before the cliloc text rather than after it
+  FLAG_PREPEND = 0x01
+
+  cmd = 0xcc
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.model = self.dushort()
+    self.type = self.duchar()
+    self.color = self.dushort()
+    self.font = self.dushort()
+    self.cliloc = self.duint()
+    self.flag = self.duchar()
+    self.name = self.dstring(30)
+
+    # the affix is ascii and null terminated, of no announced length
+    affix = b''
+    while True:
+      byte = self.rpb(1)
+      if byte == b'\x00':
+        break
+      affix += byte
+    self.affix = self.varStr(affix)
+
+    # and the arguments are unicode - big-endian here, unlike the ones of the
+    # plain 0xC1 cliloc message
+    self.args = self.ducstring(self.length - self.readCount)
+
 
 class VisualRangePacket(Packet):
   ''' visual range both directions '''
@@ -1930,6 +2112,218 @@ class AOSTooltipPacket(Packet):
     self.eulen()
     for serial in self.serials:
       self.euint(serial)
+
+
+class TextCommandPacket(Packet):
+  ''' An extended command, see PKTIN_12 and UEXTMSGID in the core
+
+  Everything the client asks for as a string: the argument is ascii and null
+  terminated, and the core drops the whole packet when that terminator is not
+  the last byte.
+  '''
+
+  cmd = 0x12
+
+  ## Cast a spell out of a book: "spellid bookserial"
+  CMD_CASTSPELL1 = 0x27
+  ## Open the spellbook the character carries, no argument
+  CMD_SPELLBOOK = 0x43
+  ## Cast a spell by id alone: "spellid"
+  CMD_CASTSPELL2 = 0x56
+
+  def fill(self, subcmd, text=''):
+    '''!
+    @param subcmd int: The command, see CMD_ constants
+    @param text str: Its argument, without the terminator
+    '''
+    self.subcmd = subcmd
+    self.text = text
+    self.length = 4 + len(text) + 1
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.subcmd)
+    self.estring(self.text, len(self.text) + 1)
+
+
+class CustomHouseCommandPacket(Packet):
+  ''' A command for the custom house design editor, see PKTBI_D7 in the core
+
+  Only meaningful while the server has put this client into design mode: the
+  core looks the house up by the sending character's serial and drops the
+  packet when that character is not editing one.
+  '''
+
+  cmd = 0xd7
+
+  ## Keep the working design aside, so RESTORE can bring it back
+  SUB_BACKUP = 0x02
+  ## Put the kept design back into the working design
+  SUB_RESTORE = 0x03
+  ## Make the working design the one the house really has
+  SUB_COMMIT = 0x04
+  ## Take a tile out of the working design
+  SUB_ERASE = 0x05
+  ## Put a tile into the working design
+  SUB_ADD = 0x06
+  ## Close the editor
+  SUB_QUIT = 0x0c
+  ## Put a whole stair multi into the working design
+  SUB_ADD_MULTI = 0x0d
+  ## Ask for the working design to be sent again
+  SUB_SYNCH = 0x0e
+  ## Throw the working design away, leaving the foundation
+  SUB_CLEAR = 0x10
+  ## Pick the storey being edited, 1 to 4
+  SUB_SELECT_FLOOR = 0x12
+  ## Put in a roof tile, which carries a z of its own
+  SUB_SELECT_ROOF = 0x13
+  ## Take out a roof tile
+  SUB_DELETE_ROOF = 0x14
+  ## Throw the working design away, going back to the committed one
+  SUB_REVERT = 0x1a
+
+  ## Subcommands that carry nothing but the serial and the subcommand itself
+  NO_ARGS = (SUB_BACKUP, SUB_RESTORE, SUB_COMMIT, SUB_QUIT, SUB_SYNCH,
+             SUB_CLEAR, SUB_REVERT)
+  ## Subcommands laid out as CH_ADD: a tile and an offset
+  TILE_AT = (SUB_ADD, SUB_ADD_MULTI)
+  ## Subcommands laid out as CH_ERASE: a tile, an offset and a z
+  TILE_AT_Z = (SUB_ERASE, SUB_SELECT_ROOF, SUB_DELETE_ROOF)
+
+  ## Trailing byte the real client sends, which the core never reads
+  TRAILER = 0x07
+
+  def fill(self, serial, sub, *args):
+    '''!
+    @param serial int: The editing character's serial. The core refuses the
+                       packet when it does not match the sender, so a wrong one
+                       is how a test drives the spoof check.
+    @param sub int: The subcommand, see SUB_ constants
+    @param *args: Variable number of arguments, depending on sub:
+                  - NO_ARGS subcommands: none
+                  - SUB_ADD/SUB_ADD_MULTI: graphic int, x int, y int
+                  - SUB_ERASE/SUB_SELECT_ROOF/SUB_DELETE_ROOF:
+                    graphic int, x int, y int, z int
+                  - SUB_SELECT_FLOOR: floor int
+    '''
+    self.serial = serial
+    self.sub = sub
+    # header, then the payload, then the trailing byte
+    self.length = 9 + 1
+
+    def checkArgLen(expLen):
+      if len(args) != expLen:
+        raise TypeError("Subcommand {:02x} takes {} positional argument(s) "
+            "but {} were given".format(self.sub, expLen, len(args)))
+
+    if self.sub in self.NO_ARGS:
+      checkArgLen(0)
+
+    elif self.sub in self.TILE_AT:
+      checkArgLen(3)
+      self.graphic, self.x, self.y = args
+      self.length += 15
+
+    elif self.sub in self.TILE_AT_Z:
+      checkArgLen(4)
+      self.graphic, self.x, self.y, self.z = args
+      self.length += 20
+
+    elif self.sub == self.SUB_SELECT_FLOOR:
+      checkArgLen(1)
+      self.floor = args[0]
+      self.length += 5
+
+    else:
+      raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
+
+  def eu32signed(self, val):
+    ''' Adds an offset as the u32 the core reads back into an s32 '''
+    self.euint(val & 0xffffffff)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.eushort(self.sub)
+
+    if self.sub in self.TILE_AT or self.sub in self.TILE_AT_Z:
+      self.euchar(0)
+      self.euchar(0)
+      self.euchar(0)
+      self.eushort(self.graphic)
+      self.euchar(0)
+      self.eu32signed(self.x)
+      self.euchar(0)
+      self.eu32signed(self.y)
+      if self.sub in self.TILE_AT_Z:
+        self.euchar(0)
+        self.eu32signed(self.z)
+
+    elif self.sub == self.SUB_SELECT_FLOOR:
+      self.euint(0)
+      self.euchar(self.floor)
+
+    self.euchar(self.TRAILER)
+
+
+class CustomHouseDesignPacket(Packet):
+  ''' A whole custom house design, see CustomHousesSendFull() in the core
+
+  The tiles are split into planes - one per storey - each zlib compressed on
+  its own behind a packed header. Only mode 0 is ever sent, which is five bytes
+  per tile.
+  '''
+
+  cmd = 0xd8
+
+  ## Bytes a mode 0 tile takes: graphic, then the three offsets
+  BYTES_PER_TILE = 5
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.compressiontype = self.duchar()
+    self.unk = self.duchar()
+    self.serial = self.duint()
+    self.revision = self.duint()
+    ## How many tiles the server says the design has
+    self.numtiles = self.dushort()
+    self.planebuffer_len = self.dushort()
+    self.planecount = self.duchar()
+    ## One dict per plane: index, mode, ulen, clen and its own tile list
+    self.planes = []
+    ## Every tile of every plane, as dicts of graphic/x/y/z
+    self.tiles = []
+
+    # the plane count byte is itself part of the buffer the length covers
+    read = 1
+    while read < self.planebuffer_len:
+      header = self.duint()
+      read += 4
+      # the two lengths are 12 bit, split with their high nibble in the low byte
+      plane = {
+        'mode': (header >> 28) & 0xf,
+        'index': (header >> 24) & 0xf,
+        'ulen': ((header >> 16) & 0xff) | ((header & 0xf0) << 4),
+        'clen': ((header >> 8) & 0xff) | ((header & 0x0f) << 8),
+        'tiles': [],
+      }
+      if plane['mode'] != 0:
+        raise NotImplementedError("House plane mode {} not implemented".format(plane['mode']))
+
+      # an empty plane is sent as a header alone, the core zeroes clen for it
+      if plane['clen']:
+        raw = zlib.decompress(self.rpb(plane['clen']))
+        read += plane['clen']
+        if len(raw) != plane['ulen']:
+          raise RuntimeError("House plane {} inflated to {} bytes, header said {}".format(
+              plane['index'], len(raw), plane['ulen']))
+        for i in range(0, len(raw), self.BYTES_PER_TILE):
+          graphic, x, y, z = struct.unpack('>Hbbb', raw[i:i+self.BYTES_PER_TILE])
+          plane['tiles'].append({'graphic': graphic, 'x': x, 'y': y, 'z': z})
+
+      self.planes.append(plane)
+      self.tiles.extend(plane['tiles'])
 
 
 class NewObjectInfoPacket(Packet):

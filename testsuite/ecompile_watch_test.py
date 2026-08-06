@@ -13,6 +13,11 @@ import traceback
 # When the suite runs in order, shard_test_1 leaves scripts stale and the pass has real work.
 ECOMPILE_WATCH_TIMEOUT=60
 
+# seconds; error if watch mode isn't entered within this duration. Watch mode
+# starts only after every script has been compiled, so this scales with the
+# number of scripts in the test shard.
+ECOMPILE_START_TIMEOUT=120
+
 def print(*args, **kwargs):
     __builtins__.print(*args, flush=True, **kwargs)
 
@@ -64,7 +69,7 @@ class EcompileExecutor:
             elif "of those script" in line:
                 compilation_summary["errored"] = int(line[0:line.index(' ')])
 
-            elif started_future and "Entering watch mode." in line:
+            elif started_future and not started_future.done() and "Entering watch mode." in line:
                 started_future.set_result(True)
 
     async def start(self):
@@ -79,11 +84,14 @@ class EcompileExecutor:
 
         asyncio.create_task(self._read_output(self._process.stdout, started_future))
 
-        # Do not continue on timeout. wait_for cancels started_future, so the marker line arrives
-        # later and kills the reader task with InvalidStateError; the first test then reads the
-        # initial pass's summary as its own result and every test after it times out. One missed
-        # deadline reported as four unrelated failures is not worth the salvage attempt.
-        await asyncio.wait_for(started_future, timeout=ECOMPILE_WATCH_TIMEOUT)
+        try:
+            await asyncio.wait_for(started_future, timeout=ECOMPILE_START_TIMEOUT)
+        except asyncio.TimeoutError:
+            self._process.kill()
+            await self._process.wait()
+            raise RuntimeError(
+                f"ecompile watch mode did not start after {ECOMPILE_START_TIMEOUT} seconds"
+            )
 
     def new_compliation_future(self) -> Awaitable[dict[str, int]]:
         self._compilation_future = asyncio.Future()

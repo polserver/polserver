@@ -82,27 +82,14 @@ exported function use_backpack_in_range()
     break;
   endwhile
 
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "list_objects", id := 0 } );
-  while ( 1 )
-    ev := waitForClient( 0, { EVT_LIST_OBJS } );
-    if ( !ev )
-      return ev;
-    endif
-    break;
-  endwhile
+  var item := client_finds_obj( clientcon, 0, backpackItem.serial );
+  if ( !item )
+    return item;
+  elseif ( item.parent != npc.backpack.serial )
+    return ret_error( $"Found backpack item {item.serial}, but parent {item.parent} is not npc backpack {npc.backpack.serial}." );
+  endif
 
-  foreach item in ( ev.objs )
-    if ( item.serial == backpackItem.serial )
-      if ( item.parent == npc.backpack.serial )
-        return 1;
-      else
-        return ret_error( $"Found backpack item {item.serial}, but parent {item.parent} is not npc backpack {npc.backpack.serial}." );
-      endif
-    endif
-  endforeach
-
-  return ret_error( "Could not find backpack item in client's list of objects." );
+  return 1;
 endfunction
 
 exported function target_nonlocal_checklos()

@@ -82,6 +82,11 @@ class Brain:
         timeout = start + self.timeout
         while time.time() < timeout:
           self.processEvents()
+          # an order that arrived while we were idling should not have to sit
+          # out the rest of the wait: this loop is what decides how long a
+          # driven brain takes to react to anything asked of it
+          if self.hasWork():
+            break
           time.sleep(0.01)
 
   def onEvent(self, ev):
@@ -126,6 +131,16 @@ class Brain:
     '''
     self.log.debug('Brain running, nothing to do...')
 
+  def hasWork(self):
+    '''! Whether loop() has something waiting for it before the timeout is up
+
+    A brain that decides for itself has nothing to answer here and waits out
+    the whole timeout. One driven from outside overrides this, or every order
+    it is given waits for the timeout to expire before it is even looked at.
+    @return Return true to cut the wait short and run loop() now
+    '''
+    return False
+
 class Event:
   ''' An event sent from the client '''
 
@@ -150,7 +165,12 @@ class Event:
   EVT_STATUS_BAR = 19
   EVT_TRADE = 20
   EVT_CLILOC = 21
-  EVT_OUT_OF_RANGE_OBJ = 22
+  EVT_PARTY = 22
+  EVT_HOUSE_DESIGN = 23
+  EVT_HOUSE_EDIT = 24
+  EVT_HOUSE_REV = 25
+  EVT_SPELLBOOK = 26
+  EVT_OUT_OF_RANGE_OBJ = 27
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -166,9 +186,10 @@ class Event:
   EVT_BOAT_MOVE = 111
   EVT_AOS_TOOLTIP = 112
   EVT_WEAR_ITEM = 113
-  EVT_BUY_ITEMS = 114
-  EVT_SELL_ITEMS = 115
-  EVT_RACE_CHANGE = 116
+  EVT_CANCEL_TARGET = 114
+  EVT_BUY_ITEMS = 115
+  EVT_SELL_ITEMS = 116
+  EVT_RACE_CHANGE = 117
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -231,6 +252,8 @@ class Event:
       return "drop_item"
     elif self.type==Event.EVT_WEAR_ITEM:
       return "wear_item"
+    elif self.type==Event.EVT_CANCEL_TARGET:
+      return "cancel_target"
     elif self.type==Event.EVT_BUY_ITEMS:
       return "buy_items"
     elif self.type==Event.EVT_SELL_ITEMS:
@@ -261,3 +284,13 @@ class Event:
       return "trade"
     elif self.type==Event.EVT_CLILOC:
       return "cliloc"
+    elif self.type==Event.EVT_PARTY:
+      return "party"
+    elif self.type==Event.EVT_HOUSE_DESIGN:
+      return "house_design"
+    elif self.type==Event.EVT_HOUSE_EDIT:
+      return "house_edit"
+    elif self.type==Event.EVT_HOUSE_REV:
+      return "house_rev"
+    elif self.type==Event.EVT_SPELLBOOK:
+      return "spellbook"

@@ -1,0 +1,109 @@
+// The Spellbook class method script: a shard can hang extra methods on every
+// spellbook by naming a script under SystemMethod in a syshook.cfg.
+//
+// It is reached only for names the core does not know, and only when the
+// script exports a function taking the object plus the call's own arguments -
+// so a wrong parameter count is the same as no method at all. A method script
+// named by an itemdesc entry is consulted before it.
+//
+// The scripts are method-scripts/syshook.src and method-scripts/itemdesc.src;
+// syshook.cfg registers the first and itemdesc.cfg the second, on
+// TestBookNecro alone.
+
+use os;
+use uo;
+
+include "spell";
+
+program testspellmethod()
+  return 1;
+endprogram
+
+// The hook is handed the book itself, not a copy of it: it reads back the
+// serial and the spells of the book the method was called on, and it is given
+// the call's own argument after that.
+exported function method_hook_is_called( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+  book.addspell( SPELL_CIRCLE );
+  book.addspell( SPELL_SEVEN );
+
+  var res := book.SpellbookProbe( 42 );
+  if ( res == error )
+    return ret_error( $"the method answered {res.errortext}" );
+  endif
+  if ( res.serial != book.serial )
+    return ret_error( $"the hook was handed 0x{res.serial:x}, not the book" );
+  endif
+  if ( res.spells != 2 )
+    return ret_error( $"the hook saw {res.spells} spells in the book, not 2" );
+  endif
+  if ( res.arg != 42 )
+    return ret_error( $"the hook was given {res.arg}, not the argument" );
+  endif
+
+  return 1;
+endfunction
+
+// A method script named by the itemdesc wins over the class one. Only
+// TestBookNecro carries one, so the same call on a magery book answers with
+// the class script.
+exported function method_itemdesc_wins( resmgn )
+  var necro := make_book( resmgn, BOOK_NECRO );
+  if ( !necro )
+    return necro;
+  endif
+  var magic := make_book( resmgn, BOOK_MAGIC );
+  if ( !magic )
+    return magic;
+  endif
+
+  var res := necro.SpellbookWhereDefined();
+  if ( res != "itemdesc" )
+    return ret_error( $"the book with a method script of its own answered {res}" );
+  endif
+  res := magic.SpellbookWhereDefined();
+  if ( res != "syshook" )
+    return ret_error( $"the book without one answered {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// What the hook does not cover is unchanged: a name it does not export is
+// still no method, the core's own methods are still the core's, and a book is
+// the only thing the Spellbook script is asked about.
+exported function method_hook_leaves_the_rest( resmgn )
+  var book := make_book( resmgn, BOOK_MAGIC );
+  if ( !book )
+    return book;
+  endif
+  book.addspell( SPELL_CIRCLE );
+
+  var res := book.SpellbookNoSuchMethod();
+  if ( res != error )
+    return ret_error( $"a method nothing exports answered {res}" );
+  endif
+  // the same name the hook does export, called with an argument it has no
+  // function for - a method script is found by parameter count as well
+  res := book.SpellbookProbe();
+  if ( res != error )
+    return ret_error( $"the probe answered {res} when called with no argument" );
+  endif
+  if ( book.hasspell( SPELL_CIRCLE ) != 1 )
+    return ret_error( "the core's own spellbook methods no longer answer" );
+  endif
+
+  var plain := make_book( resmgn, PLAIN_ITEM );
+  if ( !plain )
+    return plain;
+  endif
+  res := plain.SpellbookProbe( 42 );
+  if ( res != error )
+    return ret_error( $"an item that is no spellbook answered {res}" );
+  endif
+
+  return 1;
+endfunction

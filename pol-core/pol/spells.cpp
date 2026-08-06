@@ -213,12 +213,18 @@ bool USpell::consume_reagents( Mobile::Character* chr )
   if ( bp == nullptr )
     return false;
 
+  // first look if everything is available
+  for ( unsigned int& itr : reglist_ )
+  {
+    if ( bp->find_objtype_noninuse( itr ) == nullptr )
+      return false;
+  }
+
   for ( unsigned int& itr : reglist_ )
   {
     Items::Item* item = bp->find_objtype_noninuse( itr );
-    if ( item == nullptr )
-      return false;
-    subtract_amount_from_item( item, 1 );
+    if ( item != nullptr )
+      subtract_amount_from_item( item, 1 );
   }
 
   return true;

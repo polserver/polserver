@@ -1,0 +1,217 @@
+// DestroyGuild, and what a reference to a destroyed guild is still good for.
+//
+// A guild is only destroyed when it holds nothing: members, allies and enemies
+// each refuse it separately. Destroying flips a disbanded flag on the object and
+// drops it from the shard's guild table, but any script still holding the
+// reference keeps a live object - every member read and every method call on it
+// answers "Guild has disbanded" from then on.
+use uo;
+use os;
+use guilds;
+
+include "testutil";
+include "guild";
+
+program test_guild_destroy()
+  return 1;
+endprogram
+
+// an empty guild goes away for good
+exported function destroy_empty_guild()
+  var guild := make_guild( "destroy" );
+  if ( !guild )
+    return guild;
+  endif
+  var guildid := guild.guildid;
+
+  var res := DestroyGuild( guild );
+  if ( !res )
+    return ret_error( $"DestroyGuild failed: {res}" );
+  endif
+
+  if ( guildid in guild_ids( ListGuilds() ) )
+    return ret_error( $"guild {guildid} is still listed" );
+  endif
+
+  res := FindGuild( guildid );
+  if ( res != error || !res.errortext.find( "Guild not found" ) )
+    return ret_error( $"the destroyed guild was found: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// a guild with a member stays
+exported function destroy_refuses_members( resmgn )
+  var guild := make_guild( "destroymembers" );
+  if ( !guild )
+    return guild;
+  endif
+  var npc := make_member( resmgn );
+  if ( !npc )
+    return drop_and_fail( guild, npc.errortext );
+  endif
+
+  guild.addmember( npc );
+  var res := DestroyGuild( guild );
+  if ( res != error || !res.errortext.find( "Guild has members" ) )
+    return drop_and_fail( guild, $"a guild with a member was destroyed: {res}" );
+  endif
+
+  // and goes as soon as the member does
+  guild.removemember( npc );
+  res := DestroyGuild( guild );
+  if ( !res )
+    return drop_and_fail( guild, $"the emptied guild survived: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// so does a guild in any relation, from either side of it
+exported function destroy_refuses_relations()
+  var guild := make_guild( "destroyally1" );
+  var other := make_guild( "destroyally2" );
+  if ( !guild || !other )
+    return !guild ? guild : other;
+  endif
+
+  guild.addallyguild( other );
+  var res := DestroyGuild( guild );
+  if ( res != error || !res.errortext.find( "Guild has allies" ) )
+    return drop_and_fail( guild, $"an allied guild was destroyed: {res}", other );
+  endif
+
+  // the link was written into both, so the ally refuses as well
+  res := DestroyGuild( other );
+  if ( res != error || !res.errortext.find( "Guild has allies" ) )
+    return drop_and_fail( guild, $"the ally was destroyed: {res}", other );
+  endif
+  guild.removeallyguild( other );
+
+  guild.addenemyguild( other );
+  res := DestroyGuild( guild );
+  if ( res != error || !res.errortext.find( "Guild has enemies" ) )
+    return drop_and_fail( guild, $"a guild with an enemy was destroyed: {res}", other );
+  endif
+  res := DestroyGuild( other );
+  if ( res != error || !res.errortext.find( "Guild has enemies" ) )
+    return drop_and_fail( guild, $"the enemy was destroyed: {res}", other );
+  endif
+  guild.removeenemyguild( other );
+
+  drop_guild( other );
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// every member of a destroyed guild answers the same way
+exported function destroyed_ref_members()
+  var guild := make_guild( "destroyedmembers" );
+  if ( !guild )
+    return guild;
+  endif
+
+  var res := DestroyGuild( guild );
+  if ( !res )
+    return ret_error( $"DestroyGuild failed: {res}" );
+  endif
+
+  // the reference itself stays alive, but a disbanded guild is false: that is
+  // the one thing a script can still ask about it without getting an error
+  if ( guild )
+    return ret_error( "a destroyed guild reference is still true" );
+  endif
+
+  res := guild.guildid;
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return ret_error( $".guildid of a destroyed guild returned {res}" );
+  endif
+  res := guild.members;
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return ret_error( $".members of a destroyed guild returned {res}" );
+  endif
+  res := guild.allyguilds;
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return ret_error( $".allyguilds of a destroyed guild returned {res}" );
+  endif
+  res := guild.enemyguilds;
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return ret_error( $".enemyguilds of a destroyed guild returned {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// and so does every method, whether the guild is the object or the argument
+exported function destroyed_ref_methods( resmgn )
+  var guild := make_guild( "destroyedmethods" );
+  var other := make_guild( "destroyedmethods2" );
+  if ( !guild || !other )
+    return !guild ? guild : other;
+  endif
+  var npc := make_member( resmgn );
+  if ( !npc )
+    return drop_and_fail( guild, npc.errortext, other );
+  endif
+
+  var res := DestroyGuild( guild );
+  if ( !res )
+    return drop_and_fail( other, $"DestroyGuild failed: {res}" );
+  endif
+
+  res := guild.ismember( npc );
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return drop_and_fail( other, $"ismember on a destroyed guild: {res}" );
+  endif
+  res := guild.addmember( npc );
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return drop_and_fail( other, $"addmember on a destroyed guild: {res}" );
+  endif
+  res := guild.getprop( TEST_GUILD_PROP );
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return drop_and_fail( other, $"getprop on a destroyed guild: {res}" );
+  endif
+
+  // as an argument it is refused by the shared parameter check
+  res := other.addallyguild( guild );
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return drop_and_fail( other, $"a destroyed guild was allied: {res}" );
+  endif
+  res := DestroyGuild( guild );
+  if ( res != error || !res.errortext.find( "Guild has disbanded" ) )
+    return drop_and_fail( other, $"the guild was destroyed twice: {res}" );
+  endif
+
+  return drop_and_finish( other, 1 );
+endfunction
+
+// DestroyGuild wants a guild
+exported function destroy_param_refusals()
+  var res := DestroyGuild( 5 );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return ret_error( $"a number was accepted: {res}" );
+  endif
+
+  res := DestroyGuild( "1" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return ret_error( $"a string was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+function drop_and_fail( guild, message, second := 0 )
+  if ( second )
+    drop_guild( second );
+  endif
+  drop_guild( guild );
+  return ret_error( message );
+endfunction
+
+function drop_and_finish( guild, result )
+  var res := drop_guild( guild );
+  if ( !res )
+    return ret_error( $"could not destroy the guild: {res}" );
+  endif
+  return result;
+endfunction

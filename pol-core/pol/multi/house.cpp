@@ -38,6 +38,7 @@
 #include "plib/systemstate.h"
 #include "plib/uconst.h"
 
+#include "pol/base/range.h"
 #include "pol/core.h"
 #include "pol/fnsearch.h"
 #include "pol/globals/object_storage.h"
@@ -47,6 +48,9 @@
 #include "pol/item/location.h"
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
+#include "pol/multi/customhouses.h"
+#include "pol/multi/multi.h"
+#include "pol/multi/multidef.h"
 #include "pol/network/cgdata.h"
 #include "pol/network/client.h"
 #include "pol/realms/realm.h"
@@ -56,10 +60,6 @@
 #include "pol/uoexec.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-#include "pol/base/range.h"
-#include "pol/multi/customhouses.h"
-#include "pol/multi/multi.h"
-#include "pol/multi/multidef.h"
 
 
 namespace Pol::Multi
@@ -560,7 +560,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
     int drop_changes;
     if ( ex.getCharacterParam( 0, chr ) && ex.getParam( 1, drop_changes ) )
     {
-      if ( chr->client->gd->custom_house_serial == serial )
+      if ( chr->has_active_client() && chr->client->gd->custom_house_serial == serial )
         CustomHousesQuit( chr, drop_changes ? true : false );
       else
         return new BError( "Character is not editing this house" );

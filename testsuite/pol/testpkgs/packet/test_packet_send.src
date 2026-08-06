@@ -1,0 +1,124 @@
+// SendPacket and SendAreaPacket without a client in sight. What they do when a
+// client *is* attached belongs to the testclient package - here we pin what they
+// refuse, and that a mobile with no client is answered rather than crashed into.
+use uo;
+use os;
+use polsys;
+
+include "testutil";
+
+const BASE_X := 62;
+const BASE_Y := 112;
+
+// a packet with a plausible body, so nothing is refused for its contents
+function probe_packet()
+  var pkt := CreatePacket( 0x1C, MSGLEN_VARIABLE );
+  pkt.SetSize( 8 );
+  return pkt;
+endfunction
+
+function make_npc( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testpacket:packet_npc", BASE_X, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"could not create the npc: {npc}" );
+  endif
+  return npc;
+endfunction
+
+// an npc has no client, so there is nothing to send to and the answer is a plain 0
+exported function send_to_mobile_without_client( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var pkt := probe_packet();
+  var res := pkt.SendPacket( npc );
+  if ( res != 0 )
+    return ret_error( $"sending to a clientless mobile answered {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// anything that is not a mobile or a client is refused
+exported function send_refuses_non_mobile( resmgn )
+  var pkt := probe_packet();
+
+  var item := resmgn.CreateItemAtLocation( BASE_X, BASE_Y, 0, 0xEED, 1 );
+  if ( !item )
+    return ret_error( $"could not create the item: {item}" );
+  endif
+
+  var res := pkt.SendPacket( item );
+  if ( res != error )
+    return ret_error( $"sending to an item was accepted: {res}" );
+  endif
+
+  res := pkt.SendPacket( "nobody" );
+  if ( res != error )
+    return ret_error( $"sending to a string was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// SendPacket takes exactly one parameter
+exported function send_refuses_bad_arguments( resmgn )
+  var npc := make_npc( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  var pkt := probe_packet();
+
+  var res := pkt.SendPacket();
+  if ( res != error )
+    return ret_error( $"SendPacket without a recipient was accepted: {res}" );
+  endif
+  res := pkt.SendPacket( npc, npc );
+  if ( res != error )
+    return ret_error( $"SendPacket with two recipients was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// with no online player around, an area send reaches nobody and says so
+exported function send_area_reaches_nobody()
+  var pkt := probe_packet();
+
+  var res := pkt.SendAreaPacket( BASE_X, BASE_Y, 10, _DEFAULT_REALM );
+  if ( res != 0 )
+    return ret_error( $"an empty area answered {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// the area send validates its realm, its coordinates and its argument count
+exported function send_area_refuses_bad_area()
+  var pkt := probe_packet();
+
+  var res := pkt.SendAreaPacket( BASE_X, BASE_Y, 10, "nosuchrealm" );
+  if ( res != error )
+    return ret_error( $"an unknown realm was accepted: {res}" );
+  endif
+
+  res := pkt.SendAreaPacket( 60000, 60000, 10, _DEFAULT_REALM );
+  if ( res != error )
+    return ret_error( $"coordinates outside the realm were accepted: {res}" );
+  endif
+
+  res := pkt.SendAreaPacket( BASE_X, BASE_Y, 10 );
+  if ( res != error )
+    return ret_error( $"SendAreaPacket without a realm was accepted: {res}" );
+  endif
+
+  res := pkt.SendAreaPacket( BASE_X, BASE_Y, 10, _DEFAULT_REALM, 1 );
+  if ( res != error )
+    return ret_error( $"SendAreaPacket with five arguments was accepted: {res}" );
+  endif
+
+  return 1;
+endfunction

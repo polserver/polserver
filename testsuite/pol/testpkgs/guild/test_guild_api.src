@@ -1,0 +1,440 @@
+// guilds.em and the members and methods of a GuildRef.
+//
+// Coverage before this was one case in testrestart, which only checks that a
+// guild survives a save and a reload. Nothing asked what the methods do, and
+// nothing asked what they refuse.
+//
+// A guild is pure bookkeeping: a member set, an ally set and an enemy set, all
+// of them serials, plus a proplist. The core keeps the ally and enemy sets
+// symmetric itself - naming a guild an ally writes the link into both guilds -
+// and prunes serials whose object is gone whenever the corresponding array is
+// read.
+use uo;
+use os;
+use guilds;
+
+include "testutil";
+include "guild";
+
+// no shard ever gets this far up the guild id counter
+const NO_SUCH_GUILDID := 0x7FFFFFF0;
+
+program test_guild_api()
+  return 1;
+endprogram
+
+// a new guild is findable, listed, and has an id of its own
+exported function api_create_and_find()
+  var guild := make_guild( "create" );
+  if ( !guild )
+    return guild;
+  endif
+
+  var type := TypeOf( guild );
+  if ( type != "GuildRef" )
+    return drop_and_fail( guild, $"wrong type: {type}" );
+  endif
+  var typeint := TypeOfInt( guild );
+  if ( typeint != OT_GUILDREF )
+    return drop_and_fail( guild, $"wrong type id: {typeint}" );
+  endif
+
+  var second := make_guild( "create2" );
+  if ( !second )
+    drop_guild( guild );
+    return second;
+  endif
+  if ( second.guildid == guild.guildid )
+    drop_guild( second );
+    return drop_and_fail( guild, $"both guilds got id {guild.guildid}" );
+  endif
+
+  // the shard-wide list holds them both, along with everyone else's
+  var listed := guild_ids( ListGuilds() );
+  if ( !( guild.guildid in listed ) || !( second.guildid in listed ) )
+    drop_guild( second );
+    return drop_and_fail( guild, $"not listed: {guild.guildid} {second.guildid} in {listed}" );
+  endif
+
+  var found := FindGuild( guild.guildid );
+  if ( !found || found.guildid != guild.guildid )
+    drop_guild( second );
+    return drop_and_fail( guild, $"FindGuild returned {found}" );
+  endif
+
+  drop_guild( second );
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// what FindGuild says about an id that is not one
+exported function api_find_refusals()
+  var res := FindGuild( NO_SUCH_GUILDID );
+  if ( res != error )
+    return ret_error( $"an unknown guildid was found: {res}" );
+  elseif ( !res.errortext.find( "Guild not found" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  res := FindGuild( "1" );
+  if ( res != error )
+    return ret_error( $"a string guildid was accepted: {res}" );
+  elseif ( !res.errortext.find( "Invalid parameter type" ) )
+    return ret_error( $"wrong error: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+// addmember, and what it does to the character
+exported function api_add_member( resmgn )
+  var guild := make_guild( "members" );
+  if ( !guild )
+    return guild;
+  endif
+  var npc := make_member( resmgn );
+  if ( !npc )
+    return drop_and_fail( guild, npc.errortext );
+  endif
+
+  if ( npc.guildid != 0 )
+    return drop_and_fail( guild, $"a fresh npc already has guildid {npc.guildid}" );
+  elseif ( npc.guild != error )
+    return drop_and_fail( guild, $"a fresh npc already has a guild: {npc.guild}" );
+  endif
+
+  var res := guild.addmember( npc );
+  if ( !res )
+    return drop_and_fail( guild, $"addmember failed: {res}" );
+  endif
+
+  if ( npc.guildid != guild.guildid )
+    return drop_and_fail( guild, $"guildid {npc.guildid} != {guild.guildid}" );
+  elseif ( npc.guild.guildid != guild.guildid )
+    return drop_and_fail( guild, $"chr.guild is {npc.guild.guildid}, not {guild.guildid}" );
+  elseif ( !guild.ismember( npc ) )
+    return drop_and_fail( guild, "ismember says no" );
+  endif
+
+  var members := serials( guild.members );
+  if ( members != { npc.serial } )
+    return drop_and_fail( guild, $"members {members} != {{ {npc.serial} }}" );
+  endif
+
+  // one character, one guild
+  var other := make_guild( "members2" );
+  if ( !other )
+    return drop_and_fail( guild, other.errortext );
+  endif
+  res := other.addmember( npc );
+  drop_guild( other );
+  if ( res != error )
+    return drop_and_fail( guild, $"a second guild accepted the member: {res}" );
+  elseif ( !res.errortext.find( "Character already belongs to a guild" ) )
+    return drop_and_fail( guild, $"wrong error: {res.errortext}" );
+  endif
+
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// removemember gives the character back
+exported function api_remove_member( resmgn )
+  var guild := make_guild( "remove" );
+  if ( !guild )
+    return guild;
+  endif
+  var npc := make_member( resmgn );
+  if ( !npc )
+    return drop_and_fail( guild, npc.errortext );
+  endif
+
+  // a character that never joined
+  var res := guild.removemember( npc );
+  if ( res != error )
+    return drop_and_fail( guild, $"a non-member was removed: {res}" );
+  elseif ( !res.errortext.find( "Character does not belong to this guild" ) )
+    return drop_and_fail( guild, $"wrong error: {res.errortext}" );
+  endif
+
+  guild.addmember( npc );
+  res := guild.removemember( npc );
+  if ( !res )
+    return drop_and_fail( guild, $"removemember failed: {res}" );
+  endif
+
+  if ( npc.guildid != 0 )
+    return drop_and_fail( guild, $"guildid {npc.guildid} survived the removal" );
+  elseif ( npc.guild != error )
+    return drop_and_fail( guild, $"chr.guild survived the removal: {npc.guild}" );
+  elseif ( guild.ismember( npc ) )
+    return drop_and_fail( guild, "ismember still says yes" );
+  endif
+
+  // an empty array is still true in eScript, so count instead of asking
+  var left := serials( guild.members );
+  if ( len( left ) )
+    return drop_and_fail( guild, $"members is not empty: {left}" );
+  endif
+
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// the parameter checks the three member methods share
+exported function api_member_refusals()
+  var guild := make_guild( "memberrefusals" );
+  if ( !guild )
+    return guild;
+  endif
+
+  var res := guild.addmember();
+  if ( res != error || !res.errortext.find( "Not enough parameters" ) )
+    return drop_and_fail( guild, $"addmember without a member: {res}" );
+  endif
+
+  res := guild.addmember( "1" );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( guild, $"addmember with a string: {res}" );
+  endif
+
+  // a number is not refused out of hand: the character parameter of any module
+  // function takes an integer as a serial, so this is a lookup that misses
+  res := guild.addmember( 5 );
+  if ( res != error || !res.errortext.find( "Mobile does not exist" ) )
+    return drop_and_fail( guild, $"addmember with a number: {res}" );
+  endif
+
+  res := guild.removemember();
+  if ( res != error || !res.errortext.find( "Not enough parameters" ) )
+    return drop_and_fail( guild, $"removemember without a member: {res}" );
+  endif
+
+  res := guild.ismember();
+  if ( res != error || !res.errortext.find( "Not enough parameters" ) )
+    return drop_and_fail( guild, $"ismember without a member: {res}" );
+  endif
+
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// a member whose object is gone drops out of the list when it is read
+exported function api_members_prune_gone( resmgn )
+  var guild := make_guild( "prune" );
+  if ( !guild )
+    return guild;
+  endif
+  var keep := make_member( resmgn );
+  var gone := make_member( resmgn, 2 );
+  if ( !keep || !gone )
+    return drop_and_fail( guild, !keep ? keep.errortext : gone.errortext );
+  endif
+
+  guild.addmember( keep );
+  guild.addmember( gone );
+  var members := serials( guild.members );
+  if ( len( members ) != 2 )
+    return drop_and_fail( guild, $"expected two members, got {members}" );
+  endif
+
+  var goneserial := gone.serial;
+  var res := kill_member( gone );
+  if ( !res )
+    return drop_and_fail( guild, res.errortext );
+  endif
+
+  res := wait_for_members( guild, 1 );
+  if ( !res )
+    return drop_and_fail( guild, $"0x{goneserial:x} was not pruned: {res.errortext}" );
+  endif
+
+  var left := serials( guild.members );
+  if ( left != { keep.serial } )
+    return drop_and_fail( guild, $"the wrong member survived: {left}" );
+  endif
+
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// naming an ally writes the link into both guilds
+exported function api_ally_is_mutual()
+  var guild := make_guild( "ally1" );
+  var ally := make_guild( "ally2" );
+  if ( !guild || !ally )
+    return !guild ? guild : ally;
+  endif
+
+  if ( guild.isallyguild( ally ) || ally.isallyguild( guild ) )
+    return drop_and_fail( guild, "strangers are allies", ally );
+  endif
+
+  var res := guild.addallyguild( ally );
+  if ( !res )
+    return drop_and_fail( guild, $"addallyguild failed: {res}", ally );
+  endif
+
+  if ( !guild.isallyguild( ally ) || !ally.isallyguild( guild ) )
+    return drop_and_fail( guild, "the alliance is one-sided", ally );
+  endif
+  var allies := guild_ids( guild.allyguilds );
+  if ( allies != { ally.guildid } )
+    return drop_and_fail( guild, $"allyguilds {allies}", ally );
+  endif
+  allies := guild_ids( ally.allyguilds );
+  if ( allies != { guild.guildid } )
+    return drop_and_fail( guild, $"the ally lists {allies}", ally );
+  endif
+
+  // and removing it takes both sides down again
+  res := guild.removeallyguild( ally );
+  if ( !res )
+    return drop_and_fail( guild, $"removeallyguild failed: {res}", ally );
+  endif
+  if ( guild.isallyguild( ally ) || ally.isallyguild( guild ) )
+    return drop_and_fail( guild, "the alliance outlived its removal", ally );
+  endif
+
+  res := guild.removeallyguild( ally );
+  if ( res != error || !res.errortext.find( "That is not an ally guild" ) )
+    return drop_and_fail( guild, $"removing a non-ally: {res}", ally );
+  endif
+
+  drop_guild( ally );
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// the same for enemies
+exported function api_enemy_is_mutual()
+  var guild := make_guild( "enemy1" );
+  var enemy := make_guild( "enemy2" );
+  if ( !guild || !enemy )
+    return !guild ? guild : enemy;
+  endif
+
+  var res := guild.addenemyguild( enemy );
+  if ( !res )
+    return drop_and_fail( guild, $"addenemyguild failed: {res}", enemy );
+  endif
+
+  if ( !guild.isenemyguild( enemy ) || !enemy.isenemyguild( guild ) )
+    return drop_and_fail( guild, "the enmity is one-sided", enemy );
+  endif
+  var enemies := guild_ids( guild.enemyguilds );
+  if ( enemies != { enemy.guildid } )
+    return drop_and_fail( guild, $"enemyguilds {enemies}", enemy );
+  endif
+  enemies := guild_ids( enemy.enemyguilds );
+  if ( enemies != { guild.guildid } )
+    return drop_and_fail( guild, $"the enemy lists {enemies}", enemy );
+  endif
+
+  res := guild.removeenemyguild( enemy );
+  if ( !res )
+    return drop_and_fail( guild, $"removeenemyguild failed: {res}", enemy );
+  endif
+  if ( guild.isenemyguild( enemy ) || enemy.isenemyguild( guild ) )
+    return drop_and_fail( guild, "the enmity outlived its removal", enemy );
+  endif
+
+  res := guild.removeenemyguild( enemy );
+  if ( res != error || !res.errortext.find( "That is not an enemy guild" ) )
+    return drop_and_fail( guild, $"removing a non-enemy: {res}", enemy );
+  endif
+
+  drop_guild( enemy );
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// a guild is neither its own ally nor its own enemy, and no guild is both
+exported function api_relation_refusals()
+  var guild := make_guild( "relations1" );
+  var other := make_guild( "relations2" );
+  if ( !guild || !other )
+    return !guild ? guild : other;
+  endif
+
+  var res := guild.addallyguild( guild );
+  if ( res != error || !res.errortext.find( "Passed self as new ally guild" ) )
+    return drop_and_fail( guild, $"allied with itself: {res}", other );
+  endif
+  res := guild.addenemyguild( guild );
+  if ( res != error || !res.errortext.find( "Passed self as new enemy guild" ) )
+    return drop_and_fail( guild, $"at war with itself: {res}", other );
+  endif
+
+  // an ally cannot be made an enemy without being unallied first
+  guild.addallyguild( other );
+  res := guild.addenemyguild( other );
+  if ( res != error || !res.errortext.find( "That is an ally guild" ) )
+    return drop_and_fail( guild, $"an ally became an enemy: {res}", other );
+  endif
+  guild.removeallyguild( other );
+
+  // and the other way round
+  guild.addenemyguild( other );
+  res := guild.addallyguild( other );
+  if ( res != error || !res.errortext.find( "That is an enemy guild" ) )
+    return drop_and_fail( guild, $"an enemy became an ally: {res}", other );
+  endif
+  guild.removeenemyguild( other );
+
+  res := guild.addallyguild();
+  if ( res != error || !res.errortext.find( "Not enough parameters" ) )
+    return drop_and_fail( guild, $"addallyguild without a guild: {res}", other );
+  endif
+  res := guild.addenemyguild( 5 );
+  if ( res != error || !res.errortext.find( "Invalid parameter type" ) )
+    return drop_and_fail( guild, $"addenemyguild with a number: {res}", other );
+  endif
+
+  drop_guild( other );
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// a guild carries a proplist like any other object
+exported function api_guild_props()
+  var guild := make_guild( "props" );
+  if ( !guild )
+    return guild;
+  endif
+
+  var res := guild.setprop( "charter", struct{ motto := "test", founded := 5 } );
+  if ( !res )
+    return drop_and_fail( guild, $"setprop failed: {res}" );
+  endif
+
+  var charter := guild.getprop( "charter" );
+  if ( charter.motto != "test" || charter.founded != 5 )
+    return drop_and_fail( guild, $"getprop returned {charter}" );
+  endif
+
+  var names := guild.propnames();
+  if ( !( "charter" in names ) || !( TEST_GUILD_PROP in names ) )
+    return drop_and_fail( guild, $"propnames {names}" );
+  endif
+
+  res := guild.eraseprop( "charter" );
+  if ( !res )
+    return drop_and_fail( guild, $"eraseprop failed: {res}" );
+  endif
+  res := guild.getprop( "charter" );
+  if ( res != error || !res.errortext.find( "Property not found" ) )
+    return drop_and_fail( guild, $"the erased prop is still there: {res}" );
+  endif
+
+  return drop_and_finish( guild, 1 );
+endfunction
+
+// destroy the guilds a case made, then report what went wrong
+function drop_and_fail( guild, message, second := 0 )
+  if ( second )
+    drop_guild( second );
+  endif
+  drop_guild( guild );
+  return ret_error( message );
+endfunction
+
+function drop_and_finish( guild, result )
+  var res := drop_guild( guild );
+  if ( !res )
+    return ret_error( $"could not destroy the guild: {res}" );
+  endif
+  return result;
+endfunction

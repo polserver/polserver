@@ -301,6 +301,30 @@ Bscript::BStruct* Client::getclientinfo() const
   return ret.release();
 }
 
+void Client::setversion( const std::string& ver )
+{
+  std::lock_guard<std::mutex> lock( version_lock_ );
+  version_ = ver;
+}
+
+const std::string& Client::getversion() const
+{
+  std::lock_guard<std::mutex> lock( version_lock_ );
+  return version_;
+}
+
+VersionDetailStruct Client::getversiondetail() const
+{
+  std::lock_guard<std::mutex> lock( version_lock_ );
+  return versiondetail_;
+}
+
+void Client::setversiondetail( VersionDetailStruct& detail )
+{
+  std::lock_guard<std::mutex> lock( version_lock_ );
+  versiondetail_ = detail;
+}
+
 void Client::itemizeclientversion( const std::string& ver, VersionDetailStruct& detail )
 {
   try

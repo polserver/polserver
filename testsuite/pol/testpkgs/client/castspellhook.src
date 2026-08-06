@@ -1,0 +1,28 @@
+// The OnCast system hook, installed by syshook.cfg.
+//
+// The core calls it at the very top of do_cast, before it has looked at the
+// spell id at all - so it sees ids no spell was ever defined for, and a true
+// answer stops the cast before any of the refusals below it are reached.
+//
+// It records every call and lets the cast through, until a test parks something
+// in #CastHookCancel - an unset global property cannot be told from a refusing
+// 0, which is why the cancel is a property of its own rather than a return
+// value.
+use uo;
+use os;
+
+program Install()
+  return 1;
+endprogram
+
+exported function OnCastHook( chr, spellid )
+  var call := struct{};
+  call.+character := chr.serial;
+  call.+spellid := spellid;
+  SetGlobalProperty( "#CastHookCall", call );
+
+  if ( GetGlobalProperty( "#CastHookCancel" ) )
+    return 1;
+  endif
+  return 0;
+endfunction

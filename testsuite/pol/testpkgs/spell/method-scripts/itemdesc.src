@@ -1,0 +1,11 @@
+// The method script of TestBookNecro alone, named by its itemdesc entry. A
+// script named there is consulted before the class method script of
+// ../syshook.cfg, which is what SpellbookWhereDefined is here to show.
+
+program Install()
+  return 1;
+endprogram
+
+exported function SpellbookWhereDefined( unused book )
+  return "itemdesc";
+endfunction

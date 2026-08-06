@@ -51,9 +51,9 @@ BPacket::BPacket( const BPacket& copyfrom )
       is_variable_length( copyfrom.is_variable_length )
 {
 }
-BPacket::BPacket( u8 type, signed short length ) : PolObjectImp( OTPacket )
+BPacket::BPacket( u8 type, int length ) : PolObjectImp( OTPacket )
 {
-  if ( length == -1 )
+  if ( length == MSGLEN_VARIABLE )
   {
     is_variable_length = true;
     buffer.resize( 1, type );
@@ -95,6 +95,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
   {
     if ( ex.numParams() != 1 )
       return new BError( "SendPacket requires 1 parameter." );
+    if ( buffer.empty() )
+      return new BError( "Packet is empty" );
 
     Mobile::Character* chr = nullptr;
     Network::Client* client = nullptr;
@@ -126,6 +128,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
   {
     if ( ex.numParams() != 4 )
       return new BError( "SendAreaPacket requires 4 parameters." );
+    if ( buffer.empty() )
+      return new BError( "Packet is empty" );
     Core::Pos2d pos;
     Realms::Realm* realm;
     unsigned short range;
@@ -168,7 +172,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u16 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + sizeof( u16 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u16* data = reinterpret_cast<u16*>( &buffer[offset] );
       return new BLong( cfBEu16( *data ) );
@@ -183,7 +187,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u32 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + sizeof( u32 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u32* data = reinterpret_cast<u32*>( &buffer[offset] );
       return new BLong( cfBEu32( *data ) );
@@ -198,7 +202,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u16 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + sizeof( u16 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u16* data = reinterpret_cast<u16*>( &buffer[offset] );
       return new BLong( cfLEu16( *data ) );
@@ -213,7 +217,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset;
     if ( ex.getParam( 0, offset ) )
     {
-      if ( offset > buffer.size() - sizeof( u32 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + sizeof( u32 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       u32* data = reinterpret_cast<u32*>( &buffer[offset] );
       return new BLong( cfLEu32( *data ) );
@@ -229,8 +233,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, len ) )
     {
       if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+           !has_space( offset + len ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
 
       const char* str_offset = reinterpret_cast<const char*>( &buffer[offset] );
@@ -254,8 +257,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
          ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
     {
       if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len * 2 ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+           !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len, true );
@@ -273,8 +275,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
          ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
     {
       if ( ( offset >= buffer.size() ) ||
-           ( static_cast<u16>( offset + len * 2 ) >
-             buffer.size() ) )  // don't allow getting bytes past end of buffer
+           !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len );
@@ -305,13 +306,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, value;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
     {
-      if ( offset >= buffer.size() )
-      {
-        if ( !SetSize( ( offset + sizeof( u8 ) ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-        }
-      }
+      if ( auto* err = ensure_space( offset + sizeof( u8 ) ) )
+        return err;
       buffer[offset] = static_cast<u8>( value );
       return new BLong( 1 );
     }
@@ -325,14 +321,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, value;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
     {
-      if ( static_cast<u16>( offset + sizeof( u16 ) ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + sizeof( u16 ) ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
-        }
-      }
+      if ( auto* err = ensure_space( offset + sizeof( u16 ) ) )
+        return err;
 
       u16* bufptr = reinterpret_cast<u16*>( &buffer[offset] );
       *bufptr = ctBEu16( static_cast<u16>( value ) );
@@ -349,14 +339,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     int lvalue;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, lvalue ) )
     {
-      if ( static_cast<u32>( offset + sizeof( u32 ) ) > buffer.size() )
-      {
-        if ( !SetSize( offset + sizeof( u32 ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
-        }
-      }
+      if ( auto* err = ensure_space( offset + sizeof( u32 ) ) )
+        return err;
 
       u32* bufptr = reinterpret_cast<u32*>( &buffer[offset] );
       *bufptr = ctBEu32( static_cast<u32>( lvalue ) );
@@ -372,14 +356,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, value;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, value ) )
     {
-      if ( static_cast<u16>( offset + sizeof( u16 ) ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + sizeof( u16 ) ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
-        }
-      }
+      if ( auto* err = ensure_space( offset + sizeof( u16 ) ) )
+        return err;
 
       u16* bufptr = reinterpret_cast<u16*>( &buffer[offset] );
       *bufptr = ctLEu16( static_cast<u16>( value ) );
@@ -396,14 +374,8 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     int lvalue;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, lvalue ) )
     {
-      if ( static_cast<u32>( offset + sizeof( u32 ) ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + sizeof( u32 ) ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
-        }
-      }
+      if ( auto* err = ensure_space( offset + sizeof( u32 ) ) )
+        return err;
       u32* bufptr = reinterpret_cast<u32*>( &buffer[offset] );
       *bufptr = ctLEu32( static_cast<u32>( lvalue ) );
       return new BLong( 1 );
@@ -428,17 +400,12 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       {
         cp1252text = text->value();
       }
-      u16 textlen = static_cast<u16>( cp1252text.length() );
-      if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + textlen + nullterm ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-        }
-      }
+      size_t textlen = cp1252text.length();
+      if ( auto* err = ensure_space( offset + textlen + nullterm ) )
+        return err;
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
       const char* textptr = cp1252text.c_str();
-      for ( u16 i = 0; i < textlen; i++ )
+      for ( size_t i = 0; i < textlen; i++ )
       {
         bufptr[i] = textptr[i];
       }
@@ -458,17 +425,12 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     const String* text;
     if ( ex.getParam( 0, offset ) && ex.getStringParam( 1, text ) && ex.getParam( 2, nullterm ) )
     {
-      u16 textlen = static_cast<u16>( text->value().length() );
-      if ( static_cast<u16>( offset + textlen + nullterm ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + textlen + nullterm ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-        }
-      }
+      size_t textlen = text->value().length();
+      if ( auto* err = ensure_space( offset + textlen + nullterm ) )
+        return err;
       u8* bufptr = reinterpret_cast<u8*>( &buffer[offset] );
       const char* textptr = text->value().c_str();
-      for ( u16 i = 0; i < textlen; i++ )
+      for ( size_t i = 0; i < textlen; i++ )
         bufptr[i] = textptr[i];
 
       if ( nullterm )
@@ -490,14 +452,9 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       std::vector<u16> gwtext = unitext->toUTF16();
       if ( nullterm )
         gwtext.push_back( 0 );
-      u16 bytelen = static_cast<u16>( gwtext.size() ) * 2;
-      if ( static_cast<u16>( offset + bytelen ) > buffer.size() )
-      {
-        if ( !SetSize( ( offset + bytelen ) ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-        }
-      }
+      size_t bytelen = gwtext.size() * 2;
+      if ( auto* err = ensure_space( offset + bytelen ) )
+        return err;
       for ( const auto& c : gwtext )
       {
         u16 fc = cfBEu16( c );
@@ -521,16 +478,10 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       std::vector<u16> gwtext = unitext->toUTF16();
       if ( nullterm )
         gwtext.push_back( 0 );
-      u16 bytelen = static_cast<u16>( gwtext.size() ) * 2;
+      size_t bytelen = gwtext.size() * 2;
 
-      if ( static_cast<u16>( offset + bytelen ) > buffer.size() )
-      {
-        if ( !SetSize( offset + bytelen ) )
-        {
-          return new BError( "Offset value out of range on a fixed length packet" );
-          ;
-        }
-      }
+      if ( auto* err = ensure_space( offset + bytelen ) )
+        return err;
       for ( const auto& c : gwtext )
       {
         std::memcpy( &buffer[offset], &c, sizeof( c ) );
@@ -581,6 +532,17 @@ std::string BPacket::getStringRep() const
   return os;
 }
 
+BObjectImp* BPacket::ensure_space( size_t needed )
+{
+  if ( needed <= buffer.size() )
+    return nullptr;
+  if ( needed > MAX_PACKET_LEN )
+    return new BError( "Offset value out of range" );
+  if ( !SetSize( static_cast<u16>( needed ) ) )
+    return new BError( "Offset value out of range on a fixed length packet" );
+  return nullptr;
+}
+
 bool BPacket::SetSize( u16 newsize )
 {
   if ( !is_variable_length )
@@ -596,6 +558,8 @@ BObjectImp* BPacket::SetSize( u16 newsize, bool /*giveReturn*/ )
 {
   if ( !is_variable_length )
     return new BError( "Attempted to resize a fixed length packet" );
+  if ( newsize < 3 )
+    return new BError( "Variable length packets cannot be smaller than 3 bytes" );
   unsigned short oldsize = static_cast<unsigned short>( buffer.size() );
   buffer.resize( newsize );
   u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );

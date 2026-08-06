@@ -1,0 +1,324 @@
+// Leaving a party and being thrown out of one, the three hooks that may refuse
+// it, and the loot permission.
+//
+// The member list is the party's whole state as far as a client is concerned:
+// every change sends the list again, and a client that is no longer in the party
+// is sent a list holding nothing but itself.
+
+include "party";
+
+program test_party_manage()
+  return party_setup();
+endprogram
+
+// Naming a new leader is a script's privilege, but both clients are told: the
+// leader is the first member of the list that follows.
+exported function manage_new_leader( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := char.party.setleader( char2 );
+  if ( res != 1 )
+    return party_fail( $"setleader returned {res}" );
+  endif
+
+  res := wait_for_parties( PARTYCMD_ADD );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ list, list2 ] := res;
+
+  var expected := { char2.serial, char.serial };
+  var members := party_members( list );
+  if ( members != expected )
+    return party_fail( $"client 0 was sent {members}" );
+  endif
+  members := party_members( list2 );
+  if ( members != expected )
+    return party_fail( $"client 1 was sent {members}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// The leader throws the member out. With nobody left the party ends, which the
+// leader hears about in three separate messages.
+exported function manage_leader_kicks( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 0, char2.serial );
+
+  // A player has been removed from your party. / The last person has left the
+  // party... / Your party has disbanded. / You have been removed from the party.
+  var wanted := array{};
+  wanted.append( want_cliloc( 0, CLP_PLAYER_REMOVED ) );
+  wanted.append( want_cliloc( 0, CLP_LAST_PERSON ) );
+  wanted.append( want_cliloc( 0, CLP_DISBANDED ) );
+  wanted.append( want_cliloc( 1, CLP_REMOVED ) );
+  wanted.append( want_party( 1, PARTYCMD_REMOVE ) );
+
+  res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var [ removed, last, disbanded, told, empty ] := res;
+
+  // the one thrown out is sent a party of nobody
+  if ( CInt( empty.serial ) != char2.serial )
+    return party_fail( $"0x{empty.serial:x} was removed, expected 0x{char2.serial:x}" );
+  endif
+  var members := party_members( empty );
+  if ( len( members ) )
+    return party_fail( $"the removed member was sent a party of {members}" );
+  endif
+
+  if ( char.party != error or char2.party != error )
+    return party_fail( "the party outlived its last member" );
+  endif
+
+  var call := hook_call( "CanRemoveMember" );
+  if ( !call or call.leader != char.serial or call.member != char2.serial )
+    return party_fail( $"CanRemoveMember was called with {call}" );
+  endif
+  call := hook_call( "OnLeaveParty" );
+  if ( !call or call.who != char2.serial or call.fromwho != char.serial )
+    return party_fail( $"OnLeaveParty was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// A member removes itself, which is a different hook and a different answer to
+// the question of who did it.
+exported function manage_member_leaves( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 1, char2.serial );
+
+  var wanted := array{};
+  wanted.append( want_party( 1, PARTYCMD_REMOVE ) );
+  wanted.append( want_cliloc( 1, CLP_REMOVED ) );
+  wanted.append( want_cliloc( 0, CLP_LAST_PERSON ) );
+
+  res := collect_events( wanted );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  var call := hook_call( "CanLeaveParty" );
+  if ( !call or call.member != char2.serial )
+    return party_fail( $"CanLeaveParty was called with {call}" );
+  endif
+  if ( hook_call( "CanRemoveMember" ) )
+    return party_fail( "CanRemoveMember was asked about a member leaving" );
+  endif
+
+  // the member left of its own accord, and the hook is told so
+  call := hook_call( "OnLeaveParty" );
+  if ( !call or call.who != char2.serial or call.fromwho != char2.serial )
+    return party_fail( $"OnLeaveParty was called with {call}" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// A hook that says no keeps the member where it is, and the core resends the
+// list to the client that asked, so its window goes back to what is true.
+exported function manage_kick_refused( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  refuse_hook( "CanRemoveMember" );
+  Clear_Event_Queue();
+  send_party_remove( 0, char2.serial );
+
+  var ev := wait_for_party( 0, PARTYCMD_ADD );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+  var members := party_members( ev );
+  if ( members != { char.serial, char2.serial } )
+    return party_fail( $"the resent list holds {members}" );
+  endif
+
+  if ( !char2.party )
+    return party_fail( "the member was thrown out anyway" );
+  endif
+  if ( hook_call( "OnLeaveParty" ) )
+    return party_fail( "OnLeaveParty fired for a refused removal" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// The same for a member trying to leave.
+exported function manage_leave_refused( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  refuse_hook( "CanLeaveParty" );
+  Clear_Event_Queue();
+  send_party_remove( 1, char2.serial );
+
+  var ev := wait_for_party( 1, PARTYCMD_ADD );
+  if ( !ev )
+    return party_fail( ev.errortext );
+  endif
+
+  if ( !char2.party )
+    return party_fail( "the member left anyway" );
+  endif
+  if ( hook_call( "OnLeaveParty" ) )
+    return party_fail( "OnLeaveParty fired for a refused departure" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// And a hook that refuses the invitation stops it before anything is sent.
+exported function manage_invite_refused( unused resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  refuse_hook( "CanAddToParty" );
+  Clear_Event_Queue();
+  send_party_invite( 0, char2.serial );
+
+  res := no_party_for( 1, PARTYCMD_INVITE_MEMBER );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  var call := hook_call( "CanAddToParty" );
+  if ( !call or call.leader != char.serial or call.member != char2.serial )
+    return party_fail( $"CanAddToParty was called with {call}" );
+  endif
+
+  // the party is made before the hook is asked, so a refusal leaves the leader
+  // in a party of one - which is what an invitation looks like anyway
+  if ( char2.candidate_of_party != error )
+    return party_fail( "the refused character became a candidate" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// The loot permission is the one party setting a script can only read: the
+// client sets it, and the core answers with the matching cliloc.
+exported function manage_loot_permission( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_loot( 0, 1 );
+  res := wait_for_cliloc( 0, CLP_ALLOW_LOOT );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  if ( char.partycanloot != 1 )
+    return party_fail( $"partycanloot is {char.partycanloot} after allowing" );
+  endif
+
+  var call := hook_call( "OnLootPermChange" );
+  if ( !call or call.who != char.serial or call.canloot != 1 )
+    return party_fail( $"OnLootPermChange was called with {call}" );
+  endif
+
+  send_party_loot( 0, 0 );
+  res := wait_for_cliloc( 0, CLP_PREVENT_LOOT );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  if ( char.partycanloot != 0 )
+    return party_fail( $"partycanloot is {char.partycanloot} after preventing" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Setting it without a party, which is the same answer as chatting without one.
+exported function manage_loot_without_party( unused resmgn )
+  var res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_loot( 0, 1 );
+  res := wait_for_cliloc( 0, CLP_NO_PARTY );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  if ( char.partycanloot != 0 )
+    return party_fail( "the loot permission was set without a party" );
+  endif
+  if ( hook_call( "OnLootPermChange" ) )
+    return party_fail( "OnLootPermChange fired without a party" );
+  endif
+
+  return party_finish( 1 );
+endfunction
+
+// Removing somebody who is not in the party, and asking for a target instead of
+// naming one.
+exported function manage_kick_stranger( resmgn )
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resmgn.CreateNPCFromTemplate( ":testclient:test_snooping", 100, 52, 0 );
+  if ( !npc )
+    return party_fail( $"could not create an npc: {npc}" );
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 0, npc.serial );
+
+  // nothing at all happens, and the party is left alone
+  res := no_party_for( 0, PARTYCMD_REMOVE );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  if ( !char2.party )
+    return party_fail( "removing a stranger emptied the party" );
+  endif
+
+  // a removal that names nobody asks the leader to point at someone
+  Clear_Event_Queue();
+  send_party_remove( 0, 0 );
+  res := wait_for_cliloc( 0, CLP_WHO_TO_REMOVE );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // The cursor that came with it is nobody's business afterwards, and a cursor
+  // left standing turns up on the next case that raises one. Only the client
+  // can retire a core cursor - see cancel_target().
+  res := cancel_target( 0 );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  return party_finish( 1 );
+endfunction

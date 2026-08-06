@@ -1,0 +1,71 @@
+--- empty document
+typeof:      XMLFile
+as string:   []
+--- declaration
+set:         1
+<?xml version="1.0" encoding="utf-8" ?>
+
+--- nodes and attributes
+appended:    root [XMLElement]
+attributes:  { decimal, number, text }
+value:       5
+text:        some text
+comment:     1
+setattr:     child
+attributes:  { a, b }
+removeattr:  child
+attributes:  { b }
+declaration replaced, comment on file level:
+set:         1
+comment:     1
+<?xml version="1.1" encoding="iso-8859-1" standalone="yes" ?>
+<root decimal="2.5" number="5" text="a value">
+	<child b="two">
+		some text
+		<!--a comment-->
+	</child>
+	<second />
+</root>
+<!--file comment-->
+
+custom indent:
+<?xml version="1.1" encoding="iso-8859-1" standalone="yes" ?>
+<root decimal="2.5" number="5" text="a value">
+<child b="two">
+some text
+<!--a comment-->
+</child>
+<second />
+</root>
+<!--file comment-->
+
+--- removing
+by name:     1
+by index:    1
+by node:     1
+<?xml version="1.1" encoding="iso-8859-1" standalone="yes" ?>
+<root decimal="2.5" number="5" text="a value" />
+<!--file comment-->
+
+--- a removed node
+as string:   removed XMLNode
+istrue:      0
+member:      error{ errortext = "Node was removed" }
+attributes:  error{ errortext = "Node was removed" }
+method:      error{ errortext = "Node was removed" }
+subscript:   error{ errortext = "Node was removed" }
+remove:      error{ errortext = "Failed to find node" }
+iterations:  0
+--- removing while iterating
+  1: one
+  1: struct{ i = "1" }
+left:        <top i="1">
+<two />
+</top>
+
+--- save and reopen
+save:        1
+typeof:      XMLFile
+same:        1
+root:        root
+attributes:  { decimal, number, text }

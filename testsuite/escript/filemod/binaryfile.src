@@ -1,0 +1,108 @@
+use file;
+
+// OpenBinaryFile and the BinaryFile object. Every file is opened with OPENMODE_TRUNC first so
+// that a previous run of this script cannot change the outcome.
+
+const TARGET := ":filetest:scratch/binary.dat";
+
+program BinaryFileTest()
+  print( "--- byte order" );
+  var f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, LITTLE_ENDIAN );
+  print( "open:        " + f );
+  print( "setint32:    " + f.setint32( 0x11223344 ) );
+  f.close();
+  print( "little:      " + dumpbytes() );
+
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, BIG_ENDIAN );
+  f.setint32( 0x11223344 );
+  f.close();
+  print( "big:         " + dumpbytes() );
+
+  print( "--- unsigned roundtrip" );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, LITTLE_ENDIAN );
+  f.setint8( 0xFE );
+  f.setint16( 0xFEDC );
+  f.setint32( 0xFEDCBA98 );
+  print( "size:        " + f.size() );
+  print( "tell:        " + f.tell() );
+  f.close();
+  f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  print( "getint8:     " + Hex( f.getint8() ) );
+  print( "getint16:    " + Hex( f.getint16() ) );
+  print( "getint32:    " + Hex( f.getint32() ) );
+  f.close();
+
+  print( "--- signed roundtrip" );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, LITTLE_ENDIAN );
+  f.setsint8( -2 );
+  f.setsint16( -292 );
+  f.setsint32( -19088744 );
+  f.close();
+  f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  print( "getsint8:    " + f.getsint8() );
+  print( "getsint16:   " + f.getsint16() );
+  print( "getsint32:   " + f.getsint32() );
+  f.close();
+  // the same bytes read unsigned
+  f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  print( "as unsigned: " + Hex( f.getint8() ) + " " + Hex( f.getint16() ) + " " + Hex( f.getint32() ) );
+  f.close();
+
+  print( "--- strings" );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, LITTLE_ENDIAN );
+  print( "no null:     " + f.setstring( "abc", 0 ) );
+  print( "with null:   " + f.setstring( "de", 1 ) );
+  f.close();
+  print( "bytes:       " + dumpbytes() );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  print( "getstring 3: " + f.getstring( 3 ) );
+  // stops at the embedded null, but all 3 bytes are consumed
+  print( "getstring 3: " + f.getstring( 3 ) );
+  print( "tell:        " + f.tell() );
+  f.close();
+
+  print( "--- seek, tell and peek" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  print( "peek:        " + Hex( f.peek() ) );
+  print( "tell:        " + f.tell() );
+  print( "seek end:    " + f.seek( 0, SEEKDIR_END ) );
+  print( "tell:        " + f.tell() );
+  print( "peek at eof: " + f.peek() );
+  print( "seek beg:    " + f.seek( 2, SEEKDIR_BEG ) );
+  print( "getint8:     " + Hex( f.getint8() ) );
+  print( "seek cur:    " + f.seek( 1, SEEKDIR_CUR ) );
+  print( "getint8:     " + Hex( f.getint8() ) );
+  print( "seek back:   " + f.seek( -2, SEEKDIR_END ) );
+  print( "getint8:     " + Hex( f.getint8() ) );
+  print( "close:       " + f.close() );
+
+  print( "--- overwrite in place" );
+  f := OpenBinaryFile( TARGET, OPENMODE_IN + OPENMODE_OUT, LITTLE_ENDIAN );
+  print( "seek:        " + f.seek( 1, SEEKDIR_BEG ) );
+  print( "setint8:     " + f.setint8( 0x58 ) );
+  print( "flush:       " + f.flush() );
+  f.close();
+  print( "bytes:       " + dumpbytes() );
+
+  print( "--- append and truncate" );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_APP, LITTLE_ENDIAN );
+  f.setint8( 0x21 );
+  f.close();
+  print( "appended:    " + dumpbytes() );
+  f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC, LITTLE_ENDIAN );
+  print( "truncated:   " + f.size() );
+  f.close();
+endprogram
+
+// reads TARGET back byte by byte, as hex values
+function dumpbytes()
+  var f := OpenBinaryFile( TARGET, OPENMODE_IN, LITTLE_ENDIAN );
+  var bytes := array{};
+  var size := f.size();
+  var i;
+  for ( i := 1; i <= size; ++i )
+    bytes.append( Hex( f.getint8() ) );
+  endfor
+  f.close();
+  return bytes;
+endfunction

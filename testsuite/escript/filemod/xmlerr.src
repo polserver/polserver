@@ -1,0 +1,79 @@
+use file;
+
+// Error and edge cases of the XMLFile, XMLNode and XMLAttributes objects.
+
+program XMLErrorTest()
+  print( "--- opening" );
+  print( "missing:     " + OpenXMLFile( "filemod/nosuchfile.xml" ) );
+  print( "malformed:   " + OpenXMLFile( "filemod/xmlinvalid.xml" ) );
+  print( "not xml:     " + OpenXMLFile( ":filetest:normal.file" ) );
+  print( "traversal:   " + OpenXMLFile( ":filetest:../ecompile.cfg" ) );
+  print( "unknown pkg: " + OpenXMLFile( ":nosuchpkg:x.xml" ) );
+  print( "bad param:   " + OpenXMLFile( 5 ) );
+
+  print( "--- empty document" );
+  var xml := CreateXMLFile();
+  print( "by index:    " + xml[1] );
+  print( "by name:     " + xml["root"] );
+  print( "bad key:     " + xml[2.5] );
+  print( "remove:      " + xml.removexmlnode( 1 ) );
+  print( "remove name: " + xml.removexmlnode( "root" ) );
+  var iterated := 0;
+  foreach node in xml
+    iterated := iterated + 1;
+  endforeach
+  print( "iterations:  " + iterated );
+  print( "save:        " + xml.savexml( ":filetest:../out.xml" ) );
+  print( "save param:  " + xml.savexml( 5 ) );
+
+  print( "--- element only methods on other node types" );
+  var doc := OpenXMLFile( "filemod/xmltest.xml" );
+  var decl := doc[1];
+  var text := doc[2].firstxmlchild().firstxmlchild();
+  var comment := doc[2].firstxmlchild().nextxmlsibling();
+  print( "types:       " + decl.type + " " + text.type + " " + comment.type );
+  print( "append node: " + text.appendxmlnode( "x" ) );
+  print( "append text: " + text.appendxmltext( "x" ) );
+  print( "set attr:    " + text.setxmlattribute( struct{ a := 1 } ) );
+  print( "remove attr: " + text.removexmlattribute( "a" ) );
+  print( "on comment:  " + comment.appendxmlnode( "x" ) );
+  print( "on decl:     " + decl.appendxmltext( "x" ) );
+  print( "attributes:  " + text.attributes );
+
+  print( "--- missing and wrong parameters" );
+  var root := doc[2];
+  print( "append node: " + root.appendxmlnode() );
+  print( "append node: " + root.appendxmlnode( 5 ) );
+  print( "append text: " + root.appendxmltext() );
+  print( "comment:     " + root.appendxmlcomment() );
+  print( "set attr:    " + root.setxmlattribute() );
+  print( "set attr:    " + root.setxmlattribute( "notastruct" ) );
+  print( "remove attr: " + root.removexmlattribute() );
+  print( "remove node: " + root.removexmlnode() );
+  print( "remove node: " + root.removexmlnode( 2.5 ) );
+  print( "declaration: " + xml.setxmldeclaration( "1.0" ) );
+  print( "first child: " + root.firstxmlchild( 5 ) );
+  print( "sibling:     " + root.nextxmlsibling( 5 ) );
+
+  print( "--- lookups which find nothing" );
+  print( "by name:     " + root["nosuchnode"] );
+  // indexing is 1 based, 0 and negative indexes give the first child as well
+  print( "index 0:     " + root[0] );
+  print( "index -1:    " + root[-1] );
+  print( "index high:  " + root[99] );
+  print( "bad key:     " + root[2.5] );
+  print( "first child: " + root.firstxmlchild( "nosuchnode" ) );
+  print( "sibling:     " + root.nextxmlsibling( "nosuchnode" ) );
+  print( "last sibling: " + root.firstxmlchild( "nodetwo" ).nextxmlsibling() );
+  print( "no child:    " + root.firstxmlchild( "nodetwo" ).firstxmlchild() );
+  print( "attribute:   " + root.attributes["nosuchattribute"] );
+  print( "attr by idx: " + root.attributes[1] );
+  print( "attr names:  " + root.attributes.propnames() );
+
+  print( "--- removing a node which is not a child" );
+  var child := root.firstxmlchild();
+  print( "grandchild:  " + root.removexmlnode( child.firstxmlchild() ) );
+  print( "sibling:     " + child.removexmlnode( root ) );
+  print( "not present: " + root.removexmlnode( "nosuchnode" ) );
+  print( "index high:  " + root.removexmlnode( 99 ) );
+endprogram

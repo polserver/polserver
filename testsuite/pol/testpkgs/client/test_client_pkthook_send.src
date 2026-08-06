@@ -1,0 +1,393 @@
+// The outgoing half of the packet hook system, on a fixed length packet.
+//
+// 0x77 is what the core sends when a mobile a client already sees has moved. The
+// hook in packethook.src is handed the finished packet before it goes out and can
+// read it, change it, or answer 1 to keep it from being sent at all.
+
+include "pkthook";
+
+const PROBE_X := 102;
+const PROBE_Y := 50;
+
+program test_pkthook_send()
+  return pkthook_setup();
+endprogram
+
+// creates the probe npc in sight of client 0 and waits until the client has it
+function make_probe( resmgn )
+  var npc := resmgn.CreateNPCFromTemplate( ":testclient:test_snooping", PROBE_X, PROBE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"could not create the probe npc: {npc}" );
+  endif
+
+  var res := client_sees_graphic( 0, npc.serial, PROBE_GRAPHIC );
+  if ( !res )
+    return res;
+  endif
+  return npc;
+endfunction
+
+// moves the probe one tile east, which is what makes the core send a 0x77
+function nudge( npc )
+  return MoveObjectToLocation( npc, npc.x + 1, npc.y, npc.z, flags := MOVEOBJECT_FORCELOCATION );
+endfunction
+
+// an armed hook is handed the real packet: the mobile it is about, its body, and
+// the client it is on its way to
+exported function pkthook_send_sees_packet( resmgn )
+  var npc := make_probe( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial } );
+  var res := nudge( npc );
+  if ( !res )
+    disarm_hook( PKTHOOK_0x77 );
+    return ret_error( $"could not move the probe: {res}" );
+  endif
+
+  res := client_sees_position( 0, npc.serial, PROBE_X + 1, PROBE_Y );
+  disarm_hook( PKTHOOK_0x77 );
+  if ( !res )
+    return res;
+  endif
+
+  var log := hook_log( PKTHOOK_0x77_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+
+  if ( entry.serial != npc.serial )
+    return ret_error( $"the hook saw 0x{entry.serial:x}, expected 0x{npc.serial:x}" );
+  elseif ( entry.graphic != PROBE_GRAPHIC )
+    return ret_error( $"the hook saw body 0x{entry.graphic:x}, expected 0x{PROBE_GRAPHIC:x}" );
+  elseif ( entry.size != 17 )
+    return ret_error( $"the hook was handed {entry.size} bytes, expected 17" );
+  endif
+
+  // both clients can see the npc, and the hook is called once for each of them
+  var other := hook_entry_for( log, char2.serial );
+  if ( !other )
+    return other;
+  endif
+
+  return 1;
+endfunction
+
+// what the hook writes into the packet is what the client is told
+exported function pkthook_send_rewrites_body( resmgn )
+  var npc := make_probe( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial, graphic := 0x191 } );
+  nudge( npc );
+
+  var res := client_sees_graphic( 0, npc.serial, 0x191 );
+  disarm_hook( PKTHOOK_0x77 );
+  if ( !res )
+    return res;
+  endif
+
+  // the world was never touched, only the packet
+  if ( npc.graphic != PROBE_GRAPHIC )
+    return ret_error( $"the npc itself changed body to 0x{npc.graphic:x}" );
+  endif
+
+  // and with the hook disarmed the next update carries the truth again
+  nudge( npc );
+  res := client_sees_graphic( 0, npc.serial, PROBE_GRAPHIC );
+  if ( !res )
+    return res;
+  endif
+
+  return 1;
+endfunction
+
+// The same packet may be hooked twice, once per version, and the core picks by the
+// connected client's version. 0x77 has a version 2 entry asking for 6.0.0.0 or
+// newer, which every client here is, so the version 2 function is the one called.
+exported function pkthook_version_picks_v2( resmgn )
+  var npc := make_probe( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial } );
+  nudge( npc );
+
+  var res := client_sees_position( 0, npc.serial, PROBE_X + 1, PROBE_Y );
+  disarm_hook( PKTHOOK_0x77 );
+  if ( !res )
+    return res;
+  endif
+
+  var log := hook_log( PKTHOOK_0x77_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+  if ( entry.version != 2 )
+    return ret_error( $"the version {entry.version} hook ran, expected version 2" );
+  endif
+
+  return 1;
+endfunction
+
+// and the other way round: 0x1C has a version 2 entry asking for a client newer
+// than any here, so the version 1 hook keeps it
+exported function pkthook_version_keeps_v1( unused resmgn )
+  var text := "pkthook1c " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c" } );
+  SendSysMessage( char, text );
+
+  var ev := wait_for_text( 0, text );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  var log := hook_log( PKTHOOK_0x1C_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+  if ( entry.version != 1 )
+    return ret_error( $"the version {entry.version} hook ran, expected version 1" );
+  endif
+
+  return 1;
+endfunction
+
+// a hook that answers 1 has handled the packet itself, so the core does not send
+// it and the client is left with what it knew before
+exported function pkthook_send_suppresses( resmgn )
+  var npc := make_probe( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial, suppress := 1 } );
+  nudge( npc );
+
+  // give the update every chance to arrive before saying it did not
+  SleepMS( 1000 );
+  var objs := pkthook_client_objs( 0 );
+  disarm_hook( PKTHOOK_0x77 );
+  if ( !objs )
+    return objs;
+  endif
+
+  var seen := 0;
+  foreach obj in ( objs )
+    if ( CInt( obj.serial ) != npc.serial )
+      continue;
+    endif
+    seen := 1;
+    var pos := obj.pos;
+    if ( CInt( pos[1] ) != PROBE_X )
+      return ret_error( $"the suppressed move reached the client anyway: x {CInt( pos[1] )}" );
+    endif
+  endforeach
+  if ( !seen )
+    return ret_error( "the client lost the probe npc entirely" );
+  endif
+
+  // the hook did run - it just kept the packet
+  var log := hook_log( PKTHOOK_0x77_LOG );
+  if ( !len( log ) )
+    return ret_error( "the hook never fired" );
+  endif
+
+  return 1;
+endfunction
+
+// a variable length packet reaches the hook whole: the encoded length agrees with
+// the real size, and every field is where the protocol says it is
+exported function pkthook_1c_sees_message( unused resmgn )
+  var text := "pkthook1c " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c" } );
+  SendSysMessage( char, text, font := 2, color := 33 );
+
+  var ev := wait_for_text( 0, text );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  var log := hook_log( PKTHOOK_0x1C_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+
+  var expected := SPEECH_TEXT_OFFSET + text.length() + 1;
+  if ( entry.text != text )
+    return ret_error( $"the hook read \"{entry.text}\", expected \"{text}\"" );
+  elseif ( entry.size != expected )
+    return ret_error( $"the packet is {entry.size} bytes, expected {expected}" );
+  elseif ( entry.encoded != entry.size )
+    return ret_error( $"the encoded length is {entry.encoded}, the packet is {entry.size}" );
+  elseif ( entry.serial != SYSMESSAGE_SERIAL )
+    return ret_error( $"the message came from 0x{entry.serial:x}" );
+  elseif ( entry.name != SYSMESSAGE_NAME )
+    return ret_error( $"the name field holds \"{entry.name}\"" );
+  elseif ( entry.color != 33 or entry.font != 2 )
+    return ret_error( $"the hook read colour {entry.color} font {entry.font}, expected 33/2" );
+  endif
+
+  return 1;
+endfunction
+
+// the hook may resize the packet, and what the client is told is the new text -
+// both when it grows and when it shrinks
+exported function pkthook_1c_replaces_text( unused resmgn )
+  var text := "pkthook1c " + CStr( ReadMillisecondClock() );
+  var longer := text + " and then a good deal more text than the original carried";
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c", replace := longer } );
+  SendSysMessage( char, text );
+
+  var ev := wait_for_text( 0, longer );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  // and the same the other way round
+  var shorter := "short";
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c", replace := shorter } );
+  SendSysMessage( char, text );
+
+  ev := wait_for_text( 0, shorter );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  return 1;
+endfunction
+
+// A hook that writes the encoded length by hand instead of going through SetSize
+// leaves it describing a packet that does not exist. The core used to trust it and
+// assert, which on this shard means a shutdown; now it corrects the length to the
+// buffer it is actually sending, and the message still arrives.
+exported function pkthook_1c_bad_length( unused resmgn )
+  var text := "pkthook1c " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c", badlength := 0xFFFF } );
+  SendSysMessage( char, text );
+
+  var ev := wait_for_text( 0, text );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  // and the shard is still up to answer the next one
+  Clear_Event_Queue();
+  var second := "pkthook1c after " + CStr( ReadMillisecondClock() );
+  SendSysMessage( char, second );
+  return wait_for_text( 0, second ) ? 1 : ret_error( "the shard stopped talking" );
+endfunction
+
+// An encoded length below the size of the packet is the hook asking for a shorter
+// packet, so the core sends only that many bytes. The text here has its tail cut
+// off by the length alone - the bytes are all still in the buffer the hook left.
+exported function pkthook_1c_truncates( unused resmgn )
+  var stamp := CStr( ReadMillisecondClock() );
+  var visible := "cut " + stamp;
+
+  var arm := struct{ match := "pkthook1c" };
+  arm.+replace := visible + " tail";
+  arm.+badlength := SPEECH_TEXT_OFFSET + visible.length();
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, arm );
+  SendSysMessage( char, "pkthook1c " + stamp );
+
+  var ev := wait_for_text( 0, visible );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !ev )
+    return ev;
+  endif
+
+  var entry := hook_entry_for( hook_log( PKTHOOK_0x1C_LOG ), char.serial );
+  if ( !entry )
+    return entry;
+  endif
+  if ( entry.encoded != entry.size )
+    return ret_error( $"the hook was handed {entry.encoded} encoded on {entry.size} bytes" );
+  endif
+
+  return 1;
+endfunction
+
+// a hook that answers 1 keeps the message from ever reaching the client
+exported function pkthook_1c_suppresses( unused resmgn )
+  var text := "pkthook1c " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  arm_hook( PKTHOOK_0x1C, PKTHOOK_0x1C_LOG, struct{ match := "pkthook1c", suppress := 1 } );
+  SendSysMessage( char, text );
+
+  var res := no_text_for( 0, text );
+  disarm_hook( PKTHOOK_0x1C );
+  if ( !res )
+    return res;
+  endif
+
+  // the hook saw it, it just did not pass it on
+  var log := hook_log( PKTHOOK_0x1C_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+  if ( entry.text != text )
+    return ret_error( $"the hook read \"{entry.text}\", expected \"{text}\"" );
+  endif
+
+  return 1;
+endfunction
+
+// the packet handed to a hook for a fixed length message cannot be resized, and
+// the refusal leaves it intact on its way out
+exported function pkthook_send_refuses_resize( resmgn )
+  var npc := make_probe( resmgn );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial, resize := 20 } );
+  nudge( npc );
+
+  var res := client_sees_position( 0, npc.serial, PROBE_X + 1, PROBE_Y );
+  disarm_hook( PKTHOOK_0x77 );
+  if ( !res )
+    return res;
+  endif
+
+  var log := hook_log( PKTHOOK_0x77_LOG );
+  var entry := hook_entry_for( log, char.serial );
+  if ( !entry )
+    return entry;
+  endif
+
+  if ( !entry.resize.find( "fixed length" ) )
+    return ret_error( $"resizing a fixed length packet answered \"{entry.resize}\"" );
+  elseif ( entry.size != 17 )
+    return ret_error( $"the packet is {entry.size} bytes, expected 17" );
+  endif
+
+  return 1;
+endfunction

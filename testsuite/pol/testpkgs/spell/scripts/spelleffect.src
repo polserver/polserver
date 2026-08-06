@@ -1,0 +1,33 @@
+// The script every spell in this package's spells.cfg names, and the only
+// evidence a test has that a spell really ran: the core starts it attached to
+// the caster with the spell id as its argument, and hands it nothing else.
+//
+// One record, not a log - each case clears it first and then waits for it.
+//
+// It also holds the caster's script slot while a test parks something in
+// #TestSpellHold. The core starts this attached, so the caster carries an
+// executor for as long as it runs, and that is what makes do_cast answer "You
+// are already doing something else." - the only way to reach that branch on
+// purpose. Anything arming the hold has to erase it again, hence the deadline.
+use os;
+use polsys;
+use uo;
+
+// how long the hold lasts if nobody lets go, so an armed case that failed
+// cannot leave the caster stuck for the rest of the run
+const HOLD_TIMEOUT := 10000;
+const HOLD_POLL := 50;
+
+program spelleffect( caster, spellid )
+  var cast := struct{};
+  cast.+caster := caster.serial;
+  cast.+spellid := spellid;
+  cast.+at := ReadMillisecondClock();
+  SetGlobalProperty( "#TestSpellCast", cast );
+
+  var deadline := ReadMillisecondClock() + HOLD_TIMEOUT;
+  while ( GetGlobalProperty( "#TestSpellHold" ) and ReadMillisecondClock() < deadline )
+    Sleepms( HOLD_POLL );
+  endwhile
+  return 1;
+endprogram
