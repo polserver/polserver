@@ -40,6 +40,10 @@ class Item;
 
 /// Constructed but not finished being set up: no serial yet, so not in the objecthash either.
 ///
+/// Where every item begins, and never a destination: construction does not repeat, and location()
+/// answers Preparing ahead of the orphan() test, so an item sent back here would stop being able to
+/// report Destroyed. Left for any home once the item has a serial.
+///
 /// Distinct from Destroyed, which is derived from serial == 0 and would otherwise swallow this
 /// state. Item::create() assigns a serial and leaves Detached before it returns, so the only
 /// lasting residents are the objects built with a bare new: intrinsic equipment, until startup
@@ -51,18 +55,30 @@ struct Preparing
 };
 
 /// Has a serial and belongs to no registry: fresh from create(), or staged during world load.
+///
+/// Reached from any home by detach(), and briefly from inside relocate() itself, which records it
+/// between unlinking and relinking so that anything running in between sees the truth. Left for any
+/// home, unconditionally. The one alternative with no rules in either direction.
 struct Detached
 {
   bool operator==( const Detached& ) const { return true; }
 };
 
 /// On the ground: in a realm zone and in the realm's toplevel item list.
+///
+/// Entered from any other home, given a realm -- but never from InWorld. It is the one alternative
+/// carrying no data of its own, so a world-to-world move compares equal to itself and would move
+/// nothing; that question belongs to place_at(). Left for any home.
 struct InWorld
 {
   bool operator==( const InWorld& ) const { return true; }
 };
 
 /// Inside an ordinary container, including trade windows and the hidden GivenItems containers.
+///
+/// Entered when the container is live and is neither the item itself nor somewhere inside it, and
+/// the slot is within its range. Capacity is deliberately not checked -- callers have always tested
+/// can_add() themselves. Left for any home.
 struct InContainer
 {
   Core::UContainer* cont;
@@ -76,6 +92,10 @@ struct InContainer
 };
 
 /// Worn by a character. The layer is the location, not a field on the item.
+///
+/// Entered on the item's own tile_layer, and only if the character's equippable() agrees -- the
+/// same predicate the equip paths use, so relocate cannot drift from them. Left for any home, which
+/// is what unequips it.
 ///
 /// Names the character rather than its worn-items container: what may be equipped depends on the
 /// character's strength and current weapon as much as on the layer array, and every caller has a
@@ -93,6 +113,10 @@ struct Equipped
 
 /// On a corpse. Distinct from Equipped: a corpse holds its contents densely and renders the
 /// equippable ones on layers.
+///
+/// Entered on a live corpse, on a free equippable layer that is the item's own tile_layer. There is
+/// no layer-less form -- loose corpse contents are InContainer like anything else -- so being here
+/// is exactly what "the corpse renders this" means. Left for any home, which stops it being drawn.
 struct OnCorpse
 {
   Core::UCorpse* corpse;
@@ -108,6 +132,10 @@ struct OnCorpse
 };
 
 /// Held on a client's cursor between a get and the matching drop/equip.
+///
+/// Derived from the gotten_by link rather than stored, so it cannot fall out of step with it.
+/// Entered when the holder is not already holding something and the item has a realm to be returned
+/// to. Left for any home; the drop paths and undo are what do it.
 struct OnCursor
 {
   Mobile::Character* holder;
@@ -117,6 +145,10 @@ struct OnCursor
 
 /// Root item of a storage area. The key is needed as well as the area: StorageArea keys its map
 /// by the item's name as captured at insert time, so the area alone cannot find the item again.
+///
+/// Entered under a key that is the item's name. Left for any home, but only while the area still
+/// files it under that key -- a rename behind the area's back strands the item, and refusing here
+/// is what stops a half-applied move.
 struct InStorage
 {
   Core::StorageArea* area;
@@ -136,7 +168,10 @@ enum class IntrinsicKind : u8
 };
 
 /// Intrinsic equipment (the shared wrestling weapon and friends): a real serial, in no container
-/// and no zone, handed to every character at once. Entry-only, and never leaves.
+/// and no zone, handed to every character at once.
+///
+/// Reached only from Preparing, and never left: the item is shared, so moving it would move it out
+/// from under every character holding it.
 struct Intrinsic
 {
   IntrinsicKind kind;
@@ -144,7 +179,10 @@ struct Intrinsic
   bool operator==( const Intrinsic& other ) const { return kind == other.kind; }
 };
 
-/// destroy() has been called; the objecthash still holds it until Reap(). Terminal.
+/// destroy() has been called; the objecthash still holds it until Reap().
+///
+/// Derived from serial == 0 rather than stored. Never a relocate target -- destruction is
+/// destroy(), which unlinks and ends the item, not a move to somewhere -- and never left.
 struct Destroyed
 {
   bool operator==( const Destroyed& ) const { return true; }

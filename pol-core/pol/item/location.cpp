@@ -2,6 +2,7 @@
 
 #include <string>
 #include <utility>
+#include <variant>
 
 #include "clib/logfacility.h"
 #include "pol/containr.h"
@@ -21,30 +22,51 @@
 
 namespace Pol::Items
 {
+namespace
+{
+/// One overload per alternative and no generic fallback, so an alternative added to Location
+/// without a line here is a compile error rather than an item that quietly describes itself as
+/// something it is not. These strings end up in assertion messages and the integrity sweep, where
+/// a wrong one sends the reader after the wrong bug.
+struct Describer
+{
+  std::string operator()( const Preparing& ) const { return "being prepared"; }
+  std::string operator()( const Detached& ) const { return "detached"; }
+  std::string operator()( const InWorld& ) const { return "in the world"; }
+  std::string operator()( const Destroyed& ) const { return "destroyed"; }
+
+  std::string operator()( const InContainer& alt ) const
+  {
+    return fmt::format( "in container {:#x}", alt.cont != nullptr ? alt.cont->serial : 0 );
+  }
+  std::string operator()( const Equipped& alt ) const
+  {
+    return fmt::format( "equipped on layer {} of {:#x}", alt.layer,
+                        alt.chr != nullptr ? alt.chr->serial : 0 );
+  }
+  std::string operator()( const OnCorpse& alt ) const
+  {
+    return fmt::format( "on corpse {:#x}, layer {}", alt.corpse != nullptr ? alt.corpse->serial : 0,
+                        alt.layer );
+  }
+  std::string operator()( const OnCursor& alt ) const
+  {
+    return fmt::format( "on the cursor of {:#x}", alt.holder != nullptr ? alt.holder->serial : 0 );
+  }
+  std::string operator()( const InStorage& alt ) const
+  {
+    return fmt::format( "storage root \"{}\"", alt.key.get() );
+  }
+  std::string operator()( const Intrinsic& alt ) const
+  {
+    return fmt::format( "intrinsic {}", alt.kind == IntrinsicKind::Weapon ? "weapon" : "shield" );
+  }
+};
+}  // namespace
+
 std::string Location::describe() const
 {
-  if ( holds<Preparing>() )
-    return "being prepared";
-  if ( holds<Detached>() )
-    return "detached";
-  if ( holds<InWorld>() )
-    return "in the world";
-  if ( const auto* alt = get_if<InContainer>() )
-    return fmt::format( "in container {:#x}", alt->cont != nullptr ? alt->cont->serial : 0 );
-  if ( const auto* alt = get_if<Equipped>() )
-    return fmt::format( "equipped on layer {} of {:#x}", alt->layer,
-                        alt->chr != nullptr ? alt->chr->serial : 0 );
-  if ( const auto* alt = get_if<OnCorpse>() )
-    return fmt::format( "on corpse {:#x}, layer {}",
-                        alt->corpse != nullptr ? alt->corpse->serial : 0, alt->layer );
-  if ( const auto* alt = get_if<OnCursor>() )
-    return fmt::format( "on the cursor of {:#x}",
-                        alt->holder != nullptr ? alt->holder->serial : 0 );
-  if ( const auto* alt = get_if<InStorage>() )
-    return fmt::format( "storage root \"{}\"", alt->key.get() );
-  if ( const auto* alt = get_if<Intrinsic>() )
-    return fmt::format( "intrinsic {}", alt->kind == IntrinsicKind::Weapon ? "weapon" : "shield" );
-  return "destroyed";
+  return std::visit( Describer{}, alt_ );
 }
 
 Core::UContainer* Location::container() const
