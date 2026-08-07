@@ -1,0 +1,507 @@
+// The escript face of the reputation system: the Character members and methods
+// that read and write the criminal timer, the murderer flag, the aggressor and
+// lawfully-damaged lists and the reportables. Nothing here drives a rule - the
+// rules that decide when the core sets these itself are test_repsys_rules.src.
+use os;
+use uo;
+
+include "testutil";
+include "repsys";
+
+var amy;
+var bob;
+var carl;
+
+program test_repsys_api()
+  amy := rep_char( REP_AMY );
+  if ( !amy )
+    return amy;
+  endif
+  bob := rep_char( REP_BOB );
+  if ( !bob )
+    return bob;
+  endif
+  carl := rep_char( REP_CARL );
+  if ( !carl )
+    return carl;
+  endif
+  return 1;
+endprogram
+
+// Every case starts from a clean reputation; a case that fails part way through
+// must not decide the next one.
+function reset_all()
+  rep_reset( amy );
+  rep_reset( bob );
+  rep_reset( carl );
+  return 1;
+endfunction
+
+exported function api_clean_char( unused resmgn )
+  reset_all();
+
+  if ( amy.criminal )
+    return ret_error( $"a reset character is criminal: {amy.criminal}" );
+  endif
+  if ( amy.temporally_criminal )
+    return ret_error( $"a reset character is temporally criminal" );
+  endif
+  if ( amy.murderer )
+    return ret_error( $"a reset character is a murderer" );
+  endif
+  var aggressors := len( amy.aggressorto );
+  if ( aggressors )
+    return ret_error( $"a reset character is aggressor to {aggressors}" );
+  endif
+  var damaged := len( amy.lawfullydamaged );
+  if ( damaged )
+    return ret_error( $"a reset character has lawfully damaged {damaged}" );
+  endif
+  var reportables := len( amy.reportables );
+  if ( reportables )
+    return ret_error( $"a reset character has {reportables} reportables" );
+  endif
+  return 1;
+endfunction
+
+exported function api_setcriminal( unused resmgn )
+  reset_all();
+
+  var res := amy.setcriminal();
+  if ( res != 1 )
+    return ret_error( $"setcriminal() answered {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "setcriminal() did not make the character criminal" );
+  endif
+  if ( !amy.temporally_criminal )
+    return ret_error( "setcriminal() did not start the criminal timer" );
+  endif
+  if ( amy.murderer )
+    return ret_error( "setcriminal() made the character a murderer" );
+  endif
+
+  res := amy.setcriminal( 0 );
+  if ( res != 1 )
+    return ret_error( $"setcriminal( 0 ) answered {res}" );
+  endif
+  if ( amy.criminal || amy.temporally_criminal )
+    return ret_error( "setcriminal( 0 ) did not clear the criminal timer" );
+  endif
+  return 1;
+endfunction
+
+// A level multiplies CriminalFlagInterval; the timer itself is not readable from
+// a script, so all a level can be asserted to do here is set the flag. What the
+// interval buys is test_repsys_timers.src.
+exported function api_setcriminal_level( unused resmgn )
+  reset_all();
+
+  var res := amy.setcriminal( 3 );
+  if ( res != 1 )
+    return ret_error( $"setcriminal( 3 ) answered {res}" );
+  endif
+  if ( !amy.criminal || !amy.temporally_criminal )
+    return ret_error( "setcriminal( 3 ) did not make the character criminal" );
+  endif
+  return 1;
+endfunction
+
+exported function api_setcriminal_errors( unused resmgn )
+  reset_all();
+
+  var res := amy.setcriminal( -1 );
+  if ( res.errortext != "Level must be >= 0" )
+    return ret_error( $"setcriminal( -1 ) answered {res}" );
+  endif
+  res := amy.setcriminal( "one" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"setcriminal( \"one\" ) answered {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "a refused setcriminal still made the character criminal" );
+  endif
+  return 1;
+endfunction
+
+// is_criminal() is the criminal timer OR the murderer flag, so a murderer reads
+// as criminal without a timer ever having been started.
+exported function api_murderer_is_criminal( unused resmgn )
+  reset_all();
+
+  var res := amy.setmurderer( 1 );
+  if ( res != 1 )
+    return ret_error( $"setmurderer( 1 ) answered {res}" );
+  endif
+  if ( !amy.murderer )
+    return ret_error( "setmurderer( 1 ) did not set the flag" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "a murderer does not read as criminal" );
+  endif
+  if ( amy.temporally_criminal )
+    return ret_error( "a murderer reads as temporally criminal" );
+  endif
+
+  res := amy.setmurderer( 0 );
+  if ( res != 1 )
+    return ret_error( $"setmurderer( 0 ) answered {res}" );
+  endif
+  if ( amy.murderer || amy.criminal )
+    return ret_error( "setmurderer( 0 ) did not clear the flag" );
+  endif
+  return 1;
+endfunction
+
+exported function api_murderer_member( unused resmgn )
+  reset_all();
+
+  amy.murderer := 1;
+  if ( !amy.murderer )
+    return ret_error( "assigning murderer did not set the flag" );
+  endif
+  amy.murderer := 0;
+  if ( amy.murderer )
+    return ret_error( "assigning murderer did not clear the flag" );
+  endif
+
+  // The no-argument form defaults to 1, unlike setcriminal's level.
+  var res := amy.setmurderer();
+  if ( res != 1 )
+    return ret_error( $"setmurderer() answered {res}" );
+  endif
+  if ( !amy.murderer )
+    return ret_error( "setmurderer() did not default to 1" );
+  endif
+  return 1;
+endfunction
+
+exported function api_setmurderer_errors( unused resmgn )
+  reset_all();
+
+  var res := amy.setmurderer( "yes" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"setmurderer( \"yes\" ) answered {res}" );
+  endif
+  if ( amy.murderer )
+    return ret_error( "a refused setmurderer still set the flag" );
+  endif
+  return 1;
+endfunction
+
+exported function api_aggressor_set_clear( unused resmgn )
+  reset_all();
+
+  var res := amy.setaggressorto( bob );
+  if ( res != 1 )
+    return ret_error( $"setaggressorto answered {res}" );
+  endif
+
+  var entry := rep_entry_for( amy.aggressorto, bob );
+  if ( !entry )
+    return ret_error( "amy is not aggressor to bob" );
+  endif
+  if ( entry.ref != bob )
+    return ret_error( $"aggressorto entry names {entry.ref}" );
+  endif
+  if ( entry.seconds <= 0 )
+    return ret_error( $"aggressorto entry has {entry.seconds} seconds left" );
+  endif
+
+  // The list is one-directional and the flag sits on the aggressor, not on the
+  // one it is an aggressor to.
+  if ( len( bob.aggressorto ) )
+    return ret_error( "setaggressorto also flagged the defender" );
+  endif
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "setaggressorto also filled the lawfullydamaged list" );
+  endif
+
+  res := amy.clearaggressorto( bob );
+  if ( res != 1 )
+    return ret_error( $"clearaggressorto answered {res}" );
+  endif
+  if ( len( amy.aggressorto ) )
+    return ret_error( "clearaggressorto left the entry behind" );
+  endif
+  return 1;
+endfunction
+
+// restart_aggressor_timer only ever moves a timer forward, so a second call adds
+// no second entry for the same character.
+exported function api_aggressor_is_a_set( unused resmgn )
+  reset_all();
+
+  amy.setaggressorto( bob );
+  amy.setaggressorto( bob );
+  amy.setaggressorto( carl );
+
+  var entries := len( amy.aggressorto );
+  if ( entries != 2 )
+    return ret_error( $"expected 2 aggressor entries, got {entries}" );
+  endif
+  if ( !rep_entry_for( amy.aggressorto, carl ) )
+    return ret_error( "the second character is missing from the list" );
+  endif
+
+  amy.clearaggressorto( carl );
+  entries := len( amy.aggressorto );
+  if ( entries != 1 )
+    return ret_error( $"clearing one of two left {entries} entries" );
+  endif
+  if ( !rep_entry_for( amy.aggressorto, bob ) )
+    return ret_error( "clearing one entry took the other with it" );
+  endif
+  return 1;
+endfunction
+
+// A serial only resolves to a mobile that is logged in, so the ref an entry
+// carries is the parameter these methods have to be given for an offline
+// character - a bare serial is refused even though the entry itself holds one.
+exported function api_aggressor_errors( unused resmgn )
+  reset_all();
+
+  var res := amy.setaggressorto();
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"setaggressorto() answered {res}" );
+  endif
+  res := amy.setaggressorto( "bob" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"setaggressorto( \"bob\" ) answered {res}" );
+  endif
+  res := amy.setaggressorto( bob.serial );
+  if ( res.errortext != "Mobile is offline" )
+    return ret_error( $"setaggressorto( serial ) answered {res}" );
+  endif
+  res := amy.setaggressorto( 0 );
+  if ( res.errortext != "Serial refers to an Item, or is zero" )
+    return ret_error( $"setaggressorto( 0 ) answered {res}" );
+  endif
+
+  res := amy.clearaggressorto();
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"clearaggressorto() answered {res}" );
+  endif
+  res := amy.clearaggressorto( "bob" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"clearaggressorto( \"bob\" ) answered {res}" );
+  endif
+
+  if ( len( amy.aggressorto ) )
+    return ret_error( "a refused setaggressorto still made an entry" );
+  endif
+  return 1;
+endfunction
+
+// Clearing someone who was never in the list is not an error - erase on a set
+// that does not hold the key is a no-op.
+exported function api_clear_unknown_aggressor( unused resmgn )
+  reset_all();
+
+  var res := amy.clearaggressorto( bob );
+  if ( res != 1 )
+    return ret_error( $"clearing an absent aggressor answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function api_lawfullydamaged_set_clear( unused resmgn )
+  reset_all();
+
+  var res := amy.setlawfullydamagedto( bob );
+  if ( res != 1 )
+    return ret_error( $"setlawfullydamagedto answered {res}" );
+  endif
+
+  var entry := rep_entry_for( amy.lawfullydamaged, bob );
+  if ( !entry )
+    return ret_error( "amy has not lawfully damaged bob" );
+  endif
+  if ( entry.ref != bob )
+    return ret_error( $"lawfullydamaged entry names {entry.ref}" );
+  endif
+  if ( entry.seconds <= 0 )
+    return ret_error( $"lawfullydamaged entry has {entry.seconds} seconds left" );
+  endif
+  if ( len( bob.lawfullydamaged ) )
+    return ret_error( "setlawfullydamagedto also flagged the defender" );
+  endif
+  if ( len( amy.aggressorto ) )
+    return ret_error( "setlawfullydamagedto also filled the aggressor list" );
+  endif
+
+  res := amy.clearlawfullydamagedto( bob );
+  if ( res != 1 )
+    return ret_error( $"clearlawfullydamagedto answered {res}" );
+  endif
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "clearlawfullydamagedto left the entry behind" );
+  endif
+  return 1;
+endfunction
+
+exported function api_lawfullydamaged_errors( unused resmgn )
+  reset_all();
+
+  var res := amy.setlawfullydamagedto();
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"setlawfullydamagedto() answered {res}" );
+  endif
+  res := amy.setlawfullydamagedto( "bob" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"setlawfullydamagedto( \"bob\" ) answered {res}" );
+  endif
+  res := amy.clearlawfullydamagedto();
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"clearlawfullydamagedto() answered {res}" );
+  endif
+  res := amy.clearlawfullydamagedto( "bob" );
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"clearlawfullydamagedto( \"bob\" ) answered {res}" );
+  endif
+
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "a refused setlawfullydamagedto still made an entry" );
+  endif
+  return 1;
+endfunction
+
+// The two lists are independent: the same pair can be in both at once, and
+// clearing one leaves the other.
+exported function api_lists_are_independent( unused resmgn )
+  reset_all();
+
+  amy.setaggressorto( bob );
+  amy.setlawfullydamagedto( bob );
+
+  if ( !rep_entry_for( amy.aggressorto, bob ) )
+    return ret_error( "the aggressor entry is gone" );
+  endif
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "the lawfullydamaged entry is gone" );
+  endif
+
+  amy.clearaggressorto( bob );
+  if ( len( amy.aggressorto ) )
+    return ret_error( "clearaggressorto left its own entry" );
+  endif
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "clearaggressorto took the lawfullydamaged entry too" );
+  endif
+  return 1;
+endfunction
+
+// Reportables are the one list a script cannot fill directly: they are committed
+// out of the to-be-reportable list when the victim dies. kill( killer ) runs the
+// damage rules for the killer first, which is what puts the killer on the list.
+exported function api_reportables_from_kill( unused resmgn )
+  reset_all();
+
+  var victim := rep_char( REP_VICTIM );
+  if ( !victim )
+    return victim;
+  endif
+  var res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+
+  res := victim.kill( amy );
+  if ( res != 1 )
+    return ret_error( $"kill answered {res}" );
+  endif
+
+  var reportables := victim.reportables;
+  if ( len( reportables ) != 1 )
+    return ret_error( $"expected 1 reportable, got {reportables}" );
+  endif
+  var entry := reportables[1];
+  if ( entry.serial != amy.serial )
+    return ret_error( $"reportable names serial 0x{entry.serial:x}" );
+  endif
+  if ( entry.killer != amy )
+    return ret_error( $"reportable killer is {entry.killer}" );
+  endif
+  if ( entry.gameclock <= 0 )
+    return ret_error( $"reportable gameclock is {entry.gameclock}" );
+  endif
+
+  res := victim.removereportable( entry.serial, entry.gameclock );
+  if ( res != 1 )
+    return ret_error( $"removereportable answered {res}" );
+  endif
+  if ( len( victim.reportables ) )
+    return ret_error( "removereportable left the entry behind" );
+  endif
+
+  res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+  return 1;
+endfunction
+
+// A reportable is keyed on the pair, so the clock has to match the one the entry
+// carries - a plausible-looking wrong value removes nothing and still answers 1.
+exported function api_removereportable_clock( unused resmgn )
+  reset_all();
+
+  var victim := rep_char( REP_VICTIM );
+  if ( !victim )
+    return victim;
+  endif
+  var res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+
+  res := victim.kill( amy );
+  if ( res != 1 )
+    return ret_error( $"kill answered {res}" );
+  endif
+  var entry := victim.reportables[1];
+  if ( !entry )
+    return ret_error( "the kill made no reportable" );
+  endif
+
+  res := victim.removereportable( entry.serial, entry.gameclock + 1 );
+  if ( res != 1 )
+    return ret_error( $"removereportable with a wrong clock answered {res}" );
+  endif
+  if ( len( victim.reportables ) != 1 )
+    return ret_error( "a wrong clock removed the reportable anyway" );
+  endif
+
+  res := victim.removereportable( bob.serial, entry.gameclock );
+  if ( res != 1 )
+    return ret_error( $"removereportable for another serial answered {res}" );
+  endif
+  if ( len( victim.reportables ) != 1 )
+    return ret_error( "a wrong serial removed the reportable anyway" );
+  endif
+
+  victim.removereportable( entry.serial, entry.gameclock );
+  res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+  return 1;
+endfunction
+
+exported function api_removereportable_errors( unused resmgn )
+  reset_all();
+
+  var res := amy.removereportable( bob.serial );
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"removereportable with one parameter answered {res}" );
+  endif
+  res := amy.removereportable();
+  if ( res.errortext != "Not enough parameters" )
+    return ret_error( $"removereportable() answered {res}" );
+  endif
+  return 1;
+endfunction

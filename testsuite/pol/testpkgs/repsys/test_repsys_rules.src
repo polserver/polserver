@@ -1,0 +1,393 @@
+// The PC-vs-PC rules of repsys.cpp: who becomes criminal, who becomes an
+// aggressor, who ends up on a reportable list, and the seven clauses of
+// Character::is_innocent_to that decide all of it.
+//
+// is_innocent_to is not readable from a script, so every clause is asked the same
+// question instead: an attacker only takes the criminal flag when the defender
+// was innocent to it, so "did attacking make amy criminal" is a complete readout
+// of the predicate. rules_attack_innocent is the baseline that says the question
+// works; each innocent_* case then breaks one clause and asserts the flag stays
+// off.
+use guilds;
+use os;
+use party;
+use uo;
+use vitals;
+
+include "testutil";
+include "repsys";
+
+var amy;
+var bob;
+var carl;
+
+program test_repsys_rules()
+  amy := rep_char( REP_AMY );
+  if ( !amy )
+    return amy;
+  endif
+  bob := rep_char( REP_BOB );
+  if ( !bob )
+    return bob;
+  endif
+  carl := rep_char( REP_CARL );
+  if ( !carl )
+    return carl;
+  endif
+  return 1;
+endprogram
+
+function reset_all()
+  foreach chr in ( { amy, bob, carl } )
+    rep_drop_party( chr );
+    rep_revive( chr );
+    rep_reset( chr );
+  endforeach
+  return 1;
+endfunction
+
+// The shared body of the innocent_* cases: amy attacks bob and answers whether
+// the core decided bob was innocent to her.
+function attack_made_amy_criminal()
+  var res := rep_attack( amy, bob );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  return amy.criminal ? 1 : 0;
+endfunction
+
+// [3] Amy attacks an innocent Bob: she takes the criminal flag and becomes his
+// aggressor, and nothing lands on him.
+exported function rules_attack_innocent( unused resmgn )
+  reset_all();
+
+  var res := rep_attack( amy, bob );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  if ( !amy.criminal )
+    return ret_error( "attacking an innocent did not make the attacker criminal" );
+  endif
+  if ( !amy.temporally_criminal )
+    return ret_error( "the attacker is criminal without a criminal timer" );
+  endif
+  if ( !rep_entry_for( amy.aggressorto, bob ) )
+    return ret_error( "the attacker did not become an aggressor" );
+  endif
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "the attack rules alone filled the lawfullydamaged list" );
+  endif
+
+  if ( bob.criminal )
+    return ret_error( "the defender was made criminal" );
+  endif
+  if ( len( bob.aggressorto ) )
+    return ret_error( "the defender was made an aggressor" );
+  endif
+  return 1;
+endfunction
+
+// on_pc_attacks_pc returns at once when the two are the same character.
+exported function rules_attack_self( unused resmgn )
+  reset_all();
+
+  var res := rep_attack( amy, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "attacking oneself made the attacker criminal" );
+  endif
+  if ( len( amy.aggressorto ) )
+    return ret_error( "attacking oneself made the attacker an aggressor" );
+  endif
+  return 1;
+endfunction
+
+// The other half of rule [3]: when the defender is already the aggressor, it is
+// his timer that is restarted and the attacker does not become one in turn.
+exported function rules_attack_an_aggressor( unused resmgn )
+  reset_all();
+
+  bob.setaggressorto( amy );
+  var res := rep_attack( amy, bob );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  if ( len( amy.aggressorto ) )
+    return ret_error( "attacking an aggressor made the attacker one as well" );
+  endif
+  if ( !rep_entry_for( bob.aggressorto, amy ) )
+    return ret_error( "the defender stopped being an aggressor" );
+  endif
+  return 1;
+endfunction
+
+// [4] Damaging someone who is not innocent puts him on the attacker's
+// lawfully-damaged list instead of putting the attacker on his reportables.
+exported function rules_damage_a_criminal( unused resmgn )
+  reset_all();
+
+  bob.setcriminal();
+  var res := rep_damage( amy, bob );
+  if ( !res )
+    return ret_error( $"SetPoisoned failed: {res}" );
+  endif
+  rep_unpoison( bob );
+
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "damaging a criminal did not fill the lawfullydamaged list" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "damaging a criminal made the attacker criminal" );
+  endif
+  return 1;
+endfunction
+
+// The innocent half of rule [4] is only visible once the victim dies: the
+// attacker sits on a to-be-reportable list that nothing reads until then.
+exported function rules_damage_makes_reportable( unused resmgn )
+  reset_all();
+
+  var victim := rep_char( REP_VICTIM );
+  if ( !victim )
+    return victim;
+  endif
+  var res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+
+  res := rep_damage( amy, victim );
+  if ( !res )
+    return ret_error( $"SetPoisoned failed: {res}" );
+  endif
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "damaging an innocent filled the lawfullydamaged list" );
+  endif
+  if ( len( victim.reportables ) )
+    return ret_error( "the reportable was committed before the victim died" );
+  endif
+
+  // The victim has to die while still poisoned: clearing it would run
+  // check_undamaged, which is what empties the to-be-reportable list.
+  res := victim.kill();
+  if ( res != 1 )
+    return ret_error( $"kill answered {res}" );
+  endif
+
+  var reportables := victim.reportables;
+  if ( len( reportables ) != 1 )
+    return ret_error( $"expected 1 reportable after the death, got {reportables}" );
+  endif
+  if ( reportables[1].serial != amy.serial )
+    return ret_error( $"the reportable names 0x{reportables[1].serial:x}" );
+  endif
+
+  victim.removereportable( reportables[1].serial, reportables[1].gameclock );
+  res := rep_revive( victim );
+  if ( !res )
+    return res;
+  endif
+  rep_reset( victim );
+  return 1;
+endfunction
+
+// [5] Helping a criminal makes the helper one too.
+exported function rules_help_a_criminal( unused resmgn )
+  reset_all();
+
+  bob.setcriminal();
+  var res := rep_help( amy, bob );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "helping a criminal did not make the helper criminal" );
+  endif
+  return 1;
+endfunction
+
+exported function rules_help_an_innocent( unused resmgn )
+  reset_all();
+
+  var res := rep_help( amy, bob );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "helping an innocent made the helper criminal" );
+  endif
+  return 1;
+endfunction
+
+// PartyHelpFullCountsAsCriminal is off in the shard's repsys.cfg, so a criminal
+// in the helper's own party is the one criminal that can be helped for free.
+exported function rules_help_a_party_criminal( unused resmgn )
+  reset_all();
+
+  var res := CreateParty( amy, bob );
+  if ( !res )
+    return ret_error( $"CreateParty failed: {res}" );
+  endif
+
+  bob.setcriminal();
+  res := rep_help( amy, bob );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "helping a criminal party member made the helper criminal" );
+  endif
+
+  // and the same criminal outside the party still costs
+  rep_drop_party( amy );
+  res := rep_help( amy, bob );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "leaving the party did not restore the rule" );
+  endif
+  return 1;
+endfunction
+
+// [9] The seven clauses of is_innocent_to. The first one says the readout works;
+// the rest each break one clause.
+exported function innocent_baseline( unused resmgn )
+  reset_all();
+
+  var criminal := attack_made_amy_criminal();
+  if ( criminal != 1 )
+    return ret_error( $"attacking a plain character answered {criminal}" );
+  endif
+  return 1;
+endfunction
+
+exported function innocent_murderer( unused resmgn )
+  reset_all();
+
+  bob.setmurderer( 1 );
+  var criminal := attack_made_amy_criminal();
+  if ( criminal != 0 )
+    return ret_error( $"a murderer counted as innocent: {criminal}" );
+  endif
+  return 1;
+endfunction
+
+exported function innocent_criminal( unused resmgn )
+  reset_all();
+
+  bob.setcriminal();
+  var criminal := attack_made_amy_criminal();
+  if ( criminal != 0 )
+    return ret_error( $"a criminal counted as innocent: {criminal}" );
+  endif
+  return 1;
+endfunction
+
+exported function innocent_aggressor( unused resmgn )
+  reset_all();
+
+  bob.setaggressorto( amy );
+  var criminal := attack_made_amy_criminal();
+  if ( criminal != 0 )
+    return ret_error( $"an aggressor counted as innocent: {criminal}" );
+  endif
+
+  // the list is one-directional: bob being an aggressor to carl says nothing
+  // about how amy sees him
+  reset_all();
+  bob.setaggressorto( carl );
+  criminal := attack_made_amy_criminal();
+  if ( criminal != 1 )
+    return ret_error( $"an aggressor to a third character counted as not innocent: {criminal}" );
+  endif
+  return 1;
+endfunction
+
+exported function innocent_lawfully_damaged( unused resmgn )
+  reset_all();
+
+  amy.setlawfullydamagedto( bob );
+  var criminal := attack_made_amy_criminal();
+  if ( criminal != 0 )
+    return ret_error( $"someone the attacker had lawfully damaged counted as innocent: {criminal}" );
+  endif
+  return 1;
+endfunction
+
+// A guild is its own ally, so one guild holding both of them is enough. This is
+// the clause that means attacking a guildmate never makes anyone criminal.
+exported function innocent_guild_ally( unused resmgn )
+  reset_all();
+
+  var guild := rep_make_guild();
+  if ( !guild )
+    return guild;
+  endif
+  guild.addmember( amy );
+  guild.addmember( bob );
+
+  var criminal := attack_made_amy_criminal();
+  var dropped := rep_drop_guild( guild );
+
+  if ( criminal != 0 )
+    return ret_error( $"a guild ally counted as innocent: {criminal}" );
+  endif
+  if ( !dropped )
+    return ret_error( $"could not dismantle the guild: {dropped}" );
+  endif
+  return 1;
+endfunction
+
+// is_guild_enemy asks the defender's guild about the attacker's, so the enemy is
+// declared on bob's side.
+exported function innocent_guild_enemy( unused resmgn )
+  reset_all();
+
+  var amyguild := rep_make_guild();
+  if ( !amyguild )
+    return amyguild;
+  endif
+  var bobguild := rep_make_guild();
+  if ( !bobguild )
+    rep_drop_guild( amyguild );
+    return bobguild;
+  endif
+  amyguild.addmember( amy );
+  bobguild.addmember( bob );
+  bobguild.addenemyguild( amyguild );
+
+  var criminal := attack_made_amy_criminal();
+  rep_drop_guild( bobguild );
+  rep_drop_guild( amyguild );
+
+  if ( criminal != 0 )
+    return ret_error( $"a guild enemy counted as innocent: {criminal}" );
+  endif
+  return 1;
+endfunction
+
+// PartyHarmFullCountsAsCriminal is off in the shard's repsys.cfg, which is what
+// makes this clause live at all: with it on, a party member is innocent like
+// anyone else and attacking one is a crime.
+exported function innocent_same_party( unused resmgn )
+  reset_all();
+
+  var res := CreateParty( amy, bob );
+  if ( !res )
+    return ret_error( $"CreateParty failed: {res}" );
+  endif
+
+  var criminal := attack_made_amy_criminal();
+  rep_drop_party( amy );
+
+  if ( criminal != 0 )
+    return ret_error( $"a party member counted as innocent: {criminal}" );
+  endif
+  return 1;
+endfunction

@@ -219,3 +219,114 @@ exported function load_save_character_dead()
   endif
   return 1;
 endfunction
+
+// A reportable is the only reputation entry that survives a restart, and it is
+// keyed on the pair (serial, polclock) - so it can only be removed again if both
+// halves came back verbatim. The clock is stored raw and read back raw: it is a
+// polclock from the run that wrote it, and polclock starts again from zero, so
+// what is loaded is a number from a clock that no longer exists. RemoveReportable
+// is the one thing it still has to be good for.
+exported function load_save_reportable_clock()
+  if ( testrun == 1 )
+    var chr := createAccountWithChar( "restart_test_repclock", "pass" );
+    if ( !chr )
+      return chr;
+    endif
+    var killer := createAccountWithChar( "restart_test_repkiller", "pass" );
+    if ( !killer )
+      return killer;
+    endif
+
+    chr.kill( killer );
+    var entries := chr.reportables;
+    if ( len( entries ) != 1 )
+      return ret_error( $"the kill made {len( entries )} reportables" );
+    endif
+    chr.setprop( "repserial", entries[1].serial );
+    chr.setprop( "repclock", entries[1].gameclock );
+  else
+    var chr := FindAccount( "restart_test_repclock" ).getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
+    endif
+
+    var entries := chr.reportables;
+    if ( len( entries ) != 1 )
+      return ret_error( $"expected 1 reportable after the restart, got {entries}" );
+    endif
+    var serial := chr.getprop( "repserial" );
+    var gameclock := chr.getprop( "repclock" );
+    if ( entries[1].serial != serial )
+      return ret_error( $"the reportable serial came back as 0x{entries[1].serial:x}" );
+    endif
+    if ( entries[1].gameclock != gameclock )
+      return ret_error( $"the reportable clock came back as {entries[1].gameclock}, wrote {gameclock}" );
+    endif
+
+    var res := chr.removereportable( serial, gameclock );
+    if ( res != 1 )
+      return ret_error( $"removereportable answered {res}" );
+    endif
+    if ( len( chr.reportables ) )
+      return ret_error( "the loaded reportable could not be removed" );
+    endif
+  endif
+  return 1;
+endfunction
+
+// Everything else the reputation system holds is deliberately not saved. Only
+// the murderer flag and the reportables have a line in printProperties; the
+// criminal deadline and the aggressor and lawfully-damaged lists are dropped with
+// the run that made them.
+//
+// The criminal flag is set with a level large enough that it could not have
+// lapsed on its own, so a criminal on run 2 would mean it had been saved. The two
+// lists have no such lever - AggressorFlagTimeout bounds them and they expire
+// during run 1 either way - but a saved entry would still show: its deadline is a
+// polclock from the old run, and polclock starts again from zero, so it would
+// come back sitting far in the future and never lapse at all.
+exported function load_save_repsys_flags()
+  if ( testrun == 1 )
+    var chr := createAccountWithChar( "restart_test_repflags", "pass" );
+    if ( !chr )
+      return chr;
+    endif
+    var other := createAccountWithChar( "restart_test_repother", "pass" );
+    if ( !other )
+      return other;
+    endif
+
+    chr.setmurderer( 1 );
+    chr.setcriminal( 1000 );
+    chr.setaggressorto( other );
+    chr.setlawfullydamagedto( other );
+
+    if ( !chr.temporally_criminal )
+      return ret_error( "the criminal timer did not start" );
+    endif
+    if ( !len( chr.aggressorto ) || !len( chr.lawfullydamaged ) )
+      return ret_error( "the aggressor lists were not filled" );
+    endif
+  else
+    var chr := FindAccount( "restart_test_repflags" ).getcharacter( 1 );
+    if ( !chr )
+      return ret_error( "failed to find char" );
+    endif
+
+    if ( !chr.murderer )
+      return ret_error( "the murderer flag was not saved" );
+    endif
+    if ( chr.temporally_criminal )
+      return ret_error( "the criminal timer survived the restart" );
+    endif
+    if ( len( chr.aggressorto ) )
+      return ret_error( $"the aggressor list survived the restart: {chr.aggressorto}" );
+    endif
+    if ( len( chr.lawfullydamaged ) )
+      return ret_error( $"the lawfullydamaged list survived: {chr.lawfullydamaged}" );
+    endif
+
+    chr.setmurderer( 0 );
+  endif
+  return 1;
+endfunction

@@ -89,6 +89,11 @@ function dispatch( ev, byref bbox )
       return Say( args[1], args[2], args[3] );
     "sayuc":                return SayUC( args[1], args[2], args[3], args[4] );
 
+    // an opponent can only be set from inside an AI script, which is what makes
+    // the de-escalation of the reputation system reachable at all
+    "setopponent":
+      return SetOpponent( args[1] );
+
     // these two are uo.em, but they act on the executor this script runs on,
     // which is what the npc's eventmask member reports
     "enableevents":

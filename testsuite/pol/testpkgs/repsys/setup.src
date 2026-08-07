@@ -1,0 +1,25 @@
+use os;
+use uo;
+
+include "testutil";
+include "repsys";
+
+program setup()
+  for i := REP_AMY to REP_VICTIM
+    var chr := createAccountWithChar( $"testrepsys{i}", "pass" );
+    if ( !chr )
+      return chr;
+    endif
+    setname( chr, $"Rep{i}" );
+
+    var res := rep_revive( chr );
+    if ( !res )
+      return ret_error( $"could not revive Rep{i}: {res}" );
+    endif
+    res := rep_reset( chr );
+    if ( !res )
+      return res;
+    endif
+  endfor
+  return 1;
+endprogram
