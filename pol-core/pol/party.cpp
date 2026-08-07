@@ -26,6 +26,7 @@
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
 #include "clib/cfgsect.h"
+#include "clib/clib.h"
 #include "clib/clib_endian.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
@@ -605,14 +606,8 @@ void Party::on_mana_changed( Mobile::Character* chr ) const
   msg->Write<u32>( chr->serial_ext );
 
   const auto& vital = chr->vital( networkManager.uoclient_general.mana.id );
-  int h = vital.current_ones();
-  if ( h > 0xFFFF )
-    h = 0xFFFF;
-  int mh = vital.maximum_ones();
-  if ( mh > 0xFFFF )
-    mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( vital.current_thousands() ) );
 
   for ( const auto& serial : _member_serials )
   {
@@ -633,14 +628,8 @@ void Party::on_stam_changed( Mobile::Character* chr ) const
   msg->Write<u32>( chr->serial_ext );
 
   const auto& vital = chr->vital( networkManager.uoclient_general.stamina.id );
-  int h = vital.current_ones();
-  if ( h > 0xFFFF )
-    h = 0xFFFF;
-  int mh = vital.maximum_ones();
-  if ( mh > 0xFFFF )
-    mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( vital.current_thousands() ) );
 
   for ( const auto& serial : _member_serials )
   {
@@ -1403,34 +1392,16 @@ void send_attributes_normalized( Mobile::Character* chr, Mobile::Character* bob 
   msg->Write<u32>( bob->serial_ext );
 
   const auto& hits = bob->vital( networkManager.uoclient_general.hits.id );
-  int h = hits.current_ones();
-  if ( h > 0xFFFF )
-    h = 0xFFFF;
-  int mh = hits.maximum_ones();
-  if ( mh > 0xFFFF )
-    mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hits.current_thousands() ) );
 
   const auto& mana = bob->vital( networkManager.uoclient_general.mana.id );
-  h = mana.current_ones();
-  if ( h > 0xFFFF )
-    h = 0xFFFF;
-  mh = mana.maximum_ones();
-  if ( mh > 0xFFFF )
-    mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( mana.current_thousands() ) );
 
   const auto& stam = bob->vital( networkManager.uoclient_general.stamina.id );
-  h = stam.current_ones();
-  if ( h > 0xFFFF )
-    h = 0xFFFF;
-  mh = stam.maximum_ones();
-  if ( mh > 0xFFFF )
-    mh = 0xFFFF;
   msg->WriteFlipped<u16>( 1000u );
-  msg->WriteFlipped<u16>( static_cast<u16>( h * 1000 / mh ) );
+  msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( stam.current_thousands() ) );
 
   msg.Send( chr->client );
 }
