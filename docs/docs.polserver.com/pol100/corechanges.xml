@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-05-2026</datemodified>
+		<datemodified>08-07-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-07-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">AuxConnection: transmit() didnt guarantee that the order was kept.</change>
+		</entry>
+		<entry>
+			<date>08-06-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">every mobile read as criminal for the first hundredth of a second after the shard went active, a cleared criminal timer was compared against a polclock that starts at zero</change>
+		</entry>
 		<entry>
 			<date>08-05-2026</date>
 			<author>Turley:</author>
