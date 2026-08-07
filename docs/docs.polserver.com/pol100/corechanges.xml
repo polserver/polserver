@@ -9,6 +9,7 @@
 			<date>08-07-2026</date>
 			<author>Turley:</author>
 			<change type="Fixed">AuxConnection: transmit() didnt guarantee that the order was kept.</change>
+			<change type="Fixed">Datastore loading once the version overflows</change>
 		</entry>
 		<entry>
 			<date>08-06-2026</date>
