@@ -1,0 +1,305 @@
+// The double dispatch at the bottom of repsys.cpp: what happens when one side of
+// an attack, a damage or a help is an NPC rather than a player character.
+//
+// Two rules decide everything. An NPC with a master hands the whole thing to that
+// master, so a pet is its owner as far as reputation is concerned. An NPC without
+// one is judged by the alignment on its template: attacking a good one is a crime,
+// helping an evil one is a crime, and a neutral one is nobody's business.
+use os;
+use uo;
+use vitals;
+
+include "testutil";
+include "repsys";
+
+var amy;
+var bob;
+
+program test_repsys_npc()
+  amy := rep_char( REP_AMY );
+  if ( !amy )
+    return amy;
+  endif
+  bob := rep_char( REP_BOB );
+  if ( !bob )
+    return bob;
+  endif
+  return 1;
+endprogram
+
+function reset_all()
+  foreach chr in ( { amy, bob } )
+    rep_revive( chr );
+    rep_reset( chr );
+  endforeach
+  return 1;
+endfunction
+
+// [13.1] A good-aligned NPC with no master is under the shard's protection.
+exported function npc_attack_good( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_good" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "attacking a good npc did not make the attacker criminal" );
+  endif
+
+  // the PC-vs-PC rules never ran, so no aggressor flag came with it
+  if ( len( amy.aggressorto ) )
+    return ret_error( "attacking a good npc made the attacker an aggressor" );
+  endif
+  return 1;
+endfunction
+
+exported function npc_attack_evil( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_evil" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "attacking an evil npc made the attacker criminal" );
+  endif
+  return 1;
+endfunction
+
+exported function npc_attack_neutral( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "attacking a neutral npc made the attacker criminal" );
+  endif
+  return 1;
+endfunction
+
+// The good-npc branch is guarded on the npc not being a criminal itself, and a
+// murderer reads as one without any timer having been started.
+exported function npc_attack_criminal_good( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_good" );
+  if ( !npc )
+    return npc;
+  endif
+
+  npc.setcriminal();
+  var res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "attacking a criminal good npc made the attacker criminal" );
+  endif
+
+  npc.setcriminal( 0 );
+  npc.setmurderer( 1 );
+  res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "attacking a murderous good npc made the attacker criminal" );
+  endif
+  return 1;
+endfunction
+
+// A pet is its master: the flags land on the owner, not on the animal, and the
+// alignment of the template stops mattering.
+exported function npc_attack_pet( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_evil" );
+  if ( !npc )
+    return npc;
+  endif
+  var res := npc.setmaster( bob );
+  if ( !res )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+
+  res := rep_attack( amy, npc );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  if ( !amy.criminal )
+    return ret_error( "attacking an innocent's pet did not make the attacker criminal" );
+  endif
+  if ( !rep_entry_for( amy.aggressorto, bob ) )
+    return ret_error( "the attacker did not become an aggressor to the master" );
+  endif
+  if ( rep_entry_for( amy.aggressorto, npc ) )
+    return ret_error( "the attacker became an aggressor to the pet itself" );
+  endif
+  return 1;
+endfunction
+
+// [14.1] Damaging a pet whose master is not innocent lands on the master's side
+// of the lawfully-damaged list.
+exported function npc_damage_pet( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+  var res := npc.setmaster( bob );
+  if ( !res )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+
+  bob.setcriminal();
+  res := rep_damage( amy, npc );
+  if ( !res )
+    return ret_error( $"SetPoisoned failed: {res}" );
+  endif
+  rep_unpoison( npc );
+
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "damaging a criminal's pet did not name the master" );
+  endif
+  if ( rep_entry_for( amy.lawfullydamaged, npc ) )
+    return ret_error( "damaging a pet named the pet" );
+  endif
+  return 1;
+endfunction
+
+// [15.1] Helping an evil NPC is the mirror of attacking a good one.
+exported function npc_help_evil( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_evil" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_help( amy, npc );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "helping an evil npc did not make the helper criminal" );
+  endif
+  return 1;
+endfunction
+
+// Unlike the attack branch, the help branch has no criminal guard on it - only
+// the alignment is asked, so a good npc is free to help whatever state it is in.
+exported function npc_help_good( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_good" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_help( amy, npc );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "helping a good npc made the helper criminal" );
+  endif
+  return 1;
+endfunction
+
+exported function npc_help_pet( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_good" );
+  if ( !npc )
+    return npc;
+  endif
+  var res := npc.setmaster( bob );
+  if ( !res )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+
+  bob.setcriminal();
+  res := rep_help( amy, npc );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "helping a criminal's pet did not make the helper criminal" );
+  endif
+  return 1;
+endfunction
+
+// [13.2] The other direction. An NPC attacking a player is nothing at all unless
+// it has a master, and then it is the master doing the attacking.
+exported function npc_as_attacker_no_master( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := rep_attack( npc, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( npc.criminal )
+    return ret_error( "a masterless npc became criminal by attacking" );
+  endif
+  if ( len( npc.aggressorto ) )
+    return ret_error( "a masterless npc became an aggressor" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "being attacked by an npc made the defender criminal" );
+  endif
+  return 1;
+endfunction
+
+exported function npc_as_attacker_with_master( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+  var res := npc.setmaster( bob );
+  if ( !res )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+
+  res := rep_attack( npc, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  if ( !bob.criminal )
+    return ret_error( "a pet attacking an innocent did not make its master criminal" );
+  endif
+  if ( !rep_entry_for( bob.aggressorto, amy ) )
+    return ret_error( "the master did not become an aggressor" );
+  endif
+  if ( npc.criminal || len( npc.aggressorto ) )
+    return ret_error( "the pet itself was flagged" );
+  endif
+  return 1;
+endfunction

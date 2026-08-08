@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+08-07-2026 Turley:
+    Fixed: AuxConnection: transmit() didnt guarantee that the order was kept.
+    Fixed: Datastore loading once the version overflows
+08-06-2026 Turley:
+    Fixed: every mobile read as criminal for the first hundredth of a second after the shard went active, a cleared criminal timer was compared against a polclock that starts at zero
 08-05-2026 Nando:
     Fixed: CreateItemAtLocation and CreateItemCopyAtLocation returned an item that was not
            at the requested location if the item's create script had moved it in the

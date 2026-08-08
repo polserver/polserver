@@ -32,8 +32,8 @@
 #include "plib/systemstate.h"
 
 #include "pol/globals/ucfg.h"
-#include "pol/proplist.h"
 #include "pol/module/datastoreimp.h"
+#include "pol/proplist.h"
 
 #include <module_defs/datafile.h>
 
@@ -546,8 +546,8 @@ DataStoreFile::DataStoreFile( Clib::ConfigElem& elem )
       name( elem.remove_string( "name" ) ),
       pkgname( elem.remove_string( "package", "" ) ),
       pkg( Plib::find_package( pkgname ) ),
-      version( elem.remove_ushort( "Version" ) ),
-      oldversion( elem.remove_ushort( "OldVersion" ) ),
+      version( elem.remove_ulong( "Version" ) ),
+      oldversion( elem.remove_ulong( "OldVersion" ) ),
       flags( elem.remove_ulong( "Flags" ) ),
       unload( false ),
       delversion( 0 )

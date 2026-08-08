@@ -1,0 +1,311 @@
+// What the repsys task does when a timer runs out: the criminal flag lapses, the
+// aggressor and lawfully-damaged entries are dropped, and the pair is
+// de-escalated so an ongoing fight breaks off.
+//
+// The two timeouts come from config/repsys.cfg and are deliberately small there;
+// REP_CRIMINAL_SECS and REP_AGGRESSOR_SECS below have to be kept in step with it.
+// Nothing reads them back from the core - repsys.cfg is not reachable from a
+// script and is not reloadable either.
+//
+// The criminal flag needs no task to lapse: is_criminal compares the clock
+// against the stored deadline, so it goes false on its own. The two lists do -
+// only repsys_task erases from them - which is what the polling here waits for.
+use os;
+use uo;
+
+include "testutil";
+include "repsys";
+
+const REP_CRIMINAL_SECS := 5;
+const REP_AGGRESSOR_SECS := 3;
+
+// enough for the deadline plus the task that follows it, well short of the ten
+// seconds a stalled case would otherwise sit here
+const REP_WAIT_MS := 10000;
+
+var amy;
+var bob;
+
+program test_repsys_timers()
+  amy := rep_char( REP_AMY );
+  if ( !amy )
+    return amy;
+  endif
+  bob := rep_char( REP_BOB );
+  if ( !bob )
+    return bob;
+  endif
+  return 1;
+endprogram
+
+function reset_all()
+  foreach chr in ( { amy, bob } )
+    rep_revive( chr );
+    rep_reset( chr );
+  endforeach
+  return 1;
+endfunction
+
+// Poll a character's list until it is empty, or give up. Returns the milliseconds
+// it took, or 0.
+function wait_for_empty_aggressors( chr )
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < REP_WAIT_MS )
+    if ( !len( chr.aggressorto ) )
+      return ReadMillisecondClock() - start;
+    endif
+    sleepms( 100 );
+  endwhile
+  return 0;
+endfunction
+
+function wait_for_empty_damaged( chr )
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < REP_WAIT_MS )
+    if ( !len( chr.lawfullydamaged ) )
+      return ReadMillisecondClock() - start;
+    endif
+    sleepms( 100 );
+  endwhile
+  return 0;
+endfunction
+
+function wait_for_innocent( chr )
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < REP_WAIT_MS )
+    if ( !chr.criminal )
+      return ReadMillisecondClock() - start;
+    endif
+    sleepms( 100 );
+  endwhile
+  return 0;
+endfunction
+
+exported function timer_criminal_expires( unused resmgn )
+  reset_all();
+
+  amy.setcriminal();
+  if ( !amy.criminal )
+    return ret_error( "setcriminal did not make the character criminal" );
+  endif
+
+  var took := wait_for_innocent( amy );
+  if ( !took )
+    return ret_error( $"the criminal flag was still set after {REP_WAIT_MS}ms" );
+  endif
+  if ( took < REP_CRIMINAL_SECS * 1000 )
+    return ret_error( $"the criminal flag lapsed after only {took}ms" );
+  endif
+  if ( amy.temporally_criminal )
+    return ret_error( "the criminal timer outlived the criminal flag" );
+  endif
+  return 1;
+endfunction
+
+// The level multiplies the interval, which is the only thing that can be said
+// about it from a script: a level of two is still on when a level of one would
+// have gone.
+exported function timer_criminal_level( unused resmgn )
+  reset_all();
+
+  amy.setcriminal( 2 );
+  sleepms( REP_CRIMINAL_SECS * 1000 + 1500 );
+
+  if ( !amy.criminal )
+    return ret_error( "a level 2 criminal flag lapsed after one interval" );
+  endif
+  amy.setcriminal( 0 );
+  if ( amy.criminal )
+    return ret_error( "setcriminal( 0 ) did not clear the longer flag" );
+  endif
+  return 1;
+endfunction
+
+// A murderer has no timer at all, so nothing lapses.
+exported function timer_murderer_does_not_expire( unused resmgn )
+  reset_all();
+
+  amy.setmurderer( 1 );
+  sleepms( REP_CRIMINAL_SECS * 1000 + 1500 );
+
+  if ( !amy.murderer )
+    return ret_error( "the murderer flag lapsed" );
+  endif
+  if ( !amy.criminal )
+    return ret_error( "the murderer stopped reading as criminal" );
+  endif
+  amy.setmurderer( 0 );
+  return 1;
+endfunction
+
+exported function timer_aggressor_expires( unused resmgn )
+  reset_all();
+
+  amy.setaggressorto( bob );
+  var entry := rep_entry_for( amy.aggressorto, bob );
+  if ( !entry )
+    return ret_error( "setaggressorto made no entry" );
+  endif
+  if ( entry.seconds > REP_AGGRESSOR_SECS )
+    return ret_error( $"a fresh entry has {entry.seconds} seconds, more than the timeout" );
+  endif
+
+  var took := wait_for_empty_aggressors( amy );
+  if ( !took )
+    return ret_error( $"the aggressor entry was still there after {REP_WAIT_MS}ms" );
+  endif
+  if ( took < REP_AGGRESSOR_SECS * 1000 )
+    return ret_error( $"the aggressor entry went after only {took}ms" );
+  endif
+  return 1;
+endfunction
+
+exported function timer_lawfullydamaged_expires( unused resmgn )
+  reset_all();
+
+  amy.setlawfullydamagedto( bob );
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "setlawfullydamagedto made no entry" );
+  endif
+
+  var took := wait_for_empty_damaged( amy );
+  if ( !took )
+    return ret_error( $"the lawfullydamaged entry was still there after {REP_WAIT_MS}ms" );
+  endif
+  if ( took < REP_AGGRESSOR_SECS * 1000 )
+    return ret_error( $"the lawfullydamaged entry went after only {took}ms" );
+  endif
+  return 1;
+endfunction
+
+// restart_aggressor_timer only ever moves a deadline forward, so setting the same
+// entry again part way through does extend it.
+exported function timer_aggressor_restarts( unused resmgn )
+  reset_all();
+
+  amy.setaggressorto( bob );
+  sleepms( REP_AGGRESSOR_SECS * 1000 - 1000 );
+  amy.setaggressorto( bob );
+
+  sleepms( 1500 );
+  if ( !rep_entry_for( amy.aggressorto, bob ) )
+    return ret_error( "the restarted entry went at the first deadline" );
+  endif
+
+  var took := wait_for_empty_aggressors( amy );
+  if ( !took )
+    return ret_error( $"the restarted entry was still there after {REP_WAIT_MS}ms" );
+  endif
+  return 1;
+endfunction
+
+// [7] De-escalation. When the timer that made the two of them enemies runs out,
+// the repsys task drops whichever of them was fighting the other.
+//
+// Both sides are npcs because an opponent can only be set from inside an AI
+// script - SetOpponent lives in npc.em - and because two masterless npcs fighting
+// each other touch the reputation system nowhere else: the NPC dispatch does
+// nothing at all without a master, so the aggressor timer set here is the only
+// thing in play.
+exported function timer_de_escalates( resmgn )
+  reset_all();
+
+  var attacker := rep_make_npc( resmgn, "rep_neutral", 0, struct{ script := ":testnpc:ai_remote" } );
+  if ( !attacker )
+    return attacker;
+  endif
+  var defender := rep_make_npc( resmgn, "rep_neutral", 2 );
+  if ( !defender )
+    return defender;
+  endif
+
+  var proc := attacker.process;
+  if ( !proc )
+    return ret_error( "the attacker npc is running no script" );
+  endif
+  proc.sendevent( struct{ cmd := "setopponent", args := { defender } } );
+
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < REP_WAIT_MS )
+    if ( attacker.opponent )
+      break;
+    endif
+    sleepms( 100 );
+  endwhile
+  if ( !attacker.opponent )
+    return ret_error( "the attacker npc never took an opponent" );
+  endif
+
+  attacker.setaggressorto( defender );
+  var took := wait_for_empty_aggressors( attacker );
+  if ( !took )
+    return ret_error( $"the aggressor entry was still there after {REP_WAIT_MS}ms" );
+  endif
+
+  // the task de-escalates in the same pass that erases the entry
+  if ( attacker.opponent )
+    return ret_error( "the expiring timer did not clear the opponent" );
+  endif
+  return 1;
+endfunction
+
+// The other half of [7] does not happen, and this pins that.
+//
+// The task opens by collecting everyone currently fighting the character
+// *because* the character is not innocent to them, and closes by breaking those
+// attacks off if the pass left the character innocent again. For a criminal flag
+// that set can never be anything but empty: is_criminal() answers from the clock
+// rather than from a flag the task clears, and the task is scheduled for one
+// hundredth of a second *after* the deadline - so the character already reads as
+// innocent when the collecting loop asks, and nobody is collected.
+//
+// The set is not reachable through the two lists either. The only clause that
+// both makes the character non-innocent and is cleared inside the character's own
+// task is its own aggressor entry, and the loop that erases that entry already
+// de-escalates the same pair on the way past - which is what timer_de_escalates
+// above watches. So a defender who was attacking a criminal is left attacking.
+exported function timer_defender_keeps_attacking( resmgn )
+  reset_all();
+
+  var criminal := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !criminal )
+    return criminal;
+  endif
+  var defender := rep_make_npc( resmgn, "rep_neutral", 2, struct{ script := ":testnpc:ai_remote" } );
+  if ( !defender )
+    return defender;
+  endif
+
+  // the criminal flag is what makes the fight lawful, so it goes on first
+  criminal.setcriminal();
+
+  var proc := defender.process;
+  if ( !proc )
+    return ret_error( "the defender npc is running no script" );
+  endif
+  proc.sendevent( struct{ cmd := "setopponent", args := { criminal } } );
+
+  var start := ReadMillisecondClock();
+  while ( ReadMillisecondClock() - start < REP_WAIT_MS )
+    if ( defender.opponent )
+      break;
+    endif
+    sleepms( 100 );
+  endwhile
+  if ( !defender.opponent )
+    return ret_error( "the defender npc never took an opponent" );
+  endif
+
+  var took := wait_for_innocent( criminal );
+  if ( !took )
+    return ret_error( $"the criminal flag was still set after {REP_WAIT_MS}ms" );
+  endif
+
+  // the task is due a hundredth of a second after the deadline; this is far more
+  // than it needs to have run and done whatever it was going to do
+  sleepms( 2000 );
+  if ( !defender.opponent )
+    return ret_error( "the expiring criminal flag broke the attack off after all" );
+  endif
+  return 1;
+endfunction

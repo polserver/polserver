@@ -122,10 +122,16 @@ const TEXTTYPE_YELL := 0x09;
 const TEXTTYPE_GUILD := 0x0D;
 const TEXTTYPE_ALLIANCE := 0x0E;
 
-// what config/repsys.cfg colours a name with, see the NameColoring block there
+// what config/repsys.cfg colours a name with, see the NameColoring block there.
+// Criminal and Attackable share a colour in the stock configuration, so only the
+// notoriety byte tells those two standings apart.
+const NAMECOLOR_MURDERER := 38;
 const NAMECOLOR_GUILD_ENEMY := 44;
+const NAMECOLOR_INVULNERABLE := 53;
 const NAMECOLOR_GUILD_ALLY := 68;
 const NAMECOLOR_INNOCENT := 90;
+const NAMECOLOR_CRIMINAL := 905;
+const NAMECOLOR_ATTACKABLE := 905;
 
 // the serial and body the core sends a system message under, see send_sysmessage
 const SYSMESSAGE_SERIAL := 0x01010101;

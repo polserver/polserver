@@ -253,15 +253,40 @@ void AuxClientThread::transmit( const Bscript::BObjectImp* value )
 {
   // defer transmit to not block server
   std::string tmp = _uoexec->auxsvc_assume_string ? value->getStringRep() : value->pack();
+
+  // do not directly push the task, add to queue to keep the order
   ++_transmit_counter;
-  Core::networkManager.auxthreadpool->push( [tmp, this]() { transmit( tmp ); } );
+  {
+    std::lock_guard<std::mutex> lock( _pending_mutex );
+    _pending.push_back( std::move( tmp ) );
+  }
+  Core::networkManager.auxthreadpool->push( [this]() { transmit_pending(); } );
+}
+
+void AuxClientThread::transmit_pending()
+{
+  {
+    // wait for all other transmits to finish
+    // sending in parallel is nothing what we want
+    std::unique_lock<std::mutex> lock( _transmit_mutex );
+    for ( ;; )
+    {
+      std::string msg;
+      {
+        std::lock_guard<std::mutex> pending_lock( _pending_mutex );
+        if ( _pending.empty() )
+          break;
+        msg = std::move( _pending.front() );
+        _pending.pop_front();
+      }
+      transmit( msg );
+    }
+  }
+  --_transmit_counter;
 }
 
 void AuxClientThread::transmit( const std::string& msg )
 {
-  // wait for all other transmits to finish
-  // sending in parallel is nothing what we want
-  std::unique_lock<std::mutex> lock( _transmit_mutex );
   if ( _sck.connected() )
   {
     // A failed write needs no handling here: Socket::send() logged it and closed the
@@ -271,7 +296,6 @@ void AuxClientThread::transmit( const std::string& msg )
     else
       _sck.writeline( msg );
   }
-  --_transmit_counter;
 }
 
 AuxService::AuxService( const Plib::Package* pkg, Clib::ConfigElem& elem )

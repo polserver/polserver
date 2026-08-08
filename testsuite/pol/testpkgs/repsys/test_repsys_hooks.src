@@ -1,0 +1,259 @@
+// The three event hooks of config/repsys.cfg: OnAttack, OnDamage and OnHelp.
+//
+// Each of them is asked before the rule it belongs to runs, and anything true
+// coming back makes the core drop that rule on the floor. They sit at the very
+// top of both the Character and the NPC entry point, so they are also the only
+// part of the reputation system an NPC without a master ever reaches.
+//
+// The two colour hooks are in testpkgs/client - what they decide is only visible
+// on the wire.
+use os;
+use uo;
+
+include "testutil";
+include "repsys";
+
+var amy;
+var bob;
+
+program test_repsys_hooks()
+  amy := rep_char( REP_AMY );
+  if ( !amy )
+    return amy;
+  endif
+  bob := rep_char( REP_BOB );
+  if ( !bob )
+    return bob;
+  endif
+  return disarm_all();
+endprogram
+
+function disarm_all()
+  foreach name in ( { "#RepOnAttack", "#RepOnDamage", "#RepOnHelp" } )
+    EraseGlobalProperty( name );
+    EraseGlobalProperty( name + "Call" );
+  endforeach
+  return 1;
+endfunction
+
+function reset_all()
+  disarm_all();
+  foreach chr in ( { amy, bob } )
+    rep_revive( chr );
+    rep_reset( chr );
+  endforeach
+  return 1;
+endfunction
+
+// suppress := 0 arms the hook without changing the outcome, which is how the
+// arguments are read without also losing the rule that follows.
+function arm( propname, suppress )
+  return SetGlobalProperty( propname, struct{ suppress := suppress } );
+endfunction
+
+function called( propname )
+  return GetGlobalProperty( propname + "Call" );
+endfunction
+
+exported function hook_onattack_sees_the_pair( unused resmgn )
+  reset_all();
+
+  arm( "#RepOnAttack", 0 );
+  var res := rep_attack( amy, bob );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  var call := called( "#RepOnAttack" );
+  if ( !call )
+    return ret_error( "the OnAttack hook was not called" );
+  endif
+  if ( call.first != amy.serial )
+    return ret_error( $"the hook was told the actor is 0x{call.first:x}" );
+  endif
+  if ( call.second != bob.serial )
+    return ret_error( $"the hook was told the subject is 0x{call.second:x}" );
+  endif
+  if ( call.count != 1 )
+    return ret_error( $"the hook was called {call.count} times for one attack" );
+  endif
+
+  // answering 0 leaves the rule alone
+  if ( !amy.criminal )
+    return ret_error( "an armed but permissive hook stopped the attack rules" );
+  endif
+  return disarm_all();
+endfunction
+
+exported function hook_onattack_suppresses( unused resmgn )
+  reset_all();
+
+  arm( "#RepOnAttack", 1 );
+  var res := rep_attack( amy, bob );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  if ( !called( "#RepOnAttack" ) )
+    return ret_error( "the OnAttack hook was not called" );
+  endif
+
+  if ( amy.criminal )
+    return ret_error( "the attack rules ran despite the hook" );
+  endif
+  if ( len( amy.aggressorto ) )
+    return ret_error( "the attacker was flagged despite the hook" );
+  endif
+
+  // and with the hook out of the way the same attack does flag her
+  disarm_all();
+  rep_attack( amy, bob );
+  if ( !amy.criminal )
+    return ret_error( "disarming the hook did not restore the attack rules" );
+  endif
+  return 1;
+endfunction
+
+// OnDamage guards the damage rules only. The attack rules are reached through
+// repsys_on_attack, which has a hook of its own and is untouched by this one.
+exported function hook_ondamage_suppresses( unused resmgn )
+  reset_all();
+
+  bob.setcriminal();
+  arm( "#RepOnDamage", 1 );
+  var res := rep_damage( amy, bob );
+  if ( !res )
+    return ret_error( $"SetPoisoned failed: {res}" );
+  endif
+  rep_unpoison( bob );
+
+  var call := called( "#RepOnDamage" );
+  if ( !call )
+    return ret_error( "the OnDamage hook was not called" );
+  endif
+  if ( call.first != amy.serial || call.second != bob.serial )
+    return ret_error( $"the hook was told 0x{call.first:x} damaged 0x{call.second:x}" );
+  endif
+  if ( len( amy.lawfullydamaged ) )
+    return ret_error( "the damage rules ran despite the hook" );
+  endif
+
+  disarm_all();
+  rep_damage( amy, bob );
+  rep_unpoison( bob );
+  if ( !rep_entry_for( amy.lawfullydamaged, bob ) )
+    return ret_error( "disarming the hook did not restore the damage rules" );
+  endif
+  return 1;
+endfunction
+
+exported function hook_onhelp_suppresses( unused resmgn )
+  reset_all();
+
+  bob.setcriminal();
+  arm( "#RepOnHelp", 1 );
+  var res := rep_help( amy, bob );
+  if ( !res )
+    return ret_error( $"HealDamage failed: {res}" );
+  endif
+
+  var call := called( "#RepOnHelp" );
+  if ( !call )
+    return ret_error( "the OnHelp hook was not called" );
+  endif
+  if ( call.first != amy.serial || call.second != bob.serial )
+    return ret_error( $"the hook was told 0x{call.first:x} helped 0x{call.second:x}" );
+  endif
+  if ( amy.criminal )
+    return ret_error( "the help rules ran despite the hook" );
+  endif
+
+  disarm_all();
+  rep_help( amy, bob );
+  if ( !amy.criminal )
+    return ret_error( "disarming the hook did not restore the help rules" );
+  endif
+  return 1;
+endfunction
+
+// The NPC entry points ask the hooks first as well, which is the only place an
+// NPC without a master reaches the reputation system at all - the dispatch below
+// the hook does nothing for it.
+exported function hook_fires_for_a_masterless_npc( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+
+  arm( "#RepOnAttack", 0 );
+  var res := rep_attack( npc, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  var call := called( "#RepOnAttack" );
+  if ( !call )
+    return ret_error( "the OnAttack hook was not called for a masterless npc" );
+  endif
+  if ( call.first != npc.serial || call.second != amy.serial )
+    return ret_error( $"the hook was told 0x{call.first:x} attacked 0x{call.second:x}" );
+  endif
+  if ( call.count != 1 )
+    return ret_error( $"the hook was called {call.count} times" );
+  endif
+  return disarm_all();
+endfunction
+
+// A pet hands the attack to its master by calling the master's entry point, and
+// that entry point asks the hook again - so one attack by a pet reaches OnAttack
+// twice, first as the pet and then as the master. A shard that suppresses on the
+// first call never gets the second.
+exported function hook_fires_twice_for_a_pet( resmgn )
+  reset_all();
+
+  var npc := rep_make_npc( resmgn, "rep_neutral" );
+  if ( !npc )
+    return npc;
+  endif
+  var res := npc.setmaster( bob );
+  if ( !res )
+    return ret_error( $"setmaster failed: {res}" );
+  endif
+
+  arm( "#RepOnAttack", 0 );
+  res := rep_attack( npc, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+
+  var call := called( "#RepOnAttack" );
+  if ( !call )
+    return ret_error( "the OnAttack hook was not called for a pet" );
+  endif
+  if ( call.count != 2 )
+    return ret_error( $"the hook was called {call.count} times for a pet's attack" );
+  endif
+  if ( call.first != bob.serial )
+    return ret_error( $"the second call named 0x{call.first:x} rather than the master" );
+  endif
+  if ( !bob.criminal )
+    return ret_error( "the master's rules did not run" );
+  endif
+
+  // and suppressing on the pet's call stops the master's rules before they start
+  reset_all();
+  arm( "#RepOnAttack", 1 );
+  res := rep_attack( npc, amy );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage failed: {res}" );
+  endif
+  call := called( "#RepOnAttack" );
+  if ( !call || call.count != 1 )
+    return ret_error( "a suppressing pet hook still reached the master" );
+  endif
+  if ( bob.criminal )
+    return ret_error( "the master's rules ran despite the hook" );
+  endif
+  return disarm_all();
+endfunction

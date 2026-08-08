@@ -760,7 +760,7 @@ bool Character::is_criminal() const
 }
 bool Character::is_temporally_criminal() const
 {
-  return ( Core::polclock() <= criminal_until_ );
+  return ( criminal_until_ != 0 && Core::polclock() <= criminal_until_ );
 }
 
 void Character::restart_criminal_timer( Core::polclock_t until )

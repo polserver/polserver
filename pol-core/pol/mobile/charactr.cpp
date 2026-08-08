@@ -4607,8 +4607,11 @@ int VitalValue::current_ones() const
 }
 int VitalValue::current_thousands() const
 {
+  int maximum_points = maximum_ones();
+  if ( maximum_points <= 0 )
+    return 0;
   // use division to prevent overflow
-  return ( _current / 100 ) * 1000 / ( _maximum / 100 );
+  return current_ones() * 1000 / maximum_points;
 }
 int VitalValue::maximum() const
 {
