@@ -13,10 +13,10 @@
 #include "pol/base/vector.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/network/client.h"
 #include "pol/syshookscript.h"
 #include "pol/ufunc.h"
-#include "pol/uworld.h"
 
 
 namespace Pol::Core
@@ -41,7 +41,7 @@ void UDoor::toggle()
 {
   const Items::DoorDesc* dd = static_cast<const Items::DoorDesc*>( &itemdesc() );
 
-  Pos4d oldpos = pos();
+  Pos4d newpos = pos();
 
   set_dirty();
   if ( is_open() )
@@ -50,15 +50,22 @@ void UDoor::toggle()
       graphic = dd->graphic;
     else
       graphic = static_cast<u16>( objtype_ );
-    setposition( pos() - dd->mod );
+    newpos = newpos - dd->mod;
   }
   else
   {
     graphic = dd->open_graphic;
-    setposition( pos() + dd->mod );
+    newpos = newpos + dd->mod;
   }
 
-  MoveItemWorldPosition( oldpos, this );
+  // A door on a boat is one of its components, and a boat refuses to take a component aboard as a
+  // traveller, so the multi lookups place_at() does here always come to nothing. It goes through
+  // place_at anyway so that the rule has no exceptions to remember: a boat moves its own cargo
+  // directly, because the multi cannot have changed, and everything else says where it is going.
+  //
+  // Nothing to check: a door that is being toggled is in the world, and the only thing place_at
+  // refuses is a destination without a realm, which this one takes from the door itself.
+  (void)Items::place_at( *this, newpos );
 
   send_item_to_inrange( this );
 }

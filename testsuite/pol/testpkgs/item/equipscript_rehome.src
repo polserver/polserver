@@ -1,0 +1,13 @@
+use uo;
+use os;
+
+// An equip script that moves the item somewhere else and still approves the equip. The core has
+// to detach the item from wherever the script left it before putting it on a layer, or the item
+// ends up listed both on the layer and in the container.
+program equipscript_rehome( equipped_on, item, startup, equipped_by )
+  var serial := GetObjProperty( item, "#RehomeTo" );
+  if ( serial )
+    MoveItemToContainer( item, SystemFindObjectBySerial( serial ) );
+  endif
+  return 1;
+endprogram

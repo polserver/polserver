@@ -61,3 +61,40 @@ exported function load_save_corpse()
   endif
   return 1;
 endfunction
+
+// A corpse renders its owner's equipment from a layer list that is not saved: only the items'
+// own layers are, so the list has to be rebuilt while the world is read back. Nothing else here
+// would notice if it were not - a corpse looks right for the rest of the run that created it,
+// and only comes back empty after a restart.
+//
+// The corpse comes from the testworldseed package, which is the only one that leaves a corpse
+// with anything on it. Its global property survives the restart, so this needs no ordering
+// relationship with that package: by run 2 the corpse is already loaded.
+exported function corpse_keeps_equipment_layers()
+  if ( testrun == 1 )
+    return 1;
+  endif
+
+  var corpse := SystemFindObjectBySerial( GetGlobalProperty( "test_seed_equipped_corpse" ) );
+  if ( !corpse )
+    return ret_error( "the seeded corpse did not survive the restart" );
+  endif
+
+  var layered := 0;
+  foreach item in EnumerateItemsInContainer( corpse, ENUMERATE_ROOT_ONLY )
+    if ( item.layer )
+      layered += 1;
+    endif
+  endforeach
+
+  // Not just "some layer survived": a zero here would make the comparison below pass on a corpse
+  // that renders nothing, which is the very thing this is watching for.
+  var expected := CInt( GetGlobalProperty( "test_seed_corpse_layers" ) );
+  if ( expected < 1 )
+    return ret_error( $"the seeding pass recorded {expected} equipped items on the corpse" );
+  endif
+  if ( layered != expected )
+    return ret_error( $"corpse renders {layered} items on layers, expected {expected}" );
+  endif
+  return 1;
+endfunction

@@ -1,0 +1,89 @@
+use os;
+use uo;
+use attributes;
+include "testutil";
+
+var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
+
+program test_equip_load()
+  return 1;
+endprogram
+
+// An item whose equip script makes it unequippable while the world is being read.
+//
+// equip_loaded_item asks equippable() first, then runs the equip script, then wears the item. The
+// script is free to invalidate the first answer, and the wear used to be a plain Character::equip,
+// which opens with a passert on exactly that -- so a shard with such a script died part-way
+// through reading its own world file. The item is refused now and goes to the backpack, which is
+// what happens to any other item that turns out not to be wearable.
+exported function equip_script_weakens_on_load( resmgn )
+  if ( testrun == 1 )
+    // Not through the resource manager: it destroys what it created when the pass ends, and this
+    // has to still be there for the next one.
+    var npc := CreateNPCFromTemplate( ":testrestart:restart_npc", 10, 12, -5, 0, "britannia2", 1 );
+    if ( !npc )
+      return ret_error( $"failed to create npc: {npc}" );
+    endif
+
+    // An NPC template gives its character no backpack, and the load-time fallback can only fall
+    // back to one that exists: without it an unwearable loaded item is a fatal data file error.
+    var worn_pack := CreateItemAtLocation( 10, 12, -5, "restart_test_backpack", 1, "britannia2" );
+    if ( !worn_pack )
+      return ret_error( $"failed to create the backpack: {worn_pack}" );
+    endif
+    var res := EquipItem( npc, worn_pack );
+    if ( !res )
+      return ret_error( $"failed to equip the backpack: {res}" );
+    endif
+
+    var item := CreateItemInContainer( npc.backpack, "restart_equip_strreq", 1 );
+    if ( !item )
+      return ret_error( $"failed to create the item: {item}" );
+    endif
+
+    // The script only fires on startup, so this equip is the ordinary path and must succeed.
+    res := EquipItem( npc, item );
+    if ( !res )
+      return ret_error( $"failed to equip the item: {res}" );
+    endif
+
+    SetGlobalProperty( "test_equip_load_npc", npc.serial );
+    SetGlobalProperty( "test_equip_load_item", item.serial );
+    return 1;
+  endif
+
+  var npcserial := GetGlobalProperty( "test_equip_load_npc" );
+  var itemserial := GetGlobalProperty( "test_equip_load_item" );
+  if ( !npcserial or !itemserial )
+    return ret_error( "the seeding pass left no serials behind" );
+  endif
+
+  var npc := SystemFindObjectBySerial( npcserial, SYSFIND_SEARCH_OFFLINE_MOBILES );
+  if ( !npc )
+    return ret_error( $"the npc did not survive the restart: {npc}" );
+  endif
+
+  var item := SystemFindObjectBySerial( itemserial );
+  if ( !item )
+    return ret_error( $"the item did not survive the restart: {item}" );
+  endif
+
+  // Reaching this point at all is most of the assertion: before the fix the load aborted here.
+  if ( item.container.serial != npc.backpack.serial )
+    return ret_error( $"the refused item is in 0x{item.container.serial:x}, expected the backpack" );
+  endif
+
+  var worn := GetEquipmentByLayer( npc, 5 );
+  if ( worn and worn.serial == item.serial )
+    return ret_error( "the item was worn despite the wearer no longer meeting StrRequired" );
+  endif
+
+  // Put the strength the equip script took away back, now that it has been observed. Maximum hit
+  // points are derived from strength, and the save this pass writes still carries the NPC's full
+  // Life, so leaving it weak means the next load clamps Life down to match -- one settling step
+  // that costs shard_test_roundtrip its fixed point. Restoring the attribute is enough; nothing
+  // reads it again.
+  SetAttributeBaseValue( npc, "Strength", 2000 );
+
+  return 1;
+endfunction

@@ -14,6 +14,9 @@ const EVT_MOVED := "moved";
 const EVT_NEW_MOBILE := "new_mobile";
 const EVT_NEW_ITEM := "new_item";
 const EVT_REMOVED_OBJ := "removed_obj";
+// The server described an object that is nowhere near the client. The client discards it, so this
+// is the only trace of it.
+const EVT_OUT_OF_RANGE_OBJ := "out_of_range_obj";
 const EVT_LIST_OBJS := "list_objs";
 const EVT_LIST_EQUIPPED_ITEMS := "list_equipped_items";
 const EVT_OPEN_BACKPACK := "open_bp";
@@ -24,6 +27,9 @@ const EVT_LIFT_ITEM := "lift_item";
 const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";
 const EVT_DROP_ITEM := "drop_item";
 const EVT_WEAR_ITEM := "wear_item";
+const EVT_BUY_ITEMS := "buy_items";
+const EVT_SELL_ITEMS := "sell_items";
+const EVT_RACE_CHANGE := "race_change";
 const EVT_BOAT_MOVE := "boat_move";
 const EVT_DROP_APPROVED := "drop_approved";
 const EVT_DISABLE_ITEM_LOGGING := "disable_item_logging";

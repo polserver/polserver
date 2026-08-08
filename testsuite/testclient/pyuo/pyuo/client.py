@@ -921,11 +921,16 @@ class Client(threading.Thread):
       self.handleGeneralInfoPacket(pkt)
 
     elif isinstance(pkt, packets.DrawContainerPacket):
-      cont = self.objects[pkt.serial]
-      assert isinstance(cont, Item)
-      if not isinstance(cont, Container):
-        # Upgrade the item to a Container
-        cont.upgradeToContainer()
+      if pkt.gump == packets.DrawContainerPacket.GUMP_VENDOR:
+        # A vendor buy window carries the vendor's serial, and its two containers were already
+        # sent as worn items on the vendor.
+        pass
+      else:
+        cont = self.objects[pkt.serial]
+        assert isinstance(cont, Item)
+        if not isinstance(cont, Container):
+          # Upgrade the item to a Container
+          cont.upgradeToContainer()
 
     elif isinstance(pkt, packets.TipWindowPacket):
       assert self.lc
@@ -1238,6 +1243,12 @@ class Client(threading.Thread):
       item = Item(self, pkt)
       if not self.player.inRange(item):
         self.log.info("Ignore out of range item %s (self: %s)", item, self.player)
+        # Reported rather than only logged: being told about an object that is nowhere near us is
+        # a server-side mistake, and a test has no other way to see it -- the object is dropped
+        # here, so it never reaches self.objects or list_objects.
+        self.brain.event(brain.Event(brain.Event.EVT_OUT_OF_RANGE_OBJ, serial=item.serial,
+                                     pos=[item.x,item.y,item.z],
+                                     playerpos=[self.player.x,self.player.y,self.player.z]))
         return
       if not self.disable_item_logging:
         self.log.info("New item: %s", item)
@@ -1548,6 +1559,31 @@ class Client(threading.Thread):
     '''
     po = packets.SecureTradingPacket()
     po.fill(action, self.player.tradecont.serial if self.player.tradecont else 0, flag)
+    self.queue(po)
+
+  @logincomplete
+  def raceChange(self, bodyhue, hairid, hairhue, beardid, beardhue):
+    ''' Sends the result of the character race changer gump to server '''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_RACECHANGER, bodyhue, hairid, hairhue, beardid, beardhue)
+    self.queue(po)
+
+  @logincomplete
+  def buy(self, vendor_serial, items):
+    ''' Sends a buy packet to server
+    @param items list: list of (layer, serial, amount) tuples
+    '''
+    po = packets.BuyItemsPacket()
+    po.fill(vendor_serial, items)
+    self.queue(po)
+
+  @logincomplete
+  def sell(self, vendor_serial, items):
+    ''' Sends a sell packet to server
+    @param items list: list of (serial, amount) tuples
+    '''
+    po = packets.SellItemsPacket()
+    po.fill(vendor_serial, items)
     self.queue(po)
 
   @logincomplete

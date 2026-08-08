@@ -129,6 +129,10 @@ set (pol_sources  # sorted !
   item/itemcr.cpp
   item/itemdesc.cpp
   item/itemdesc.h
+  item/integrity.cpp
+  item/integrity.h
+  item/location.cpp
+  item/location.h
   item/weapon.cpp
   item/weapon.h
   item/wepntmpl.h
@@ -401,6 +405,7 @@ set (pol_sources  # sorted !
   testing/testenv.h
   testing/testexpansion.cpp
   testing/testipmatch.cpp
+  testing/testlocation.cpp
   testing/testlos.cpp
   testing/testmapsize.cpp
   testing/testmaptile.cpp
@@ -409,10 +414,12 @@ set (pol_sources  # sorted !
   testing/testrange.cpp
   testing/testresolve.cpp
   testing/testskill.cpp
+  testing/testslots.cpp
   testing/testthreadpool.cpp
   testing/testvector.cpp
   testing/testwalk.cpp
   testing/testwww.cpp
+  testing/testzones.cpp
   textcmd.cpp
   textcmd.h
   tildecmd.cpp

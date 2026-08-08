@@ -14,6 +14,7 @@
 
 #include "pol/multi/house.h"
 
+#include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <iterator>
 #include <stdlib.h>
@@ -42,7 +43,9 @@
 #include "pol/fnsearch.h"
 #include "pol/globals/object_storage.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/mobile/charactr.h"
 #include "pol/module/uomod.h"
 #include "pol/multi/customhouses.h"
@@ -165,7 +168,9 @@ void UHouse::create_components()
  */
 bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
 {
-  if ( !can_add_component( item ) )
+  // Only half of can_add_component(): this overload is the one that puts the item in the world, so
+  // it cannot ask for that beforehand.
+  if ( item->house() != nullptr )
     return false;
 
   u16 newx, newy;
@@ -185,12 +190,33 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
                     item->serial, serial );
     return false;
   }
-  item->setposition( Core::Pos4d( newx, newy, newz, realm() ) );
   item->disable_decay();
   item->movable( false );
+  if ( !Items::place_at( *item, Core::Pos4d( newx, newy, newz, realm() ) ) )
+    return false;
   update_item_to_inrange( item );
-  add_item_to_world( item );
   add_component_no_check( Component( item ) );
+  return true;
+}
+
+/**
+ * Drops an item from the components list, and with it the item's back-pointer to this house.
+ *
+ * Called both by the script method and by relocate(), whenever a component leaves the world: a
+ * component that has been picked up or destroyed is not a part of the house any more, and leaving
+ * it listed is what let a house keep a components entry pointing into somebody's backpack.
+ *
+ * @return false if the item was not a component of this house
+ */
+bool UHouse::erase_component( Items::Item* item )
+{
+  auto pos = std::find( components_.begin(), components_.end(), Component( item ) );
+  if ( pos == components_.end() )
+    return false;
+
+  item->house( nullptr );
+  components_.erase( pos );
+  set_dirty();
   return true;
 }
 
@@ -262,6 +288,15 @@ Bscript::ObjArray* UHouse::mobiles_list() const
 UHouse* UHouse::as_house()
 {
   return this;
+}
+
+void UHouse::for_each_component( const std::function<void( Items::Item& )>& f ) const
+{
+  for ( const auto& component : components_ )
+  {
+    if ( component != nullptr && !component->orphan() )
+      f( *component );
+  }
 }
 
 Bscript::BObjectImp* UHouse::get_script_member_id( const int id ) const  /// id test
@@ -347,6 +382,8 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
 
         if ( iref->house() )
           return new BError( "Item is already an house component" );
+        if ( !iref->location().holds<Items::InWorld>() )
+          return new BError( "Item is not standing in the world" );
         return new BError( "Couldn't add component" );
       }
     }
@@ -362,14 +399,7 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
       {
         Module::EItemRefObjImp* ir = static_cast<Module::EItemRefObjImp*>( aob );
         Core::ItemRef iref = ir->value();
-        Components::iterator pos;
-        pos = find( components_.begin(), components_.end(), iref );
-        if ( pos != components_.end() )
-        {
-          iref->house( nullptr );
-          components_.erase( pos );
-        }
-        else
+        if ( !erase_component( iref.get() ) )
           return new BError( "Component not found" );
         return new BLong( 1 );
       }
@@ -683,14 +713,18 @@ void UHouse::destroy_components()
 {
   while ( !components_.empty() )
   {
-    Items::Item* item = components_.back().get();
+    // The reference keeps the item alive across the erase, and taking it out of the list first is
+    // what keeps this loop off a list that destroying the item would shorten under it.
+    Component component = components_.back();
+    Items::Item* item = component.get();
+    erase_component( item );
+
     if ( Plib::systemstate.config.loglevel >= 5 )
       POLLOGLN( "Destroying component {:#x}, serial={:#x}", item->objtype_, item->serial );
     if ( !item->orphan() )
       Core::destroy_item( item );
     if ( Plib::systemstate.config.loglevel >= 5 )
       POLLOGLN( "Component destroyed" );
-    components_.pop_back();
   }
 }
 
@@ -764,14 +798,7 @@ void UHouse::change_multiid( u16 multiid, bool recreate_components )
   // Recreate components (if specified)
   if ( recreate_components )
   {
-    for ( auto& component : components_ )
-    {
-      if ( !component->orphan() )
-        Core::destroy_item( component.get() );
-    }
-
-    components_.clear();
-
+    destroy_components();
     create_components();
   }
 }
@@ -1066,20 +1093,25 @@ void move_to_ground( Items::Item* item )
       // move 'self' a bit so it doesn't interfere with itself
       bool res = item->realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon, true,
                                             Plib::MOVEMODE_LAND );
+      // The displacement above was only ever for the duration of the probe, and it has to be undone
+      // before the item is moved for real: the move reads the item's current position to find the
+      // zone it is leaving, and (0,0) is not it.
+      item->setposition( oldpos );
       if ( res )
       {
-        item->setposition( newpos.z( static_cast<signed char>( newz ) ) );
-        move_item( item, oldpos );
+        if ( !move_item( item, newpos.z( static_cast<signed char>( newz ) ) ) )
+          POLLOG_ERRORLN( "move_to_ground: item {:#x} is {} and could not be put on the ground",
+                          item->serial, item->location().describe() );
         return;
       }
-      item->setposition( oldpos );
     }
   }
   short newz;
   if ( item->realm()->groundheight( item->pos2d(), &newz ) )
   {
-    item->setposition( Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) );
-    move_item( item, oldpos );
+    if ( !move_item( item, Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) ) )
+      POLLOG_ERRORLN( "move_to_ground: item {:#x} is {} and could not be put on the ground",
+                      item->serial, item->location().describe() );
     return;
   }
 }

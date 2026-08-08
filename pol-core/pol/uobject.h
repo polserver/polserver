@@ -164,6 +164,12 @@ public:
   void getpropnames( std::vector<std::string>& propnames ) const;
   const PropertyList& getprops() const;
 
+  /**
+   * End this object: leave whatever registries hold it, then retire it from the world.
+   *
+   * Overrides add the leaving; every one of them finishes with mark_orphan(). Safe to call twice --
+   * an object that is already gone has nothing left to leave and mark_orphan() ignores it.
+   */
   virtual void destroy();
 
   virtual unsigned int weight() const = 0;
@@ -243,6 +249,15 @@ public:
   static std::atomic<unsigned int> clean_writes;
 
 protected:
+  /**
+   * Retire the object from the world: clear its serial so orphan() answers true, and leave the
+   * actual delete to ObjectHash::Reap once every other reference has gone.
+   *
+   * This is only the last step of destruction, never the whole of it -- an object still filed in a
+   * container or a zone would be reaped out from under whoever holds that entry. Call destroy().
+   */
+  void mark_orphan();
+
   virtual void printProperties( Clib::StreamWriter& sw ) const;
   virtual void printDebugProperties( Clib::StreamWriter& sw ) const;
 

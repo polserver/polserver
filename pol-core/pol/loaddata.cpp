@@ -27,6 +27,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/objecthash.h"
 #include "pol/polclass.h"
 #include "pol/spelbook.h"
@@ -35,9 +36,11 @@
 
 namespace Pol::Core
 {
-void defer_item_insertion( Items::Item* item, pol_serial_t container_serial )
+void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer,
+                           u8 saved_slot )
 {
-  objStorageManager.deferred_insertions.insert( std::make_pair( container_serial, item ) );
+  objStorageManager.deferred_insertions.insert(
+      std::make_pair( container_serial, DeferredInsertion{ item, saved_layer, saved_slot } ) );
 }
 
 void insert_deferred_items()
@@ -60,7 +63,7 @@ void insert_deferred_items()
     }
 
     pol_serial_t container_serial = deferred_insertion.first;
-    UObject* obj = deferred_insertion.second;
+    UObject* obj = deferred_insertion.second.obj;
 
     if ( IsCharacter( container_serial ) )
     {
@@ -91,7 +94,8 @@ void insert_deferred_items()
       Items::Item* item = static_cast<Items::Item*>( obj );
       if ( cont_item != nullptr )
       {
-        add_loaded_item( cont_item, item );
+        add_loaded_item( cont_item, item, deferred_insertion.second.saved_layer,
+                         deferred_insertion.second.saved_slot );
       }
       else
       {
@@ -118,14 +122,18 @@ void insert_deferred_items()
 
 void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
 {
-  item->layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
-  item->tile_layer = item->layer;                  // adjust for tiledata changes
+  item->tile_layer = Plib::tilelayer( item->graphic );  // adjust for tiledata changes
 
+  // The equip script above runs after equippable() has already said yes, and is free to make the
+  // item unequippable again before it is actually worn. Character::equip opens with a
+  // passert_r( equippable( item ) ), so that used to abort the server part-way through reading the
+  // world; relocate refuses and the item goes to the backpack like any other item that cannot be
+  // worn.
   if ( chr->equippable( item ) && item->check_equiptest_scripts( chr, true ) &&
        item->check_equip_script( chr, true ) &&
-       !item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
+       !item->orphan() &&  // dave added 1/28/3, item might be destroyed in RTC script
+       Items::relocate( *item, Items::Equipped{ chr, item->tile_layer } ) )
   {
-    chr->equip( item );
     item->clear_dirty();  // equipping sets dirty
     return;
   }
@@ -138,12 +146,9 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   if ( bp )
   {
     stateManager.gflag_enforce_container_limits = false;
-    bool canadd = bp->can_add( *item );
     u8 slotIndex = item->slot_index();
-    bool add_to_slot = bp->can_add_to_slot( slotIndex );
-    if ( canadd && add_to_slot && item->slot_index( slotIndex ) )
+    if ( bp->can_add( *item ) && Items::move_into( *item, *bp, slotIndex ) )
     {
-      bp->add_at_random_location( item );
       // leaving dirty
       stateManager.gflag_enforce_container_limits = true;
       ERROR_PRINTLN( "I'm so cool, I put it in the character's backpack!" );
@@ -161,7 +166,32 @@ void equip_loaded_item( Mobile::Character* chr, Items::Item* item )
   throw std::runtime_error( "Data file integrity error" );
 }
 
-void add_loaded_item( Items::Item* cont_item, Items::Item* item )
+namespace
+{
+/**
+ * Puts a loaded item back on the layer it was rendered on, if it was on one.
+ *
+ * A corpse shows its owner's equipment from a layer list that is not saved: all that survives a
+ * restart is each item's own Layer line, so the list has to be rebuilt here or the corpse comes
+ * back with nothing on it. Which layer an item renders on today is a tiledata question, so the
+ * saved value only decides whether it was worn at all.
+ *
+ * Returns false for anything that is ordinary contents -- the swallowed backpack's items, say --
+ * and for the item that loses a layer it now shares with another, which tiledata changes can
+ * produce. Those are still legitimate corpse contents and the caller inserts them normally.
+ */
+bool add_loaded_item_to_layer( UContainer* cont, Items::Item* item, u8 slot, u8 saved_layer )
+{
+  if ( saved_layer == 0 || !cont->script_isa( POLCLASS_CORPSE ) ||
+       !Items::valid_equip_layer( item ) )
+    return false;
+
+  UCorpse* corpse = static_cast<UCorpse*>( cont );
+  return Items::relocate( *item, Items::OnCorpse{ corpse, item->pos2d(), slot, item->tile_layer } );
+}
+}  // namespace
+
+void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer, u8 saved_slot )
 {
   if ( cont_item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
   {
@@ -192,7 +222,10 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
 
     stateManager.gflag_enforce_container_limits = false;
     bool canadd = cont->can_add( *item );
-    u8 slotIndex = item->slot_index();
+    // The saved slot is a preference, not a promise: can_add_to_slot keeps it when the cell is
+    // still free and picks another when it is not, which is what a save written before the
+    // allocator was fixed can look like.
+    u8 slotIndex = saved_slot;
     bool add_to_slot = cont->can_add_to_slot( slotIndex );
     if ( !canadd )
     {
@@ -200,14 +233,23 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item )
       throw std::runtime_error( "Data file error" );
     }
 
-    if ( !add_to_slot || !item->slot_index( slotIndex ) )
+    if ( !add_to_slot )
     {
       ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x} at slot {:#x}", item->serial,
                      cont->serial, slotIndex );
       throw std::runtime_error( "Data file error" );
     }
 
-    cont->add( item, item->pos2d() );
+    // The loader used to reach into the container itself. Going through relocate also means the
+    // world file no longer gets the benefit of the doubt on two things UContainer::add would
+    // simply have done: adding to a destroyed container, which add answers with a passert, and
+    // putting a container inside itself, which nothing checked at all.
+    if ( !add_loaded_item_to_layer( cont, item, slotIndex, saved_layer ) &&
+         !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), slotIndex } ) )
+    {
+      ERROR_PRINTLN( "Can't add Item {:#x} to container {:#x}", item->serial, cont->serial );
+      throw std::runtime_error( "Data file error" );
+    }
     item->clear_dirty();  // adding sets dirty
 
     stateManager.gflag_enforce_container_limits = true;

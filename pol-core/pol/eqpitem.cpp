@@ -13,14 +13,13 @@
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "plib/systemstate.h"
+#include "pol/getitem.h"
 #include "pol/item/item.h"
 #include "pol/layers.h"
 #include "pol/mobile/charactr.h"
-#include "pol/multi/multi.h"
 #include "pol/network/client.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
-#include "pol/realms/realm.h"
 #include "pol/reftypes.h"
 #include "pol/systems/suspiciousacts.h"
 #include "pol/ufunc.h"
@@ -54,16 +53,17 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   {
     SuspiciousActs::EquipItemOtherThanGotten( client, serial, item->serial );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );  // 5
-    item->gotten_by( nullptr );  // TODO: shouldn't we clear_gotten_item() here?
+    // The equip names an item other than the one being held, so the held one has no layer to go
+    // to: hand it back to where it came from rather than leaving it detached from everything.
+    client->chr->clear_gotten_item();
     return;
   }
 
   ItemRef itemref( item );
 
-  item->layer = item->tile_layer;
-  item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( {} );
+  // The layer the item ends up on is decided by the relocate at the bottom, so letting go of the
+  // cursor here leaves nothing half-applied for a check below to undo.
+  release_gotten_item( client->chr );
 
   Mobile::Character* equip_on = nullptr;
   if ( equip_on_serial == client->chr->serial )
@@ -120,16 +120,15 @@ void equip_item( Network::Client* client, PKTIN_13* msg )
   if ( item->orphan() )
     return;
 
-  // Unregister the item if it is on a multi
-  if ( item->container == nullptr && !item->has_gotten_by() )
+  // Not equip_on->equip() directly: the equiptest and equip scripts above can have re-homed the
+  // item, and relocate detaches it from wherever it actually is before putting it on the layer —
+  // including unregistering it from a multi, if a script put it back on the ground.
+  if ( !Items::relocate( *item, Items::Equipped{ equip_on, item->tile_layer } ) )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
-
-    if ( multi != nullptr )
-      multi->unregister_object( item );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_ILLEGAL_EQUIP );
+    info.undo( client->chr );
+    return;
   }
-
-  equip_on->equip( item );
   send_wornitem_to_inrange( equip_on, item );
 }
 }  // namespace Pol::Core

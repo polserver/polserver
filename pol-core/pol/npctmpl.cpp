@@ -59,9 +59,9 @@ TRANSLATION xlate_align[] = { { "good", NpcTemplate::GOOD },
 
 NpcTemplate::NpcTemplate( const Clib::ConfigElem& elem, const Plib::Package* pkg )
     : intrinsic_weapon( static_cast<Items::UWeapon*>(
-          Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND1 ) ) ),
+          Items::find_intrinsic_equipment( elem.rest(), Items::IntrinsicKind::Weapon ) ) ),
       intrinsic_shield( static_cast<Items::UArmor*>(
-          Items::find_intrinsic_equipment( elem.rest(), LAYER_HAND2 ) ) ),
+          Items::find_intrinsic_equipment( elem.rest(), Items::IntrinsicKind::Shield ) ) ),
       pkg( pkg ),
       // script( elem.read_string( "SCRIPT" ) ),
       alignment( static_cast<ALIGNMENT>(

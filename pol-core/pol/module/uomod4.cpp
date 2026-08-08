@@ -56,8 +56,8 @@ BObjectImp* UOExecutorModule::mf_MoveObjectToLocation( /*object, x, y, z, realm,
     return internal_MoveBoat( static_cast<Multi::UBoat*>( obj ), pos, flags );
   if ( obj->script_isa( POLCLASS_MULTI ) )
     return new BError( "Can't move multis at this time." );
-  if ( obj->script_isa( POLCLASS_CONTAINER ) )
-    return internal_MoveContainer( static_cast<UContainer*>( obj ), pos, flags );
+  // Containers used to be their own case, for a hand-written pass that pushed a realm change down
+  // to their contents. Placing an item does that now, so a container moves like any other item.
   if ( obj->script_isa( POLCLASS_ITEM ) )
     return internal_MoveItem( static_cast<Item*>( obj ), pos, flags );
   return new BError( "Can't handle that object type." );
@@ -103,24 +103,6 @@ BObjectImp* UOExecutorModule::internal_MoveBoat( Multi::UBoat* boat, const Core:
   return new BLong( ok );
 }
 
-BObjectImp* UOExecutorModule::internal_MoveContainer( UContainer* container,
-                                                      const Core::Pos4d& newpos, int flags )
-{
-  Realms::Realm* newrealm = newpos.realm();
-  Realms::Realm* oldrealm = container->realm();
-
-  BObjectImp* ok = internal_MoveItem( static_cast<Item*>( container ), newpos, flags );
-  // Check if container was successfully moved to a new realm and update contents.
-  if ( !ok->isa( BObjectImp::OTError ) )
-  {
-    // TODO POS should be removed
-    if ( newrealm != nullptr && oldrealm != newrealm )
-      container->for_each_item( setrealm, (void*)newrealm );
-  }
-
-  return ok;
-}
-
 BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos, int flags )
 {
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
@@ -135,11 +117,15 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
     return new BError( "That item is being used." );
   }
 
-  Multi::UMulti* multi = nullptr;
+  // walkheight also reports the multi standing at the height it settled on. That answer is
+  // discarded: the item is registered with whatever multi supports the position it actually ends up
+  // at, which place_at() works out for itself. The two only ever disagreed when a forced location
+  // put the item at a different height from the walkable one.
   if ( flags & MOVEITEM_FORCELOCATION )
   {
     short newz;
     Item* walkon;
+    Multi::UMulti* multi;
     newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
                                 Plib::MOVEMODE_LAND );
     // note that newz is ignored...
@@ -148,17 +134,17 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
   {
     short newz;
     Item* walkon;
+    Multi::UMulti* multi;
     if ( !newpos.realm()->walkheight( newpos.xy(), newpos.z(), &newz, &multi, &walkon, true,
                                       Plib::MOVEMODE_LAND ) )
       return new BError( "Invalid location selected" );
     newpos.z( Clib::clamp_convert<s8>( newz ) );
   }
 
-  if ( item->container != nullptr )
+  if ( UContainer* oldcont = item->container(); oldcont != nullptr )
   {
     // DAVE added this 12/04, call can/onRemove scripts for the old container
     UObject* oldroot = item->toplevel_owner();
-    UContainer* oldcont = item->container;
     Character* chr_owner = oldcont->GetCharacterOwner();
     if ( chr_owner == nullptr )
       if ( controller_.get() != nullptr )
@@ -187,23 +173,25 @@ BObjectImp* UOExecutorModule::internal_MoveItem( Item* item, Core::Pos4d newpos,
       return new BError( "Item was destroyed in OnRemove script" );
     }
 
-    item->extricate();
-    //  wherever it was, it wasn't in the world/on the ground
-    item->setposition( oldroot->toplevel_pos() );
-    if ( item->realm() == nullptr )
-      item->setposition( Pos4d( item->pos3d(), newpos.realm() ) );
-    // move_item calls MoveItemWorldLocation, so this gets it
-    // in the right place to start with.
-    add_item_to_world( item );
-  }
-  const Pos4d oldpos = item->toplevel_pos();
-  item->setposition( newpos );
-  move_item( item, oldpos );
+    // Where the item was seen until now: not its own position, which is a slot in a container
+    // gump, but wherever the container is standing.
+    const Pos4d oldpos = oldroot->toplevel_pos();
 
-  if ( multi != nullptr )
-  {
-    multi->register_object( item );
+    if ( !Items::relocate( *item, Items::Detached{} ) )
+      return new BError( "Could not remove the item from its container." );
+    if ( !Items::place_at( *item, newpos ) )
+      return new BError( "Could not place the item in the world." );
+
+    // Not move_item: the item was never in the world at oldpos, so there is no zone entry to move
+    // away from -- only the clients watching that spot to tell.
+    send_item_moved( item, oldpos );
   }
+  else
+  {
+    if ( !move_item( item, newpos ) )
+      return new BError( "Could not move the item." );
+  }
+
   return new BLong( 1 );
 }
 }  // namespace Pol::Module

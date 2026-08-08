@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <assert.h>
+#include <bitset>
 #include <cstddef>
 
 #include "bscript/barray.h"
@@ -88,7 +89,10 @@ void UContainer::destroy_contents()
     Contents::value_type item = contents_.back();
     if ( item != nullptr )  // this is really only for wornitems.
     {
-      item->container = nullptr;
+      // The container is going with them, so there is nothing to be taken out of. Letting each
+      // item unlink itself would mean erasing from the vector this loop is walking -- and for a
+      // character's worn items, running unequip on a character that is already being destroyed.
+      Items::abandon( *item );
       item->destroy();
     }
     contents_.pop_back();
@@ -155,12 +159,12 @@ bool UContainer::can_add_bulk( int tli_diff, int item_count_diff, int weight_dif
     if ( held_item_count_ + item_count_diff > max_items() )
       return false;
 
-    if ( container != nullptr )
+    if ( UContainer* outer = container(); outer != nullptr )
     {
       int modded_diff =
           Clib::clamp_convert<int>( ( ( held_weight_ + weight_diff ) * held_weight_multiplier() ) -
                                     ( held_weight_ * held_weight_multiplier() ) );
-      return container->can_add_bulk( 0, 0, modded_diff );
+      return outer->can_add_bulk( 0, 0, modded_diff );
     }
     return true;
   }
@@ -185,18 +189,20 @@ bool UContainer::can_add( unsigned short more_weight ) const
 
 bool UContainer::can_add_to_slot( u8& slotIndex )
 {
-  if ( settingsManager.ssopt.use_slot_index )
-  {
-    if ( slotIndex > max_slots() )
-      return false;
+  // Every slot is the same slot when the feature is off, so there is nothing to allocate and
+  // nothing that can fail.
+  if ( !settingsManager.ssopt.use_slot_index )
+    return true;
 
-    if ( is_slot_empty( slotIndex ) )
-      return true;
+  if ( slotIndex > max_slots() )
+    return false;
 
-    if ( find_empty_slot( slotIndex ) )
-      return true;
-  }
-  return true;
+  if ( is_slot_empty( slotIndex ) )
+    return true;
+
+  // Used to fall through to "yes" when this failed, which made every "no free slot" guard in the
+  // tree unreachable: a full container answered that it had room.
+  return find_empty_slot( slotIndex );
 }
 
 void UContainer::add( Items::Item* item, const Pos2d& pos )
@@ -208,12 +214,12 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
     passert_always( 0 );  // TODO remove once found
   }
   item->setposition( Pos4d( pos, 0, realm() ) );  // TODO POS realm should be a nullptr
-  item->container = this;
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
 
   add_bulk( item );
 }
+
 void UContainer::add_bulk( const Items::Item* item )
 {
   add_bulk( 1, item->weight() );
@@ -233,12 +239,13 @@ void UContainer::add_bulk( int item_count_delta, int weight_delta )
   // passert( !stateManager.gflag_enforce_container_limits || (held_weight_ + weight_delta <=
   // MAX_WEIGHT) );
 
+  UContainer* outer = container();
   int oldweight = 0;
-  if ( container != nullptr )
+  if ( outer != nullptr )
     oldweight = weight();
   held_weight_ = Clib::clamp_convert<u16>( held_weight_ + weight_delta );
-  if ( container != nullptr )
-    container->add_bulk( 0, weight() - oldweight );
+  if ( outer != nullptr )
+    outer->add_bulk( 0, weight() - oldweight );
 }
 
 
@@ -253,7 +260,7 @@ unsigned int UContainer::item_count() const
   return Items::Item::item_count() + held_item_count_;
 }
 
-bool UContainer::is_slot_empty( u8& slotIndex )
+bool UContainer::is_slot_empty( u8 slotIndex ) const
 {
   if ( held_item_count_ == 0 )
     return true;
@@ -276,35 +283,29 @@ bool UContainer::find_empty_slot( u8& slotIndex )
   if ( held_item_count_ >= max_slots() )
     return false;
 
-  bool slot_check = false;
-
-  for ( u8 slot_location = 1; slot_location <= max_items(); ++slot_location )
+  // One pass over the contents to see what is taken, rather than rescanning them for every
+  // candidate slot. The nested form this replaces left the inner loop at the first item that did
+  // *not* hold the candidate, so it only ever reported a slot taken when the very first item
+  // happened to be in it -- and handed out slots that were already occupied.
+  std::bitset<MAX_SLOTS + 1> taken;
+  for ( const auto& item : contents_ )
   {
-    for ( const auto& item : contents_ )
+    if ( item != nullptr )
+      taken.set( item->slot_index() );
+  }
+
+  // Counts in an int, and stops at max_slots() rather than max_items(): a slot index is a u8 that
+  // can_add_to_slot refuses above max_slots(), while max_items() reaches MAX_CONTAINER_ITEMS, and
+  // a u8 counter walking towards 3200 wraps through zero instead of terminating.
+  for ( unsigned slot = 1; slot <= max_slots(); ++slot )
+  {
+    if ( !taken.test( slot ) )
     {
-      if ( item == nullptr )
-        continue;
-      if ( item->slot_index() == slot_location )
-        slot_check = true;
-      if ( !slot_check )
-      {
-        break;
-      }
-    }
-    if ( !slot_check )
-    {
-      slotIndex = slot_location;
+      slotIndex = static_cast<u8>( slot );
       return true;
     }
-
-    slot_check = false;
   }
   return false;
-}
-
-void UContainer::add_at_random_location( Items::Item* item )
-{
-  add( item, get_random_location() );
 }
 
 void UContainer::enumerate_contents( Bscript::ObjArray* arr, int flags )
@@ -334,6 +335,15 @@ void UContainer::extract( Contents& cnt )
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cnt );
+  // The items are out of the container now, so say so on each of them. Leaving that to the caller
+  // is what let an extracted item still name the container it is no longer listed in.
+  for ( auto& item : cnt )
+  {
+    if ( item == nullptr )  // wornitems containers can hold null entries
+      continue;
+    item->set_location( Items::Detached{} );
+    item->set_dirty();
+  }
   add_bulk( -static_cast<int>( held_item_count_ ), -static_cast<int>( held_weight_ ) );
 }
 
@@ -365,6 +375,21 @@ void UContainer::swap( UContainer& cont )
     passert_always( 0 );  // TODO remove once found
   }
   contents_.swap( cont.contents_ );
+
+  // Both sets of items just changed hands; without this they keep naming the container they came
+  // from, which is only survivable today because the trade code empties both straight afterwards.
+  auto rehome = []( UContainer& into )
+  {
+    for ( auto& item : into.contents_ )
+    {
+      if ( item == nullptr )
+        continue;
+      item->set_location( Items::InContainer{ &into, item->pos2d(), item->slot_index() } );
+      item->set_dirty();
+    }
+  };
+  rehome( *this );
+  rehome( cont );
 }
 
 Items::Item* UContainer::find_toplevel_polclass( unsigned int polclass ) const
@@ -532,21 +557,22 @@ Items::Item* UContainer::remove( u32 objserial, UContainer** found_in )
   item = find( objserial, itr );
   if ( item != nullptr )
   {
+    UContainer* holder = item->container();
     if ( found_in != nullptr )
-      *found_in = item->container;
+      *found_in = holder;
 
-    item->container->remove( itr );
+    holder->remove( itr );
   }
   return item;
 }
 
 void UContainer::remove( Items::Item* item )
 {
-  if ( item->container != this )
+  if ( const UContainer* holder = item->container(); holder != this )
   {
     POLLOGLN( "UContainer::remove(Item*), serial={:#x}, item={:#x}, item->cont={:#x}", serial,
-              item->serial, item->container->serial );
-    passert_always( item->container == this );
+              item->serial, holder->serial );
+    passert_always( holder == this );
     int* p = nullptr;
     *p = 6;
   }
@@ -581,8 +607,7 @@ void UContainer::remove( iterator itr )
 {
   Items::Item* item = *itr;
   contents_.erase( itr );
-  item->container = nullptr;
-  item->reset_slot();
+  item->set_location( Items::Detached{} );
   item->set_dirty();
   remove_bulk( item );
 }
@@ -742,30 +767,33 @@ bool UContainer::is_legal_posn( const Core::Pos2d& pos ) const
   return desc.bounds.contains( pos );
 }
 
-void UContainer::spill_contents( Multi::UMulti* multi )
+void UContainer::spill_contents()
 {
-  passert( container == nullptr );
-  if ( !locked() )
-  {
-    while ( !contents_.empty() )
-    {
-      Items::Item* item = contents_.back();
-      if ( item->movable() )
-      {
-        contents_.pop_back();
+  passert( container() == nullptr );
+  if ( locked() )
+    return;
 
-        item->setposition( toplevel_pos() );
-        item->container = nullptr;
-        add_item_to_world( item );
-        move_item( item, item->pos() );
-        if ( multi )
-          multi->register_object( item );
-        item->layer = 0;
-      }
+  while ( !contents_.empty() )
+  {
+    Items::Item* item = contents_.back();
+    if ( !item->movable() )
+      destroy_item( item );
+    else
+    {
+      if ( Items::place_at( *item, toplevel_pos() ) )
+        send_item_moved( item, item->pos() );
       else
-      {
         destroy_item( item );
-      }
+    }
+
+    // Whichever way that went the item has left contents_, which is what ends the loop. Stop rather
+    // than trust it: every turn of this loop logs, so spinning here fills memory long before anyone
+    // gets to read the first line.
+    if ( !contents_.empty() && contents_.back() == item )
+    {
+      POLLOG_ERRORLN( "spill_contents: container {:#x} would not release item {:#x} ({})", serial,
+                      item->serial, item->location().describe() );
+      break;
     }
   }
 }

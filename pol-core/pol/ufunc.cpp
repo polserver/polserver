@@ -469,7 +469,7 @@ void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
       item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
-      item->slot_index(), item->container->serial_ext, item->color );
+      item->slot_index(), item->container()->serial_ext, item->color );
   msg.Send( client );
 
   if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
@@ -480,7 +480,7 @@ void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
       item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
-      item->slot_index(), item->container->serial_ext, item->color );
+      item->slot_index(), item->container()->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
 
@@ -491,7 +491,7 @@ void send_put_in_container_to_inrange( const Item* item )
       continue;
     // FIXME need to check character's additional_legal_items.
     // looks like inrange should be a Character member function.
-    if ( client2->chr->mightsee( item->container ) )
+    if ( client2->chr->mightsee( item->container() ) )
     {
       // FIXME if the container has an owner, and I'm not it, don't tell me?
       msg.Send( client2 );
@@ -504,7 +504,7 @@ void send_put_in_container_to_inrange( const Item* item )
 //   - it's visible
 //   - or the chr has seeinvisitems() privilege
 // (note: hair items are not invisible on corpses)
-bool can_see_on_corpse( const Client* client, const Core::ItemRef& item )
+bool can_see_on_corpse( const Client* client, const Items::Item* item )
 {
   bool invisible = ( item->invisible() && !client->chr->can_seeinvisitems() );
 
@@ -519,17 +519,18 @@ void send_corpse_equip( Client* client, const UCorpse* corpse )
   msg->offset += 2;
   msg->Write<u32>( corpse->serial_ext );
 
+  // The old "is it destroyed, and does it still belong to this corpse" guards are gone with the
+  // list that made them necessary: the view is built from the corpse's own contents, and a
+  // destroyed item reports Destroyed rather than OnCorpse, so neither case can reach here.
+  const auto view = corpse->layer_view();
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    const auto& item2 = corpse->GetItemOnLayer( layer );
+    const Items::Item* item2 = view[layer];
 
-    if ( !item2 || item2->orphan() || item2->container != corpse )
+    if ( item2 == nullptr || !can_see_on_corpse( client, item2 ) )
       continue;
 
-    if ( !can_see_on_corpse( client, item2 ) )
-      continue;
-
-    msg->Write<u8>( item2->layer );
+    msg->Write<u8>( static_cast<u8>( layer ) );
     msg->Write<u32>( item2->serial_ext );
   }
 
@@ -549,14 +550,12 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
   msg->offset += 4;  // msglen+count
   u16 count = 0;
 
+  const auto view = corpse->layer_view();
   for ( unsigned layer = Core::LOWEST_LAYER; layer <= Core::HIGHEST_LAYER; ++layer )
   {
-    const Core::ItemRef item = corpse->GetItemOnLayer( layer );
+    const Items::Item* item = view[layer];
 
-    if ( !item || item->orphan() || item->container != corpse )
-      continue;
-
-    if ( !can_see_on_corpse( client, item ) )
+    if ( item == nullptr || !can_see_on_corpse( client, item ) )
       continue;
 
     msg->Write<u32>( item->serial_ext );
@@ -690,16 +689,17 @@ void send_item_to_inrange( const Item* item )
 
 void update_item_to_inrange( const Item* item )
 {
-  if ( !item->container )
-    send_item_to_inrange( item );
-  else if ( auto* chr = item->container->get_chr_owner(); !chr )
-    send_put_in_container_to_inrange( item );
-  else if ( chr->logged_in() )
+  if ( Character* chr = item->wearer(); chr != nullptr )
   {
     // this may not be the right thing in all cases.
     // specifically, handle_dye used to not ever do send_wornitem.
-    update_wornitem_to_inrange( chr, item );
+    if ( chr->logged_in() )
+      update_wornitem_to_inrange( chr, item );
   }
+  else if ( item->location().container() != nullptr )
+    send_put_in_container_to_inrange( item );
+  else
+    send_item_to_inrange( item );
 }
 
 void send_light( Client* client, int lightlevel )
@@ -754,13 +754,13 @@ void send_item_move_failure( Network::Client* client, u8 reason )
   msg.Send( client );
 }
 
-void send_wornitem( Client* client, const Character* chr, const Item* item )
+void send_wornitem( Client* client, const Character* chr, const Item* item, u8 as_layer )
 {
   PktHelper::PacketOut<PktOut_2E> msg;
   msg->Write<u32>( item->serial_ext );
   msg->WriteFlipped<u16>( item->graphic );
   msg->offset++;  // unk7
-  msg->Write<u8>( item->layer );
+  msg->Write<u8>( as_layer );
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u16>( item->color );
   msg.Send( client );
@@ -771,13 +771,18 @@ void send_wornitem( Client* client, const Character* chr, const Item* item )
   }
 }
 
+void send_wornitem( Client* client, const Character* chr, const Item* item )
+{
+  send_wornitem( client, chr, item, item->location().layer() );
+}
+
 void send_wornitem_to_inrange( const Character* chr, const Item* item )
 {
   PktHelper::PacketOut<PktOut_2E> msg;
   msg->Write<u32>( item->serial_ext );
   msg->WriteFlipped<u16>( item->graphic );
   msg->offset++;  // unk7
-  msg->Write<u8>( item->layer );
+  msg->Write<u8>( item->location().layer() );
   msg->Write<u32>( chr->serial_ext );
   msg->WriteFlipped<u16>( item->color );
   transmit_to_inrange( item, &msg->buffer, msg->offset );
@@ -796,7 +801,7 @@ void update_wornitem_to_inrange( const Character* chr, const Item* item )
     msg->Write<u32>( item->serial_ext );
     msg->WriteFlipped<u16>( item->graphic );
     msg->offset++;  // unk7
-    msg->Write<u8>( item->layer );
+    msg->Write<u8>( item->location().layer() );
     msg->Write<u32>( chr->serial_ext );
     msg->WriteFlipped<u16>( item->color );
     transmit_to_inrange( item, &msg->buffer, msg->offset );
@@ -808,10 +813,9 @@ void update_wornitem_to_inrange( const Character* chr, const Item* item )
 // does 'item' have a parent with serial 'serial'?
 bool is_a_parent( const Item* item, u32 serial )
 {
-  while ( item->container != nullptr )
+  while ( ( item = item->container() ) != nullptr )
   {
     // UNTESTED
-    item = item->container;
     if ( item->serial == serial )
       return true;
   }
@@ -842,10 +846,12 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
   if ( worn_item != nullptr && worn_item->script_isa( POLCLASS_CONTAINER ) )
   {
     // Ignore these layers explicitly. Backpack especially since it was
-    // already checked above.
-    if ( worn_item->layer != LAYER_HAIR && worn_item->layer != LAYER_FACE &&
-         worn_item->layer != LAYER_BEARD && worn_item->layer != LAYER_BACKPACK &&
-         worn_item->layer != LAYER_MOUNT )
+    // already checked above. find_wornitem also reaches inside worn containers, and what it hands
+    // back from in there is on no layer at all -- which is why this asks where the item is rather
+    // than which layer its graphic belongs on.
+    const u8 worn_on = worn_item->location().layer();
+    if ( worn_on != LAYER_HAIR && worn_on != LAYER_FACE && worn_on != LAYER_BEARD &&
+         worn_on != LAYER_BACKPACK && worn_on != LAYER_MOUNT )
     {
       UContainer* worn_cont = static_cast<UContainer*>( worn_item );
       if ( worn_cont != nullptr )
@@ -969,7 +975,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
         continue;
       if ( _item->serial == serial )
       {
-        passert_always( _item->container == nullptr );
+        passert_always( _item->container() == nullptr );
         return _item;
       }
       if ( _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
@@ -1583,32 +1589,29 @@ void destroy_item( Item* item )
   {
     POLLOG_ERRORLN( "destroy {}: {}, orphan! (old serial: {:#x})", item->description(),
                     item->classname(), ( cfBEu32( item->serial_ext ) ) );
+    return;
   }
 
-  if ( item->serial != 0 )
-  {
-    item->set_dirty();
+  item->set_dirty();
+  send_remove_object_to_inrange( item );
 
-    // clear before leaving world calls it, no need to inform control script
-    item->clear_opponents( false );
+  // Refreshing the carrier's status bar is two halves that want opposite orderings: who to tell can
+  // only be found by walking up out of the item's container, and what to tell them -- the packet
+  // carries chr->weight(), read as it is sent -- is only true once the item has left it.
+  //
+  // UContainer::remove() already does both, in that order, for anything leaving a container. Worn
+  // items go out through RemoveItemFromLayer instead, which has no such step, so equipment is the
+  // one case where destroying something a character carried left their weight unrefreshed.
+  Character* carrier =
+      item->location().holds<Items::Equipped>() ? item->GetCharacterOwner() : nullptr;
 
-    send_remove_object_to_inrange( item );
+  item->destroy();
 
-    if ( item->container == nullptr )  // on ground, easy.
-    {
-      if ( !item->has_gotten_by() )  // and not in hand
-        remove_item_from_world( item );
-    }
-    else
-    {
-      item->extricate();
-    }
-
-    item->destroy();
-  }
+  if ( carrier != nullptr && carrier->client != nullptr )
+    send_full_statmsg( carrier->client, carrier );
 }
 
-bool destroy_item_with_script_check( Items::Item* item )
+bool try_destroy_item( Items::Item* item )
 {
   const ItemDesc& id = find_itemdesc( item->objtype_ );
   if ( !id.destroy_script.empty() )
@@ -1617,9 +1620,14 @@ bool destroy_item_with_script_check( Items::Item* item )
         run_script_to_completion( id.destroy_script, new Module::EItemRefObjImp( item ) ) );
     if ( !res.isTrue() )
       return false;
+    // The script runs to completion and is free to dispose of the item itself, which is a
+    // destruction that succeeded rather than one still to do.
+    if ( item->orphan() )
+      return true;
   }
   UpdateCharacterOnDestroyItem( item );
-  UpdateCharacterWeight( item );
+  if ( item->orphan() )  // and so are the unequip scripts that just ran
+    return true;
   destroy_item( item );
   return true;
 }
@@ -1649,18 +1657,25 @@ void subtract_amount_from_item( Item* item, unsigned short amount )
   update_item_to_inrange( item );
 
   // DAVE added this 11/17: if in a Character's pack, update weight.
-  UpdateCharacterWeight( item );
+  refresh_owner_statbar( item );
 }
 
 
 // FIXME OPTIMIZE: Core is building the packet in send_item for every single client
 // that needs to get it. There should be a better method for this. Such as, a function
 // to run all the checks after building the packet here, then send as it needs to.
-void move_item( Items::Item* item, const Core::Pos4d& oldpos )
+bool move_item( Items::Item* item, const Core::Pos4d& newpos )
 {
+  const Core::Pos4d oldpos = item->pos();
   item->restart_decay_timer();
-  MoveItemWorldPosition( oldpos, item );
+  if ( !Items::place_at( *item, newpos ) )
+    return false;
+  send_item_moved( item, oldpos );
+  return true;
+}
 
+void send_item_moved( Items::Item* item, const Core::Pos4d& oldpos )
+{
   WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( item,
                                                        [&]( Character* zonechr )
                                                        {
@@ -1906,11 +1921,24 @@ void send_midi( Client* client, u16 midi )
 
 void register_with_supporting_multi( Item* item )
 {
-  if ( item->container == nullptr )
+  if ( item->container() == nullptr )
   {
     Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
     if ( multi )
       multi->register_object( item );
+  }
+}
+
+void unregister_from_supporting_multi( Item* item )
+{
+  // The extra has_gotten_by() test is what leaving the world has always checked, and it is kept
+  // rather than matched to its twin above: an item on a cursor also has no container, so the two
+  // conditions are not the same question.
+  if ( item->container() == nullptr && !item->has_gotten_by() )
+  {
+    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    if ( multi != nullptr )
+      multi->unregister_object( item );
   }
 }
 
@@ -1964,7 +1992,7 @@ void send_move_mobile_to_nearby_cansee( const Character* chr, bool send_health_b
       } );
 }
 
-Character* UpdateCharacterWeight( Item* item )
+Character* refresh_owner_statbar( Item* item )
 {
   Character* chr_owner = item->GetCharacterOwner();
   if ( chr_owner != nullptr && chr_owner->client != nullptr )
@@ -1980,8 +2008,14 @@ void UpdateCharacterOnDestroyItem( Item* item )
   Character* chr_owner = item->GetCharacterOwner();
   if ( chr_owner != nullptr )
   {
-    if ( item->layer && chr_owner->is_equipped( item ) )
+    // is_equipped() is the whole test: an item this character wears is on a layer by definition,
+    // so the layer check that used to precede it could never say anything new.
+    if ( chr_owner->is_equipped( item ) )
     {
+      // Both of these can refuse, and both refusals are deliberately ignored: here the scripts are
+      // being told the item is coming off, not asked. Getting rid of the item is already the
+      // shard's decision to make -- try_destroy_item() ran its destroy script first, and that is
+      // the veto. A second one would let an item nobody can take off be an item nobody can delete.
       item->check_unequiptest_scripts();
       item->check_unequip_script();
       send_remove_object_to_inrange( item );

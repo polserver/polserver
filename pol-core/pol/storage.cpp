@@ -40,6 +40,9 @@ StorageArea::~StorageArea()
   {
     Cont::iterator itr = _items.begin();
     Items::Item* item = ( *itr ).second;
+    // The area is being torn down, so the item has nothing to be removed from; it must not go
+    // looking for the map this loop is emptying.
+    Items::abandon( *item );
     item->destroy();
     _items.erase( itr );
   }
@@ -68,17 +71,29 @@ bool StorageArea::delete_root_item( const std::string& name )
   if ( itr != _items.end() )
   {
     Items::Item* item = ( *itr ).second;
+    // The area outlives the item, so the item really does leave it -- and taking it out is what
+    // erases the entry, which is why nothing is erased here.
+    Items::detach( *item );
     item->destroy();
-    _items.erase( itr );
     return true;
   }
   return false;
 }
 
+bool StorageArea::remove_root_item( const std::string& key, Items::Item* item )
+{
+  Cont::iterator itr = _items.find( key );
+  if ( itr == _items.end() || ( *itr ).second != item )
+    return false;
+
+  _items.erase( itr );
+  item->inuse( false );
+  return true;
+}
+
 void StorageArea::insert_root_item( Items::Item* item )
 {
   item->inuse( true );
-
   _items.insert( make_pair( item->name(), item ) );
 }
 
@@ -88,6 +103,10 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 {
   u32 container_serial = 0;                                  // defaults to item at storage root,
   (void)elem.remove_prop( "CONTAINER", &container_serial );  // so the return value can be ignored
+  // Where the item goes is the loader's business, so it reads the properties that say so rather
+  // than leaving them on the item for somebody else to interpret.
+  u8 saved_layer = static_cast<u8>( elem.remove_ushort( "LAYER", 0 ) );
+  u8 saved_slot = static_cast<u8>( elem.remove_ushort( "SLOTINDEX", 0 ) );
 
   Items::Item* item = read_item( elem );
   // Austin added 8/10/2006, protect against further crash if item is null. Should throw instead?
@@ -98,7 +117,7 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
   }
   if ( container_serial == 0 )
   {
-    insert_root_item( item );
+    (void)Items::relocate_loaded( *item, Items::InStorage{ this, item->name() } );
   }
   else
   {
@@ -106,11 +125,11 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
 
     if ( cont_item )
     {
-      add_loaded_item( cont_item, item );
+      add_loaded_item( cont_item, item, saved_layer, saved_slot );
     }
     else
     {
-      defer_item_insertion( item, container_serial );
+      defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
 }
@@ -175,12 +194,25 @@ void StorageArea::on_delete_realm( Realms::Realm* realm )
   }
 }
 
+void StorageArea::for_each_root_item(
+    const std::function<void( const std::string&, Items::Item* )>& f ) const
+{
+  for ( const auto& entry : _items )
+    f( entry.first, entry.second );
+}
+
 void Storage::on_delete_realm( Realms::Realm* realm )
 {
   for ( const auto& area : areas )
   {
     area.second->on_delete_realm( realm );
   }
+}
+
+void Storage::for_each_area( const std::function<void( StorageArea& )>& f ) const
+{
+  for ( const auto& area : areas )
+    f( *area.second );
 }
 
 void Storage::read( Clib::ConfigFile& cf )

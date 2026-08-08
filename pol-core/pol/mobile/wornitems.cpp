@@ -9,6 +9,7 @@
 #include "pol/globals/settings.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/layers.h"
 #include "pol/mobile/charactr.h"
 
@@ -27,6 +28,15 @@ size_t WornItemsContainer::estimatedSize() const
   return sizeof( Mobile::Character* ) /*chr_owner*/ + base::estimatedSize();
 }
 
+
+void WornItemsContainer::adopt( const Mobile::Character& chr )
+{
+  serial = chr.serial;
+  serial_ext = chr.serial_ext;
+  // It answers to a serial now, so it is no longer merely under construction. Detached is the
+  // truthful resting state: it has a serial and belongs to no registry, and never will.
+  set_location( Items::Detached{} );
+}
 
 void WornItemsContainer::for_each_item( void ( *f )( Items::Item* item, void* a ), void* arg )
 {
@@ -50,10 +60,9 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->container = this;
   item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
-  item->layer = item->tile_layer;
   contents_[item->tile_layer] = Contents::value_type( item );
+  item->set_location( Items::Equipped{ chr_owner, item->tile_layer } );
   add_bulk( item );
 }
 
@@ -63,10 +72,8 @@ void WornItemsContainer::RemoveItemFromLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->container = nullptr;
   contents_[item->tile_layer] = nullptr;
-  // 12-17-2008 MuadDib added to clear item.layer properties.
-  item->layer = 0;
+  item->set_location( Items::Detached{} );
   remove_bulk( item );
 }
 

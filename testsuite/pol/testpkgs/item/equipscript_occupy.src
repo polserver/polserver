@@ -1,0 +1,13 @@
+use uo;
+use os;
+
+// An equip script that puts a different item on the layer this one was heading for, and still
+// approves the equip. The layer the core validated before running the script is taken by the time
+// it gets to the equip itself.
+program equipscript_occupy( equipped_on, item, startup, equipped_by )
+  var serial := GetObjProperty( item, "#OccupyWith" );
+  if ( serial )
+    EquipItem( equipped_on, SystemFindObjectBySerial( serial ) );
+  endif
+  return 1;
+endprogram

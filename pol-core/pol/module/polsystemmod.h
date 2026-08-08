@@ -78,6 +78,7 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_MD5Encrypt( /*string*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_FormatItemDescription( /*string,amount,suffix*/ );
   [[nodiscard]] Bscript::BObjectImp* mf_LogCPropProfile();
+  [[nodiscard]] Bscript::BObjectImp* mf_CheckItemIntegrity();
 };
 }  // namespace Module
 }  // namespace Pol

@@ -377,6 +377,8 @@ public:
   bool is_equipped( const Items::Item* item ) const;
   void equip( Items::Item* item );  // You MUST check equippable() before calling this
   void unequip( Items::Item* item );
+  /// The container an equipped item names as its own; the same one item->container points at.
+  Core::WornItemsContainer* worn_items() const { return wornitems.get(); }
 
   Core::Spellbook* spellbook( u8 school ) const;
   Core::UContainer* backpack() const;

@@ -4,16 +4,98 @@
     Fixed: Datastore loading once the version overflows
 08-06-2026 Turley:
     Fixed: every mobile read as criminal for the first hundredth of a second after the shard went active, a cleared criminal timer was compared against a polclock that starts at zero
+08-05-2026 Nando:
+    Fixed: CreateItemAtLocation and CreateItemCopyAtLocation returned an item that was not
+           at the requested location if the item's create script had moved it in the
+           meantime. An item moved elsewhere in the world stayed where the script put it,
+           and one put into a container was pulled back out to whatever coordinates the
+           container had given it, usually near the corner of the map. The requested
+           location now wins in every case.
 08-05-2026 Turley:
     Fixed: map pins from a client were bounded against the map's world area instead of its gump size, refusing valid pins on a map smaller than its gump and accepting pins outside a map larger than it
     Fixed: using a map whose gump or whose world area is empty on either axis divided by zero while converting its pins, such a map is not sent to the client anymore
     Fixed: Spellbook.addspell()/hasspell()/removespell() accepted a spellid of another school or past the 64 spells a book holds, wrapping it onto a spell of its own school
     Fixed: uo::GetSpellDifficulty/StartSpellEffect/ConsumeReagents/SpeakPowerWords and vitals::ConsumeMana read out-of-bounds for a spellid one past the highest defined spell
     Fixed: uo::ConsumeReagents consumed the reagents it had already found when a later one was missing
+08-04-2026 Nando:
+    Fixed: An item moved off a boat stayed listed as travelling with it, so players near
+           the boat were still told about the item wherever it had gone - including places
+           they could not otherwise see. The listing was corrected the next time the boat
+           moved, which is why the effect was brief and only visible to clients using the
+           newer boat packet.
+    Fixed: Destroying a piece of equipment a character was wearing left their status window
+           showing the old weight. Items destroyed out of a container were already refreshed;
+           worn ones were not, and where a refresh was sent it went out before the item had
+           gone, so it repeated the weight it was meant to correct.
+08-03-2026 Nando:
+    Added: corpse.equipped_items, the items a corpse is shown wearing, in layer order. This
+           is the same set the client is sent, so a script and a player looking at the corpse
+           see the same thing.
+    Changed: A corpse now shows what its owner was wearing when it died and has kept on it
+           since. Taking one of those items off the corpse ends that, so putting it back
+           leaves it as ordinary loot instead of dressing the corpse again. Moving an item
+           around inside the corpse's own window is unchanged - it stays on its layer.
+    Fixed: A corpse held on to every item it had ever shown as equipment, so those items
+           could not be freed until the corpse itself decayed, even long after they had
+           been looted and destroyed.
+    Fixed: Container slots (UseContainerSlots) were never usable. The slot an item was
+           given was not saved, so every arrangement collapsed onto slot 0 on the next
+           restart while the client was still being told about it; the search for a free
+           slot only looked at the first item in the container, so it handed out slots
+           that were already taken; and a container with every slot full still answered
+           that it had room, which made every "no free slots" message unreachable. Items
+           now keep their slot across a restart (a SlotIndex line, written only for items
+           that have one, so worlds from shards not using slots are unchanged), a free
+           slot is one no item occupies, and a full container is refused.
+    Fixed: Splitting part of a stack out of a container gave the slot to the part being
+           picked up rather than to the part left behind.
 08-03-2026 Turley:
     Fixed: several ways to crash the shard in CustomHouses
     Fixed: the wrong revision was send after erase and clear
   Changed: syshook CloseCustomHouse now also gets called when the client commits, if no misc/customhousecommit.src exists
+08-02-2026 Nando:
+    Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
+           is holding it - the container, corpse layer, storage area, cursor or world zone
+           an item says it is in must be the one that actually lists it, and the other way
+           round. Disagreements are written to the log; the check changes nothing. Returns
+           a struct with "checks" and "violations" counts. The .integ text command now runs
+           the same check and reports both numbers.
+    Fixed: The character race changer could shut the shard down when a client sent a hair
+           or beard id that the core accepts but the shard's tiledata does not have.
+    Fixed: A worn item whose EquipScript refused it while the world was being read shut
+           the server down during startup, so the shard could not start at all. The item
+           now goes into the wearer's backpack, which is what already happened to any
+           other item that could not be worn.
+    Fixed: uo::EquipItem shut the shard down when the item's own EquipScript made the
+           item unequippable while it ran. It returns an error now.
+    Fixed: uo::MoveItemToContainer could destroy an item that was still listed in the
+           container it came from, which could crash the server some time afterwards.
+           The move is refused instead.
+    Fixed: A house component moved out of the house, into a container or onto a
+           character, stayed on the house's component list, so destroying the house
+           destroyed the item wherever it had ended up by then.
+    Fixed: An item could be registered as a traveller of the boat it is a component of
+           (uo::MoveItem with MOVEITEM_IGNOREMOVABLE, boat.RegisterItemWithBoat). The
+           boat then moved it twice on every step, and listed it twice after a restart.
+    Fixed: Dropping an item while a different one was on the cursor sent no reply at all,
+           so the client kept the dropped item stuck to the cursor.
+    Fixed: uo::DestroyItem on an item held on a cursor left the character still holding
+           it, and unable to pick anything else up.
+    Fixed: An equipped item refused by uo::MoveItemToSecureTradeWin went into the owner's
+           backpack instead of back onto the layer it was worn on.
+    Fixed: A corpse showed none of the equipment it was wearing after a server restart.
+           The items were still in it - double-clicking the corpse showed them - they
+           just were not drawn on it.
+  Changed: An EquipScript now sees item.layer as 0 for the item it is asked about, until
+           the item is actually worn. uo::EquipItem and the world load used to set the
+           layer before running the script, while the client's own equip and re-equip
+           paths never did, so all four behave the same way now. A script that needs the
+           layer an item would be worn on should read item.tile_layer.
+  Changed: An item that is not being worn no longer reports a layer, and no longer saves
+           one. It could pick one up and keep it two ways: an item that could not be worn
+           while the world was being read went into the backpack still reporting the
+           layer it had failed to reach, and uo::CreateItemCopyAtLocation on an equipped
+           item gave the copy the original's layer.
 08-02-2026 Turley:
     Fixed: PacketHook with SubCommandOffset where the packet was too short, its now handled by the parent hook or default handler.
     Fixed: several out-of-bounds reads in packet scriptobjects

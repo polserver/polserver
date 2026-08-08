@@ -109,6 +109,18 @@ program tests()
       run_script( ":{}:cleanup.ecl".format( pkg[1] ) );
       syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
     endif
+    // Named here rather than at the end of the run so a package that leaves the world disagreeing
+    // with itself blames itself instead of whichever package runs next.
+    // The check count is logged even when clean: a sweep that stops reaching anything reports the
+    // same silence as a world with nothing wrong with it.
+    var integ := CheckItemIntegrity();
+    if ( integ.violations )
+      syslog( $"  !! {integ.violations} item integrity violations, {integ.checks} checks", 0,
+              CONSOLE_COLOR_RED );
+      exitcode := 1;
+    else
+      syslog( $"  item integrity ok, {integ.checks} checks", 0, CONSOLE_COLOR_GREEN );
+    endif
     syslog( "..{}ms".format( ReadMillisecondClock() - pkgstartms ), 0, CONSOLE_COLOR_MAGENTA );
   endforeach
 

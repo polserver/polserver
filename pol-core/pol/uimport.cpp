@@ -201,6 +201,10 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   u32 container_serial = 0;  // defaults to item in the world's top-level
   (void)elem.remove_prop( "CONTAINER",
                           &container_serial );  // therefore we don't need to check the return value
+  // Where the item goes is the loader's business, so it reads the properties that say so rather
+  // than leaving them on the item for somebody else to interpret.
+  u8 saved_layer = static_cast<u8>( elem.remove_ushort( "LAYER", 0 ) );
+  u8 saved_slot = static_cast<u8>( elem.remove_ushort( "SLOTINDEX", 0 ) );
 
   Items::Item* item = read_item( elem );
   // dave added 1/15/3, protect against further crash if item is null. Should throw instead?
@@ -213,7 +217,17 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
   if ( container_serial == 0 )
   {
-    add_item_to_world( item );
+    // The multi registration relocate() does is a no-op here: multis.txt is read after items.txt,
+    // so no multi is in its zone yet. Boats and houses take their own contents back from their
+    // saved Traveller and Component properties instead.
+    if ( !Items::relocate_loaded( *item, Items::InWorld{} ) )
+    {
+      elem.warn_with_line( "Could not place the item in the world." );
+      if ( !Plib::systemstate.config.ignore_load_errors )
+        throw std::runtime_error( "Data file error" );
+      item->destroy();
+      return;
+    }
     if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       parent_conts.push( static_cast<UContainer*>( item ) );
   }
@@ -228,7 +242,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       }
       else
       {
-        defer_item_insertion( item, container_serial );
+        defer_item_insertion( item, container_serial, saved_layer, saved_slot );
       }
       return;
     }
@@ -255,11 +269,11 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 
     if ( cont_item )
     {
-      add_loaded_item( cont_item, item );
+      add_loaded_item( cont_item, item, saved_layer, saved_slot );
     }
     else
     {
-      defer_item_insertion( item, container_serial );
+      defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
 }
@@ -544,8 +558,11 @@ void import( Clib::ConfigElem& elem )
 
     item->serial_ext = ctBEu32( item->serial );
 
-    add_item_to_world( item );
-    register_with_supporting_multi( item );
+    if ( !Items::relocate( *item, Items::InWorld{} ) )
+    {
+      ERROR_PRINTLN( "Unable to import item: objtype={:#x}", item->objtype_ );
+      throw std::runtime_error( "Error while importing file." );
+    }
     ++import_count;
   }
 }

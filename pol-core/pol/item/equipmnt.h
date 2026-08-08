@@ -83,9 +83,9 @@ protected:
   const Core::EquipDesc* tmpl;
 };
 
-Equipment* find_intrinsic_equipment( const std::string& name, u8 type );
-void register_intrinsic_equipment( const std::string& name, Equipment* equip );
-void insert_intrinsic_equipment( const std::string& name, Equipment* equip );
+Equipment* find_intrinsic_equipment( const std::string& name, IntrinsicKind kind );
+void register_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip );
+void insert_intrinsic_equipment( const std::string& name, IntrinsicKind kind, Equipment* equip );
 void allocate_intrinsic_equipment_serials();
 void load_npc_intrinsic_equip();
 }  // namespace Items

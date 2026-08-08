@@ -46,8 +46,6 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason );
 void MoveCharacterWorldPosition( const Core::Pos4d& oldpos, Mobile::Character* chr );
 
-void SetItemWorldPosition( Items::Item* item );
-void ClrItemWorldPosition( Items::Item* item );
 void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item );
 
 int get_toplevel_item_count();

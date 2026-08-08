@@ -358,14 +358,14 @@ void NPC::printDebugProperties( Clib::StreamWriter& sw ) const
 void NPC::readNpcProperties( Clib::ConfigElem& elem )
 {
   Items::UWeapon* wpn = static_cast<Items::UWeapon*>(
-      Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND1 ) );
+      Items::find_intrinsic_equipment( elem.rest(), Items::IntrinsicKind::Weapon ) );
   if ( wpn == nullptr )
     wpn = Items::create_intrinsic_weapon_from_npctemplate( elem, template_->pkg );
   if ( wpn != nullptr )
     weapon = wpn;
 
   Items::UArmor* sld = static_cast<Items::UArmor*>(
-      Items::find_intrinsic_equipment( elem.rest(), Core::LAYER_HAND2 ) );
+      Items::find_intrinsic_equipment( elem.rest(), Items::IntrinsicKind::Shield ) );
   if ( sld == nullptr )
     sld = Items::create_intrinsic_shield_from_npctemplate( elem, template_->pkg );
   if ( sld != nullptr )

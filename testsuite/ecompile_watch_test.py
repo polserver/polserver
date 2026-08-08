@@ -8,7 +8,10 @@ from typing import Awaitable
 import traceback
 
 # seconds; error if compilation doesn't occur within this duration
-ECOMPILE_WATCH_TIMEOUT=5
+# Watch mode is only announced after ecompile's initial -A pass, and a full-tree compile takes
+# about as long as the shard_ecompile test does (5-6s), so a budget in that range is a coin flip.
+# When the suite runs in order, shard_test_1 leaves scripts stale and the pass has real work.
+ECOMPILE_WATCH_TIMEOUT=60
 
 # seconds; error if watch mode isn't entered within this duration. Watch mode
 # starts only after every script has been compiled, so this scales with the

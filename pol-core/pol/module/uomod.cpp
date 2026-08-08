@@ -121,6 +121,7 @@
 #include "pol/los.h"
 #include "pol/menu.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/mobile/npc.h"
 #include "pol/mobile/ufacing.h"
 #include "pol/module/cfgmod.h"
@@ -386,7 +387,7 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         item->setamount( static_cast<unsigned short>( newamount ) );
 
         update_item_to_inrange( item );
-        UpdateCharacterWeight( item );
+        refresh_owner_statbar( item );
 
         // FIXME again, this makes no sense, item is already in the container.
         cont->on_insert_increase_stack( chr_owner, UContainer::MT_CORE_CREATED, item, amount );
@@ -438,11 +439,6 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         item->destroy();
         return new BError( "No slots available in this container" );
       }
-      if ( !item->slot_index( slotIndex ) )
-      {
-        item->destroy();
-        return new BError( "Couldn't set slot index on item" );
-      }
 
       // DAVE added this 11/17, call can/onInsert scripts for this container
       Character* chr_owner = cont->GetCharacterOwner();
@@ -463,11 +459,18 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
 
       if ( !pos || !cont->is_legal_posn( pos.value() ) )
         pos = cont->get_random_location();
-      cont->add( item, pos.value() );
+
+      // The CanInsert script above is free to destroy the container it was just asked about;
+      // relocate refuses instead of adding to it.
+      if ( !Items::relocate( *item, Items::InContainer{ cont, pos.value(), item->slot_index() } ) )
+      {
+        item->destroy();
+        return new BError( "Could not add the item to the container." );
+      }
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
-      UpdateCharacterWeight( item );
+      refresh_owner_statbar( item );
 
       cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_CREATED, item );
       if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -588,10 +591,7 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
     return new BError( "That isn't a container" );
   }
 
-  u8 save_layer = item->layer;
-  item->layer = LAYER_BANKBOX;
-  send_wornitem( chr->client, chr, item );
-  item->layer = save_layer;
+  send_wornitem( chr->client, chr, item, LAYER_BANKBOX );
   item->setposition( chr->pos() );
   item->double_click( chr->client );  // open the container on the client's screen
   chr->add_remote_container( item );
@@ -1118,8 +1118,15 @@ BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& po
   }
 
   update_item_to_inrange( item );
-  add_item_to_world( item );
-  register_with_supporting_multi( item );
+  // Unconditionally, and at the end: the create script above was handed a reference to the item and
+  // may have moved it anywhere -- into a container, onto a character, or somewhere else in the
+  // world entirely. Whatever it did, an item created at a location belongs at that location, so
+  // this places it rather than merely checking that it is placed.
+  if ( !Items::place_at( *item, pos ) )
+  {
+    item->destroy();
+    return new BError( "Could not place the item in the world." );
+  }
   return new EItemRefObjImp( item );
 }
 
@@ -1385,7 +1392,7 @@ BObjectImp* UOExecutorModule::mf_AddAmount()
     update_item_to_inrange( item );
 
     // DAVE added this 12/05: if in a Character's pack, update weight.
-    UpdateCharacterWeight( item );
+    refresh_owner_statbar( item );
 
     return new EItemRefObjImp( item );
   }
@@ -2629,7 +2636,7 @@ BObjectImp* UOExecutorModule::mf_DestroyItem()
     else if ( item->script_isa( POLCLASS_MULTI ) )
       return new BError( "That item is a multi. Use uo::DestroyMulti instead." );
 
-    if ( destroy_item_with_script_check( item ) )
+    if ( try_destroy_item( item ) )
       return new BLong( 1 );
     return new BLong( 0 );
   }
@@ -3132,30 +3139,74 @@ BObjectImp* UOExecutorModule::mf_GetFacing()
 void true_extricate( Item* item )
 {
   send_remove_object_to_inrange( item );
-  if ( item->container != nullptr )
-  {
-    item->extricate();
-  }
-  else
-  {
-    remove_item_from_world( item );
-  }
+  // A null container does not mean "on the ground": an item part-way through an equip, on a
+  // cursor, or sitting as a storage root also has none, and remove_item_from_world asserts on
+  // every one of those. Ask the item where it actually is.
+  (void)Items::relocate( *item, Items::Detached{} );
 }
 
-void undo_extricate( Character* chr, Item* item, UContainer* oldcont )
+namespace
 {
-  if ( oldcont != nullptr && !oldcont->orphan() && oldcont->can_add( *item ) )
+/// Show an item that has just been put back, whichever kind of home it landed in.
+void send_item_restored( Character& chr, Item& item )
+{
+  const Items::Location loc = item.location();
+  if ( loc.holds<Items::InWorld>() )
+    update_item_to_inrange( &item );
+  else if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+    // Not necessarily the character asking: an item can be offered out of somebody else's
+    // equipment, and it is the wearer the packet has to name.
+    send_wornitem_to_inrange( equipped->chr, &item );
+  else if ( chr.client != nullptr )
+    send_put_in_container( chr.client, &item );
+}
+
+/// Whether an old home would still take the item back. relocate() settles everything about the
+/// move itself; capacity is the one question it deliberately leaves to the caller.
+bool would_take_back( const Items::Location& origin, const Item& item )
+{
+  const UContainer* cont = nullptr;
+  if ( const auto* in_cont = origin.get_if<Items::InContainer>() )
+    cont = in_cont->cont;
+  else if ( const auto* on_corpse = origin.get_if<Items::OnCorpse>() )
+    cont = on_corpse->corpse;
+
+  // Anything else is either not a container at all or, for Equipped, covered by the layer and
+  // strength checks relocate() already makes.
+  return cont == nullptr || ( !cont->orphan() && cont->can_add( item ) );
+}
+}  // namespace
+
+/**
+ * Put an item back after a move that did not happen, preferring where it came from.
+ *
+ * The origin can have gone away while the scripts around the move ran: the container destroyed or
+ * filled up, the layer taken by something else. Failing that the item goes to the character's
+ * backpack, and failing that to the ground at their feet, which is where it would have ended up
+ * had they simply dropped it.
+ */
+void put_item_back( Character& chr, Item& item, const Items::Location& origin )
+{
+  if ( would_take_back( origin, item ) && Items::relocate( item, origin ) )
   {
-    oldcont->add_at_random_location( item );
-    if ( chr != nullptr && chr->client != nullptr )
-      send_put_in_container( chr->client, item );
+    send_item_restored( chr, item );
     return;
   }
 
-  item->setposition( chr->pos() );
-  add_item_to_world( item );
-  register_with_supporting_multi( item );
-  move_item( item, item->pos() );
+  UContainer* backpack = chr.backpack();
+  if ( backpack != nullptr && backpack->can_add( item ) && Items::move_into( item, *backpack ) )
+  {
+    send_item_restored( chr, item );
+    return;
+  }
+
+  if ( !Items::place_at( item, chr.pos() ) )
+  {
+    POLLOG_ERRORLN( "put_item_back: item {:#x} has nowhere left to go and is now detached.",
+                    item.serial );
+    return;
+  }
+  send_item_restored( chr, item );
 }
 
 BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
@@ -3209,7 +3260,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
       chr_owner = controller_.get();
 
   // daved changed order 1/26/3 check canX scripts before onX scripts.
-  UContainer* oldcont = item->container;
+  UContainer* oldcont = item->container();
   Item* existing_stack = nullptr;
 
   if ( ( oldcont != nullptr ) &&
@@ -3262,17 +3313,13 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
 
   if ( !add_to_existing_stack )
   {
+    // Neither of these may destroy the item. It is still listed in the container it came from, and
+    // a container does not own its contents, so the next reap would free it and leave that
+    // container holding a dangling pointer. Refusing the move is all that is needed: the item has
+    // not been touched yet.
     u8 slotIndex = item->slot_index();
     if ( !cont->can_add_to_slot( slotIndex ) )
-    {
-      item->destroy();
       return new BError( "No slots available in new container" );
-    }
-    if ( !item->slot_index( slotIndex ) )
-    {
-      item->destroy();
-      return new BError( "Couldn't set slot index on item" );
-    }
 
     Core::Pos2d cntpos;
     if ( px < 0 || py < 0 )
@@ -3284,12 +3331,18 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
         cntpos = cont->get_random_location();
     }
 
-    true_extricate( item );
+    // One move, not a detach followed by an insert: the scripts above have all run, so there is
+    // nothing left that could observe the item in between.
+    send_remove_object_to_inrange( item );
+    if ( !Items::relocate( *item, Items::InContainer{ cont, cntpos, slotIndex } ) )
+    {
+      update_item_to_inrange( item );  // the item never left, so put it back on screen
+      return new BError( "Could not insert item into container." );
+    }
 
-    cont->add( item, cntpos );
     update_item_to_inrange( item );
     // DAVE added this 11/17: if in a Character's pack, update weight.
-    UpdateCharacterWeight( item );
+    refresh_owner_statbar( item );
 
     cont->on_insert_add_item( chr_owner, UContainer::MT_CORE_MOVED, item );
     if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
@@ -3303,7 +3356,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToContainer()
     true_extricate( item );
     existing_stack->add_to_self( item );
     update_item_to_inrange( existing_stack );
-    UpdateCharacterWeight( existing_stack );
+    refresh_owner_statbar( existing_stack );
 
     cont->on_insert_increase_stack( chr_owner, UContainer::MT_CORE_MOVED, existing_stack, amount );
   }
@@ -3343,7 +3396,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
   }
 
   // daved changed order 1/26/3 check canX scripts before onX scripts.
-  UContainer* oldcont = item->container;
+  UContainer* oldcont = item->container();
 
   // DAVE added this 12/04, call can/onInsert & can/onRemove scripts for this container
   Character* chr_owner = nullptr;
@@ -3377,16 +3430,16 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
     }
   }
 
-  UContainer* restore_to = oldcont;
-  if ( item->layer != 0 )
-    restore_to = ( chr_owner != nullptr ) ? chr_owner->backpack() : nullptr;
+  // Where the item is right now, taken before the extricate erases it, and where it goes back to
+  // if the trade window refuses it. The scripts above have all run, so this is its settled home.
+  const Items::Location origin = item->location();
 
   true_extricate( item );
 
   BObjectImp* res = place_item_in_secure_trade_container( chr->client, item );
-  // eg the hook can reject the trade, items needs to be added back to world
+  // eg the hook can reject the trade, and then the item has to go back where it came from
   if ( res->isa( BObjectImp::OTError ) && !item->orphan() )
-    undo_extricate( chr, item, restore_to );
+    put_item_back( *chr, *item, origin );
   return res;
 }
 
@@ -3418,8 +3471,6 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
       return new BError( "Item was destroyed in EquipTest script" );
     }
 
-    item->layer = Plib::tilelayer( item->graphic );
-
     if ( item->has_equip_script() )
     {
       BObjectImp* res = item->run_equip_script( chr, false );
@@ -3429,10 +3480,12 @@ BObjectImp* UOExecutorModule::mf_EquipItem()
     }
 
 
-    true_extricate( item );
-
-    // at this point, 'item' is free - doesn't belong to the world, or a container.
-    chr->equip( item );
+    send_remove_object_to_inrange( item );
+    if ( !Items::relocate( *item, Items::Equipped{ chr, item->tile_layer } ) )
+    {
+      update_item_to_inrange( item );  // the item never left, so put it back on screen
+      return new BError( "That item is not equippable by that character" );
+    }
     send_wornitem_to_inrange( chr, item );
 
     return new BLong( 1 );

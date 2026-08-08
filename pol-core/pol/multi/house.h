@@ -8,6 +8,7 @@
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
+#include <functional>
 #include <list>
 #include <vector>
 
@@ -105,6 +106,7 @@ public:
   void ClearSquatters();
   bool add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff );
   bool add_component( Component component );
+  bool erase_component( Items::Item* item );
   static void list_contents( const UHouse* house, ItemList& items_in, MobileList& chrs_in );
   static ItemList get_working_design_items( UHouse* house );
   void AcceptHouseCommit( Mobile::Character* chr, bool accept );
@@ -117,6 +119,10 @@ public:
 
   void readProperties( Clib::ConfigElem& elem ) override;
   void printProperties( Clib::StreamWriter& sw ) const override;
+
+  /// Visit each component that still exists. The list keeps entries for components the core has
+  /// destroyed, so skipping orphans belongs here rather than at every caller.
+  void for_each_component( const std::function<void( Items::Item& )>& f ) const;
 
 protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );
@@ -146,12 +152,18 @@ private:
   Squatters squatters_;
 
   /**
-   * Checks if item can be added as component:
-   * an Item can't be a component in two houses
+   * Checks if item can be added as component: an Item can't be a component in two houses, and it
+   * has to be standing in the world, which is where every part of a house is.
+   *
+   * The second half is what makes erase_component enough to keep the list honest: an item that
+   * leaves the world is dropped from it, so nothing else can put a contained one back in.
    *
    * @param item Pointer to the item to be added
    */
-  inline bool can_add_component( const Items::Item* item ) { return item->house() == nullptr; }
+  inline bool can_add_component( const Items::Item* item )
+  {
+    return item->house() == nullptr && item->location().holds<Items::InWorld>();
+  }
   /**
    * Adds an Item as component, performs no checks, internal usage
    */

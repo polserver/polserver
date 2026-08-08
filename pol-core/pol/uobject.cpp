@@ -112,6 +112,11 @@ size_t UObject::estimatedSize() const
 //
 void UObject::destroy()
 {
+  mark_orphan();  // the base object is in no registry, so there is nothing to leave first
+}
+
+void UObject::mark_orphan()
+{
   if ( serial != 0 )
   {
     if ( ref_counted::count() < 1 )

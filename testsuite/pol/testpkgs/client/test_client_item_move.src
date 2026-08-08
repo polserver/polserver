@@ -52,12 +52,12 @@ exported function lift_ground_drop_backpack()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -78,12 +78,12 @@ exported function lift_backpack_drop_backpack()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -104,12 +104,12 @@ exported function lift_backpack_drop_ground()
   var err;
 
   if ( !lift_item_succeeded( err, item.serial ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
   if ( !drop_item_succeeded( err, item.serial, char.x, char.y, char.z ) )
-    DestroyItem( item );
+    destroy_lifted_item( item );
     return err;
   endif
 
@@ -964,6 +964,118 @@ exported function test_equip_npc_item_undo( resources )
   return 1;
 endfunction
 
+// An equip script can move the item somewhere else and still approve the equip. The core has to
+// detach the item from wherever the script left it before putting it on a layer; equipping it
+// straight from the cursor leaves the item both worn and listed in the container it was moved to,
+// and the container's contents are raw pointers, so whichever home is torn down first leaves the
+// other pointing at freed memory.
+exported function equip_script_rehome_one_home( resources )
+  var res := resources.UpdateConfiguration( struct{ MasterCanClotheNPCs := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  npc.setmaster( char );
+
+  var backpack := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, 0xE75 );
+  if ( !backpack )
+    return backpack;
+  endif
+
+  res := EquipItem( npc, backpack );
+  if ( !res )
+    return res;
+  endif
+
+  // where the equip script will move the shirt to
+  var stash := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !stash )
+    return stash;
+  endif
+
+  var shirt := resources.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_rehome" );
+  if ( !shirt )
+    return shirt;
+  endif
+
+  SetObjProperty( shirt, "#RehomeTo", stash.serial );
+
+  if ( !lift_item_succeeded( res, shirt.serial ) )
+    return res;
+  endif
+
+  if ( !wear_item_succeeded( res, shirt.serial, LAYER_SHIRT, npc.serial, @() { return 1; } ) )
+    return res;
+  endif
+
+  // worn, per wear_item_succeeded above - so the only question left is whether the stash still
+  // claims it too
+  var stashed := EnumerateItemsInContainer( stash );
+  foreach it in ( stashed )
+    if ( it.serial == shirt.serial )
+      return ret_error( "The shirt is equipped and still listed in the container the equip script moved it to" );
+    endif
+  endforeach
+
+  return ret_error_not_equal( GetEquipmentByLayer( npc, LAYER_SHIRT ), shirt,
+                              "Shirt was not equipped on the NPC" );
+endfunction
+
+// A client can name a different item in the drop packet than the one it is holding. The held item
+// gets no drop of its own out of that, so it has to go back where it came from: clearing only the
+// item's half of the cursor link left it listed in no container and no zone, with the character
+// still holding a ticket for it and unable to pick anything else up.
+exported function drop_other_than_gotten_returns( resources )
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var container := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !container )
+    return container;
+  endif
+  SendViewContainer( char, container );
+
+  var held := resources.CreateItemInContainer( container, 0xeed );
+  if ( !held )
+    return held;
+  endif
+
+  var other := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xeed, 1, char.realm );
+  if ( !other )
+    return other;
+  endif
+
+  if ( !lift_item_succeeded( res, held.serial ) )
+    return res;
+  endif
+
+  // the drop names `other`, but `held` is what is on the cursor
+  if ( !drop_item_failed( res, other.serial, char.x, char.y, char.z ) )
+    return res;
+  endif
+
+  if ( char.getgottenitem() )
+    return ret_error( "The character is still holding an item after a mismatched drop" );
+  endif
+
+  // undo() offers the backpack before the container the item came from, as tests 6 and 10 above
+  // rely on; what matters here is only that the item ended up somewhere at all.
+  return ret_error_not_equal( held.container, char.backpack,
+                              "The held item was left in no container at all" );
+endfunction
+
 // When an NPC's non-master equips an item on the NPC, the equip should fail.
 exported function test_equip_npc_dragdrop_fail_1( resources )
   return equip_npc_dragdrop_fail_helper( resources, FAIL_REASON_NOT_MASTER );
@@ -1099,9 +1211,281 @@ exported function master_add_to_npc_pack_cont_ok( resources )
   return 1;
 endfunction
 
+// An item on a cursor must still be persisted, at its holder's feet - that is what
+// WriteGottenItem does, and it is the only reason a lifted item survives a restart at all.
+//
+// This has to be asserted here rather than by shard_test_roundtrip. The cursor state does
+// not survive a reload, and that test starts from what pass 2 saved, while pass 2 runs
+// without a client and so can never put an item on a cursor. So force a save while the item
+// is still held, and read it back out of the file this pass just wrote.
+exported function gotten_item_is_saved()
+  var item := CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  item.movable := 1;
+
+  var err;
+  if ( !lift_item_succeeded( err, item.serial ) )
+    destroy_lifted_item( item );
+    return err;
+  endif
+
+  var saved := SaveWorldState();
+  if ( saved.errortext )
+    destroy_lifted_item( item );
+    return ret_error( $"Could not save the world: {saved}" );
+  endif
+
+  var res := gotten_item_saved_at( item.serial, char.x, char.y, char.z );
+
+  // the save must not have taken the item off the cursor
+  if ( res == 1 and char.getgottenitem().serial != item.serial )
+    res := ret_error( "The world save cleared the gotten item" );
+  endif
+
+  // DestroyItem clears the holder's side for us when the item is still gotten
+  destroy_lifted_item( item );
+  return res;
+endfunction
+
+// A corpse renders what its owner wore at death. UO has no "move within a container", so dragging
+// one of those items to another spot in the loot window is a lift and a drop like any other -- and
+// the corpse has to still be wearing it afterwards.
+exported function corpse_rearrange_keeps_layer()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  var test_func := @() {
+    var res;
+    var before := corpse_layer_serials( corpse );
+    if ( !before )
+      return before ?: ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    var worn := before[1];
+
+    // open the corpse first, as a looting player would
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "double_click", arg := corpse.serial, id := 0 } );
+    if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+      return res;
+    endif
+
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    // back into the same corpse, at a different spot in its gump
+    if ( !drop_item_succeeded( res, worn, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := corpse_layer_serials( corpse );
+    if ( !after )
+      return after ?: ret_error( "The corpse renders nothing after the item was put back" );
+    endif
+
+    if ( !( worn in after ) )
+      return ret_error( $"Item {worn:#x} stopped rendering on the corpse after being moved within it" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ),
+                                "The corpse's equipment changed size after an item was moved within it" );
+  };
+
+  var res := test_func();
+  DestroyItem( corpse );
+  return res;
+endfunction
+
+// The other half of the same rule: an item the dead character never wore does not dress its corpse
+// just by being dropped in.
+exported function corpse_drop_loose_stays_loose()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  // equippable, and on a layer StartingEquipment leaves free
+  var robe := CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !robe )
+    DestroyItem( corpse );
+    return ret_error( $"Could not create robe: {robe}" );
+  endif
+  robe.movable := 1;
+
+  var test_func := @() {
+    var res;
+    var before := corpse_layer_serials( corpse );
+    if ( !before )
+      return before ?: ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    if ( !lift_item_succeeded( res, robe.serial ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, robe.serial, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := corpse_layer_serials( corpse );
+    if ( !after )
+      return after ?: ret_error( "The corpse renders nothing after the robe was dropped in" );
+    endif
+
+    if ( robe.serial in after )
+      return ret_error( $"Robe {robe.serial:#x} dressed a corpse it was never worn on" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ),
+                                "The corpse's equipment changed size after a loose item was dropped in" );
+  };
+
+  var res := test_func();
+  // the robe is inside the corpse by now on the success path, so destroy it either way first
+  DestroyItem( robe );
+  DestroyItem( corpse );
+  return res;
+endfunction
+
+// The third row of the rule, and the one that distinguishes this from "a corpse renders whatever
+// equippable thing is inside it": a corpse shows what its owner wore at death *and has held
+// continuously since*. Looting an item ends that, so putting it back makes it ordinary loot.
+exported function corpse_looted_item_stays_loose()
+  var corpse := make_equipped_corpse();
+  if ( !corpse )
+    return corpse;
+  endif
+
+  var test_func := @() {
+    var res;
+    var before := equipped_serials( corpse );
+    if ( !before )
+      return ret_error( "The corpse renders no equipment at all" );
+    endif
+
+    var worn := before[1];
+
+    // The script view and the packet view are built from the same thing and must stay that way, so
+    // check them against each other while the client's copy is still known to be fresh.
+    if ( !( res := ret_error_not_equal( Len( corpse_layer_serials( corpse ) ), Len( before ),
+                                        "corpse.equipped_items and the corpse packet disagree" ) ) )
+      return res;
+    endif
+
+    // open the corpse first, as a looting player would
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "double_click", arg := corpse.serial, id := 0 } );
+    if ( !( res := waitForClient( 0, { EVT_DOUBLE_CLICK } ) ) )
+      return res;
+    endif
+
+    // out to the player's backpack: this is what ends the corpse's claim on it
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, worn, 0xFF, 0xFF, 0, char.backpack.serial ) )
+      return res;
+    endif
+
+    var looted := equipped_serials( corpse );
+    if ( worn in looted )
+      return ret_error( $"Item {worn} still rendered on the corpse after being looted off it" );
+    endif
+
+    // and back onto the corpse it came from
+    if ( !lift_item_succeeded( res, worn ) )
+      return res;
+    endif
+
+    if ( !drop_item_succeeded( res, worn, 50, 50, 0, corpse.serial ) )
+      return res;
+    endif
+
+    var after := equipped_serials( corpse );
+    if ( worn in after )
+      return ret_error( $"Item {worn} dressed the corpse again after having been looted off it" );
+    endif
+
+    return ret_error_not_equal( Len( after ), Len( before ) - 1,
+                                "The corpse's equipment is the wrong size after an item was looted and put back" );
+  };
+
+  var res := test_func();
+  DestroyItem( corpse );
+  return res;
+endfunction
+
 /**
  * Helper functions
  */
+// Kills a freshly equipped NPC at the character's feet and returns its corpse. The caller owns it.
+function make_equipped_corpse()
+  var res := MoveObjectToLocation( char, charX, charY, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  // leftovers from an earlier case would make the corpse lookup below ambiguous
+  foreach old in ( ListItemsNearLocationOfType( charX, charY, 0, 2, 0x2006 ) )
+    DestroyItem( old );
+  endforeach
+
+  var npc := CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z );
+  if ( !npc )
+    return ret_error( $"Could not create npc: {npc}" );
+  endif
+
+  if ( !( res := EquipFromTemplate( npc, "StartingEquipment" ) ) )
+    return ret_error( $"Could not equip template: {res}" );
+  endif
+
+  npc.kill();
+  Sleep( 1 );
+
+  var corpse := ListItemsNearLocationOfType( charX, charY, 0, 2, 0x2006 )[1];
+  if ( !corpse )
+    return ret_error( "Could not find the corpse" );
+  endif
+
+  return corpse;
+endfunction
+
+// What the core says the corpse is rendered wearing, as an array of serials.
+//
+// Server-side on purpose. The client's copy of this is only refreshed when the corpse comes into
+// view or gains a rendered item, so it cannot see one leaving -- which is exactly the transition
+// the looted-item case turns on.
+function equipped_serials( corpse )
+  var serials := array{};
+  foreach item in ( corpse.equipped_items )
+    serials.append( item.serial );
+  endforeach
+  return serials;
+endfunction
+
+// What the client is told the corpse is wearing, as an array of serials.
+function corpse_layer_serials( corpse )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "list_equipped_items", arg := corpse.serial, id := 0 } );
+  var ev := waitForClient( 0, { EVT_LIST_EQUIPPED_ITEMS } );
+  if ( !ev )
+    return ev;
+  endif
+
+  var serials := array{};
+  foreach equipment in ( ev.objs )
+    serials.append( equipment.serial );
+  endforeach
+  return serials;
+endfunction
+
 // Checks equiptest & equip or unequiptest & unequip events have expected values
 function validate_events( evs, on_chr, by_chr, item, is_unequip )
   if ( evs.size() != 2 )
@@ -1426,6 +1810,76 @@ function wear_item_failed( byref err, item_serial, layer, player_serial )
     break;
   endwhile
   return 1;
+endfunction
+
+// Finds the item's block in the world save and checks it was written at x,y,z.
+//
+// Presence alone is already a tight assertion: a lifted item has been extricated from its
+// zone, so write_items' zone walk cannot emit it, and the only other writer is
+// WriteGottenItem. Where the block sits in the file is irrelevant - it is written after the
+// zone walk, and a reload would file it back into zone order.
+function gotten_item_saved_at( serial, x, y, z )
+  var lines := ReadFile( "::data/items.txt" );
+  if ( lines == error )
+    return ret_error( $"Could not read items.txt: {lines}" );
+  endif
+
+  var wanted := $"0x{serial:x}";
+  var in_block := 0;
+  var seen := 0;
+  var got_x, got_y, got_z;
+
+  foreach line in lines
+    var parts := SplitWords( line );
+    if ( !in_block )
+      // match the Serial key, not a bare substring: a Container line would point here too
+      if ( parts.size() == 2 and parts[1] == "Serial" and parts[2] == wanted )
+        in_block := 1;
+      endif
+    elseif ( parts.size() and parts[1] == "}" )
+      break;
+    elseif ( parts.size() == 2 )
+      if ( parts[1] == "X" )
+        got_x := CInt( parts[2] );
+        seen += 1;
+      elseif ( parts[1] == "Y" )
+        got_y := CInt( parts[2] );
+        seen += 1;
+      elseif ( parts[1] == "Z" )
+        got_z := CInt( parts[2] );
+        seen += 1;
+      endif
+    endif
+  endforeach
+
+  if ( !in_block )
+    return ret_error( $"Gotten item {serial:#x} was not saved to items.txt" );
+  endif
+  if ( seen != 3 )
+    return ret_error( $"Gotten item {serial:#x} was saved without a full position" );
+  endif
+  if ( got_x != x or got_y != y or got_z != z )
+    return ret_error( $"Gotten item {serial:#x} saved at {got_x},{got_y},{got_z}, expected its holder's {x},{y},{z}" );
+  endif
+
+  return 1;
+endfunction
+
+// Destroying an item that is still on the cursor makes the core tell the client its move failed,
+// which is the client half of clearing a gotten item. Nothing consumes that packet, so left in
+// flight it arrives during the *next* test -- where a stray rejection is indistinguishable from a
+// lift that really was refused, and the test that reports the failure is not the one that caused
+// it. Waiting for it here keeps it inside the test it belongs to.
+function destroy_lifted_item( item )
+  var serial := item.serial;
+  var gotten := char.getgottenitem();
+  var was_held := gotten and gotten.serial == serial;
+
+  DestroyItem( item );
+
+  if ( was_held )
+    waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+  endif
 endfunction
 
 function lift_item_succeeded( byref err, serial )

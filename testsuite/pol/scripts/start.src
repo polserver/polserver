@@ -1,8 +1,14 @@
 use os;
 program start()
   print( "POL initialization complete." );
-  // ctest sets POLCORE_TEST_RUN (1 or 2); without it the shard stays up for manual testing
-  if ( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) )
+  // ctest sets POLCORE_TEST_RUN: 1 and 2 are the two test passes, 3 is the world-save
+  // round-trip pass; without it the shard stays up for manual testing
+  var testrun := CInt( GetEnvironmentVariable( "POLCORE_TEST_RUN" ) );
+  if ( testrun == 3 )
+    // no busyloop: the shard must stay idle until it has re-saved the world
+    start_script( "roundtrip" );
+    return;
+  elseif ( testrun )
     start_script( "tests" );
   else
     print( "POLCORE_TEST_RUN not set - skipping testscripts, shard stays up." );

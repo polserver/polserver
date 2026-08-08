@@ -108,11 +108,12 @@ public:
   virtual bool can_add( const Items::Item& item ) const;
   virtual bool can_add( unsigned short more_weight ) const;
 
-  void spill_contents( Multi::UMulti* supporting_multi ) override;
+  void spill_contents() override;
 
-  virtual void add( Items::Item* item,
-                    const Pos2d& pos );  // NOTE: points item->container to self on insertion
-  void add_at_random_location( Items::Item* item );
+  /// Link the item into this container. Recording where it now is belongs to Items::relocate(),
+  /// which is also the only caller that has checked whether the move is allowed at all.
+  virtual void add( Items::Item* item, const Pos2d& pos );
+
   unsigned count() const;
 
   unsigned int item_count() const override;
@@ -123,8 +124,10 @@ public:
   void add_bulk( const Items::Item* item );
   void remove_bulk( const Items::Item* item );
 
+  /// Allocate a slot for an item about to be added: slotIndex goes in as a preference and comes
+  /// back as the slot actually reserved. False means the container has no room for one.
   bool can_add_to_slot( u8& slotIndex );
-  bool is_slot_empty( u8& slotIndex );
+  bool is_slot_empty( u8 slotIndex ) const;
   bool find_empty_slot( u8& slotIndex );
 
   Items::Item* find( u32 serial ) const;
