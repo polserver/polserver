@@ -153,6 +153,34 @@ void location_test()
     cont->destroy();
   }
 
+  // the gump cell is answered by the location, not by the item's position field -- the two agree
+  // today only because attach() hands the same grid to UContainer::add
+  {
+    auto* cont = container_in_world( spot );
+    auto* item = Items::Item::create( ITEM_OBJTYPE );
+    const Core::Pos2d cell( 3, 5 );
+
+    UnitTest( [&]() { return relocate( *item, Items::InContainer{ cont, cell, 0 } ); }, true,
+              "relocate into a gump cell succeeds" );
+    UnitTest( [&]() { return item->location().grid(); }, cell,
+              "the location reports the cell it was given" );
+
+    // Move the position field out from under it. Nothing outside the loader may consult it for the
+    // cell, so the location has to keep answering correctly.
+    item->setposition( Core::Pos4d( 99, 99, 0, realm ) );
+    UnitTest( [&]() { return item->location().grid(); }, cell,
+              "and keeps reporting it when the position field says otherwise" );
+
+    // Homes with no gump answer with a default rather than whatever was last there.
+    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
+              "relocate back to the world succeeds" );
+    UnitTest( [&]() { return item->location().grid(); }, Core::Pos2d(),
+              "a home with no gump has no cell" );
+
+    item->destroy();
+    cont->destroy();
+  }
+
   // destroying unlinks first, which is what the container-move paths get wrong: the container's
   // entry is a plain pointer, so an item left in it is freed by Reap with the entry still there
   {

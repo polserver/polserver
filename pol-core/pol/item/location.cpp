@@ -103,6 +103,15 @@ u8 Location::slot() const
   return 0;
 }
 
+Core::Pos2d Location::grid() const
+{
+  if ( const auto* alt = get_if<InContainer>() )
+    return alt->grid;
+  if ( const auto* alt = get_if<OnCorpse>() )
+    return alt->grid;
+  return {};
+}
+
 Location Item::location() const
 {
   // An item that has never been given a serial is not destroyed, it is unfinished -- and the

@@ -256,6 +256,12 @@ public:
   /// The slot half, with today's Item::slot_index() semantics.
   u8 slot() const;
 
+  /// Where the item sits in the gump of whatever holds it; a default Pos2d for the homes that have
+  /// no gump. This is the authoritative answer -- the same coordinates also reach the item's own
+  /// position field, because attach() hands this grid to UContainer::add, but that copy exists only
+  /// to feed readers that have not been pointed here yet.
+  Core::Pos2d grid() const;
+
 private:
   std::variant<Preparing, Detached, InWorld, InContainer, Equipped, OnCorpse, OnCursor, InStorage,
                Intrinsic, Destroyed>

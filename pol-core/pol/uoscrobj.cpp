@@ -4736,7 +4736,7 @@ ItemGivenEvent::~ItemGivenEvent()
     {
       if ( backpack->can_add( *item ) )
       {
-        if ( Items::move_into( *item, *backpack, item->pos2d() ) )
+        if ( Items::move_into( *item, *backpack, item->location().grid() ) )
         {
           update_item_to_inrange( item );
           return;

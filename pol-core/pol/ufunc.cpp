@@ -468,7 +468,7 @@ void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& p
 void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->location().grid(),
       item->slot_index(), item->container()->serial_ext, item->color );
   msg.Send( client );
 
@@ -479,7 +479,7 @@ void send_put_in_container( Client* client, const Item* item )
 void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->location().grid(),
       item->slot_index(), item->container()->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
@@ -558,12 +558,13 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
     if ( item == nullptr || !can_see_on_corpse( client, item ) )
       continue;
 
+    const Core::Pos2d grid = item->location().grid();
     msg->Write<u32>( item->serial_ext );
     msg->WriteFlipped<u16>( item->graphic );
     msg->offset++;  // unk6
     msg->WriteFlipped<u16>( item->get_senditem_amount() );
-    msg->WriteFlipped<u16>( item->x() );
-    msg->WriteFlipped<u16>( item->y() );
+    msg->WriteFlipped<u16>( grid.x() );
+    msg->WriteFlipped<u16>( grid.y() );
     if ( client->ClientType & CLIENTTYPE_6017 )
       msg->Write<u8>( item->slot_index() );
     msg->Write<u32>( corpse->serial_ext );

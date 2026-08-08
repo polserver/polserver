@@ -384,7 +384,8 @@ void UContainer::swap( UContainer& cont )
     {
       if ( item == nullptr )
         continue;
-      item->set_location( Items::InContainer{ &into, item->pos2d(), item->slot_index() } );
+      const Items::Location loc = item->location();
+      item->set_location( Items::InContainer{ &into, loc.grid(), loc.slot() } );
       item->set_dirty();
     }
   };

@@ -419,6 +419,8 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   auto put_back = [&]( Item* item )
   {
     UContainer* cont = from_bought ? vendor_bought : for_sale;
+    // The item is Detached by the time it gets here, so its location no longer knows which cell it
+    // came out of and the position field is the only thing still holding it.
     if ( !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), item->slot_index() } ) )
       destroy_item( item );
   };
@@ -833,9 +835,9 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      // The remainder goes where the sold item was, so the position has to be read before the sale
+      // The remainder goes where the sold item was, so the gump cell has to be read before the sale
       // moves it.
-      const Core::Pos2d packpos = item->pos2d();
+      const Core::Pos2d packpos = item->location().grid();
 
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
