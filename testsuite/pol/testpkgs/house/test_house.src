@@ -37,6 +37,41 @@ exported function components()
   return 1;
 endfunction
 
+// An item only has a multi if it has somewhere of its own to stand. One in a container is wherever
+// the container is, so asking it directly has no answer -- and answering 0 would be a claim that it
+// is on no multi, which is exactly wrong for a chest standing in a house.
+exported function contained_item_has_no_multi()
+  var cont := CreateItemAtLocation( multi.x, multi.y, 7, 0x12100 );
+  if ( !cont )
+    return ret_error( "Failed to create the container: " + cont );
+  endif
+  if ( cont.multi.serial != multi.serial )
+    return ret_error( "The container is not in the house: " + cont.multi );
+  endif
+
+  var item := CreateItemInContainer( cont, 0x3e3f );
+  if ( !item )
+    DestroyItem( cont );
+    return ret_error( "Failed to create the contained item: " + item );
+  endif
+
+  var res := 1;
+  var inner := item.multi;
+  if ( inner.errortext != "object has no position of its own in the world" )
+    res := ret_error( "A contained item answered its multi: " + inner );
+  elseif ( inner )
+    // Scripts written against the old return value keep working: an error is false just as 0 was,
+    // so only a comparison against 0 can tell the two apart.
+    res := ret_error( "The error is truthy, so if ( item.multi ) changed meaning" );
+  elseif ( cont.multi.serial != multi.serial )
+    res := ret_error( "Walking up .container stopped answering: " + cont.multi );
+  endif
+
+  DestroyItem( item );
+  DestroyItem( cont );
+  return res;
+endfunction
+
 exported function footprint()
   var fp := multi.footprint;
   if ( fp.xmin != 47 || fp.ymin != 47 || fp.xmax != 54 || fp.ymax != 54 )

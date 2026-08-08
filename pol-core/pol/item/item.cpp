@@ -279,6 +279,23 @@ const Core::UObject* Item::toplevel_owner() const
   return item->self_as_owner();
 }
 
+bool Item::has_world_position() const
+{
+  // Everywhere else an item can be, its coordinates are somebody else's business: a cell in a
+  // gump, a layer on a character, a cursor, a storage area, or nowhere at all.
+  return location().holds<Items::InWorld>();
+}
+
+Core::Pos3d Item::local_position() const
+{
+  // A gump has columns and rows but no depth, hence the zero z -- which is also what the container
+  // used to write into the position field.
+  const Items::Location loc = location();
+  if ( loc.holds<Items::InContainer>() || loc.holds<Items::OnCorpse>() )
+    return Core::Pos3d( loc.grid(), 0 );
+  return pos3d();
+}
+
 const char* Item::classname() const
 {
   return "Item";

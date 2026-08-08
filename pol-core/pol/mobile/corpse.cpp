@@ -59,10 +59,10 @@ void UCorpse::take_contents_to_grave( bool newvalue )
   flags_.change( OBJ_FLAGS::CONTENT_TO_GRAVE, newvalue );
 }
 
-void UCorpse::add_rendered_item( Item* item, const Pos2d& pos )
+void UCorpse::add_rendered_item( Item* item )
 {
   set_dirty();  // what the corpse looks like changed, not just what it holds
-  base::add( item, pos );
+  base::add( item );
 }
 
 void UCorpse::remove( iterator itr )

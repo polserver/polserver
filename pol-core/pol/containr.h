@@ -112,7 +112,7 @@ public:
 
   /// Link the item into this container. Recording where it now is belongs to Items::relocate(),
   /// which is also the only caller that has checked whether the move is allowed at all.
-  virtual void add( Items::Item* item, const Pos2d& pos );
+  virtual void add( Items::Item* item );
 
   unsigned count() const;
 

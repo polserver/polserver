@@ -332,11 +332,11 @@ void attach( Item& item, const Location& to )
     Core::register_with_supporting_multi( &item );
   }
   else if ( const auto* in_cont = to.get_if<InContainer>() )
-    in_cont->cont->add( &item, in_cont->grid );
+    in_cont->cont->add( &item );
   else if ( const auto* equipped = to.get_if<Equipped>() )
     equipped->chr->equip( &item );
   else if ( const auto* on_corpse = to.get_if<OnCorpse>() )
-    on_corpse->corpse->add_rendered_item( &item, on_corpse->grid );
+    on_corpse->corpse->add_rendered_item( &item );
   else if ( const auto* in_storage = to.get_if<InStorage>() )
     in_storage->area->insert_root_item( &item );
 }

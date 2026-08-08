@@ -60,7 +60,7 @@ public:
   bool add_spellid( u32 spellid );
   u8 bitwise_contents[8];
   u8 spell_school;
-  void add( Items::Item* item, const Pos2d& pos ) override;
+  void add( Items::Item* item ) override;
   void printProperties( Clib::StreamWriter& sw ) const override;
   void readProperties( Clib::ConfigElem& elem ) override;
   void printOn( Clib::StreamWriter& sw ) const override;

@@ -184,6 +184,24 @@ public:
   virtual const UObject* toplevel_owner() const;
   const Pos4d& toplevel_pos() const;
 
+  /**
+   * Where this object sits inside whatever holds it.
+   *
+   * Its world position when nothing holds it, its cell in the owner's gump when something does.
+   * That is what x/y/z have always meant here; an Item is the only kind of object with a second
+   * case, and it is the only one that overrides this.
+   */
+  virtual Pos3d local_position() const;
+
+  /**
+   * Whether this object's coordinates name a place in the world, as opposed to a cell in someone
+   * else's gump, a layer, or nothing at all.
+   *
+   * Only worth asking of an Item -- a mobile is somewhere or it is nowhere, and a multi is always
+   * standing where it was built.
+   */
+  virtual bool has_world_position() const;
+
   virtual u8 visible_size() const;
   bool in_range( const UObject* other, u16 range ) const;
   bool in_range( const Pos4d& other, u16 range ) const;

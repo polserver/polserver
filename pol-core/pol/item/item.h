@@ -203,6 +203,8 @@ public:
   const UObject* owner() const override;
   UObject* toplevel_owner() override;
   const UObject* toplevel_owner() const override;
+  Core::Pos3d local_position() const override;
+  bool has_world_position() const override;
 
   bool can_add_to_self( unsigned short amount, bool force_stacking ) const;
   bool can_add_to_self( const Item& item, bool force_stacking ) const;

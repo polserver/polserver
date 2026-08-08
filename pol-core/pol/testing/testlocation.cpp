@@ -181,6 +181,34 @@ void location_test()
     cont->destroy();
   }
 
+  // x/y/z say where the item sits inside whatever holds it -- the cell in the gump for a contained
+  // item, its own coordinates for one in the world. Both are answered from the location; the
+  // container no longer writes the cell through into the position field.
+  {
+    auto* cont = container_in_world( spot );
+    auto* item = Items::Item::create( ITEM_OBJTYPE );
+    const Core::Pos2d cell( 3, 5 );
+
+    UnitTest( [&]() { return relocate( *item, Items::InContainer{ cont, cell, 0 } ); }, true,
+              "relocate into a gump cell succeeds" );
+    UnitTest( [&]() { return item->local_position(); }, Core::Pos3d( cell, 0 ),
+              "a contained item reports its cell, at no depth" );
+
+    // Same probe as above: a gump cell that survives the position field saying something else is
+    // one that is genuinely being read from the location.
+    item->setposition( Core::Pos4d( 99, 99, 0, realm ) );
+    UnitTest( [&]() { return item->local_position(); }, Core::Pos3d( cell, 0 ),
+              "and keeps reporting it when the position field says otherwise" );
+
+    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
+              "relocate back to the world succeeds" );
+    UnitTest( [&]() { return item->local_position(); }, Core::Pos3d( 99, 99, 0 ),
+              "an item in the world reports its own coordinates instead" );
+
+    item->destroy();
+    cont->destroy();
+  }
+
   // destroying unlinks first, which is what the container-move paths get wrong: the container's
   // entry is a plain pointer, so an item left in it is freed by Reap with the entry still there
   {

@@ -47,7 +47,7 @@
 <member mname="height" type="Integer" access="r/o">height of the graphic as defined in tiledata.mul</member>
 <member mname="dirty" type="Boolean" access="r/o">This is set when anything on the object changes, and cleared on world save</member>
 <member mname="weight" type="Integer" access="r/o">weight of the graphic as defined in tiledata.mul</member>
-<member mname="multi" type="Multi" access="r/o">MultiRef for the Multi the object is on</member>
+<member mname="multi" type="Multi" access="r/o">MultiRef for the Multi the object is on, or 0 if it is not on one. Returns an error for an object that has no place of its own in the world - an item in a container, worn, on a cursor, or in a storage area - since such an item is wherever the thing holding it is. Walk up .container to ask about that.</member>
 <member mname="specific_name" type="Boolean" access="r/o">Set if a specific name is set, otherwise like itemdesc name false.</member>
 
 <method proto="propnames()" returns="Array">Returns an array of property name strings.</method>

@@ -237,6 +237,16 @@ const UObject* UObject::toplevel_owner() const
   return this;
 }
 
+Pos3d UObject::local_position() const
+{
+  return pos3d();
+}
+
+bool UObject::has_world_position() const
+{
+  return true;
+}
+
 void UObject::setposition( Pos4d newpos )
 {
   set_dirty();
@@ -274,9 +284,10 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( color != 0 )
     sw.add( "Color", Clib::hexintv( color ) );
 
-  sw.add( "X", x() );
-  sw.add( "Y", y() );
-  sw.add( "Z", (int)z() );
+  const Pos3d local = local_position();
+  sw.add( "X", local.x() );
+  sw.add( "Y", local.y() );
+  sw.add( "Z", (int)local.z() );
 
   if ( facing )
     sw.add( "Facing", static_cast<int>( facing ) );

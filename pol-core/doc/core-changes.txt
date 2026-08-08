@@ -5,6 +5,14 @@
              character's equipment as if that were a separate object standing in the same
              spot, so the character was reported as being within its own line of sight, and
              its ability to see past obstacles was not taken into account.
+    Changed: item.multi now returns an error for an item that has no place of its own in
+             the world - one in a container, worn, on a cursor, or in a storage area.
+             It used to look up whichever multi stood at the item's stored coordinates,
+             which for a contained item are its column and row in the container gump, so
+             the answer depended on whether anything happened to be built near the corner
+             of the map. Scripts testing "if ( item.multi )" or reading item.multi.serial
+             are unaffected; only a comparison against 0 changes. To ask which multi an
+             item is really inside, walk up .container first.
     Fixed: The items death leaves in a dead character's backpack - newbie, no-drop and
            insured ones - came back in reverse order, because the whole pack was emptied
            and those items were then put back one at a time. They are no longer taken out

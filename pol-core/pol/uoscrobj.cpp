@@ -656,13 +656,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_X:
-    return new BLong( x() );
+    return new BLong( local_position().x() );
     break;
   case MBR_Y:
-    return new BLong( y() );
+    return new BLong( local_position().y() );
     break;
   case MBR_Z:
-    return new BLong( z() );
+    return new BLong( local_position().z() );
     break;
   case MBR_NAME:
     return new String( name() );
@@ -692,6 +692,12 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( weight() );
     break;
   case MBR_MULTI:
+    // Which multi covers this object is a question about a place in the world, so it can only be
+    // asked of something that is in one. An item in a container, worn, on a cursor or in a storage
+    // area has no coordinates of its own to look up -- answering 0 would claim it is on no multi,
+    // which is not the same thing and is plainly wrong for a chest standing inside a house.
+    if ( !has_world_position() )
+      return new BError( "object has no position of its own in the world" );
     if ( realm() != nullptr )
     {
       Multi::UMulti* multi;

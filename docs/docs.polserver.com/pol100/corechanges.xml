@@ -13,6 +13,14 @@ wearing now looks out from that character. It previously looked out from the<br/
 character's equipment as if that were a separate object standing in the same<br/>
 spot, so the character was reported as being within its own line of sight, and<br/>
 its ability to see past obstacles was not taken into account.</change>
+			<change type="Changed">item.multi now returns an error for an item that has no place of its own in<br/>
+the world - one in a container, worn, on a cursor, or in a storage area.<br/>
+It used to look up whichever multi stood at the item's stored coordinates,<br/>
+which for a contained item are its column and row in the container gump, so<br/>
+the answer depended on whether anything happened to be built near the corner<br/>
+of the map. Scripts testing &quot;if ( item.multi )&quot; or reading item.multi.serial<br/>
+are unaffected; only a comparison against 0 changes. To ask which multi an<br/>
+item is really inside, walk up .container first.</change>
 			<change type="Fixed">The items death leaves in a dead character's backpack - newbie, no-drop and<br/>
 insured ones - came back in reverse order, because the whole pack was emptied<br/>
 and those items were then put back one at a time. They are no longer taken out<br/>

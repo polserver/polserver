@@ -205,7 +205,7 @@ bool UContainer::can_add_to_slot( u8& slotIndex )
   return find_empty_slot( slotIndex );
 }
 
-void UContainer::add( Items::Item* item, const Pos2d& pos )
+void UContainer::add( Items::Item* item )
 {
   // passert( can_add( *item ) );
   if ( orphan() )
@@ -213,7 +213,11 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
     POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
-  item->setposition( Pos4d( pos, 0, realm() ) );  // TODO POS realm should be a nullptr
+  // The cell lives in the item's Location, which is where local_position() reads it from, so only
+  // the realm is written here. Zero rather than left alone, for the reason the cursor gives two
+  // screens away: a leftover world coordinate makes an item answer questions about where it is,
+  // and a plausible wrong answer is worse than an obviously empty one.
+  item->setposition( Pos4d( 0, 0, 0, realm() ) );  // TODO POS realm should be a nullptr
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
 
