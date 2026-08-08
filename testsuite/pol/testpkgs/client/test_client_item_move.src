@@ -1238,7 +1238,7 @@ exported function gotten_item_is_saved()
     return ret_error( $"Could not save the world: {saved}" );
   endif
 
-  var res := gotten_item_saved_at( item.serial, char.x, char.y, char.z );
+  var res := gotten_item_saved_at( item.serial, char.x, char.y, char.z, char.realm );
 
   // the save must not have taken the item off the cursor
   if ( res == 1 and char.getgottenitem().serial != item.serial )
@@ -1818,7 +1818,7 @@ endfunction
 // zone, so write_items' zone walk cannot emit it, and the only other writer is
 // WriteGottenItem. Where the block sits in the file is irrelevant - it is written after the
 // zone walk, and a reload would file it back into zone order.
-function gotten_item_saved_at( serial, x, y, z )
+function gotten_item_saved_at( serial, x, y, z, realm )
   var lines := ReadFile( "::data/items.txt" );
   if ( lines == error )
     return ret_error( $"Could not read items.txt: {lines}" );
@@ -1827,7 +1827,7 @@ function gotten_item_saved_at( serial, x, y, z )
   var wanted := $"0x{serial:x}";
   var in_block := 0;
   var seen := 0;
-  var got_x, got_y, got_z;
+  var got_x, got_y, got_z, got_realm;
 
   foreach line in lines
     var parts := SplitWords( line );
@@ -1848,6 +1848,8 @@ function gotten_item_saved_at( serial, x, y, z )
       elseif ( parts[1] == "Z" )
         got_z := CInt( parts[2] );
         seen += 1;
+      elseif ( parts[1] == "Realm" )
+        got_realm := parts[2];
       endif
     endif
   endforeach
@@ -1860,6 +1862,11 @@ function gotten_item_saved_at( serial, x, y, z )
   endif
   if ( got_x != x or got_y != y or got_z != z )
     return ret_error( $"Gotten item {serial:#x} saved at {got_x},{got_y},{got_z}, expected its holder's {x},{y},{z}" );
+  endif
+  // The item used to be moved onto the holder before the write, which handed it the holder's realm
+  // along with its coordinates. It keeps its own now, so check the two still agree.
+  if ( got_realm != realm )
+    return ret_error( $"Gotten item {serial:#x} saved in realm {got_realm}, expected its holder's {realm}" );
   endif
 
   return 1;

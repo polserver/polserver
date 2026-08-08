@@ -293,6 +293,11 @@ Core::Pos3d Item::local_position() const
   const Items::Location loc = location();
   if ( loc.holds<Items::InContainer>() || loc.holds<Items::OnCorpse>() )
     return Core::Pos3d( loc.grid(), 0 );
+  // Held on a cursor, the item is wherever the one holding it is standing. That is the answer the
+  // save wants -- a cursor cannot be restored, so the item is written back as if it had been
+  // dropped at the holder's feet.
+  if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
+    return on_cursor->holder->pos3d();
   return pos3d();
 }
 
