@@ -301,8 +301,8 @@ std::vector<CUSTOM_HOUSE_TILE_PACKET> CustomHouseDesign::Compress( int floor, bo
   int numtiles = floor_sizes[floor];
   int nextindex = 0;
   unsigned int ubuflen = std::min( numtiles, max_tiles ) * BYTES_PER_TILE;
-  std::unique_ptr<unsigned char[]> uncompressed( new unsigned char[ubuflen] );
-  memset( uncompressed.get(), 0, ubuflen );
+  thread_local std::array<u8, max_tiles * BYTES_PER_TILE> uncompressed;
+  memset( uncompressed.data(), 0, max_tiles * BYTES_PER_TILE );
 
   auto do_compression = [&]() -> bool
   {
@@ -312,7 +312,7 @@ std::vector<CUSTOM_HOUSE_TILE_PACKET> CustomHouseDesign::Compress( int floor, bo
     memset( compressed.get(), 0, cbuflen );
     const auto uncompr_length = nextindex;
 
-    int ret = compress2( compressed.get(), &cbuflen, uncompressed.get(), nextindex,
+    int ret = compress2( compressed.get(), &cbuflen, uncompressed.data(), nextindex,
                          Z_DEFAULT_COMPRESSION );
     if ( ret == Z_OK )
     {
@@ -356,7 +356,7 @@ std::vector<CUSTOM_HOUSE_TILE_PACKET> CustomHouseDesign::Compress( int floor, bo
             // Probably not needed, since we'll only use `nextindex` amount of
             // bytes from `uncompressed` inside `do_compression()`, which will
             // always be correctly filled.
-            memset( uncompressed.get(), 0, ubuflen );
+            memset( uncompressed.data(), 0, max_tiles * BYTES_PER_TILE );
           }
         }
         ++i;
