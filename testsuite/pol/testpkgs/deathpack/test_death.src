@@ -1,0 +1,89 @@
+use os;
+use uo;
+
+include "testutil";
+
+//
+// Death splits a backpack in two: newbie, no-drop and insured items stay behind, everything else
+// goes onto the corpse. The items that stay are never taken out of the pack at all, so they keep
+// their cell and the order they were already in.
+//
+exported function death_keeps_pack_items()
+  var a := FindAccount( "testdeathpack" );
+  var char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  if ( char.dead )
+    return ret_error( "The character is already dead" );
+  endif
+
+  var bp := char.backpack;
+  if ( !bp )
+    return ret_error( "The character has no backpack" );
+  endif
+  foreach item in ( EnumerateItemsInContainer( bp, ENUMERATE_ROOT_ONLY ) )
+    DestroyItem( item );
+  endforeach
+
+  // Interleaved on purpose: the survivors have to keep their order even though the items sitting
+  // between them are taken away.
+  var keep_first := CreateItemInContainer( bp, 0x1F03 );
+  var taken_first := CreateItemInContainer( bp, 0x1F03 );
+  var keep_second := CreateItemInContainer( bp, 0x1F03 );
+  var taken_second := CreateItemInContainer( bp, 0x1F03 );
+  if ( !keep_first or !taken_first or !keep_second or !taken_second )
+    return ret_error( "Could not fill the backpack" );
+  endif
+  keep_first.newbie := 1;
+  keep_second.no_drop := 1;
+
+  var keep_first_x := keep_first.x;
+  var keep_first_y := keep_first.y;
+  var death_x := char.x;
+  var death_y := char.y;
+  var death_z := char.z;
+
+  char.kill();
+  Sleep( 1 );
+
+  var corpse := 0;
+  foreach item in ( ListItemsNearLocationOfType( death_x, death_y, death_z, 5, 0x2006 ) )
+    if ( item.ownerserial == char.serial )
+      corpse := item;
+      break;
+    endif
+  endforeach
+  if ( !corpse )
+    return ret_error( "Could not find the corpse" );
+  endif
+
+  // By index rather than by count: the equipment loop puts the character's own newbie clothing
+  // into the pack afterwards, and how much of that there is belongs to the shard's config.
+  var remaining := EnumerateItemsInContainer( bp, ENUMERATE_ROOT_ONLY );
+  var first_at := 0;
+  var second_at := 0;
+  for i := 1 to Len( remaining )
+    if ( remaining[i].serial == keep_first.serial )
+      first_at := i;
+    elseif ( remaining[i].serial == keep_second.serial )
+      second_at := i;
+    endif
+  endfor
+
+  var res := 1;
+  if ( !first_at or !second_at )
+    res := ret_error( $"Death took an item it should have left: {first_at}, {second_at}" );
+  elseif ( first_at > second_at )
+    res := ret_error( $"The surviving items changed order: {first_at} > {second_at}" );
+  elseif ( keep_first.x != keep_first_x or keep_first.y != keep_first_y )
+    res := ret_error( $"A surviving item moved to {keep_first.x},{keep_first.y}, "
+                      + $"was {keep_first_x},{keep_first_y}" );
+  elseif ( taken_first.container.serial != corpse.serial or
+           taken_second.container.serial != corpse.serial )
+    res := ret_error( "The corpse did not take the items death was allowed to take" );
+  endif
+
+  DestroyItem( corpse );
+  return res;
+endfunction

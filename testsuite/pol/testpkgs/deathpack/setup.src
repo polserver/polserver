@@ -1,0 +1,25 @@
+use os;
+use uo;
+
+include "testutil";
+
+// Its own account: the character dies here, and no other package should inherit that.
+var char := createAccountWithChar( "testdeathpack", "pass" );
+if ( !char )
+  return char;
+endif
+
+// A character made this way has no starting equipment, so it needs a pack of its own before it
+// can have one emptied.
+if ( !char.backpack )
+  var backpack := CreateItemAtLocation( 0, 0, 0, 0xE75 );
+  if ( !backpack )
+    return ret_error( $"Could not create a backpack: {backpack}" );
+  endif
+  var res := EquipItem( char, backpack );
+  if ( !res )
+    return ret_error( $"Could not equip the backpack: {res}" );
+  endif
+endif
+
+return 1;

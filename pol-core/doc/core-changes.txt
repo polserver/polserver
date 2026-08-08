@@ -1,5 +1,10 @@
 -- POL100.3.0 --
 08-10-2026 Nando:
+    Fixed: The items death leaves in a dead character's backpack - newbie, no-drop and
+           insured ones - came back in reverse order, because the whole pack was emptied
+           and those items were then put back one at a time. They are no longer taken out
+           of it at all, so they keep the order and the container slot they already had.
+08-10-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone
            an item says it is in must be the one that actually lists it, and the other way

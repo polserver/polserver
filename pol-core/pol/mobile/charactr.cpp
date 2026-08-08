@@ -2345,42 +2345,34 @@ void Character::die()
   Core::UContainer* bp = backpack();
   if ( bp )
   {
-    Core::UContainer::Contents tmp;
     UPDATE_CHECKPOINT();
-    bp->extract( tmp );
+    // Newbie, no-drop and insured items stay behind, so those are the only ones that need to move.
+    // Deciding first and moving afterwards leaves the survivors exactly where they were -- same
+    // cell, same slot, same order -- and never has to ask the pack whether it has room for
+    // something that is already inside it.
+    Core::UContainer::Contents leaving;
+    for ( Items::Item* bp_item : *bp )
+    {
+      if ( !bp_item->newbie() && !bp_item->no_drop() && !bp_item->use_insurance() )
+        leaving.push_back( bp_item );
+    }
     UPDATE_CHECKPOINT();
+
     // We set slot to 1 outside the loop. As it cycles through, this will continue
     // to increase. This will reduce the amount of checks to find next available
-    // slots
+    // slots. One hint per container: can_add_to_slot advances it past what it hands out, so a
+    // count of the corpse's slots says nothing about the pack's.
+    u8 corpseSlot = 1;
     u8 packSlot = 1;
-    // u8 corpseSlot = 1;
-    while ( !tmp.empty() )
+    while ( !leaving.empty() )
     {
-      Items::Item* bp_item = tmp.back();
-      tmp.pop_back();
+      Items::Item* bp_item = leaving.back();
+      leaving.pop_back();
       UPDATE_CHECKPOINT();
-      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
-           bp->can_add( *bp_item ) )
+      // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
+      // former backpack contents, which it holds like any other container would.
+      if ( !corpse->can_add( *bp_item ) || !Items::move_into( *bp_item, *corpse, corpseSlot ) )
       {
-        if ( !Items::move_into( *bp_item, *bp, bp_item->pos2d(), packSlot ) )
-        {
-          _drop_item_to_world( bp_item );
-        }
-        UPDATE_CHECKPOINT();
-      }
-      else if ( corpse->can_add( *bp_item ) )
-      {
-        // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
-        // former backpack contents, which it holds like any other container would.
-        if ( !Items::move_into( *bp_item, *corpse, packSlot ) )
-        {
-          _drop_item_to_world( bp_item );
-        }
-        UPDATE_CHECKPOINT();
-      }
-      else
-      {
-        UPDATE_CHECKPOINT();
         _drop_item_to_world( bp_item );
       }
       UPDATE_CHECKPOINT();
