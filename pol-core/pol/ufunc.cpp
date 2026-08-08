@@ -924,7 +924,10 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 Item* find_snoopable_item( u32 serial, Character** pchr )
 {
   Item* item = system_find_item( serial );
-  if ( item != nullptr )
+  // Something held on a cursor is nobody else's to reach. This is the lookup that decides whether
+  // an item another character owns can be looked at at all, and the ones on a cursor were only
+  // ever excluded because the walk up to an owner stopped short of the one holding it.
+  if ( item != nullptr && !item->has_gotten_by() )
   {
     Character* owner = item->GetCharacterOwner();
     if ( owner != nullptr )
