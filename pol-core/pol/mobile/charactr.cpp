@@ -3715,7 +3715,6 @@ void Character::check_region_changes()
 
 void Character::position_changed()
 {
-  wornitems->setposition( pos() );
   position_changed_at_ = Core::polclock();
 }
 
