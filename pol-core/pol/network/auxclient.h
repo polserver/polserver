@@ -9,6 +9,7 @@
 #define AUXCLIENT_H_
 
 #include <atomic>
+#include <deque>
 #include <mutex>
 #include <string>
 #include <vector>
@@ -109,6 +110,7 @@ private:
   bool init();
   bool ipAllowed( sockaddr MyPeer );
   void transmit( const std::string& msg );
+  void transmit_pending();
   AuxService* _auxservice;
   ref_ptr<AuxConnection> _auxconnection;
   weak_ptr<Core::UOExecutor> _uoexec;
@@ -119,6 +121,9 @@ private:
   bool _keep_alive;
   bool _ignore_line_breaks;
   std::mutex _transmit_mutex;
+  // queue to keep the messages in order
+  std::mutex _pending_mutex;
+  std::deque<std::string> _pending;
 };
 }  // namespace Network
 }  // namespace Pol

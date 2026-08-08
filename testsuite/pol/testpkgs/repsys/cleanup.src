@@ -1,0 +1,39 @@
+// Leave the rep characters innocent, alive, out of every guild and out of every
+// party. All of it is shard state that outlives the package - nothing destroys a
+// player character, and a guild that still holds a member can never be destroyed
+// - so a case that failed part way through is dismantled here rather than left
+// for the save the restart tests read back.
+use guilds;
+use os;
+use party;
+use uo;
+
+include "testutil";
+include "repsys";
+
+program cleanup()
+  for i := REP_AMY to REP_VICTIM
+    var chr := rep_char( i );
+    if ( !chr )
+      continue;
+    endif
+    rep_drop_party( chr );
+    rep_revive( chr );
+    rep_reset( chr );
+  endfor
+
+  // the hooks are installed for the whole run; a case that failed while one was
+  // armed would otherwise leave it deciding colours for every later package
+  foreach name in ( { "#RepNameColor", "#RepHighLightColor", "#RepOnAttack",
+                      "#RepOnDamage", "#RepOnHelp" } )
+    EraseGlobalProperty( name );
+    EraseGlobalProperty( name + "Call" );
+  endforeach
+
+  foreach guild in ( ListGuilds() )
+    if ( guild.getprop( REP_GUILD_PROP ) )
+      rep_drop_guild( guild );
+    endif
+  endforeach
+  return 1;
+endprogram

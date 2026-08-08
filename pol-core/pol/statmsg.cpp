@@ -288,18 +288,20 @@ void send_short_statmsg( Network::Client* client, Mobile::Character* chr )
 
 void send_update_hits_to_inrange( Mobile::Character* chr )
 {
+  if ( !chr->logged_in() )
+    return;
+
   PacketOut<Network::PktOut_A1> msg;
   msg->Write<u32>( chr->serial_ext );
 
   if ( networkManager.uoclient_general.hits.any )
   {
-    auto h = chr->vital( networkManager.uoclient_general.hits.id ).current_ones();
-    auto mh = chr->vital( networkManager.uoclient_general.hits.id ).maximum_ones();
+    const auto& hits = chr->vital( networkManager.uoclient_general.hits.id );
     // Send proper data to self (if we exist?)
     if ( chr->client && chr->client->ready )
     {
-      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( mh ) );
-      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h ) );
+      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hits.maximum_ones() ) );
+      msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hits.current_ones() ) );
 
       msg.Send( chr->client );
       msg->offset = 5;
@@ -307,7 +309,7 @@ void send_update_hits_to_inrange( Mobile::Character* chr )
 
     // To stop "HP snooping"...
     msg->WriteFlipped<u16>( 1000_u16 );
-    msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( h * 1000 / mh ) );
+    msg->WriteFlipped<u16>( Clib::clamp_convert<u16>( hits.current_thousands() ) );
   }
   else
   {

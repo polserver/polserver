@@ -1,0 +1,74 @@
+// The five hooks of config/repsys.cfg.
+//
+// They are shard-wide and load-once - repsys.cfg is not reloadable and its
+// HookList is skipped even on the startup reload path - so these are installed
+// for the whole run and every one of them has to be inert until a case arms it.
+// Inert is -1 from the two colour hooks, which is what the core reads as "no
+// opinion, work it out yourself", and 0 from the three event hooks, which lets
+// the normal rules run.
+//
+// NameColor and HighLightColor are called once per mobile per client packet, so
+// the disarmed path is one global property read and a return, and even the armed
+// path only answers for the one mobile a case named. Recolouring every mobile on
+// the shard would reach the guild and speech tests.
+use os;
+use uo;
+
+program Install()
+  return 1;
+endprogram
+
+// Records one call, keeping a running count - the same action can reach a hook
+// more than once, and only the count says so.
+function record( propname, first, second )
+  var previous := GetGlobalProperty( propname + "Call" );
+  var call := struct{};
+  call.+first := first.serial;
+  call.+second := second.serial;
+  call.+count := previous ? previous.count + 1 : 1;
+  SetGlobalProperty( propname + "Call", call );
+  return 1;
+endfunction
+
+// The colour hooks are handed the mobile being drawn first and the one looking at
+// it second, both for Character and for NPC. Only the mobile a case named is
+// answered for; -1 for everything else leaves the shard as it was.
+function colour_hook( propname, seen, seer )
+  var arm := GetGlobalProperty( propname );
+  if ( !arm || seen.serial != arm.serial )
+    return -1;
+  endif
+  record( propname, seen, seer );
+  return arm.color;
+endfunction
+
+// The event hooks are handed the actor first and the one acted on second.
+// Returning anything true makes the core skip the rule entirely.
+function event_hook( propname, actor, subject )
+  var arm := GetGlobalProperty( propname );
+  if ( !arm )
+    return 0;
+  endif
+  record( propname, actor, subject );
+  return arm.suppress;
+endfunction
+
+exported function RepNameColorHook( seen, seer )
+  return colour_hook( "#RepNameColor", seen, seer );
+endfunction
+
+exported function RepHighLightColorHook( seen, seer )
+  return colour_hook( "#RepHighLightColor", seen, seer );
+endfunction
+
+exported function RepOnAttackHook( attacker, defender )
+  return event_hook( "#RepOnAttack", attacker, defender );
+endfunction
+
+exported function RepOnDamageHook( attacker, defender )
+  return event_hook( "#RepOnDamage", attacker, defender );
+endfunction
+
+exported function RepOnHelpHook( helper, helped )
+  return event_hook( "#RepOnHelp", helper, helped );
+endfunction

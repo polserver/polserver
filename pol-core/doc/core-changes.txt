@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+08-07-2026 Turley:
+    Fixed: AuxConnection: transmit() didnt guarantee that the order was kept.
+    Fixed: Datastore loading once the version overflows
+08-06-2026 Turley:
+    Fixed: every mobile read as criminal for the first hundredth of a second after the shard went active, a cleared criminal timer was compared against a polclock that starts at zero
 08-05-2026 Turley:
     Fixed: map pins from a client were bounded against the map's world area instead of its gump size, refusing valid pins on a map smaller than its gump and accepting pins outside a map larger than it
     Fixed: using a map whose gump or whose world area is empty on either axis divided by zero while converting its pins, such a map is not sent to the client anymore

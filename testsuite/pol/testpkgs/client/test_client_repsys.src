@@ -1,0 +1,371 @@
+// What a client is actually told about someone's standing: the notoriety byte of
+// the packet that draws a mobile, and the colour its name is written in.
+//
+// The two are worked out by different functions - RepSystem::hilite_color_idx and
+// RepSystem::name_color - off the same list of questions, so a standing that
+// shows in one and not the other is a real disagreement. Criminal and Attackable
+// share a name colour in the stock configuration, which is why the notoriety byte
+// is the one that has to be read for those.
+//
+// The guild standings are covered by test_client_guild.src; this file is the rest
+// of the ladder, plus the two colour hooks of config/repsys.cfg.
+use guilds;
+use os;
+use uo;
+
+include "testutil";
+include "guild";
+
+// A criminal timer is CriminalFlagInterval seconds, which is 5 on this shard -
+// far less than a case takes. Every case that wants to still be criminal when the
+// client is told about it asks for a level that outlasts the run.
+const LONG_CRIMINAL := 100;
+
+const REP_HOOK_COLOR := 777;
+const REP_HOOK_NOTORIETY := NOTO_ENEMY;
+
+program test_client_repsys()
+  var res := guild_setup();
+  if ( !res )
+    return res;
+  endif
+  return rep_clear();
+endprogram
+
+function rep_clear()
+  foreach chr in ( { char, char2 } )
+    chr.setcriminal( 0 );
+    chr.setmurderer( 0 );
+    foreach entry in ( chr.aggressorto )
+      chr.clearaggressorto( entry.ref );
+    endforeach
+    foreach entry in ( chr.lawfullydamaged )
+      chr.clearlawfullydamagedto( entry.ref );
+    endforeach
+  endforeach
+  EraseGlobalProperty( "#RepNameColor" );
+  EraseGlobalProperty( "#RepNameColorCall" );
+  EraseGlobalProperty( "#RepHighLightColor" );
+  EraseGlobalProperty( "#RepHighLightColorCall" );
+  return 1;
+endfunction
+
+function rep_fail( message )
+  rep_clear();
+  return ret_error( message );
+endfunction
+
+// The notoriety a client is told to draw `chr` with.
+//
+// guild.inc's notoriety_of does the same thing, but the standing has to survive
+// the round trip it takes - and an aggressor flag does not: AggressorFlagTimeout
+// is 3 seconds on this shard, less than the two settles and two moves cost. So
+// the trip is driven in halves here and `prepare` runs in the gap, with the
+// mobile already out of sight and the packet that carries the byte still to come.
+function noto_after( id, chr, x, y, prepare )
+  settle();
+  MoveObjectToLocation( chr, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+  var ev := waitForClient( id, { EVT_REMOVED_OBJ } );
+  if ( !ev )
+    return ret_error( $"client {id} never lost sight of {chr.name}" );
+  endif
+  settle();
+
+  var res := prepare.call();
+  if ( !res )
+    return ret_error( $"could not set the standing up: {res}" );
+  endif
+
+  MoveObjectToLocation( chr, x, y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_NEW_MOBILE or CInt( ev.id ) != id or CInt( ev.serial ) != chr.serial )
+      continue;
+    endif
+    if ( !( ev.?notoriety ) )
+      return ret_error( $"the mobile packet of {chr.name} carried no notoriety" );
+    endif
+    return CInt( ev.notoriety );
+  endwhile
+  return ret_error( $"client {id} never saw {chr.name} again" );
+endfunction
+
+function make_nothing()
+  return 1;
+endfunction
+
+function make_criminal()
+  return char2.setcriminal( LONG_CRIMINAL );
+endfunction
+
+function make_murderer()
+  return char2.setmurderer( 1 );
+endfunction
+
+// char2 is the aggressor, and it is char - the one doing the looking - that he is
+// an aggressor to. The list is one-directional, so this is the only way round
+// that shows.
+function make_aggressor()
+  return char2.setaggressorto( char );
+endfunction
+
+// The mirror clause: char has lawfully damaged char2, which greys char2 out for
+// char without char2 having done anything.
+function make_lawfully_damaged()
+  return char.setlawfullydamagedto( char2 );
+endfunction
+
+exported function repsys_noto_innocent( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_nothing );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_INNOCENT )
+    return rep_fail( $"an unflagged character came as notoriety {noto}" );
+  endif
+
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_INNOCENT )
+    return rep_fail( $"an unflagged character was drawn in {color}" );
+  endif
+  return rep_clear();
+endfunction
+
+exported function repsys_noto_criminal( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_criminal );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_CRIMINAL )
+    return rep_fail( $"a criminal came as notoriety {noto}" );
+  endif
+
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_CRIMINAL )
+    return rep_fail( $"a criminal was drawn in {color}" );
+  endif
+  return rep_clear();
+endfunction
+
+// A murderer outranks a criminal: both flags at once still shows as murderer.
+exported function repsys_noto_murderer( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_murderer );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_MURDERER )
+    return rep_fail( $"a murderer came as notoriety {noto}" );
+  endif
+
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_MURDERER )
+    return rep_fail( $"a murderer was drawn in {color}" );
+  endif
+
+  char2.setcriminal( LONG_CRIMINAL );
+  color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_MURDERER )
+    return rep_fail( $"a murderer who is also criminal was drawn in {color}" );
+  endif
+  return rep_clear();
+endfunction
+
+exported function repsys_noto_aggressor( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_aggressor );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_ATTACKABLE )
+    return rep_fail( $"an aggressor came as notoriety {noto}" );
+  endif
+  return rep_clear();
+endfunction
+
+exported function repsys_noto_lawfully_damaged( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_lawfully_damaged );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_ATTACKABLE )
+    return rep_fail( $"someone the viewer had damaged came as notoriety {noto}" );
+  endif
+  return rep_clear();
+endfunction
+
+// The standing is worked out per viewer: an aggressor to one client is nothing to
+// the other. The same packet goes to both, built twice.
+exported function repsys_noto_is_per_viewer( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_aggressor );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_ATTACKABLE )
+    return rep_fail( $"an aggressor came as notoriety {noto} to the one he attacked" );
+  endif
+
+  // char2 is an aggressor to char only, so char itself is innocent to char2
+  noto := noto_after( 1, char, CHAR_X, CHAR_Y, @make_nothing );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_INNOCENT )
+    return rep_fail( $"the other side came as notoriety {noto}" );
+  endif
+  return rep_clear();
+endfunction
+
+// Invulnerability is above everything else on the ladder, and only when
+// servspecopt.cfg asks for it: the check is on InvulTag being exactly 2, and the
+// shard default is 1, so an invulnerable character is drawn like anyone else
+// until it is turned on.
+exported function repsys_noto_invulnerable( resmgn )
+  rep_clear();
+
+  var res := resmgn.GrantPrivilege( char2, "invul" );
+  if ( !res )
+    return rep_fail( $"could not make the character invulnerable: {res}" );
+  endif
+  char2.setmurderer( 1 );
+
+  // InvulTag 1 is the shard default, so the murderer standing still wins here
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_MURDERER )
+    return rep_fail( $"an invulnerable murderer was drawn in {color} at InvulTag 1" );
+  endif
+
+  var original := set_ssopt( "InvulTag", 2 );
+  if ( !original )
+    return rep_fail( original.errortext );
+  endif
+
+  color := click_name_color( 0, char2 );
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @make_nothing );
+  restore_ssopt( original );
+
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_INVULNERABLE )
+    return rep_fail( $"an invulnerable character was drawn in {color}" );
+  endif
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_INVUL )
+    return rep_fail( $"an invulnerable character came as notoriety {noto}" );
+  endif
+  return rep_clear();
+endfunction
+
+// The NameColor hook of config/repsys.cfg. -1 means "no opinion" and hands the
+// question back to the core, which is what every other case in the shard relies
+// on; anything else is used verbatim.
+exported function repsys_namecolor_hook( unused resmgn )
+  rep_clear();
+
+  var arm := struct{};
+  arm.+serial := char2.serial;
+  arm.+color := REP_HOOK_COLOR;
+  SetGlobalProperty( "#RepNameColor", arm );
+
+  var color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != REP_HOOK_COLOR )
+    return rep_fail( $"the hook asked for {REP_HOOK_COLOR} and the name came in {color}" );
+  endif
+
+  // the mobile being drawn is the first argument, the one looking at it the second
+  var call := GetGlobalProperty( "#RepNameColorCall" );
+  if ( !call )
+    return rep_fail( "the NameColor hook recorded no call" );
+  endif
+  if ( call.first != char2.serial )
+    return rep_fail( $"the hook was handed 0x{call.first:x} as the mobile seen" );
+  endif
+  if ( call.second != char.serial )
+    return rep_fail( $"the hook was handed 0x{call.second:x} as the viewer" );
+  endif
+
+  EraseGlobalProperty( "#RepNameColor" );
+  color := click_name_color( 0, char2 );
+  if ( !color )
+    return rep_fail( color.errortext );
+  endif
+  if ( color != NAMECOLOR_INNOCENT )
+    return rep_fail( $"disarming the hook left the name in {color}" );
+  endif
+  return rep_clear();
+endfunction
+
+// The HighLightColor hook decides the notoriety byte, and it wins over the
+// standing the core would have worked out.
+exported function repsys_highlight_hook( unused resmgn )
+  rep_clear();
+
+  var noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @arm_highlight );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != REP_HOOK_NOTORIETY )
+    return rep_fail( $"the hook asked for {REP_HOOK_NOTORIETY} and the byte came as {noto}" );
+  endif
+
+  var call := GetGlobalProperty( "#RepHighLightColorCall" );
+  if ( !call )
+    return rep_fail( "the HighLightColor hook recorded no call" );
+  endif
+  if ( call.first != char2.serial )
+    return rep_fail( $"the hook was handed 0x{call.first:x} as the mobile seen" );
+  endif
+
+  noto := noto_after( 0, char2, CHAR2_X, CHAR2_Y, @disarm_highlight );
+  if ( !noto )
+    return rep_fail( noto.errortext );
+  endif
+  if ( noto != NOTO_INNOCENT )
+    return rep_fail( $"disarming the hook left the byte at {noto}" );
+  endif
+  return rep_clear();
+endfunction
+
+function arm_highlight()
+  var arm := struct{};
+  arm.+serial := char2.serial;
+  arm.+color := REP_HOOK_NOTORIETY;
+  return SetGlobalProperty( "#RepHighLightColor", arm );
+endfunction
+
+function disarm_highlight()
+  EraseGlobalProperty( "#RepHighLightColor" );
+  return 1;
+endfunction
