@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+08-08-2026 Kevin:
+    Fixed: Custom houses customizable components are no longer limited by a single packet, increasing the number of components allowed.
 08-07-2026 Turley:
     Fixed: AuxConnection: transmit() didnt guarantee that the order was kept.
     Fixed: Datastore loading once the version overflows
