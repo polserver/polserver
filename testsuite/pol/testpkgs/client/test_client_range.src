@@ -32,7 +32,16 @@ exported function chr_update_range()
   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
   endwhile
   char.facing := 1;
-  Clear_Event_Queue();
+
+  // Both teleports above tell client 1 to forget char and re-add it, at the
+  // coordinates the previous test left everyone at. That removal looks exactly
+  // like the one being measured below - same id, same serial - so it has to be
+  // gone before the walk starts. Clear_Event_Queue() empties the queue once and
+  // returns, which is not enough: the events are still in flight and refill it,
+  // and the loop then measures against an oldpos from before this test began.
+  // Wait for quiet instead.
+  drain_events();
+
   clientcon.sendevent( struct{ todo := "move", arg := 2, id := 0 } );
   var i := 10;
   while ( --i > 0 )
