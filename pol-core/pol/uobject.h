@@ -174,7 +174,9 @@ public:
 
   virtual unsigned int weight() const = 0;
 
-  virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
+  /// Whatever ultimately holds this, or the object itself when nothing does. An item worn by a
+  /// character answers with the character, not with the container its layers live in.
+  virtual UObject* toplevel_owner();
   virtual UObject* owner();
   virtual const UObject* owner() const;
   virtual UObject* self_as_owner();

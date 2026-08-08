@@ -263,7 +263,10 @@ Core::UObject* Item::toplevel_owner()
   for ( Core::UContainer* cont = item->container(); cont != nullptr; cont = item->container() )
     item = cont;
 
-  return item;
+  // A character's worn items hang in a container that is part of the character rather than an
+  // object of its own, so the walk ends one step short of what holds them. self_as_owner() is what
+  // takes that last step; for every other container it is the container itself.
+  return item->self_as_owner();
 }
 
 const Core::UObject* Item::toplevel_owner() const
@@ -273,7 +276,7 @@ const Core::UObject* Item::toplevel_owner() const
         cont = item->container() )
     item = cont;
 
-  return item;
+  return item->self_as_owner();
 }
 
 const char* Item::classname() const
@@ -1310,18 +1313,13 @@ bool Item::check_unequiptest_scripts( Mobile::Character* unequip_by )
  */
 Mobile::Character* Item::GetCharacterOwner() const
 {
-  const UObject* top_level_item = toplevel_owner();
-  if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    Mobile::Character* chr_owner =
-        static_cast<const Core::UContainer*>( top_level_item )->get_chr_owner();
-    if ( chr_owner != nullptr )
-    {
-      return chr_owner;
-    }
+  // The chain ends at a character exactly when this item is worn by one, or sits inside something
+  // that is; anywhere else it ends at an item. The cast away from const is the one this has always
+  // made -- asking who holds an item says nothing about whether that owner may be changed.
+  const UObject* top = toplevel_owner();
+  if ( !top->ismobile() )
     return nullptr;
-  }
-  return nullptr;
+  return static_cast<Mobile::Character*>( const_cast<UObject*>( top ) );
 }
 
 const char* Item::target_tag() const

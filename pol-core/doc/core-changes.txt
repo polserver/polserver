@@ -1,5 +1,10 @@
 -- POL100.3.0 --
 08-10-2026 Nando:
+    Changed: uo::ListMobilesInLineOfSight() called on an item a character is carrying or
+             wearing now looks out from that character. It previously looked out from the
+             character's equipment as if that were a separate object standing in the same
+             spot, so the character was reported as being within its own line of sight, and
+             its ability to see past obstacles was not taken into account.
     Fixed: The items death leaves in a dead character's backpack - newbie, no-drop and
            insured ones - came back in reverse order, because the whole pack was emptied
            and those items were then put back one at a time. They are no longer taken out

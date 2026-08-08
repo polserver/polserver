@@ -158,8 +158,6 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
       return;
   }
 
-  UObject* my_owner = item->toplevel_owner();
-
   send_remove_object_to_inrange( item );
 
   UContainer* orig_container = item->container();
@@ -243,27 +241,16 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     orig_container->increv_send_object_recursive();
   }
 
-  // FIXME : Are these all the possibilities for sources and updating, correctly?
-  if ( std::holds_alternative<FromGround>( gotten_info._origin ) )
+  // Picking anything up changes what the character is carrying, so the stat bar always needs
+  // resending. Coming off a layer changes the armor rating as well, and refresh_ar() sends the
+  // stat bar itself -- to the wearer, who is not necessarily the one lifting.
+  if ( const auto* from_layer = std::get_if<FromLayer>( &gotten_info._origin ) )
   {
-    // Item was on the ground, so we ONLY need to update the character's weight
-    // to the client.
-    send_full_statmsg( client, client->chr );
-  }
-  else if ( const auto* from_layer = std::get_if<FromLayer>( &gotten_info._origin ) )
-  {
-    // Item was equipped, let's send the full update for ar and statmsg.
     if ( auto chr = system_find_mobile( from_layer->serial ) )
       chr->refresh_ar();
   }
-  else if ( my_owner->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+  else
   {
-    // Toplevel owner was a container (not a character). Only update weight.
-    send_full_statmsg( client, client->chr );
-  }
-  else if ( ( my_owner->ismobile() ) && my_owner->serial != client->chr->serial )
-  {
-    // Toplevel was a mob. Make sure mob was not us. If it's not, send update to weight.
     send_full_statmsg( client, client->chr );
   }
 }
