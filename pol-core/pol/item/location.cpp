@@ -212,6 +212,15 @@ bool validate( const Item& item, const Location& from, const Location& to )
     // describe where it should go back to.
     if ( item.realm() == nullptr )
       return reject( item, from, to, "the item has no realm to return to" );
+    // Picking an item up is a promise that it can be put down again, and the ticket has one
+    // alternative per home it knows how to undo. A storage root is the one that would hurt: the
+    // ticket cannot say "back under this key", so undoing would leave the item in the world and
+    // out of its area for good. Nothing routes those onto a cursor today -- the searches behind
+    // the packet handler only ever turn up these four -- so this states that rather than leaving
+    // it to be re-derived.
+    if ( !from.holds<InWorld>() && !from.holds<InContainer>() && !from.holds<Equipped>() &&
+         !from.holds<OnCorpse>() )
+      return reject( item, from, to, "there is nowhere this could be returned to" );
   }
 
   if ( to.holds<InWorld>() && item.realm() == nullptr )

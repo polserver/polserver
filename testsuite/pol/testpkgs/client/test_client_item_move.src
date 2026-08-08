@@ -156,7 +156,7 @@ exported function fail_lift_nodrop_drop_backpack()
   endif
 
   if ( nodrop_item.x != x_before || nodrop_item.y != y_before )
-    return ret_error( $"Position for nodrop_item inside nodrop_container changed, got {nodrop_item.x},{nodrop_item.y} expected {x_before.y_before}" );
+    return ret_error( $"Position for nodrop_item inside nodrop_container changed, got {nodrop_item.x},{nodrop_item.y} expected {x_before},{y_before}" );
   endif
 
   DestroyItem( nodrop_container );
