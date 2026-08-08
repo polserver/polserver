@@ -409,25 +409,19 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   // the question is, can it all fit in his backpack?
   int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
 
-  bool from_bought;
-
-  // Return an item to the vendor container it came out of, when the buyer's pack would not take
-  // it. The vendor container can itself have been destroyed by the pack's CanInsert script, and
-  // then there is nowhere left to put it back.
-  // FIXME : Add Grid Index Default Location Checks here.
-  // Remember, if index fails, move to the ground.
-  auto put_back = [&]( Item* item )
+  // Return an item to where it came out of, when the buyer's pack would not take it. The origin is
+  // taken before the item is detached, because detaching is what erases it -- the same shape as
+  // put_item_back(). The container it names can itself have been destroyed by the pack's CanInsert
+  // script, and then there is nowhere left to put it back.
+  // FIXME : a refused put-back destroys the item; the vendor's feet would be kinder.
+  auto put_back = []( Item* item, const Items::Location& origin )
   {
-    UContainer* cont = from_bought ? vendor_bought : for_sale;
-    // The item is Detached by the time it gets here, so its location no longer knows which cell it
-    // came out of and the position field is the only thing still holding it.
-    if ( !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), item->slot_index() } ) )
+    if ( !Items::relocate( *item, origin ) )
       destroy_item( item );
   };
 
   for ( int i = 0; i < nitems; ++i )
   {
-    from_bought = false;
     u32 serial = cfBEu32( msg->items[i].item_serial );
     Item* fs_item = for_sale->find( serial );
     if ( fs_item == nullptr )
@@ -435,7 +429,6 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
       fs_item = vendor_bought->find( serial );
       if ( fs_item == nullptr )
         continue;
-      from_bought = true;
     }
     unsigned short numleft = cfBEu16( msg->items[i].number_bought );
     if ( numleft > fs_item->getamount() )
@@ -456,14 +449,16 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
         num = 1;
       }
       Item* tobuy = nullptr;
+      // Only read where the whole item is taken, which is also the only case that can put one
+      // back: a partial stack leaves fs_item in place to take the remainder.
+      Items::Location origin;
       if ( fs_item->amount_to_remove_is_partial( num ) )
       {
         tobuy = fs_item->remove_part_of_stack( num );
       }
       else
       {
-        // Whichever of the two vendor containers it was found in, the item knows; from_bought is
-        // only still needed to decide where an unsold one goes back.
+        origin = fs_item->location();
         if ( !Items::relocate( *fs_item, Items::Detached{} ) )
           break;
         tobuy = fs_item;
@@ -492,7 +487,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-            put_back( tobuy );
+            put_back( tobuy, origin );
           continue;
         }
         numleft -= num;
@@ -522,7 +517,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-            put_back( tobuy );
+            put_back( tobuy, origin );
           continue;
         }
 
@@ -538,7 +533,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-            put_back( tobuy );
+            put_back( tobuy, origin );
           continue;
         }
         update_item_to_inrange( tobuy );
@@ -552,7 +547,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
         if ( fs_item )
           fs_item->add_to_self( tobuy );
         else
-          put_back( tobuy );
+          put_back( tobuy, origin );
       }
     }
   }

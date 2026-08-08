@@ -144,6 +144,11 @@ exported function vendor_buy_too_heavy_puts_back( resources )
     return v;
   endif
 
+  // Where it sat before the sale: putting it back means putting it back there, not merely into the
+  // right container.
+  var ware_x := v.ware.x;
+  var ware_y := v.ware.y;
+
   var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
   if ( !res )
     return res;
@@ -156,8 +161,17 @@ exported function vendor_buy_too_heavy_puts_back( resources )
     return ret_error( "the refused ware was destroyed" );
   endif
 
-  return ret_error_not_equal( v.ware.container, v.for_sale,
+  res := ret_error_not_equal( v.ware.container, v.for_sale,
                               $"the refused ware ended up in {v.ware.container} instead of back in the vendor's container" );
+  if ( !res )
+    return res;
+  endif
+
+  if ( v.ware.x != ware_x or v.ware.y != ware_y )
+    return ret_error( $"the refused ware came back to {v.ware.x},{v.ware.y} instead of {ware_x},{ware_y}" );
+  endif
+
+  return 1;
 endfunction
 
 exported function vendor_buy_partial_stack_merges( resources )
