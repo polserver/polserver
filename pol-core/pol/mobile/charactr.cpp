@@ -301,8 +301,8 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // PARTY
       party_decline_timeout_( nullptr ),
       // SECURE TRADING
-      trading_cont(),
-      trading_with( nullptr ),
+      trading_cont_(),
+      trading_with_( nullptr ),
       // SCRIPT
       script_ex( nullptr ),
       spell_task( nullptr ),
@@ -380,8 +380,8 @@ Character::~Character()
   wornitems->destroy();
 
   // clean up trade container if it exists
-  if ( trading_cont != nullptr )
-    trading_cont->destroy();
+  if ( trading_cont_ != nullptr )
+    trading_cont_->destroy();
 
   if ( repsys_task_ != nullptr )
     repsys_task_->cancel();
@@ -533,8 +533,8 @@ unsigned int Character::weight() const
   unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
     wt += gotten_item().item()->weight();
-  if ( trading_cont.get() )
-    wt += trading_cont->weight();
+  if ( trading_cont_.get() )
+    wt += trading_cont_->weight();
   return wt;
 }
 
@@ -4229,7 +4229,17 @@ void Character::cancel_menu()
 
 bool Character::is_trading() const
 {
-  return ( trading_with.get() != nullptr );
+  return ( trading_with_.get() != nullptr );
+}
+
+Character* Character::trading_with() const
+{
+  return trading_with_.get();
+}
+
+void Character::trading_with( Character* other )
+{
+  trading_with_.set( other );
 }
 
 bool Character::trade_accepted() const
@@ -4244,18 +4254,18 @@ void Character::trade_accepted( bool newvalue )
 
 void Character::create_trade_container()
 {
-  if ( trading_cont.get() == nullptr )  // FIXME hardcoded
+  if ( trading_cont_.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
     // TODO Pos: no realm
     cont->setposition( pos() );
-    trading_cont.set( static_cast<Core::UContainer*>( cont ) );
+    trading_cont_.set( static_cast<Core::UContainer*>( cont ) );
   }
 }
 
 Core::UContainer* Character::trade_container()
 {
-  return trading_cont.get();
+  return trading_cont_.get();
 }
 
 // SkillValue removed for no use - MuadDib

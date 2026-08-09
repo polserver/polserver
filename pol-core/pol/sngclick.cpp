@@ -57,9 +57,9 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
     if ( item )
       return item;
   }
-  if ( chr->trading_with.get() && chr->trading_with->trade_container() )
+  if ( chr->trading_with() && chr->trading_with()->trade_container() )
   {
-    item = chr->trading_with->trade_container()->find( serial );
+    item = chr->trading_with()->trade_container()->find( serial );
     if ( item )
       return item;
   }

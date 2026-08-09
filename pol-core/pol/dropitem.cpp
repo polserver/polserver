@@ -147,7 +147,7 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
                                            const Pos2d& pos )
 {
   UContainer* cont = client->chr->trade_container();
-  Mobile::Character* dropon = client->chr->trading_with.get();
+  Mobile::Character* dropon = client->chr->trading_with();
   if ( dropon == nullptr || dropon->client == nullptr )
   {
     send_sysmessage( client, "Unable to complete trade" );
@@ -185,7 +185,7 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
                                                            Items::Item* item )
 {
   UContainer* cont = client->chr->trade_container();
-  Mobile::Character* dropon = client->chr->trading_with.get();
+  Mobile::Character* dropon = client->chr->trading_with();
   if ( dropon == nullptr || dropon->client == nullptr )
   {
     return new Bscript::BError( "Unable to complete trade" );
@@ -539,9 +539,9 @@ bool do_open_trade_window( Network::Client* client, Items::Item* item, Mobile::C
   dropon->create_trade_container();
   client->chr->create_trade_container();
 
-  dropon->trading_with.set( client->chr );
+  dropon->trading_with( client->chr );
   dropon->trade_accepted( false );
-  client->chr->trading_with.set( dropon );
+  client->chr->trading_with( dropon );
   client->chr->trade_accepted( false );
 
   send_trade_container( client, dropon, dropon->trade_container() );
@@ -932,10 +932,10 @@ void return_traded_items( Mobile::Character* chr )
 
 void cancel_trade( Mobile::Character* chr1 )
 {
-  Mobile::Character* chr2 = chr1->trading_with.get();
+  Mobile::Character* chr2 = chr1->trading_with();
 
   return_traded_items( chr1 );
-  chr1->trading_with.clear();
+  chr1->trading_with( nullptr );
 
   if ( chr1->client )
   {
@@ -951,7 +951,7 @@ void cancel_trade( Mobile::Character* chr1 )
   if ( chr2 )
   {
     return_traded_items( chr2 );
-    chr2->trading_with.clear();
+    chr2->trading_with( nullptr );
     if ( chr2->client )
     {
       Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
@@ -968,7 +968,7 @@ void cancel_trade( Mobile::Character* chr1 )
 void send_trade_statuses( Mobile::Character* chr )
 {
   unsigned int stat1 = chr->trade_accepted() ? 1 : 0;
-  unsigned int stat2 = chr->trading_with->trade_accepted() ? 1 : 0;
+  unsigned int stat2 = chr->trading_with()->trade_accepted() ? 1 : 0;
 
   Network::PktHelper::PacketOut<Network::PktOut_6F> msg;
   msg->WriteFlipped<u16>( 17u );  // no name
@@ -979,22 +979,22 @@ void send_trade_statuses( Mobile::Character* chr )
   msg->offset++;  // u8 havename
   Network::transmit( chr->client, &msg->buffer, msg->offset );
   msg->offset = 4;
-  msg->Write<u32>( chr->trading_with->trade_container()->serial_ext );
+  msg->Write<u32>( chr->trading_with()->trade_container()->serial_ext );
   msg->WriteFlipped<u32>( stat2 );
   msg->WriteFlipped<u32>( stat1 );
   msg->offset++;
-  msg.Send( chr->trading_with->client );
+  msg.Send( chr->trading_with()->client );
 }
 
 void change_trade_status( Mobile::Character* chr, bool set )
 {
   chr->trade_accepted( set );
   send_trade_statuses( chr );
-  if ( chr->trade_accepted() && chr->trading_with->trade_accepted() )
+  if ( chr->trade_accepted() && chr->trading_with()->trade_accepted() )
 
   {
     UContainer* cont0 = chr->trade_container();
-    UContainer* cont1 = chr->trading_with->trade_container();
+    UContainer* cont1 = chr->trading_with()->trade_container();
     if ( cont0->can_swap( *cont1 ) )
     {
       cont0->swap( *cont1 );

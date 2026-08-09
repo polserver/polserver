@@ -228,8 +228,8 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       cont->builtin_on_use( client );
       if ( !cont->locked() )
       {
-        if ( client->chr->trading_with->client != nullptr )
-          cont->builtin_on_use( client->chr->trading_with->client );
+        if ( client->chr->trading_with()->client != nullptr )
+          cont->builtin_on_use( client->chr->trading_with()->client );
       }
       return;
     }

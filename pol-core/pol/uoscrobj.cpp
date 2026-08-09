@@ -1845,8 +1845,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   }
   case MBR_TRADEWINDOW:
   {
-    Core::UContainer* tw = trading_cont.get();
-    if ( trading_with != nullptr )
+    Core::UContainer* tw = trading_cont_.get();
+    if ( is_trading() )
       return tw->make_ref();
     return new BError( "That has no active tradewindow" );
     break;
@@ -1975,8 +1975,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( connected() ? 1 : 0 );
     break;
   case MBR_TRADING_WITH:
-    if ( trading_with != nullptr )
-      return trading_with->make_ref();
+    if ( is_trading() )
+      return trading_with()->make_ref();
     return new BError( "Mobile is not currently trading with anyone." );
     break;
   case MBR_CLIENTTYPE:

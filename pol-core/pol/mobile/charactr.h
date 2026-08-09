@@ -599,6 +599,8 @@ public:
   bool is_trading() const;
   void create_trade_container();
   Core::UContainer* trade_container();
+  Character* trading_with() const;
+  void trading_with( Character* other );
   bool trade_accepted() const;
   void trade_accepted( bool newvalue );
 
@@ -761,8 +763,11 @@ protected:
 
   ref_ptr<Core::WornItemsContainer> wornitems;
 
-public:
-  std::vector<Core::ItemRef> remote_containers_;  // does not own its objects
+private:
+  // Containers a script has shown this character with uo::SendOpenSpecialContainer(), which they
+  // may reach regardless of where either of them stands. Cleared whenever they move.
+  std::vector<Core::ItemRef> remote_containers_;
+
   // MOVEMENT
 public:
   u8 dir;  // the entire 'dir' from their last MSG02_WALK
@@ -820,9 +825,9 @@ private:
 private:
   Core::OneShotTask* party_decline_timeout_;
   // SECURE TRADING
-public:
-  ref_ptr<Core::UContainer> trading_cont;
-  Core::CharacterRef trading_with;
+private:
+  ref_ptr<Core::UContainer> trading_cont_;
+  Core::CharacterRef trading_with_;
   // SCRIPT
 public:
   DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );

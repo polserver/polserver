@@ -633,7 +633,7 @@ BObjectImp* UOExecutorModule::mf_CloseTradeWindow()
   {
     return new BError( "Invalid parameter type." );
   }
-  if ( !chr->trading_with )
+  if ( !chr->is_trading() )
     return new BError( "Mobile is not currently trading with anyone." );
 
   Core::cancel_trade( chr );
@@ -3400,7 +3400,7 @@ BObjectImp* UOExecutorModule::mf_MoveItemToSecureTradeWin()
     return new BError( "No client attached." );
   }
   // early out checks of place_item_in_secure_trade_container
-  if ( chr->trading_with.get() == nullptr || chr->trading_with->client == nullptr )
+  if ( chr->trading_with() == nullptr || chr->trading_with()->client == nullptr )
   {
     return new BError( "Unable to complete trade" );
   }
