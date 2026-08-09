@@ -51,6 +51,14 @@ were always checked against the map gump instead.</change>
 insured ones - came back in reverse order, because the whole pack was emptied<br/>
 and those items were then put back one at a time. They are no longer taken out<br/>
 of it at all, so they keep the order and the container slot they already had.</change>
+			<change type="Fixed">A container opened with uo::SendOpenSpecialContainer(), a bank box for instance,<br/>
+stayed reachable after the character was moved by anything other than walking. A<br/>
+gate, a teleport spell, being carried by a boat, a step taken while editing a<br/>
+house and logging back in all left it open and usable from wherever the character<br/>
+ended up - including from another realm, since such a container is also granted<br/>
+line of sight - until they took a single walking step. It now stops being<br/>
+reachable whenever the character's position changes, which is what the core<br/>
+always intended.</change>
 		</entry>
 		<entry>
 			<date>08-09-2026</date>

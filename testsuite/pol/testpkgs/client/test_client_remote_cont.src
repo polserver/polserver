@@ -1,0 +1,63 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+var char;
+
+var clientcon := getClientConnection();
+
+program chartests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+endprogram
+
+// A container shown with SendOpenSpecialContainer stays reachable only while the character is
+// where they were when it was opened. The reach is granted by the core, not by the script that
+// opened it, so nothing on the script side can revoke it -- which is why moving has to.
+//
+// CheckLineOfSight is the probe: a remote container is granted sight outright, ahead of the
+// comparison that would otherwise refuse anything in a different realm. So a character standing
+// in britannia2 can see a container in britannia if and only if it is still listed as remote.
+exported function remote_container_ends_on_move()
+  // Placed exactly where the character stands, because SendOpenSpecialContainer writes the
+  // character's position onto whatever it is handed. Anywhere else and that write would leave the
+  // container filed in a zone its coordinates no longer name, which is a defect of its own and not
+  // the one under test here.
+  var cont := CreateItemAtLocation( char.x, char.y, char.z, 0x200E75, 1, char.realm );
+  if ( !cont )
+    return ret_error( "Failed to create container: " + cont );
+  endif
+
+  var home := struct{ x := char.x, y := char.y, z := char.z, realm := char.realm };
+
+  var opened := SendOpenSpecialContainer( char, cont );
+  if ( !opened )
+    DestroyItem( cont );
+    return ret_error( "SendOpenSpecialContainer failed: " + opened );
+  endif
+
+  if ( !CheckLineOfSight( char, cont ) )
+    DestroyItem( cont );
+    return ret_error( "The container was not in sight while standing on top of it" );
+  endif
+
+  MoveObjectToLocation( char, 100, 100, 0, realm := "britannia2",
+                        flags := MOVEOBJECT_FORCELOCATION );
+
+  var still_in_sight := CheckLineOfSight( char, cont );
+
+  MoveObjectToLocation( char, home.x, home.y, home.z, realm := home.realm,
+                        flags := MOVEOBJECT_FORCELOCATION );
+  DestroyItem( cont );
+
+  if ( still_in_sight )
+    return ret_error( "The container is still in sight from another realm after the character moved" );
+  endif
+
+  return 1;
+endfunction

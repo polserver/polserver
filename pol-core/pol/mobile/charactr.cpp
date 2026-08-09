@@ -3719,6 +3719,13 @@ void Character::check_region_changes()
 void Character::position_changed()
 {
   position_changed_at_ = Core::polclock();
+
+  // Whatever the character could reach from where they were standing, they cannot reach from
+  // somewhere else. This belongs here rather than in the walk handler where it used to live: a
+  // teleport, a gate, a boat under way, a step taken while editing a house and a login all move a
+  // character without walking, and search_remote_containers is consulted by has_los ahead of the
+  // realm comparison, so the reach outlived even a change of realm.
+  remote_containers_.clear();
 }
 
 void Character::unhide()
@@ -3945,7 +3952,6 @@ bool Character::move( unsigned char i_dir )
                                       &walkon_item, &current_boost ) )
       return false;
     new_pos.z( static_cast<s8>( newz ) );
-    remote_containers_.clear();
 
     if ( !CheckPushthrough() )
       return false;

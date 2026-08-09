@@ -43,6 +43,14 @@
            insured ones - came back in reverse order, because the whole pack was emptied
            and those items were then put back one at a time. They are no longer taken out
            of it at all, so they keep the order and the container slot they already had.
+    Fixed: A container opened with uo::SendOpenSpecialContainer(), a bank box for instance,
+           stayed reachable after the character was moved by anything other than walking. A
+           gate, a teleport spell, being carried by a boat, a step taken while editing a
+           house and logging back in all left it open and usable from wherever the character
+           ended up - including from another realm, since such a container is also granted
+           line of sight - until they took a single walking step. It now stops being
+           reachable whenever the character's position changes, which is what the core
+           always intended.
 08-10-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone
