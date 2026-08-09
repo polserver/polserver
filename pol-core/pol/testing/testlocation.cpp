@@ -209,6 +209,27 @@ void location_test()
     cont->destroy();
   }
 
+  // What a held item leaves behind in the position field, which is nothing at all. Every home that
+  // takes an item in clears it, so the field is either a real world position or empty -- there is
+  // no third case where it holds a coordinate belonging to somewhere the item no longer is. The
+  // integrity sweep asserts this across a whole world; here it is on the one path a four-second run
+  // can reach.
+  {
+    auto* cont = container_in_world( spot );
+    auto* item = item_in_world( ITEM_OBJTYPE, spot2 );
+
+    UnitTest( [&]() { return item->pos(); }, spot2,
+              "an item in the world stands at coordinates of its own" );
+    UnitTest( [&]()
+              { return relocate( *item, Items::InContainer{ cont, Core::Pos2d( 1, 1 ), 0 } ); },
+              true, "relocate into a container succeeds" );
+    UnitTest( [&]() { return item->pos(); }, Core::Pos4d(),
+              "and the ones it used to stand at are cleared rather than left behind" );
+
+    item->destroy();
+    cont->destroy();
+  }
+
   // A realm survives the walk up to an owner where a position does not: a contained item has no
   // coordinates of its own, but it is still in whichever world the thing holding it stands in, and
   // it can be dropped there.
@@ -254,6 +275,8 @@ void location_test()
               "a storage root is in no world at all" );
     UnitTest( [&]() { return item->stored_realm() == nullptr; }, true,
               "and carries no realm of its own either" );
+    UnitTest( [&]() { return item->pos(); }, Core::Pos4d(),
+              "nor any of the coordinates it stood at before being filed" );
 
     // Which is why there is no bare way back: something held by another thing has no coordinates to
     // return to, so entering the world means naming where, and place_at is the one that asks.

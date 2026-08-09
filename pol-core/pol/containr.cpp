@@ -213,10 +213,11 @@ void UContainer::add( Items::Item* item )
     POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
-  // The cell lives in the item's Location, which is where local_position() reads it from, so only
-  // the realm is written here. Zero rather than left alone, for the reason the cursor gives two
-  // screens away: a leftover world coordinate makes an item answer questions about where it is,
-  // and a plausible wrong answer is worse than an obviously empty one.
+  // Nothing of where the item was survives being put away. The cell it sits in now lives in its
+  // Location, which is where local_position() reads it from, and the world it can still be reached
+  // in is this container's to answer -- so the field is left holding neither. Emptied rather than
+  // left alone: a leftover coordinate makes an item answer questions about where it is, and a
+  // plausible wrong answer is worse than an obviously absent one.
   item->setposition( Pos4d() );
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );

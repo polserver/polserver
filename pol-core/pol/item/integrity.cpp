@@ -87,18 +87,22 @@ void check_forward( Sweep& sweep, Item& item )
 {
   const Location loc = item.location();
 
-  // A realm is part of a position, so only something actually placed has one of its own. Whatever
-  // is held by something else used to carry a borrowed copy of its holder's, kept true by a cascade
-  // that nothing ever read; what replaced that cascade is the stronger claim that the copy is not
-  // there at all. Detached is deliberately not on this list -- it is the state an item passes
-  // through mid-move, and its position is kept precisely so a refused move can be rolled back.
+  // Coordinates are measured against a world, so only something actually placed has a position of
+  // its own. Whatever is held by something else used to keep a stale one in the field anyway: a
+  // gump cell for something in a container, the wearer's coordinates frozen at the moment it was
+  // equipped, a borrowed realm kept true by a cascade nothing ever read. Each of those was a second
+  // answer to a question its holder already answers, and this is the claim that replaced all of
+  // them at once -- the field holds nothing. Detached is deliberately not on this list, because it
+  // is not one state: an item on its way between two homes is Detached, and so is a newborn one,
+  // and so are the containers a mobile keeps for trading and vending, which are held by nothing and
+  // never will be. There is no single thing the field ought to say for all three.
   const bool held_by_something = loc.holds<InContainer>() || loc.holds<OnCorpse>() ||
                                  loc.holds<Equipped>() || loc.holds<OnCursor>() ||
                                  loc.holds<InStorage>();
-  if ( held_by_something && item.stored_realm() != nullptr )
+  if ( held_by_something && item.pos() != Core::Pos4d() )
   {
-    sweep.note( item, fmt::format( "is held by something else but still claims to be in realm {}",
-                                   item.stored_realm()->name() ) );
+    sweep.note( item, fmt::format( "is held by something else but still carries the position {}",
+                                   item.pos() ) );
   }
 
   if ( const auto* in_world = loc.get_if<InWorld>(); in_world != nullptr )
