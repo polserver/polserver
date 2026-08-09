@@ -2592,7 +2592,7 @@ BObjectImp* UOExecutorModule::mf_SendHousingTool()
   if ( house->editing )
     return new BError( "House currently being customized." );
 
-  if ( chr->realm()->find_supporting_multi( chr->pos3d() ) != house )
+  if ( chr->stored_realm()->find_supporting_multi( chr->pos3d() ) != house )
     return new BError( "You must be inside the house to customize it." );
 
   chr->client->gd->custom_house_serial = house->serial;

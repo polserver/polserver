@@ -64,7 +64,17 @@ public:
   u16 x() const;
   u16 y() const;
   s8 z() const;
-  Realms::Realm* realm() const;
+
+  /**
+   * The realm of this object's own stored position -- the world it is itself placed in.
+   *
+   * A realm is a property of a position, not of an object: it is what coordinates are measured
+   * against, which is why Pos4d holds one and deliberately offers no way to change it. So this is
+   * only meaningful for something that is actually placed, and it is null for anything that is not.
+   * Callers asking which world an object is *in*, counting whoever holds it, want
+   * UObject::toplevel_realm() instead.
+   */
+  Realms::Realm* stored_realm() const;
 
 private:
   Pos4d position;
@@ -162,7 +172,7 @@ inline s8 ULWObject::z() const
 {
   return position.z();
 }
-inline Realms::Realm* ULWObject::realm() const
+inline Realms::Realm* ULWObject::stored_realm() const
 {
   return position.realm();
 }

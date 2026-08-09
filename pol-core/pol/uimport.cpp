@@ -91,7 +91,7 @@ void read_character( Clib::ConfigElem& elem )
     chr->readProperties( elem );
 
     // Allows the realm to recognize this char as offline
-    chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
 
     chr->clear_dirty();
 
@@ -182,8 +182,6 @@ Items::Item* read_item( Clib::ConfigElem& elem )
       throw std::runtime_error( "Item::create failed!" );
     return nullptr;
   }
-  item->setposition( Pos4d( item->pos().xyz(), find_realm( "britannia" ) ) );
-
   item->readProperties( elem );
 
   item->clear_dirty();

@@ -703,7 +703,7 @@ exported function realm_switch_drop_item_fail_1( resources )
 
     // Check container contents realm
     if ( content.realm != realm )
-      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+      return ret_error( $"Incorrect content.realm: expected {realm} got {content.realm}" );
     endif
 
     // Move character to shadow realm
@@ -729,7 +729,7 @@ exported function realm_switch_drop_item_fail_1( resources )
 
     // Check container contents realm (undo sends back to base realm)
     if ( content.realm != realm )
-      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+      return ret_error( $"Incorrect content.realm: expected {realm} got {content.realm}" );
     endif
 
     // Character should not see item
@@ -1660,7 +1660,7 @@ function realm_switch_delete_realm_drop_test_helper( resources, should_drop_too_
 
     // Check container contents realm
     if ( content.realm != shadow_realm )
-      return ret_error( $"Incorrect content.realm: expected {shadow_realm} got {container.realm}" );
+      return ret_error( $"Incorrect content.realm: expected {shadow_realm} got {content.realm}" );
     endif
 
     // Move back to britannia
@@ -1693,7 +1693,7 @@ function realm_switch_delete_realm_drop_test_helper( resources, should_drop_too_
 
     // Check container contents realm
     if ( content.realm != realm )
-      return ret_error( $"Incorrect content.realm: expected {realm} got {container.realm}" );
+      return ret_error( $"Incorrect content.realm: expected {realm} got {content.realm}" );
     endif
 
     return 1;

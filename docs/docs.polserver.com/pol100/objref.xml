@@ -37,7 +37,7 @@
 <member mname="x" type="Integer" access="r/o">x coordinate</member>
 <member mname="y" type="Integer" access="r/o">y coordinate</member>
 <member mname="z" type="Integer" access="r/o">z coordinate</member>
-<member mname="realm" type="String" access="r/o">case-sensitive name of the realm</member>
+<member mname="realm" type="String" access="r/o">case-sensitive name of the realm the object can be reached in. For an item held by something else - in a container, worn, or on a cursor - that is the realm of whatever ultimately holds it. Returns an error for an object that is in no realm at all, such as one filed in a storage area.</member>
 <member mname="name" type="String" access="r/w">name string (for items use .desc for single-click text, this does not include suffix or formatting)</member>
 <member mname="objtype" type="Integer" access="r/o">object type as defined in itemdesc.cfg</member>
 <member mname="graphic" type="Integer" access="r/w">art id number</member>

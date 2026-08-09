@@ -208,9 +208,9 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "null cursor holder" );
     if ( on_cursor->holder->has_gotten_item() )
       return reject( item, from, to, "that character is already holding something" );
-    // The return ticket records a realm by name, so an item that has never had one cannot
+    // The return ticket records a realm by name, so an item with no world to name cannot
     // describe where it should go back to.
-    if ( item.realm() == nullptr )
+    if ( item.toplevel_realm() == nullptr )
       return reject( item, from, to, "the item has no realm to return to" );
     // Picking an item up is a promise that it can be put down again, and the ticket has one
     // alternative per home it knows how to undo. A storage root is the one that would hurt: the
@@ -223,7 +223,7 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "there is nowhere this could be returned to" );
   }
 
-  if ( to.holds<InWorld>() && item.realm() == nullptr )
+  if ( to.holds<InWorld>() && item.stored_realm() == nullptr )
     return reject( item, from, to, "the item has no realm" );
 
   if ( const auto* in_cont = to.get_if<InContainer>() )
@@ -319,7 +319,7 @@ void attach_to_cursor( Item& item, Mobile::Character& holder, const Core::Gotten
   holder.gotten_item( ticket );
   item.inuse( true );
   item.gotten_by( &holder );
-  item.setposition( Core::Pos4d( 0, 0, 0, item.realm() ) );  // don't let a boat carry it around
+  item.setposition( Core::Pos4d() );  // don't let a boat carry it around
 }
 
 /// File the item in whichever registry the target names. The alternatives that name none --
@@ -469,23 +469,6 @@ bool relocate( Item& item, Location to )
   return true;
 }
 
-/**
- * A container's contents borrow their realm from whatever holds them, and nothing re-derives it, so
- * moving the container across realms leaves them behind. Matching the hand-written copies this
- * replaces, it reaches the immediate contents and no further -- nested containers keep the old
- * realm, which is a wider change than this one.
- */
-namespace
-{
-void push_realm_to_contents( Item& item, Realms::Realm* realm )
-{
-  if ( !item.isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-    return;
-  auto& cont = static_cast<Core::UContainer&>( item );
-  cont.for_each_item( Core::setrealm, static_cast<void*>( realm ) );
-}
-}  // namespace
-
 bool place_at( Item& item, const Core::Pos4d& newpos )
 {
   const Core::Pos4d oldpos = item.pos();
@@ -499,10 +482,6 @@ bool place_at( Item& item, const Core::Pos4d& newpos )
     return false;
   }
 
-  // Both ways in have to carry it: an item dropped on the ground from a cursor is entering the
-  // world, not moving within it, and it can still be changing realm as it lands.
-  const bool changing_realm = oldpos.realm() != newpos.realm();
-
   if ( !item.location().holds<InWorld>() )
   {
     // relocate() promises that a refusal leaves the item exactly as it was, and the position is
@@ -514,8 +493,6 @@ bool place_at( Item& item, const Core::Pos4d& newpos )
       item.setposition( oldpos );
       return false;
     }
-    if ( changing_realm )
-      push_realm_to_contents( item, newpos.realm() );
     return true;
   }
 
@@ -537,9 +514,6 @@ bool place_at( Item& item, const Core::Pos4d& newpos )
 
   item.setposition( newpos );
   Core::MoveItemWorldPosition( oldpos, &item );
-
-  if ( changing_realm )
-    push_realm_to_contents( item, newpos.realm() );
 
   if ( changing_multi && newmulti != nullptr )
     newmulti->register_object( &item );

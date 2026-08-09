@@ -202,6 +202,16 @@ public:
    */
   virtual bool has_world_position() const;
 
+  /**
+   * The world this object is in, counting whoever holds it -- null when nothing placed does.
+   *
+   * A realm survives the walk up to an owner where a position does not: an item in a backpack has
+   * no coordinates of its own, but it is still in whichever world its holder is standing in, and it
+   * can be dropped there. Anything asking which realm an object can be reached in wants this, not
+   * stored_realm(); the two differ exactly for the objects that have no position of their own.
+   */
+  virtual Realms::Realm* toplevel_realm() const;
+
   virtual u8 visible_size() const;
   bool in_range( const UObject* other, u16 range ) const;
   bool in_range( const Pos4d& other, u16 range ) const;

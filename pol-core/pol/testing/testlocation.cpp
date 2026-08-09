@@ -65,7 +65,7 @@ struct Snapshot
         container( item->container() ),
         layer( item->location().layer() ),
         slot( item->slot_index() ),
-        zone_entries( occurrences( item->realm(), item->pos2d(), item ) )
+        zone_entries( occurrences( item->stored_realm(), item->pos2d(), item ) )
   {
   }
 
@@ -141,8 +141,8 @@ void location_test()
               "the item left its world zone" );
     UnitTest( [&]() { return cont->count(); }, 1u, "the container holds it" );
 
-    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
-              "relocate back to the world succeeds" );
+    UnitTest( [&]() { return Items::place_at( *item, spot ); }, true,
+              "place_at back into the world succeeds" );
     UnitTest( [&]() { return cont->count(); }, 0u, "the container released it" );
     UnitTest( [&]() { return occurrences( realm, item->pos2d(), item ); }, size_t( 1 ),
               "the item is back in exactly one world zone" );
@@ -172,8 +172,8 @@ void location_test()
               "and keeps reporting it when the position field says otherwise" );
 
     // Homes with no gump answer with a default rather than whatever was last there.
-    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
-              "relocate back to the world succeeds" );
+    UnitTest( [&]() { return Items::place_at( *item, spot ); }, true,
+              "place_at back into the world succeeds" );
     UnitTest( [&]() { return item->location().grid(); }, Core::Pos2d(),
               "a home with no gump has no cell" );
 
@@ -200,13 +200,74 @@ void location_test()
     UnitTest( [&]() { return item->local_position(); }, Core::Pos3d( cell, 0 ),
               "and keeps reporting it when the position field says otherwise" );
 
-    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
-              "relocate back to the world succeeds" );
+    UnitTest( [&]() { return Items::place_at( *item, Core::Pos4d( 99, 99, 0, realm ) ); }, true,
+              "place_at back into the world succeeds" );
     UnitTest( [&]() { return item->local_position(); }, Core::Pos3d( 99, 99, 0 ),
               "an item in the world reports its own coordinates instead" );
 
     item->destroy();
     cont->destroy();
+  }
+
+  // A realm survives the walk up to an owner where a position does not: a contained item has no
+  // coordinates of its own, but it is still in whichever world the thing holding it stands in, and
+  // it can be dropped there.
+  {
+    auto* other_realm = Core::gamestate.Realms[1];
+    auto* outer = container_in_world( spot );
+    auto* inner = static_cast<Core::UContainer*>( Items::Item::create( CONTAINER_OBJTYPE ) );
+    (void)relocate( *inner, Items::InContainer{ outer, Core::Pos2d( 1, 1 ), 0 } );
+    auto* item = Items::Item::create( ITEM_OBJTYPE );
+    (void)relocate( *item, Items::InContainer{ inner, Core::Pos2d( 2, 2 ), 0 } );
+
+    UnitTest( [&]() { return outer->toplevel_realm() == realm; }, true,
+              "an item in the world is in its own realm" );
+    UnitTest( [&]() { return item->toplevel_realm() == realm; }, true,
+              "and so is one nested two containers deep inside it" );
+
+    // Both copies of the borrowed realm are made to lie. Only an answer that is walked rather than
+    // read off a field can still be right, which is the entire difference between the two.
+    item->setposition( Core::Pos4d( 0, 0, 0, other_realm ) );
+    inner->setposition( Core::Pos4d( 0, 0, 0, other_realm ) );
+    UnitTest( [&]() { return item->toplevel_realm() == realm; }, true,
+              "which it still reports when both borrowed copies say otherwise" );
+    UnitTest( [&]() { return item->stored_realm() == other_realm; }, true,
+              "while stored_realm() goes on answering the field it names" );
+
+    item->destroy();
+    inner->destroy();
+    outer->destroy();
+  }
+
+  // Nothing holds a storage root, so there is no world it can be reached in. That is a different
+  // answer from naming a realm, and it is the one case where the two accessors have to disagree.
+  {
+    Core::StorageArea area( "unittest realm" );
+    auto* item = item_in_world( ITEM_OBJTYPE, spot );
+    const std::string name = item->name();
+
+    UnitTest( [&]() { return item->toplevel_realm() == realm; }, true,
+              "an item in the world is reachable in that world" );
+    UnitTest( [&]() { return relocate( *item, Items::InStorage{ &area, name } ); }, true,
+              "relocate into a storage area succeeds" );
+    UnitTest( [&]() { return item->toplevel_realm() == nullptr; }, true,
+              "a storage root is in no world at all" );
+    UnitTest( [&]() { return item->stored_realm() == nullptr; }, true,
+              "and carries no realm of its own either" );
+
+    // Which is why there is no bare way back: something held by another thing has no coordinates to
+    // return to, so entering the world means naming where, and place_at is the one that asks.
+    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, false,
+              "relocate alone cannot put it back in the world" );
+
+    item->destroy();
+  }
+
+  {
+    auto* item = Items::Item::create( ITEM_OBJTYPE );
+    UnitTest( [&]() { return item->toplevel_realm() == nullptr; }, true,
+              "neither is an item that belongs to nothing yet" );
+    item->destroy();
   }
 
   // destroying unlinks first, which is what the container-move paths get wrong: the container's
@@ -245,8 +306,8 @@ void location_test()
     UnitTest( [&]() { return relocate( *item, Items::InStorage{ &area, "not its name" } ); }, false,
               "a storage key that is not the item's name is rejected" );
 
-    UnitTest( [&]() { return relocate( *item, Items::InWorld{} ); }, true,
-              "relocate out of storage succeeds" );
+    UnitTest( [&]() { return Items::place_at( *item, spot ); }, true,
+              "place_at out of storage succeeds" );
     UnitTest( [&]() { return area.find_root_item( name ) == nullptr; }, true,
               "leaving storage unlinks it from the area" );
 

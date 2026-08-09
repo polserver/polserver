@@ -217,7 +217,7 @@ void UContainer::add( Items::Item* item )
   // the realm is written here. Zero rather than left alone, for the reason the cursor gives two
   // screens away: a leftover world coordinate makes an item answer questions about where it is,
   // and a plausible wrong answer is worse than an obviously empty one.
-  item->setposition( Pos4d( 0, 0, 0, realm() ) );  // TODO POS realm should be a nullptr
+  item->setposition( Pos4d() );
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
 

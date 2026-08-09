@@ -23,6 +23,77 @@ program chartests()
   return 1;
 endprogram
 
+// An equipped item used to keep whatever coordinates its wearer happened to be standing on at the
+// moment it was equipped, frozen from then on. Asserting after a move is what makes this test say
+// anything: right after equipping, the snapshot and the answer agree.
+exported function equipped_item_follows_wearer()
+  var item := char.backpack;
+  if ( !item )
+    return ret_error( "The character has no backpack to check" );
+  endif
+
+  var home_x := char.x;
+  var home_y := char.y;
+  var res := MoveObjectToLocation( char, home_x + 3, home_y + 2, char.z, char.realm,
+                                   MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Failed to move the character: {res}" );
+  endif
+
+  var result := 1;
+  if ( item.x != char.x || item.y != char.y || item.z != char.z )
+    result := ret_error( $"The worn item stayed at {item.x},{item.y},{item.z} while its wearer moved to {char.x},{char.y},{char.z}" );
+  endif
+
+  res := MoveObjectToLocation( char, home_x, home_y, char.z, char.realm,
+                               MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Failed to move the character back: {res}" );
+  endif
+  if ( result == 1 && ( item.x != home_x || item.y != home_y ) )
+    result := ret_error( $"The worn item did not come back: {item.x},{item.y}" );
+  endif
+
+  return result;
+endfunction
+
+// Carried items used to be handed their owner's realm at every crossing, by a walk over the worn
+// items and everything nested inside them. They are asked for it now instead, so what this really
+// checks is that the answer survived the walk being deleted.
+exported function carried_items_follow_realm()
+  clean_backpack();
+  var item := CreateItemInContainer( char.backpack, 0xf3f, 1 );
+  if ( !item )
+    return ret_error( $"Failed to create the carried item: {item}" );
+  endif
+
+  var home := char.realm;
+  var res := MoveObjectToLocation( char, 1000, 1000, 0, "britannia2", MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Failed to move the character across realms: {res}" );
+  endif
+
+  var result := 1;
+  if ( char.realm != "britannia2" )
+    result := ret_error( $"The character did not change realm: {char.realm}" );
+  elseif ( item.realm != "britannia2" )
+    result := ret_error( $"The carried item was left behind in realm {item.realm}" );
+  elseif ( char.backpack.realm != "britannia2" )
+    result := ret_error( $"The backpack was left behind in realm {char.backpack.realm}" );
+  endif
+
+  res := MoveObjectToLocation( char, 100, 100, 0, home, MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"Failed to move the character back: {res}" );
+  endif
+  if ( result == 1 && item.realm != home )
+    result := ret_error( $"The carried item did not come back: {item.realm}" );
+  endif
+
+  clean_backpack();
+  return result;
+endfunction
+
 function clean_backpack()
   var items := EnumerateItemsInContainer( char.backpack, ENUMERATE_ROOT_ONLY );
   foreach item in items

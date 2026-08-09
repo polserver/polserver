@@ -87,14 +87,28 @@ void check_forward( Sweep& sweep, Item& item )
 {
   const Location loc = item.location();
 
+  // A realm is part of a position, so only something actually placed has one of its own. Whatever
+  // is held by something else used to carry a borrowed copy of its holder's, kept true by a cascade
+  // that nothing ever read; what replaced that cascade is the stronger claim that the copy is not
+  // there at all. Detached is deliberately not on this list -- it is the state an item passes
+  // through mid-move, and its position is kept precisely so a refused move can be rolled back.
+  const bool held_by_something = loc.holds<InContainer>() || loc.holds<OnCorpse>() ||
+                                 loc.holds<Equipped>() || loc.holds<OnCursor>() ||
+                                 loc.holds<InStorage>();
+  if ( held_by_something && item.stored_realm() != nullptr )
+  {
+    sweep.note( item, fmt::format( "is held by something else but still claims to be in realm {}",
+                                   item.stored_realm()->name() ) );
+  }
+
   if ( const auto* in_world = loc.get_if<InWorld>(); in_world != nullptr )
   {
-    if ( item.realm() == nullptr )
+    if ( item.stored_realm() == nullptr )
     {
       sweep.note( item, "in the world with no realm" );
       return;
     }
-    const Core::ZoneItems& zone = item.realm()->getzone( item.pos().xy() ).items;
+    const Core::ZoneItems& zone = item.stored_realm()->getzone( item.pos().xy() ).items;
     if ( std::find( zone.begin(), zone.end(), &item ) == zone.end() )
       sweep.note( item, fmt::format( "not in the zone for its position {}", item.pos() ) );
   }

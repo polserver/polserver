@@ -412,7 +412,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
   case PKTBI_BF::TYPE_BOAT_MOVE:
   {
     Mobile::Character* chr = client->chr;
-    multi = chr->realm()->find_supporting_multi( client->chr->pos3d() );
+    multi = chr->stored_realm()->find_supporting_multi( client->chr->pos3d() );
 
     if ( multi == nullptr )
     {
@@ -496,7 +496,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         outMsg->Write<u32>( member->serial_ext );
         outMsg->WriteFlipped<u16>( member->x() );
         outMsg->WriteFlipped<u16>( member->y() );
-        outMsg->Write<u8>( member->realm()->getUOMapID() );
+        outMsg->Write<u8>( member->stored_realm()->getUOMapID() );
       }
 
       if ( outMsg->offset != 4 )  // only send if there is an update
@@ -536,7 +536,7 @@ void handle_krrios_packet( Client* client, PKTBI_F0* msg )
         {
           outMsg->WriteFlipped<u16>( member->x() );
           outMsg->WriteFlipped<u16>( member->y() );
-          outMsg->Write<u8>( member->realm()->getUOMapID() );
+          outMsg->Write<u8>( member->stored_realm()->getUOMapID() );
 
           if ( member->dead() )
             outMsg->Write<u8>( 0U );

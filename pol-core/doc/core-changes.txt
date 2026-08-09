@@ -1,5 +1,22 @@
 -- POL100.3.0 --
 08-10-2026 Nando:
+    Changed: item.x, item.y and item.z on an equipped item now report where its wearer is
+             standing, and follow that character as they move. They used to report the
+             coordinates the wearer happened to be standing on at the moment the item was
+             equipped, frozen from then on - so a worn sword reported where you put it on
+             rather than where you are. The saved X/Y/Z for equipped items changes to
+             match; nothing reads it back, because equipping recomputes the position when
+             the world is loaded.
+    Changed: item.realm now answers with the realm the item can be reached in, rather than
+             with a copy of its holder's realm kept on the item itself. An item in a
+             container, worn, or on a cursor answers exactly as before - the realm of
+             whatever ultimately holds it. What changes is an item that is in no realm
+             at all: one filed in a storage area used to answer "britannia", a value
+             invented when it was created and never meaningful, and now returns an
+             error. The same applies to uo::CheckLineOfSight(), uo::CheckLosAt(),
+             uo::PlayMovingEffect(), uo::PlayMovingEffectEx() and
+             cliloc::PrintTextAbovePrivate() when handed such an object; passing one an
+             item held by a character is unaffected.
     Changed: uo::ListMobilesInLineOfSight() called on an item a character is carrying or
              wearing now looks out from that character. It previously looked out from the
              character's equipment as if that were a separate object standing in the same

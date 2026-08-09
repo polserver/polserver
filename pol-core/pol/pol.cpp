@@ -206,8 +206,8 @@ void send_startup( Network::Client* client )
   msg->Write<u8>( 0x7Fu );
   msg->offset++;     // u8 unk22
   msg->offset += 4;  // u16 map_startx, map_starty
-  msg->WriteFlipped<u16>( client->chr->realm()->width() );
-  msg->WriteFlipped<u16>( client->chr->realm()->height() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->width() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->height() );
   msg->offset += 6;  // u8 unk31, unk32, unk33, unk34, unk35, unk36
   msg.Send( client );
 }
@@ -246,8 +246,8 @@ void start_client_char( Network::Client* client )
   Multi::UMulti* supporting_multi;
   Items::Item* walkon;
   short newz;
-  if ( client->chr->realm()->walkheight( client->chr, client->chr->pos2d(), client->chr->z(), &newz,
-                                         &supporting_multi, &walkon ) )
+  if ( client->chr->stored_realm()->walkheight( client->chr, client->chr->pos2d(), client->chr->z(),
+                                                &newz, &supporting_multi, &walkon ) )
   {
     client->chr->setposition( Pos4d( client->chr->pos() ).z( static_cast<s8>( newz ) ) );
     if ( supporting_multi != nullptr )
@@ -276,7 +276,7 @@ void start_client_char( Network::Client* client )
 
   send_startup( client );
 
-  send_realm_change( client, client->chr->realm() );
+  send_realm_change( client, client->chr->stored_realm() );
   send_map_difs( client );
 
   if ( settingsManager.ssopt.core_sends_season )
@@ -285,11 +285,11 @@ void start_client_char( Network::Client* client )
   client->chr->lastpos = Pos4d( 0, 0, 0, nullptr );
 
   client->gd->music_region =
-      gamestate.musicdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
+      gamestate.musicdef->getregion( Pos4d( 0, 0, 0, client->chr->stored_realm() ) );
   client->gd->justice_region =
-      gamestate.justicedef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
+      gamestate.justicedef->getregion( Pos4d( 0, 0, 0, client->chr->stored_realm() ) );
   client->gd->weather_region =
-      gamestate.weatherdef->getregion( Pos4d( 0, 0, 0, client->chr->realm() ) );
+      gamestate.weatherdef->getregion( Pos4d( 0, 0, 0, client->chr->stored_realm() ) );
 
   send_goxyz( client, client->chr );
   client->chr->check_region_changes();

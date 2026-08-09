@@ -162,14 +162,14 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
       if ( ( remote_container != nullptr ) && remote )
         return true;
     }
-    if ( att.realm() != tgt.realm() )
+    if ( att.stored_realm() != tgt.stored_realm() )
       return false;
     if ( chr.ignores_line_of_sight() )
       return true;
   }
   else
   {
-    if ( att.realm() != tgt.realm() )
+    if ( att.stored_realm() != tgt.stored_realm() )
       return false;
   }
   // due to the nature of los check the same x,y coordinates get checked, cache the last used
@@ -180,7 +180,7 @@ bool Realm::has_los( const Core::ULWObject& att, const Core::ULWObject& tgt ) co
   cache.dyn_items.clear();
   // pre filter dynitems
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      Core::Range2d( att.pos(), tgt.pos() ), att.realm(),
+      Core::Range2d( att.pos(), tgt.pos() ), att.stored_realm(),
       [&]( Items::Item* item )
       {
         u32 flags = Plib::tile_flags( item->graphic );

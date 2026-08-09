@@ -35,16 +35,16 @@ Items::Item* find_legal_singleclick_item( Mobile::Character* chr, u32 serial )
   // search equipment of nearby mobiles
   const Vec2d range = Vec2d( chr->los_size(), chr->los_size() );
   Range2d gridarea( zone_convert( chr->pos() - range ), zone_convert( chr->pos() + range ),
-                    chr->realm() );
+                    chr->stored_realm() );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& ochr : chr->realm()->getzone_grid( gpos ).characters )
+    for ( const auto& ochr : chr->stored_realm()->getzone_grid( gpos ).characters )
     {
       Items::Item* _item = ochr->find_wornitem( serial );
       if ( _item != nullptr )
         return _item;
     }
-    for ( const auto& ochr : chr->realm()->getzone_grid( gpos ).npcs )
+    for ( const auto& ochr : chr->stored_realm()->getzone_grid( gpos ).npcs )
     {
       Items::Item* _item = ochr->find_wornitem( serial );
       if ( _item != nullptr )

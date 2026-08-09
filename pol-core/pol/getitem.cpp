@@ -117,7 +117,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *( item->toplevel_owner() ) ) )
+  if ( !client->chr->stored_realm()->has_los( *client->chr, *( item->toplevel_owner() ) ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return;
@@ -375,7 +375,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
     // owner_serial and cell stay empty and the backpack gets first refusal.
     try_container = true;
     ground = chr->pos().xyz();
-    realm = chr->realm();
+    realm = chr->stored_realm();
   }
 
   // A corpse layer is returned to the same way an ordinary container is: the backpack is still
@@ -447,7 +447,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
       }
     }
     ground = chr->pos3d();
-    realm = chr->realm();
+    realm = chr->stored_realm();
   }
 
   // Only an item that was lying in the world has a spot of its own left to go back to. Every other
@@ -459,7 +459,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
   if ( Core::settingsManager.ssopt.undo_get_item_drop_here )
   {
     ground = chr->pos3d();
-    realm = chr->realm();
+    realm = chr->stored_realm();
   }
   else if ( from_ground != nullptr && !chr->can_moveanydist() &&
             Core::settingsManager.ssopt.undo_get_item_enable_range_check )
@@ -470,7 +470,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
                          Core::settingsManager.ssopt.default_accessible_range ) )
     {
       ground = chr->pos3d();
-      realm = chr->realm();
+      realm = chr->stored_realm();
     }
   }
 
@@ -484,7 +484,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
     // If the realm is not found, set it to the position of the character.
     if ( realm == nullptr )
     {
-      realm = chr->realm();
+      realm = chr->stored_realm();
       ground = chr->pos3d();
     }
   }
@@ -508,7 +508,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
   // automatically place it back at old `x,y` location. The item is in
   // `britannia`, but character is still in `shadow-britannia`, so the item will
   // appear on the ground in the client.
-  if ( chr->realm() != realm )
+  if ( chr->stored_realm() != realm )
   {
     send_remove_object( chr->client, _item );
   }

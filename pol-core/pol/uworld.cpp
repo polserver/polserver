@@ -30,11 +30,11 @@ namespace Pol::Core
 {
 void add_item_to_world( Items::Item* item )
 {
-  Zone& zone = item->realm()->getzone( item->pos().xy() );
+  Zone& zone = item->stored_realm()->getzone( item->pos().xy() );
 
   passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
-  item->realm()->add_toplevel_item( *item );
+  item->stored_realm()->add_toplevel_item( *item );
   zone.items.push_back( item );
 }
 
@@ -45,7 +45,7 @@ void remove_item_from_world( Items::Item* item )
 
   unregister_from_supporting_multi( item );
 
-  Zone& zone = item->realm()->getzone( item->pos().xy() );
+  Zone& zone = item->stored_realm()->getzone( item->pos().xy() );
 
   ZoneItems::iterator itr = std::find( zone.items.begin(), zone.items.end(), item );
   if ( itr == zone.items.end() )
@@ -58,32 +58,32 @@ void remove_item_from_world( Items::Item* item )
     passert( itr != zone.items.end() );
   }
 
-  item->realm()->remove_toplevel_item( *item );
+  item->stored_realm()->remove_toplevel_item( *item );
   zone.items.erase( itr );
 }
 
 void add_multi_to_world( Multi::UMulti* multi )
 {
-  Zone& zone = multi->realm()->getzone( multi->pos2d() );
+  Zone& zone = multi->stored_realm()->getzone( multi->pos2d() );
   zone.multis.push_back( multi );
-  multi->realm()->add_multi( *multi );
+  multi->stored_realm()->add_multi( *multi );
 }
 
 void remove_multi_from_world( Multi::UMulti* multi )
 {
-  Zone& zone = multi->realm()->getzone( multi->pos2d() );
+  Zone& zone = multi->stored_realm()->getzone( multi->pos2d() );
   ZoneMultis::iterator itr = std::find( zone.multis.begin(), zone.multis.end(), multi );
 
   passert( itr != zone.multis.end() );
 
-  multi->realm()->remove_multi( *multi );
+  multi->stored_realm()->remove_multi( *multi );
   zone.multis.erase( itr );
 }
 
 void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& oldpos )
 {
   Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
-  Zone& newzone = multi->realm()->getzone( multi->pos2d() );
+  Zone& newzone = multi->stored_realm()->getzone( multi->pos2d() );
 
   if ( &oldzone != &newzone )
   {
@@ -94,10 +94,10 @@ void move_multi_in_world( Multi::UMulti* multi, const Core::Pos4d& oldpos )
     newzone.multis.push_back( multi );
   }
 
-  if ( multi->realm() != oldpos.realm() )
+  if ( multi->stored_realm() != oldpos.realm() )
   {
     oldpos.realm()->remove_multi( *multi );
-    multi->realm()->add_multi( *multi );
+    multi->stored_realm()->add_multi( *multi );
   }
 }
 
@@ -122,7 +122,7 @@ int get_mobile_count()
 
 void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = chr->realm()->getzone( chr->pos().xy() );
+  Zone& zone = chr->stored_realm()->getzone( chr->pos().xy() );
 
   auto set_pos = [&]( ZoneCharacters& set )
   {
@@ -135,7 +135,7 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
   else
     set_pos( zone.characters );
 
-  chr->realm()->add_mobile( *chr, reason );
+  chr->stored_realm()->add_mobile( *chr, reason );
 }
 
 // Function for reporting the whereabouts of chars which are not in their expected zone
@@ -144,7 +144,7 @@ static void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChan
 
 void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReason reason )
 {
-  Zone& zone = chr->realm()->getzone( chr->pos().xy() );
+  Zone& zone = chr->stored_realm()->getzone( chr->pos().xy() );
 
   auto clear_pos = [&]( ZoneCharacters& set )
   {
@@ -155,7 +155,7 @@ void ClrCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
           chr, reason );  // Uh-oh, char was not in the expected zone. Find it and report.
       passert( itr != set.end() );
     }
-    chr->realm()->remove_mobile( *chr, reason );
+    chr->stored_realm()->remove_mobile( *chr, reason );
     set.erase( itr );
   };
 
@@ -172,7 +172,7 @@ void MoveCharacterWorldPosition( const Core::Pos4d& oldpos, Mobile::Character* c
   if ( chr->logged_in() )
   {
     Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
-    Zone& newzone = chr->realm()->getzone( chr->pos2d() );
+    Zone& newzone = chr->stored_realm()->getzone( chr->pos2d() );
     if ( &oldzone != &newzone )
     {
       auto move_pos = [&]( ZoneCharacters& oldset, ZoneCharacters& newset )
@@ -196,17 +196,17 @@ void MoveCharacterWorldPosition( const Core::Pos4d& oldpos, Mobile::Character* c
   }
 
   // Regardless of online or not, tell the realms that we've left
-  if ( chr->realm() != oldpos.realm() )
+  if ( chr->stored_realm() != oldpos.realm() )
   {
     oldpos.realm()->remove_mobile( *chr, Realms::WorldChangeReason::Moved );
-    chr->realm()->add_mobile( *chr, Realms::WorldChangeReason::Moved );
+    chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::Moved );
   }
 }
 
 void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
 {
   Zone& oldzone = oldpos.realm()->getzone( oldpos.xy() );
-  Zone& newzone = item->realm()->getzone( item->pos().xy() );
+  Zone& newzone = item->stored_realm()->getzone( item->pos().xy() );
 
   if ( &oldzone != &newzone )
   {
@@ -227,10 +227,10 @@ void MoveItemWorldPosition( const Core::Pos4d& oldpos, Items::Item* item )
     newzone.items.push_back( item );
   }
 
-  if ( oldpos.realm() != item->realm() )
+  if ( oldpos.realm() != item->stored_realm() )
   {
     oldpos.realm()->remove_toplevel_item( *item );
-    item->realm()->add_toplevel_item( *item );
+    item->stored_realm()->add_toplevel_item( *item );
     // drop opponents when realm changes
     item->clear_opponents( true );
   }
@@ -259,17 +259,17 @@ void find_missing_char_in_zone( Mobile::Character* chr, Realms::WorldChangeReaso
       msgreason, chr->serial, chr->serial_ext, chr->pos() );
 
   bool is_npc = chr->isa( Core::UOBJ_CLASS::CLASS_NPC );
-  for ( const auto& p : chr->realm()->gridarea() )
+  for ( const auto& p : chr->stored_realm()->gridarea() )
   {
     bool found = false;
     if ( is_npc )
     {
-      auto _z = chr->realm()->getzone_grid( p ).npcs;
+      auto _z = chr->stored_realm()->getzone_grid( p ).npcs;
       found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
     else
     {
-      auto _z = chr->realm()->getzone_grid( p ).characters;
+      auto _z = chr->stored_realm()->getzone_grid( p ).characters;
       found = std::find( _z.begin(), _z.end(), chr ) != _z.end();
     }
     if ( found )

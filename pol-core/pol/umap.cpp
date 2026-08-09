@@ -203,7 +203,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
     int idx;
     Pos2d pin;
     if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) &&
-         ex.getPos2dParam( 1, 2, &pin, realm() ) )
+         ex.getPos2dParam( 1, 2, &pin, toplevel_realm() ) )
     {
       auto itr = pin_points.begin();
       itr += idx;
@@ -220,7 +220,7 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
   case MTH_APPENDPIN:
   {
     Pos2d pin;
-    if ( ex.getPos2dParam( 0, 1, &pin, realm() ) )
+    if ( ex.getPos2dParam( 0, 1, &pin, toplevel_realm() ) )
     {
       set_dirty();
       pin_points.push_back( pin );

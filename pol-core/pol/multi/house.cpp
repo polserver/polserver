@@ -90,18 +90,18 @@ void UHouse::list_contents( const UHouse* house, ItemList& items_in, MobileList&
 {
   auto box = house->current_box();
   Core::WorldIterator<Core::MobileFilter>::InBox(
-      box.range(), house->realm(),
+      box.range(), house->stored_realm(),
       [&]( Mobile::Character* chr )
       {
-        UMulti* multi = house->realm()->find_supporting_multi( chr->pos3d() );
+        UMulti* multi = house->stored_realm()->find_supporting_multi( chr->pos3d() );
         if ( const_cast<const UMulti*>( multi ) == house )
           chrs_in.push_back( chr );
       } );
   Core::WorldIterator<Core::ItemFilter>::InBox(
-      box.range(), house->realm(),
+      box.range(), house->stored_realm(),
       [&]( Items::Item* item )
       {
-        UMulti* multi = house->realm()->find_supporting_multi( item->pos3d() );
+        UMulti* multi = house->stored_realm()->find_supporting_multi( item->pos3d() );
         if ( const_cast<const UMulti*>( multi ) == house )
         {
           if ( Plib::tile_flags( item->graphic ) & Plib::FLAG::WALKBLOCK )
@@ -192,7 +192,7 @@ bool UHouse::add_component( Items::Item* item, s32 xoff, s32 yoff, s16 zoff )
   }
   item->disable_decay();
   item->movable( false );
-  if ( !Items::place_at( *item, Core::Pos4d( newx, newy, newz, realm() ) ) )
+  if ( !Items::place_at( *item, Core::Pos4d( newx, newy, newz, stored_realm() ) ) )
     return false;
   update_item_to_inrange( item );
   add_component_no_check( Component( item ) );
@@ -1091,8 +1091,8 @@ void move_to_ground( Items::Item* item )
       item->setposition( Core::Pos4d( item->pos() ).x( 0 ).y( 0 ) );
       auto newpos = oldpos + Core::Vec2d( xd, yd );
       // move 'self' a bit so it doesn't interfere with itself
-      bool res = item->realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon, true,
-                                            Plib::MOVEMODE_LAND );
+      bool res = item->stored_realm()->walkheight( newpos.xy(), item->z(), &newz, &multi, &walkon,
+                                                   true, Plib::MOVEMODE_LAND );
       // The displacement above was only ever for the duration of the probe, and it has to be undone
       // before the item is moved for real: the move reads the item's current position to find the
       // zone it is leaving, and (0,0) is not it.
@@ -1107,7 +1107,7 @@ void move_to_ground( Items::Item* item )
     }
   }
   short newz;
-  if ( item->realm()->groundheight( item->pos2d(), &newz ) )
+  if ( item->stored_realm()->groundheight( item->pos2d(), &newz ) )
   {
     if ( !move_item( item, Core::Pos4d( item->pos() ).z( static_cast<signed char>( newz ) ) ) )
       POLLOG_ERRORLN( "move_to_ground: item {:#x} is {} and could not be put on the ground",

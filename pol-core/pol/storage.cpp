@@ -93,6 +93,7 @@ bool StorageArea::remove_root_item( const std::string& key, Items::Item* item )
 
 void StorageArea::insert_root_item( Items::Item* item )
 {
+  item->setposition( Pos4d() );
   item->inuse( true );
   _items.insert( make_pair( item->name(), item ) );
 }
@@ -177,36 +178,11 @@ void StorageArea::print( Clib::StreamWriter& sw ) const
   }
 }
 
-void StorageArea::on_delete_realm( Realms::Realm* realm )
-{
-  for ( const auto& _item : _items )
-  {
-    Items::Item* item = _item.second;
-    if ( item )
-    {
-      setrealmif( item, (void*)realm );
-      if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-      {
-        UContainer* cont = static_cast<UContainer*>( item );
-        cont->for_each_item( setrealmif, (void*)realm );
-      }
-    }
-  }
-}
-
 void StorageArea::for_each_root_item(
     const std::function<void( const std::string&, Items::Item* )>& f ) const
 {
   for ( const auto& entry : _items )
     f( entry.first, entry.second );
-}
-
-void Storage::on_delete_realm( Realms::Realm* realm )
-{
-  for ( const auto& area : areas )
-  {
-    area.second->on_delete_realm( realm );
-  }
 }
 
 void Storage::for_each_area( const std::function<void( StorageArea& )>& f ) const

@@ -293,12 +293,27 @@ Core::Pos3d Item::local_position() const
   const Items::Location loc = location();
   if ( loc.holds<Items::InContainer>() || loc.holds<Items::OnCorpse>() )
     return Core::Pos3d( loc.grid(), 0 );
-  // Held on a cursor, the item is wherever the one holding it is standing. That is the answer the
-  // save wants -- a cursor cannot be restored, so the item is written back as if it had been
-  // dropped at the holder's feet.
+  // Worn or held, the item is wherever the one wearing or holding it is standing, and it moves when
+  // they do. The two are spelled separately because the walk up to an owner treats them differently:
+  // it ends at the character for something worn, and deliberately stops short of the holder for
+  // something on a cursor.
+  if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+    return equipped->chr->pos3d();
   if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
     return on_cursor->holder->pos3d();
   return pos3d();
+}
+
+Realms::Realm* Item::toplevel_realm() const
+{
+  // The cursor is the one home the walk deliberately stops short of -- toplevel_owner() must not
+  // terminate at the holder, or an item somebody is carrying becomes reachable through every lookup
+  // that goes looking for an owner. It is still in that holder's world, though, so it is named here
+  // rather than by widening the walk.
+  const Items::Location loc = location();
+  if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
+    return on_cursor->holder->toplevel_realm();
+  return base::toplevel_realm();
 }
 
 const char* Item::classname() const
@@ -1492,7 +1507,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
 {
   if ( chr == nullptr )
     return false;
-  if ( chr->realm() != realm() )
+  if ( chr->toplevel_realm() != toplevel_realm() )
     return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;

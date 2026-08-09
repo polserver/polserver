@@ -326,7 +326,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *target_item->toplevel_owner() ) )
+  if ( !client->chr->stored_realm()->has_los( *client->chr, *target_item->toplevel_owner() ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -384,15 +384,15 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3
     return false;
   }
 
-  if ( !chr->realm()->dropheight( pos, client->chr->z(), &newz, &multi ) )
+  if ( !chr->stored_realm()->dropheight( pos, client->chr->z(), &newz, &multi ) )
   {
     SuspiciousActs::DropItemOutAtBlockedLocation( client, item->serial, pos );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
 
-  LosObj tgt( Pos4d( pos.xy(), static_cast<s8>( newz ), chr->realm() ) );
-  if ( !chr->realm()->has_los( *client->chr, tgt ) )
+  LosObj tgt( Pos4d( pos.xy(), static_cast<s8>( newz ), chr->stored_realm() ) );
+  if ( !chr->stored_realm()->has_los( *client->chr, tgt ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -423,8 +423,6 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
     {
       item = Items::Item::create( UOBJ_BACKPACK );
       item->setname( name );
-      item->setposition( Pos4d( item->pos().xyz(),
-                                find_realm( std::string( "britannia" ) ) ) );  // TODO POS nullptr
       if ( !Items::relocate( *item, Items::InStorage{ area, name } ) )
         return nullptr;
     }
@@ -591,7 +589,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *dropon ) )
+  if ( !client->chr->stored_realm()->has_los( *client->chr, *dropon ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;
@@ -702,7 +700,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return false;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *cont->toplevel_owner() ) )
+  if ( !client->chr->stored_realm()->has_los( *client->chr, *cont->toplevel_owner() ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return false;

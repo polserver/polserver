@@ -1410,7 +1410,10 @@ void Character::equip( Items::Item* item )
   passert_r( equippable( item ),
              "It is impossible to equip Item with ObjType " + Clib::hexint( item->objtype_ ) );
 
-  item->setposition( pos() );  // TODO POS realm should be nullptr
+  // Nothing of the item's own position survives being worn: where it is, and which world that is
+  // in, are both this character's answers now, and asking is what keeps them right when the
+  // character moves.
+  item->setposition( Core::Pos4d() );
   wornitems->PutItemOnLayer( item );
 
   // The layer it is now worn on is the one its tiledata entry names -- that is what PutItemOnLayer
@@ -2065,7 +2068,7 @@ void Character::resurrect()
   // Tell other connected players, if in range, about this character.
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
-  realm()->notify_resurrected( *this );
+  stored_realm()->notify_resurrected( *this );
 }
 
 void Character::on_death( Items::Item* corpse )
@@ -2289,7 +2292,7 @@ void Character::die()
 
     if ( layer == Core::LAYER_MOUNT && item->objtype_ == Core::settingsManager.extobj.boatmount )
     {
-      Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
+      Multi::UMulti* multi = stored_realm()->find_supporting_multi( pos3d() );
 
       // Clear the pilot from the boat
       if ( multi != nullptr && multi->script_isa( Core::POLCLASS_BOAT ) )
@@ -2716,7 +2719,7 @@ bool Character::is_visible_to_me( const Character* chr, bool check_range ) const
     if ( !in_visual_range( chr ) )
       return false;
   }
-  else if ( chr->realm() != this->realm() )
+  else if ( chr->stored_realm() != this->stored_realm() )
     return false;
 
   if ( dead() )
@@ -2964,7 +2967,7 @@ bool Character::is_attackable( const Attackable& attackable ) const
     if ( is_concealed_from_me( mob ) )
       return false;
   }
-  if ( !realm()->has_los( *this, *obj ) )
+  if ( !stored_realm()->has_los( *this, *obj ) )
     return false;
   return true;
 }
@@ -3114,7 +3117,7 @@ void Character::select_opponent( Attackable opponent )
   // if you double-click the same guy over and over
   if ( !opponent_ || opponent_ != opponent )
   {
-    if ( opponent && realm() != opponent.object()->realm() )
+    if ( opponent && stored_realm() != opponent.object()->stored_realm() )
       return;
     set_opponent( std::move( opponent ) );
   }
@@ -3743,7 +3746,7 @@ void Character::unhide()
           send_owncreate( chr->client, this );
         } );
 
-    realm()->notify_unhid( *this );
+    stored_realm()->notify_unhid( *this );
 
     if ( !Clib::exit_signalled )
     {
@@ -3920,14 +3923,14 @@ bool Character::move( unsigned char i_dir )
       auto tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 =
-          realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr, nullptr, nullptr );
+      bool walk1 = stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
+                                               nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
       tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
-      if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
-                                           nullptr, nullptr ) )
+      if ( !walk1 && !stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
+                                                  nullptr, nullptr ) )
         return false;
     }
     auto new_pos = pos().move( static_cast<Core::UFACING>( facing ) );
@@ -3938,8 +3941,8 @@ bool Character::move( unsigned char i_dir )
     Items::Item* walkon_item;
 
     short current_boost = gradual_boost;
-    if ( !realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
-                               &walkon_item, &current_boost ) )
+    if ( !stored_realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
+                                      &walkon_item, &current_boost ) )
       return false;
     new_pos.z( static_cast<s8>( newz ) );
     remote_containers_.clear();
@@ -4041,34 +4044,13 @@ bool Character::move( unsigned char i_dir )
 
 void Character::realm_changed()
 {
-  // Commented out the explicit backpack handling, should be handled
-  // automagically by wormitems realm handling.  There is a slim
-  // possibility that backpacks might be assigned to a character but
-  // not be a worn item?  If this is the case, that will be broken.
-  //  backpack()->realm = realm;
-  //  backpack()->for_each_item(setrealm, (void*)realm);
-  wornitems->for_each_item( Core::setrealm, (void*)realm() );
-  // TODO Pos: realm should be all the time nullptr for these items
-  if ( has_gotten_item() )
-  {
-    auto* item = gotten_item().item();
-    item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );
-    if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      Core::UContainer* cont = static_cast<Core::UContainer*>( item );
-      cont->for_each_item( Core::setrealm, (void*)realm() );
-    }
-  }
-  if ( trading_cont.get() )
-  {
-    trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
-    trading_cont->for_each_item( Core::setrealm, (void*)realm() );
-  }
+  // Nothing carried has to be told: what a held item answers to "which world are you in" is this
+  // character's realm, asked for on demand rather than copied onto every item at every crossing.
 
   if ( has_active_client() )
   {
     // these are important to keep here in this order
-    Core::send_realm_change( client, realm() );
+    Core::send_realm_change( client, stored_realm() );
     Core::send_map_difs( client );
     if ( Core::settingsManager.ssopt.core_sends_season )
       Core::send_season_info( client );
@@ -4115,7 +4097,7 @@ void Character::tellmove()
 
   // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando
   // 2018-06-16)
-  realm()->notify_moved( *this );
+  stored_realm()->notify_moved( *this );
 
   check_attack_after_move( true );
 
@@ -4433,8 +4415,8 @@ size_t Character::estimatedSize() const
 
 void Character::on_delete_from_account()
 {
-  if ( realm() )
-    realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
+  if ( stored_realm() )
+    stored_realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
 
 bool Character::has_paperdoll() const

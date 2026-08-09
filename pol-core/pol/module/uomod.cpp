@@ -925,9 +925,9 @@ void handle_coord_cursor( Character* chr, PKTBI_6C* msg )
 
       //      Never trust packet's objtype is the reason here. They should never
       //      target on other realms. DUH!
-      arr->addMember( "realm", new String( chr->realm()->name() ) );
+      arr->addMember( "realm", new String( chr->stored_realm()->name() ) );
 
-      Multi::UMulti* multi = chr->realm()->find_supporting_multi( pos );
+      Multi::UMulti* multi = chr->stored_realm()->find_supporting_multi( pos );
       if ( multi != nullptr )
         arr->addMember( "multi", multi->make_ref() );
 
@@ -1821,7 +1821,10 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffect()
        getParam( 3, speed, UCHAR_MAX ) && getParam( 4, loop, UCHAR_MAX ) &&
        getParam( 5, explode, UCHAR_MAX ) )
   {
-    if ( src->realm() != dst->realm() )
+    // The effect is drawn between two places in the world, and the packet already takes both
+    // endpoints from toplevel_pos() -- so the realms compared here have to be the same ones, or the
+    // guard refuses a pair the payload would have described perfectly well.
+    if ( src->toplevel_realm() != dst->toplevel_realm() )
       return new BError( "Realms must match" );
     play_moving_effect( src, dst, effect, static_cast<unsigned char>( speed ),
                         static_cast<unsigned char>( loop ), static_cast<unsigned char>( explode ) );
@@ -1912,7 +1915,10 @@ BObjectImp* UOExecutorModule::mf_PlayMovingEffectEx()
        getParam( 7, direction, UCHAR_MAX ) && getParam( 8, explode, UCHAR_MAX ) &&
        getParam( 9, effect3d ) && getParam( 10, effect3dexplode ) && getParam( 11, effect3dsound ) )
   {
-    if ( src->realm() != dst->realm() )
+    // The effect is drawn between two places in the world, and the packet already takes both
+    // endpoints from toplevel_pos() -- so the realms compared here have to be the same ones, or the
+    // guard refuses a pair the payload would have described perfectly well.
+    if ( src->toplevel_realm() != dst->toplevel_realm() )
       return new BError( "Realms must match" );
     play_moving_effect_ex(
         src, dst, effect, static_cast<unsigned char>( speed ),
@@ -2488,6 +2494,12 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
   if ( getUObjectParam( 0, obj ) && getParam( 1, range ) )
   {
     obj = obj->toplevel_owner();
+    // Resolved once, outside the sweep, and it is the reason there is a guard at all: the walk ends
+    // at the object itself for something on a cursor or filed in a storage area, and neither of
+    // those is standing anywhere to look out from.
+    auto* looking_from = obj->toplevel_realm();
+    if ( looking_from == nullptr )
+      return new BError( "Object is in no realm to look out from" );
     std::unique_ptr<ObjArray> newarr( new ObjArray );
     WorldIterator<MobileFilter>::InRange(
         obj, range,
@@ -2499,7 +2511,7 @@ BObjectImp* UOExecutorModule::mf_ListMobilesInLineOfSight()
             return;
           if ( ( abs( chr->z() - obj->z() ) < CONST_DEFAULT_ZRANGE ) )
           {
-            if ( obj->realm()->has_los( *obj, *chr ) )
+            if ( looking_from->has_los( *obj, *chr ) )
             {
               newarr->addElement( chr->make_ref() );
             }
@@ -2527,7 +2539,7 @@ BObjectImp* UOExecutorModule::mf_ListOfflineMobilesInRealm( /*realm*/ )
         continue;
 
       Character* chr = static_cast<Character*>( obj );
-      if ( chr->logged_in() || chr->realm() != realm || chr->orphan() )
+      if ( chr->logged_in() || chr->stored_realm() != realm || chr->orphan() )
         continue;
 
       newarr->addElement( new EOfflineCharacterRefObjImp( chr ) );
@@ -2573,7 +2585,9 @@ BObjectImp* UOExecutorModule::mf_ListHostiles()
           continue;
       }
       auto* obj = hostile.object();
-      if ( ( flags & LH_FLAG_LOS ) && !att.object()->realm()->has_los( *att.object(), *obj ) )
+      auto* attacker_realm = att.object()->toplevel_realm();
+      if ( ( flags & LH_FLAG_LOS ) &&
+           ( attacker_realm == nullptr || !attacker_realm->has_los( *att.object(), *obj ) ) )
         continue;
       if ( !att.object()->in_range( obj, range ) )
         continue;
@@ -2592,7 +2606,10 @@ BObjectImp* UOExecutorModule::mf_CheckLineOfSight()
   UObject* dst;
   if ( getUObjectParam( 0, src ) && getUObjectParam( 1, dst ) )
   {
-    return new BLong( src->realm()->has_los( *src, *dst->toplevel_owner() ) );
+    auto* realm = src->toplevel_realm();
+    if ( realm == nullptr )
+      return new BError( "Object is in no realm to look out from" );
+    return new BLong( realm->has_los( *src, *dst->toplevel_owner() ) );
   }
 
   return new BLong( 0 );
@@ -2602,10 +2619,13 @@ BObjectImp* UOExecutorModule::mf_CheckLosAt()
 {
   UObject* src;
   Core::Pos3d pos;
-  if ( getUObjectParam( 0, src ) && getPos3dParam( 1, 2, 3, &pos, src->realm() ) )
+  if ( getUObjectParam( 0, src ) && getPos3dParam( 1, 2, 3, &pos, src->toplevel_realm() ) )
   {
-    LosObj tgt( Core::Pos4d( pos, src->realm() ) );
-    return new BLong( src->realm()->has_los( *src, tgt ) );
+    auto* realm = src->toplevel_realm();
+    if ( realm == nullptr )
+      return new BError( "Object is in no realm to look out from" );
+    LosObj tgt( Core::Pos4d( pos, realm ) );
+    return new BLong( realm->has_los( *src, tgt ) );
   }
   return nullptr;
 }
@@ -2811,8 +2831,8 @@ BObjectImp* UOExecutorModule::mf_Resurrect()
       short newz;
       Multi::UMulti* supporting_multi;
       Item* walkon_item;
-      if ( !chr->realm()->walkheight( chr->pos2d(), chr->z(), &newz, &supporting_multi,
-                                      &walkon_item, doors_block, chr->movemode ) )
+      if ( !chr->stored_realm()->walkheight( chr->pos2d(), chr->z(), &newz, &supporting_multi,
+                                             &walkon_item, doors_block, chr->movemode ) )
       {
         return new BError( "That location is blocked" );
       }
@@ -3778,7 +3798,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
     else
     {
       auto pos = Core::Pos2d( Clib::clamp_convert<u16>( x ), Clib::clamp_convert<u16>( y ) );
-      if ( !chr->realm()->valid( pos ) )
+      if ( !chr->stored_realm()->valid( pos ) )
         return new BError( "Invalid Coordinates for Realm" );
       msg->Write<u8>( PKTOUT_BA_ARROW_ON );
       msg->WriteFlipped<u16>( pos.x() );

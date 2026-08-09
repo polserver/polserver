@@ -867,7 +867,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
                     zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( auto& item : chr->realm()->getzone_grid( gpos ).items )
+    for ( auto& item : chr->stored_realm()->getzone_grid( gpos ).items )
     {
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
@@ -973,7 +973,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
                     zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& _item : chr->realm()->getzone_grid( gpos ).items )
+    for ( const auto& _item : chr->stored_realm()->getzone_grid( gpos ).items )
     {
       if ( !chr->in_visual_range( _item ) )
         continue;
@@ -1636,19 +1636,6 @@ bool try_destroy_item( Items::Item* item )
   return true;
 }
 
-void setrealm( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  item->setposition( Pos4d( item->pos().xyz(), realm ) );
-}
-
-void setrealmif( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  if ( item->realm() == realm )
-    item->setposition( Pos4d( item->pos().xyz(), realm->baserealm ) );
-}
-
 void subtract_amount_from_item( Item* item, unsigned short amount )
 {
   if ( amount >= item->getamount() )
@@ -1927,7 +1914,7 @@ void register_with_supporting_multi( Item* item )
 {
   if ( item->container() == nullptr )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    Multi::UMulti* multi = item->stored_realm()->find_supporting_multi( item->pos3d() );
     if ( multi )
       multi->register_object( item );
   }
@@ -1940,7 +1927,7 @@ void unregister_from_supporting_multi( Item* item )
   // conditions are not the same question.
   if ( item->container() == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    Multi::UMulti* multi = item->stored_realm()->find_supporting_multi( item->pos3d() );
     if ( multi != nullptr )
       multi->unregister_object( item );
   }
@@ -2113,7 +2100,7 @@ void send_season_info( Client* client )
   if ( client->getversiondetail().major >= 1 )
   {
     PktHelper::PacketOut<PktOut_BC> msg;
-    msg->Write<u8>( client->chr->realm()->season() );
+    msg->Write<u8>( client->chr->stored_realm()->season() );
     msg->Write<u8>( PKTOUT_BC::PLAYSOUND_YES );
     msg.Send( client );
 
@@ -2134,8 +2121,8 @@ void send_new_subserver( Client* client )
   msg->WriteFlipped<u16>( client->chr->y() );
   msg->WriteFlipped<u16>( static_cast<u16>( client->chr->z() ) );
   msg->offset += 5;  // unk0,x1,y2
-  msg->WriteFlipped<u16>( client->chr->realm()->width() );
-  msg->WriteFlipped<u16>( client->chr->realm()->height() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->width() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->height() );
   msg.Send( client );
 }
 

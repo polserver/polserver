@@ -698,10 +698,10 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     // which is not the same thing and is plainly wrong for a chest standing inside a house.
     if ( !has_world_position() )
       return new BError( "object has no position of its own in the world" );
-    if ( realm() != nullptr )
+    if ( stored_realm() != nullptr )
     {
       Multi::UMulti* multi;
-      if ( nullptr != ( multi = realm()->find_supporting_multi( pos3d() ) ) )
+      if ( nullptr != ( multi = stored_realm()->find_supporting_multi( pos3d() ) ) )
         return multi->make_ref();
       return new BLong( 0 );
     }
@@ -709,8 +709,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
       return new BLong( 0 );
     break;
   case MBR_REALM:
-    if ( realm() != nullptr )
-      return new String( realm()->name() );
+    // The world this can be reached in, which for anything held by something else is its holder's.
+    // An item in a backpack has no coordinates of its own but it is still in whichever world its
+    // owner is standing in, and it can be dropped there -- so a realm is a question it can answer
+    // where a position is not. What genuinely cannot answer is something in no world at all: a
+    // storage root, or an item that belongs to nothing yet.
+    if ( const Realms::Realm* in_world = toplevel_realm(); in_world != nullptr )
+      return new String( in_world->name() );
     else
       return new BError( "object does not belong to a realm." );
     break;
@@ -3929,10 +3934,10 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.numParams() == 3 )
     {
       Core::Pos3d pos;
-      if ( !ex.getPos3dParam( 0, 1, 2, &pos, realm() ) )
+      if ( !ex.getPos3dParam( 0, 1, 2, &pos, stored_realm() ) )
         return new BError( "Invalid parameter type" );
       set_dirty();
-      move_offline_mobiles( Core::Pos4d( pos, realm() ) );
+      move_offline_mobiles( Core::Pos4d( pos, stored_realm() ) );
       return new BLong( 1 );
     }
     if ( ex.numParams() == 4 )
