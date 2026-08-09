@@ -30,6 +30,15 @@
              of the map. Scripts testing "if ( item.multi )" or reading item.multi.serial
              are unaffected; only a comparison against 0 changes. To ask which multi an
              item is really inside, walk up .container first.
+    Changed: map.insertpin() and map.appendpin() now check the pin against the area the map
+             covers, given by its xwest, ynorth, xeast and ysouth bounds. They used to check
+             it against whichever realm the map was being carried in, which asks a different
+             question - a map depicts a region rather than standing in one - so the same pin
+             was accepted or refused depending on who happened to be holding the map, and a
+             map kept in a storage area was not checked at all. A map whose bounds have no
+             extent yet still accepts any pin, so pins may be placed before the bounds are.
+             Pins already saved are untouched, and pins a player places through the client
+             were always checked against the map gump instead.
     Fixed: The items death leaves in a dead character's backpack - newbie, no-drop and
            insured ones - came back in reverse order, because the whole pack was emptied
            and those items were then put back one at a time. They are no longer taken out

@@ -38,6 +38,15 @@ the answer depended on whether anything happened to be built near the corner<br/
 of the map. Scripts testing &quot;if ( item.multi )&quot; or reading item.multi.serial<br/>
 are unaffected; only a comparison against 0 changes. To ask which multi an<br/>
 item is really inside, walk up .container first.</change>
+			<change type="Changed">map.insertpin() and map.appendpin() now check the pin against the area the map<br/>
+covers, given by its xwest, ynorth, xeast and ysouth bounds. They used to check<br/>
+it against whichever realm the map was being carried in, which asks a different<br/>
+question - a map depicts a region rather than standing in one - so the same pin<br/>
+was accepted or refused depending on who happened to be holding the map, and a<br/>
+map kept in a storage area was not checked at all. A map whose bounds have no<br/>
+extent yet still accepts any pin, so pins may be placed before the bounds are.<br/>
+Pins already saved are untouched, and pins a player places through the client<br/>
+were always checked against the map gump instead.</change>
 			<change type="Fixed">The items death leaves in a dead character's backpack - newbie, no-drop and<br/>
 insured ones - came back in reverse order, because the whole pack was emptied<br/>
 and those items were then put back one at a time. They are no longer taken out<br/>

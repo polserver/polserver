@@ -31,7 +31,6 @@
 #include "pol/network/packets.h"
 #include "pol/network/pktboth.h"
 #include "pol/polclass.h"
-#include "pol/realms/realm.h"
 #include "pol/syshookscript.h"
 #include "pol/ufunc.h"
 #include "pol/uobject.h"
@@ -40,6 +39,37 @@
 
 namespace Pol::Core
 {
+namespace
+{
+/**
+ * Is this somewhere the map depicts?
+ *
+ * A question about the map, not the world -- getrange() is realm-less on purpose, since a map
+ * depicts a place rather than living in one, and the realm it is carried through has no say.
+ *
+ * Bounds with no extent depict nowhere, so nothing is outside them: the same test builtin_on_use
+ * makes before declining to draw, and what lets a script add pins before setting the four bounds.
+ */
+bool depicts( const Map& map, const Pos2d& pin )
+{
+  const Range2d area = map.getrange();
+  const Vec2d extent = area.se() - area.nw();
+  if ( extent.x() == 0 || extent.y() == 0 )
+    return true;
+  return area.contains( pin );
+}
+
+/// A computed gump pixel, held inside the gump. See worldToGump for why it might not be.
+u16 to_gump_pixel( float pixel, u16 gump_extent )
+{
+  if ( gump_extent == 0 )
+    return 0;
+  if ( !( pixel > 0.0f ) )  // the negation also answers for a NaN
+    return 0;
+  return pixel >= gump_extent ? static_cast<u16>( gump_extent - 1 ) : static_cast<u16>( pixel );
+}
+}  // namespace
+
 Map::Map( const Items::MapDesc& mapdesc )
     : Item( mapdesc, UOBJ_CLASS::CLASS_ITEM ),
       gumpsize(),
@@ -203,8 +233,11 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
     int idx;
     Pos2d pin;
     if ( ex.getParam( 0, idx, static_cast<int>( pin_points.size() ) ) &&
-         ex.getPos2dParam( 1, 2, &pin, toplevel_realm() ) )
+         ex.getPos2dParam( 1, 2, &pin ) )
     {
+      if ( !depicts( *this, pin ) )
+        return new BError( "Pin is outside the area this map covers" );
+
       auto itr = pin_points.begin();
       itr += idx;
 
@@ -220,8 +253,11 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
   case MTH_APPENDPIN:
   {
     Pos2d pin;
-    if ( ex.getPos2dParam( 0, 1, &pin, toplevel_realm() ) )
+    if ( ex.getPos2dParam( 0, 1, &pin ) )
     {
+      if ( !depicts( *this, pin ) )
+        return new BError( "Pin is outside the area this map covers" );
+
       set_dirty();
       pin_points.push_back( pin );
       return new BLong( 1 );
@@ -285,12 +321,17 @@ Pos2d Map::gumpToWorld( const Pos2d& gump, const Range2d& area ) const
 
 Pos2d Map::worldToGump( const Pos2d& world, const Range2d& area ) const
 {
+  // A pin is not guaranteed to be on the map. Only the ones added since insertpin and appendpin
+  // started checking are known to be: readProperties takes whatever the world file says, so a save
+  // written before that can hold pins from outside the area. One north or west of it gives a
+  // negative offset, and converting a negative float to u16 is undefined rather than merely wrong,
+  // so the pixel is held inside the gump instead of being cast blind.
   Vec2d size = area.se() - area.nw();
   float world_xtiles_per_pixel = (float)( size.x() ) / gumpsize.x();
   float world_ytiles_per_pixel = (float)( size.y() ) / gumpsize.y();
   Vec2d delta( world - area.nw() );
-  return Pos2d( (u16)( ( delta.x() ) / world_xtiles_per_pixel ),
-                (u16)( ( delta.y() ) / world_ytiles_per_pixel ) );
+  return Pos2d( to_gump_pixel( delta.x() / world_xtiles_per_pixel, gumpsize.x() ),
+                to_gump_pixel( delta.y() / world_ytiles_per_pixel, gumpsize.y() ) );
 }
 
 // dave 12-20
