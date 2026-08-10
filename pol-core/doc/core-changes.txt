@@ -51,6 +51,16 @@
            line of sight - until they took a single walking step. It now stops being
            reachable whenever the character's position changes, which is what the core
            always intended.
+    Fixed: uo::SendOpenSpecialContainer() moved the container onto the character, so that
+           the checks made when a client reaches for it would measure a distance of zero. A
+           container standing in the world was silently dragged to the player's feet while
+           still recorded in the map region it came from, and one filed in a storage area
+           was given coordinates it has no business having. It is no longer moved: having
+           been shown it is what puts it within reach, which is how line of sight has
+           always treated these containers. uo::SendBuyWindow() did the same to the two
+           containers behind a vendor window, and the secure trade window to its own, so
+           item.x, item.y and item.realm read on any of them now report that it is nowhere
+           rather than repeating where its owner stands.
 08-10-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone

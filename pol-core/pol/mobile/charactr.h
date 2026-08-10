@@ -392,6 +392,7 @@ public:
   void add_remote_container( Items::Item* );
   Items::Item* search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const;
   bool shown_a_container( const Core::UObject* obj ) const;
+  bool can_reach( const Core::UObject* obj, u16 range ) const;
   bool mightsee( const Items::Item* item ) const;
 
   Items::Item* find_wornitem( u32 find_serial ) const;

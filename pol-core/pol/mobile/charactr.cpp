@@ -4175,6 +4175,17 @@ bool Character::shown_a_container( const Core::UObject* obj ) const
   return false;
 }
 
+bool Character::can_reach( const Core::UObject* obj, u16 range ) const
+{
+  // Being shown one of these containers is what puts it within reach: it stands nowhere, so there
+  // is no distance to measure and every comparison would say it is impossibly far. Line of sight
+  // has always answered this way; distance used to be told a convenient lie instead.
+  if ( shown_a_container( obj->toplevel_owner() ) )
+    return true;
+
+  return in_range( obj, range );
+}
+
 bool Character::mightsee( const Items::Item* item ) const
 {
   // These containers are shown to a client without being anywhere: a bank box lives in a storage
@@ -4288,8 +4299,6 @@ void Character::create_trade_container()
   if ( trading_cont_.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    // TODO Pos: no realm
-    cont->setposition( pos() );
     trading_cont_.set( static_cast<Core::UContainer*>( cont ) );
   }
 }

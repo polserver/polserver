@@ -112,7 +112,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   u8 oldSlot = item->slot_index();
 
-  if ( !client->chr->in_range( item, 2 ) && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_reach( item, 2 ) && !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
@@ -403,7 +403,7 @@ void GottenItem::undo( Mobile::Character* chr ) const
       {
         if ( _item->no_drop() || chr->can_moveanydist() ||
              !Core::settingsManager.ssopt.undo_get_item_enable_range_check ||
-             chr->in_range( orig_obj, Core::settingsManager.ssopt.default_accessible_range ) )
+             chr->can_reach( orig_obj, Core::settingsManager.ssopt.default_accessible_range ) )
         {
           container = static_cast<UContainer*>( orig_obj );
           if ( !container->can_add( *_item ) ||

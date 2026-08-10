@@ -94,6 +94,21 @@ function lift_denied( serial )
   return 1;
 endfunction
 
+// Opening a container is refused out loud, so the absence of that line is the answer. Nothing else
+// on the double-click path speaks.
+function dblclick_not_refused( serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "double_click", arg := serial, id := 0 } );
+  if ( !waitForClient( 0, { EVT_DOUBLE_CLICK } ) )
+    return ret_error( $"client 0 did not send the double click of 0x{serial:x}" );
+  endif
+  var ev := waitForClient( 0, { EVT_SPEECH }, 2 );
+  if ( ev )
+    return ret_error( $"double clicking 0x{serial:x} was refused: {ev.msg}" );
+  endif
+  return 1;
+endfunction
+
 // The bank box, which is what this whole mechanism exists for: a container filed in a storage area
 // and shown to one client. Two things have to be true of it at once, and they are the reason the
 // reach is granted to the contents rather than to the container.
@@ -157,5 +172,65 @@ exported function bankbox_lends_contents_only()
   // casually destroying or moving a bank box, so DestroyItem() refuses this one. The area is what
   // has to let go of it - and it clears the flag on the way out.
   DestroyRootItemInStorageArea( area, "bankbox" );
+  return res;
+endfunction
+
+// Every question a client's request has to pass is asked about where things are, and a bank box is
+// nowhere at all. It used to be handed the character's own coordinates on the way to the screen,
+// which made the answers come out right for the wrong reason and left a container claiming to stand
+// somewhere it had never been. Having been shown it is what puts it in reach now, so the coordinates
+// are not needed and are not written.
+//
+// Three requests read that position and each is checked here: opening the box, taking something out
+// of it, and putting something back onto it. The last is dropped onto the container rather than into
+// a cell of it, which is a different route through the core with its own copy of the check.
+exported function bankbox_needs_no_position()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "reachbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    item.movable := 1;
+
+    var opened := SendOpenSpecialContainer( char, cont );
+    if ( !opened )
+      res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+    elseif ( cont.x != 0 || cont.y != 0 )
+      res := ret_error( $"the bank box was placed at {cont.x},{cont.y} while the character stands at {char.x},{char.y}" );
+    else
+      res := dblclick_not_refused( cont.serial );
+      if ( res )
+        res := lift_allowed( item.serial );
+      endif
+      if ( res )
+        Clear_Event_Queue();
+        clientcon.sendevent( struct{ todo := "drop_item",
+                                     arg := struct{ serial := item.serial, x := 0xFFFF, y := 0xFFFF,
+                                                    z := 0, dropped_on_serial := cont.serial },
+                                     id := 0 } );
+        if ( !waitForClient( 0, { EVT_DROP_APPROVED } ) )
+          res := ret_error( "dropping the item onto the bank box was not approved" );
+        elseif ( item.container.serial != cont.serial )
+          res := ret_error( $"the item went to 0x{item.container.serial:x}, not onto the box" );
+        endif
+      endif
+    endif
+    DestroyItem( item );
+  endif
+
+  DestroyRootItemInStorageArea( area, "reachbox" );
   return res;
 endfunction

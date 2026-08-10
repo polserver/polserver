@@ -489,8 +489,6 @@ void send_put_in_container_to_inrange( const Item* item )
   {
     if ( !client2->ready )
       continue;
-    // FIXME need to check character's additional_legal_items.
-    // looks like inrange should be a Character member function.
     if ( client2->chr->mightsee( item->container() ) )
     {
       // FIXME if the container has an owner, and I'm not it, don't tell me?

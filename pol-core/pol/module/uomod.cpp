@@ -568,10 +568,9 @@ BObjectImp* UOExecutorModule::mf_Broadcast()
    "invisible" accessible container) seem to work thus:
    They sit in layer 0x1D.  The player is told to "wear_item" the item,
    then the gump and container contents are sent.
-   We'll put a reference to this item in the character's additional_legal_items
-   container, which is flushed whenever he moves.
-   It might be better to actually put it in that layer, because that way
-   it implicitly is at the same location (location of the wornitems container)
+   The container is remembered on the character, which is what lets them reach it
+   afterwards regardless of where either of them stands, and it is forgotten again
+   as soon as they move.
    */
 BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
 {
@@ -591,10 +590,12 @@ BObjectImp* UOExecutorModule::mf_SendOpenSpecialContainer()
     return new BError( "That isn't a container" );
   }
 
-  send_wornitem( chr->client, chr, item, LAYER_BANKBOX );
-  item->setposition( chr->pos() );
-  item->double_click( chr->client );  // open the container on the client's screen
+  // Remembered first: opening the container can run a use script, and that script used to find it
+  // within reach because a position had just been written onto it. Membership has to be in place
+  // over the same span, or the window during which it is reachable would have a hole at the start.
   chr->add_remote_container( item );
+  send_wornitem( chr->client, chr, item, LAYER_BANKBOX );
+  item->double_click( chr->client );  // open the container on the client's screen
 
   return new BLong( 1 );
 }

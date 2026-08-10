@@ -59,6 +59,16 @@ ended up - including from another realm, since such a container is also granted<
 line of sight - until they took a single walking step. It now stops being<br/>
 reachable whenever the character's position changes, which is what the core<br/>
 always intended.</change>
+			<change type="Fixed">uo::SendOpenSpecialContainer() moved the container onto the character, so that<br/>
+the checks made when a client reaches for it would measure a distance of zero. A<br/>
+container standing in the world was silently dragged to the player's feet while<br/>
+still recorded in the map region it came from, and one filed in a storage area<br/>
+was given coordinates it has no business having. It is no longer moved: having<br/>
+been shown it is what puts it within reach, which is how line of sight has<br/>
+always treated these containers. uo::SendBuyWindow() did the same to the two<br/>
+containers behind a vendor window, and the secure trade window to its own, so<br/>
+item.x, item.y and item.realm read on any of them now report that it is nowhere<br/>
+rather than repeating where its owner stands.</change>
 		</entry>
 		<entry>
 			<date>08-09-2026</date>

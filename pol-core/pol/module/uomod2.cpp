@@ -261,14 +261,11 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   }
 
 
-  // try this
+  // Shown as if worn, on layers no real item uses. Neither container is anywhere, and nothing has
+  // to pretend otherwise: the client is told about them because this window is open, which is the
+  // same reason it stops being told when the window closes.
   send_wornitem( chr->client, merchant, for_sale, LAYER_VENDOR_FOR_SALE );
-  for_sale->setposition( merchant->pos() );
-  // chr->add_additional_legal_item( for_sale );
-
   send_wornitem( chr->client, merchant, bought, LAYER_VENDOR_PLAYER_ITEMS );
-  bought->setposition( merchant->pos() );
-  // chr->add_additional_legal_item( bought );
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 
