@@ -1,0 +1,406 @@
+use uo;
+use os;
+
+include "testutil";
+
+// The patch of map painted as the TestJustice region by
+// testsuite/pol/regions/justice.cfg. It is grass at z 0 and nothing else on the
+// shard stands here.
+const JR_X := 134;
+const JR_Y := 134;
+const JR_NAME := "TestJustice";
+
+// Well outside it, where the background region the core builds for itself
+// applies. That one comes from an empty config element, so its name is the
+// empty string rather than an error.
+const BG_X := 90;
+const BG_Y := 90;
+
+// The house multis uoconvert generates for the test shard.
+const MULTIID_HOUSE := 0x6c;
+const MULTIID_MISSING := 0xfff0;
+
+// The light regions from testsuite/pol/regions/light.cfg. TestLightDark covers
+// 108..115 in both axes; the rest of the shard is TestLightBase.
+const LIGHT_REGION := "TestLightDark";
+const LIGHT_X := 110;
+const LIGHT_Y := 110;
+const LIGHT_DARK := 25;
+const LIGHT_BASE := 10;
+const LIGHT_MAX := 30;
+
+// The weather region from testsuite/pol/regions/weather.cfg, and the patch of
+// open water next to it that the assignment case moves about. Neither is
+// readable back from a script -- nothing in uo.em reports a weather region's
+// type or which region covers a location -- so these cases can only check the
+// answers the two setters give.
+const WEATHER_REGION := "TestWeatherStorm";
+const WEATHER_TYPE_NONE := 255;
+const WEATHER_RECT_X := 184;
+const WEATHER_RECT_Y := 184;
+
+program testuoregion()
+  return 1;
+endprogram
+
+function region_pc()
+  var pc := createAccountWithChar( "testuoregion", "pass" );
+  if ( !pc )
+    return pc;
+  endif
+  var moved := MoveObjectToLocation( pc, JR_X, JR_Y + 1, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !moved )
+    return ret_error( $"could not move the region pc: {moved}" );
+  endif
+  return pc;
+endfunction
+
+// GetRegionName reaches the justice region three different ways depending on
+// what it is handed, because UObject::isa is exact class equality: an item is
+// resolved through its top level owner, a player character through its own
+// position (or its client's cached region while logged in), and anything else --
+// an NPC is CLASS_NPC, a container is CLASS_CONTAINER -- straight from where it
+// stands.
+exported function region_name_of_objects( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", JR_X, JR_Y, 0, 0, _DEFAULT_REALM,
+                                            1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+  var npc_region := GetRegionName( npc );
+  if ( npc_region != JR_NAME )
+    return ret_error( $"npc region: expected {JR_NAME}, got {npc_region}" );
+  endif
+
+  // An item inside a container answers for the container, which is the top
+  // level owner.
+  var cont := resmngr.CreateItemAtLocation( JR_X + 1, JR_Y, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+  var coin := resmngr.CreateItemInContainer( cont, 0x0eed, 1 );
+  if ( !coin )
+    return ret_error( $"failed to create coin: {coin}" );
+  endif
+  var coin_region := GetRegionName( coin );
+  if ( coin_region != JR_NAME )
+    return ret_error( $"contained item region: expected {JR_NAME}, got {coin_region}" );
+  endif
+
+  var pc := region_pc();
+  if ( !pc )
+    return pc;
+  endif
+  var pc_region := GetRegionName( pc );
+  if ( pc_region != JR_NAME )
+    return ret_error( $"pc region: expected {JR_NAME}, got {pc_region}" );
+  endif
+
+  var bad := GetRegionName( 0 );
+  if ( bad )
+    return ret_error( $"expected an error for a non-object, got {bad}" );
+  endif
+
+  return 1;
+endfunction
+
+// The by-location form needs no object at all, and answers the background
+// region's empty name outside the painted range.
+exported function region_name_at_location( unused resmngr )
+  var inside := GetRegionNameAtLocation( JR_X, JR_Y );
+  if ( inside != JR_NAME )
+    return ret_error( $"inside the region: expected {JR_NAME}, got {inside}" );
+  endif
+
+  var outside := GetRegionNameAtLocation( BG_X, BG_Y );
+  if ( TypeOf( outside ) != "String" )
+    return ret_error( $"outside the region: expected a string, got {TypeOf( outside )}" );
+  endif
+  if ( outside != "" )
+    return ret_error( $"the background region should be unnamed, got \"{outside}\"" );
+  endif
+
+  var bad_coord := GetRegionNameAtLocation( "not a number", JR_Y );
+  if ( bad_coord )
+    return ret_error( $"expected an error for a non-numeric x, got {bad_coord}" );
+  endif
+
+  var bad_realm := GetRegionNameAtLocation( JR_X, JR_Y, "nosuchrealm" );
+  if ( bad_realm )
+    return ret_error( $"expected an error for an unknown realm, got {bad_realm}" );
+  endif
+
+  return 1;
+endfunction
+
+// The light level comes from whichever light region covers the location, and
+// the two on this shard hold different levels.
+exported function region_light_level( unused resmngr )
+  var dark := GetRegionLightLevelAtLocation( LIGHT_X, LIGHT_Y );
+  if ( TypeOf( dark ) != "Integer" )
+    return ret_error( $"expected an integer light level, got {TypeOf( dark )}" );
+  endif
+  if ( dark != LIGHT_DARK )
+    return ret_error( $"inside {LIGHT_REGION}: expected {LIGHT_DARK}, got {dark}" );
+  endif
+
+  var base := GetRegionLightLevelAtLocation( BG_X, BG_Y );
+  if ( base != LIGHT_BASE )
+    return ret_error( $"outside {LIGHT_REGION}: expected {LIGHT_BASE}, got {base}" );
+  endif
+
+  // The realm is consulted as well as the coordinates, and the other realm has
+  // no dark patch at all.
+  var other_realm := GetRegionLightLevelAtLocation( LIGHT_X, LIGHT_Y, "britannia2" );
+  if ( other_realm != LIGHT_BASE )
+    return ret_error( $"the same spot in britannia2: expected {LIGHT_BASE}, got {other_realm}" );
+  endif
+
+  var bad_realm := GetRegionLightLevelAtLocation( LIGHT_X, LIGHT_Y, "nosuchrealm" );
+  if ( bad_realm )
+    return ret_error( $"expected an error for an unknown realm, got {bad_realm}" );
+  endif
+
+  return 1;
+endfunction
+
+// A light region is set by name rather than by location, and the change is
+// visible to the by-location read straight away. Only the reserved dark patch
+// is ever written to -- the base regions cover the whole shard, so moving one
+// of those would change the light for every client on it.
+exported function set_region_light_level( unused resmngr )
+  var res := 1;
+
+  if ( !SetRegionLightLevel( LIGHT_REGION, LIGHT_BASE ) )
+    return ret_error( $"could not set the light level of {LIGHT_REGION}" );
+  endif
+  var changed := GetRegionLightLevelAtLocation( LIGHT_X, LIGHT_Y );
+  if ( changed != LIGHT_BASE )
+    res := ret_error( $"after the change: expected {LIGHT_BASE}, got {changed}" );
+  endif
+
+  // Both ends of the accepted range are fine; one past the top is not, and a
+  // negative level is read as unsigned so it is out of range too.
+  if ( res )
+    if ( !SetRegionLightLevel( LIGHT_REGION, 0 ) )
+      res := ret_error( "a light level of 0 should be accepted" );
+    elseif ( !SetRegionLightLevel( LIGHT_REGION, LIGHT_MAX ) )
+      res := ret_error( $"a light level of {LIGHT_MAX} should be accepted" );
+    endif
+  endif
+
+  if ( res )
+    var too_bright := SetRegionLightLevel( LIGHT_REGION, LIGHT_MAX + 1 );
+    if ( too_bright )
+      res := ret_error( $"a light level past {LIGHT_MAX} should be refused, got {too_bright}" );
+    endif
+  endif
+
+  if ( res )
+    var negative := SetRegionLightLevel( LIGHT_REGION, -1 );
+    if ( negative )
+      res := ret_error( $"a negative light level should be refused, got {negative}" );
+    endif
+  endif
+
+  if ( res )
+    var unknown := SetRegionLightLevel( "nosuchlightregion", LIGHT_BASE );
+    if ( unknown )
+      res := ret_error( $"expected an error for an unknown region, got {unknown}" );
+    endif
+  endif
+
+  if ( res )
+    var bad := SetRegionLightLevel( 0, LIGHT_BASE );
+    if ( bad )
+      res := ret_error( $"expected an error for a non-string region name, got {bad}" );
+    endif
+  endif
+
+  var restored := SetRegionLightLevel( LIGHT_REGION, LIGHT_DARK );
+  if ( !restored )
+    return ret_error( $"could not restore the light level of {LIGHT_REGION}: {restored}" );
+  endif
+
+  return res;
+endfunction
+
+// Multi dimensions come from the multi definition rather than from any placed
+// multi, so no house has to exist to ask for them.
+exported function multi_dimensions( unused resmngr )
+  var dims := GetMultiDimensions( MULTIID_HOUSE );
+  if ( TypeOf( dims ) != "Struct" )
+    return ret_error( $"expected a struct, got {TypeOf( dims )}: {dims}" );
+  endif
+  if ( dims.xmin > dims.xmax )
+    return ret_error( $"xmin {dims.xmin} is past xmax {dims.xmax}" );
+  endif
+  if ( dims.ymin > dims.ymax )
+    return ret_error( $"ymin {dims.ymin} is past ymax {dims.ymax}" );
+  endif
+
+  var missing := GetMultiDimensions( MULTIID_MISSING );
+  if ( missing )
+    return ret_error( $"expected an error for an undefined multi, got {missing}" );
+  endif
+
+  var bad := GetMultiDimensions( "0x6c" );
+  if ( bad )
+    return ret_error( $"expected an error for a non-integer multi id, got {bad}" );
+  endif
+
+  return 1;
+endfunction
+
+// Command help is a file lookup down the character's own command level and
+// every level below it, so the same command answers differently as the level
+// changes. The shard has two levels, Player and Test, and only the Test one has
+// a search directory.
+exported function command_help( unused resmngr )
+  var pc := region_pc();
+  if ( !pc )
+    return pc;
+  endif
+
+  var res := 1;
+  pc.cmdlevel := 0;
+  var unprivileged := GetCommandHelp( pc, "dummycmd" );
+  if ( unprivileged )
+    res := ret_error( $"a player level character should find no help, got {unprivileged}" );
+  endif
+
+  if ( res )
+    pc.cmdlevel := 1;
+    var help := GetCommandHelp( pc, "dummycmd" );
+    if ( TypeOf( help ) != "String" )
+      res := ret_error( $"expected the help text, got {TypeOf( help )}: {help}" );
+    elseif ( !help.find( "dummycmd" ) )
+      res := ret_error( $"the help text is not the fixture's: \"{help}\"" );
+    endif
+  endif
+
+  if ( res )
+    // Reserved device names are refused before any directory is searched.
+    var device := GetCommandHelp( pc, "aux" );
+    if ( device )
+      res := ret_error( $"expected an error for a reserved device name, got {device}" );
+    endif
+  endif
+
+  if ( res )
+    var missing := GetCommandHelp( pc, "nosuchcommand" );
+    if ( missing )
+      res := ret_error( $"expected an error for an unknown command, got {missing}" );
+    endif
+  endif
+
+  if ( res )
+    var bad := GetCommandHelp( 0, "dummycmd" );
+    if ( bad )
+      res := ret_error( $"expected an error for a non-character, got {bad}" );
+    endif
+  endif
+
+  pc.cmdlevel := 0;
+  return res;
+endfunction
+
+// A weather region is set by name, and the four levels it carries are written
+// as one. Nothing reads them back from a script, so what is checked here is
+// which calls are accepted and which are refused; showing the weather actually
+// reaching somebody needs a logged-in client.
+//
+// The region is put back to "no weather" at the end. TestWeatherStorm is out in
+// open water where nobody stands, but a client inside a weather region is sent
+// a weather packet whenever the region changes underneath it.
+exported function set_region_weather_level( unused resmngr )
+  var res := 1;
+
+  // aux and lightoverride have defaults, so both arities are worth exercising.
+  if ( !SetRegionWeatherLevel( WEATHER_REGION, 2, 30 ) )
+    return ret_error( $"could not set the weather level of {WEATHER_REGION}" );
+  endif
+  if ( !SetRegionWeatherLevel( WEATHER_REGION, 2, 30, 5, LIGHT_BASE ) )
+    res := ret_error( "the five parameter form should be accepted" );
+  endif
+
+  if ( res )
+    var unknown := SetRegionWeatherLevel( "nosuchweatherregion", 2, 30 );
+    if ( unknown )
+      res := ret_error( $"expected an error for an unknown region, got {unknown}" );
+    endif
+  endif
+
+  if ( res )
+    var bad_name := SetRegionWeatherLevel( 0, 2, 30 );
+    if ( bad_name )
+      res := ret_error( $"expected an error for a non-string region name, got {bad_name}" );
+    endif
+  endif
+
+  if ( res )
+    var bad_type := SetRegionWeatherLevel( WEATHER_REGION, "rain", 30 );
+    if ( bad_type )
+      res := ret_error( $"expected an error for a non-numeric type, got {bad_type}" );
+    endif
+  endif
+
+  var restored := SetRegionWeatherLevel( WEATHER_REGION, WEATHER_TYPE_NONE, 0, 0, -1 );
+  if ( !restored )
+    return ret_error( $"could not restore {WEATHER_REGION}: {restored}" );
+  endif
+
+  return res;
+endfunction
+
+// Weather regions are the one region group whose painted zones can be moved at
+// runtime. An empty region name is not an error but the undo: it puts the rect
+// back to whichever region covered it when the shard loaded.
+exported function assign_rect_to_weather( unused resmngr )
+  var assigned := AssignRectToWeatherRegion( WEATHER_REGION, WEATHER_RECT_X, WEATHER_RECT_Y,
+                                             WEATHER_RECT_X + 3, WEATHER_RECT_Y + 3 );
+  if ( !assigned )
+    return ret_error( $"could not assign the rect to {WEATHER_REGION}: {assigned}" );
+  endif
+
+  var res := 1;
+  var unknown := AssignRectToWeatherRegion( "nosuchweatherregion", WEATHER_RECT_X, WEATHER_RECT_Y,
+                                            WEATHER_RECT_X + 3, WEATHER_RECT_Y + 3 );
+  if ( unknown )
+    res := ret_error( $"expected an error for an unknown region, got {unknown}" );
+  endif
+
+  if ( res )
+    var bad_name := AssignRectToWeatherRegion( 0, WEATHER_RECT_X, WEATHER_RECT_Y, WEATHER_RECT_X + 3,
+                                               WEATHER_RECT_Y + 3 );
+    if ( bad_name )
+      res := ret_error( $"expected an error for a non-string region name, got {bad_name}" );
+    endif
+  endif
+
+  if ( res )
+    var off_map := AssignRectToWeatherRegion( WEATHER_REGION, WEATHER_RECT_X, WEATHER_RECT_Y, 500,
+                                              500 );
+    if ( off_map )
+      res := ret_error( $"expected an error for a rect off the map, got {off_map}" );
+    endif
+  endif
+
+  if ( res )
+    var bad_realm := AssignRectToWeatherRegion( WEATHER_REGION, WEATHER_RECT_X, WEATHER_RECT_Y,
+                                                WEATHER_RECT_X + 3, WEATHER_RECT_Y + 3,
+                                                "nosuchrealm" );
+    if ( bad_realm )
+      res := ret_error( $"expected an error for an unknown realm, got {bad_realm}" );
+    endif
+  endif
+
+  // The empty name is the documented way back to the load time layout.
+  var restored := AssignRectToWeatherRegion( "", WEATHER_RECT_X, WEATHER_RECT_Y, WEATHER_RECT_X + 3,
+                                             WEATHER_RECT_Y + 3 );
+  if ( !restored )
+    return ret_error( $"could not put the rect back: {restored}" );
+  endif
+
+  return res;
+endfunction
