@@ -773,11 +773,6 @@ BObjectImp* NPCExecutorModule::mf_position()
   return oa.release();
 }
 
-BObjectImp* NPCExecutorModule::mf_Facing()
-{
-  return new String( Mobile::FacingStr( static_cast<Core::UFACING>( npc.facing ) ) );
-}
-
 BObjectImp* NPCExecutorModule::mf_GetProperty()
 {
   const String* propname_str;

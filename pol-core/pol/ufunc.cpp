@@ -1826,7 +1826,7 @@ void update_all_weatherregions()
   for ( auto& client : networkManager.clients )
   {
     if ( !client->ready )
-      return;
+      continue;
 
     client->chr->check_weather_region_change();
     client->chr->check_light_region_change();
