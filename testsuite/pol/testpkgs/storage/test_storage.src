@@ -20,8 +20,17 @@ endprogram
 
 exported function list_storage()
   var r := StorageAreas();
-  if ( r.count != 2 )
-    return ret_error( "Didnt found 2 storage " + r.count );
+  // By name rather than by total. StorageAreas() is shard-wide and an area cannot be deleted once
+  // it is made, so asserting the count really asserts that no other package anywhere uses storage
+  // -- which is nothing to do with what this checks, and breaks whichever test is unlucky enough
+  // to be added next.
+  foreach name in ( { "teststorage", "teststorage2" } )
+    if ( !r[name] )
+      return ret_error( $"StorageAreas() does not list {name}" );
+    endif
+  endforeach
+  if ( r.count < 2 )
+    return ret_error( $"StorageAreas() reports only {r.count} areas" );
   endif
   return 1;
 endfunction

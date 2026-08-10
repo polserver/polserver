@@ -208,9 +208,12 @@ bool validate( const Item& item, const Location& from, const Location& to )
       return reject( item, from, to, "null cursor holder" );
     if ( on_cursor->holder->has_gotten_item() )
       return reject( item, from, to, "that character is already holding something" );
-    // The return ticket records a realm by name, so an item with no world to name cannot
-    // describe where it should go back to.
-    if ( item.toplevel_realm() == nullptr )
+    // The return ticket records a realm by name, but only the one alternative that names a spot on
+    // the ground does; an item that came out of a container is described by that container's
+    // serial and looked up again when it goes back, and needs no world at all. Asking every source
+    // for one refused a lift out of anything that is not ultimately held by something standing
+    // somewhere -- a bank box filed in a storage area being the case that matters.
+    if ( from.holds<InWorld>() && item.toplevel_realm() == nullptr )
       return reject( item, from, to, "the item has no realm to return to" );
     // Picking an item up is a promise that it can be put down again, and the ticket has one
     // alternative per home it knows how to undo. A storage root is the one that would hurt: the

@@ -1,5 +1,6 @@
 use os;
 use uo;
+use storage;
 
 include "testutil";
 include "communication";
@@ -60,4 +61,101 @@ exported function remote_container_ends_on_move()
   endif
 
   return 1;
+endfunction
+
+// Picks an item up with client 0 and expects it to work. There is no success answer for a lift,
+// only a rejection, so this waits a moment for one not to arrive.
+function lift_allowed( serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := serial, id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( $"client 0 did not send the lift of 0x{serial:x}" );
+  endif
+  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 2 );
+  if ( ev )
+    return ret_error( $"lifting 0x{serial:x} was refused: reason {ev.reason}" );
+  endif
+  return 1;
+endfunction
+
+function lift_denied( serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := serial, id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( $"client 0 did not send the lift of 0x{serial:x}" );
+  endif
+  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  if ( !ev )
+    return ret_error( $"lifting 0x{serial:x} was allowed" );
+  endif
+  if ( ev.reason != MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP )
+    return ret_error( $"lifting 0x{serial:x} was refused with reason {ev.reason}, expected {MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP}" );
+  endif
+  return 1;
+endfunction
+
+// The bank box, which is what this whole mechanism exists for: a container filed in a storage area
+// and shown to one client. Two things have to be true of it at once, and they are the reason the
+// reach is granted to the contents rather than to the container.
+//
+// Its contents are reachable even though nothing that holds them stands anywhere - a storage area
+// is in no world, so an item in one has no realm and no position of its own. Everything that
+// decides whether a client may touch an item has to cope with that, and the case is easy to break
+// while tidying up how a position is derived: a rule that asks an item which world it is in gets no
+// answer here, and refusing on that basis locks every bank box on the shard.
+//
+// The container itself is not reachable, so a player cannot pick their bank box up and walk off
+// with it. That is the one thing get_item asks the lookup to tell it apart - a remote container
+// lends its contents out and never itself.
+exported function bankbox_lends_contents_only()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "bankbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    item.movable := 1;
+
+    var opened := SendOpenSpecialContainer( char, cont );
+    if ( !opened )
+      res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+    else
+      res := lift_allowed( item.serial );
+      if ( res )
+        // Back where it came from, which also exercises the drop side of the same reach, and
+        // leaves the box empty for the cleanup below.
+        Clear_Event_Queue();
+        clientcon.sendevent( struct{ todo := "drop_item",
+                                     arg := struct{ serial := item.serial, x := 20, y := 20, z := 0,
+                                                    dropped_on_serial := cont.serial },
+                                     id := 0 } );
+        if ( !waitForClient( 0, { EVT_DROP_APPROVED } ) )
+          res := ret_error( "putting the item back into the bank box was not approved" );
+        elseif ( item.container.serial != cont.serial )
+          res := ret_error( $"the item went to 0x{item.container.serial:x}, not back into the box" );
+        else
+          res := lift_denied( cont.serial );
+        endif
+      endif
+    endif
+    DestroyItem( item );
+  endif
+
+  // A storage root is marked in use for as long as its area files it, which is what stops anything
+  // casually destroying or moving a bank box, so DestroyItem() refuses this one. The area is what
+  // has to let go of it - and it clears the flag on the way out.
+  DestroyRootItemInStorageArea( area, "bankbox" );
+  return res;
 endfunction

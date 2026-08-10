@@ -36,12 +36,25 @@ function open_vendor( resources, ware_objtype, ware_amount, price )
     return ret_error( $"failed to create vendor npc: {npc}" );
   endif
 
-  var for_sale := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  // The stock goes in the vendor's own pack. A container standing in the world beside the merchant
+  // is an ordinary container, and its contents are reachable through the same eight-tile ground
+  // search that lets a player loot a chest -- a buy window grants nothing and withholds nothing, so
+  // wares are only out of reach if they are somewhere a player could not have reached anyway.
+  var stockpack := resources.CreateItemAtLocation( 0, 0, 0, 0xE75 );
+  if ( !stockpack )
+    return ret_error( $"failed to create the vendor's pack: {stockpack}" );
+  endif
+  var equipped := EquipItem( npc, stockpack );
+  if ( !equipped )
+    return ret_error( $"failed to equip the vendor's pack: {equipped}" );
+  endif
+
+  var for_sale := resources.CreateItemInContainer( stockpack, 0xE75 );
   if ( !for_sale )
     return ret_error( $"failed to create for-sale container: {for_sale}" );
   endif
 
-  var bought := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  var bought := resources.CreateItemInContainer( stockpack, 0xE75 );
   if ( !bought )
     return ret_error( $"failed to create bought container: {bought}" );
   endif
@@ -252,6 +265,42 @@ exported function vendor_sell_moves_item_to_npc( resources )
       return ret_error( "the sold item is still listed in the seller's pack" );
     endif
   endforeach
+
+  return 1;
+endfunction
+
+// A buy window shows the vendor's stock; it does not put it within reach. The two containers are
+// the merchant's own, and every lookup that decides whether a client may pick something up searches
+// the character's pack, what they are wearing, the ground around them and the containers a script
+// has explicitly lent them -- a vendor's stock is in none of those. Nothing in the core states that
+// rule; it holds because the containers were never added to any of those searches, and the two
+// calls that would have done it are still sitting commented out in mf_SendBuyWindow. So a change
+// that granted the reach would go unnoticed, and the buyer would be able to take the goods instead
+// of paying for them.
+exported function vendor_ware_not_liftable( resources )
+  var v := open_vendor( resources, "shirt_plain", 1, 1 );
+  if ( !v )
+    return v;
+  endif
+  v.ware.movable := 1;
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := v.ware.serial, id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( "client 0 did not send the lift" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  if ( !ev )
+    return ret_error( "the vendor's ware was lifted straight out of the buy window" );
+  endif
+  if ( ev.reason != MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP )
+    return ret_error( $"the lift was refused with reason {ev.reason}, expected {MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP}" );
+  endif
+
+  if ( v.ware.container != v.for_sale )
+    return ret_error( $"the ware left the for-sale container for {v.ware.container}" );
+  endif
 
   return 1;
 endfunction

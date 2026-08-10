@@ -25,6 +25,13 @@ const EVT_CANCEL_TARGET := "cancel_target";
 const EVT_DOUBLE_CLICK := "double_click";
 const EVT_LIFT_ITEM := "lift_item";
 const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";
+// The reason carried by that event, from pktdef.h. Only the first four can come out of a refused
+// lift; everything the core has no separate answer for is sent as 5.
+const MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP := 0;
+const MOVE_ITEM_FAILURE_TOO_FAR_AWAY := 1;
+const MOVE_ITEM_FAILURE_OUT_OF_SIGHT := 2;
+const MOVE_ITEM_FAILURE_BELONGS_TO_OTHER := 3;
+const MOVE_ITEM_FAILURE_UNKNOWN := 5;
 const EVT_DROP_ITEM := "drop_item";
 const EVT_WEAR_ITEM := "wear_item";
 const EVT_BUY_ITEMS := "buy_items";
