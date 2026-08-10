@@ -1,0 +1,24 @@
+error{ errortext = "array.size() doesn't take parameters." }
+error{ errortext = "array.erase(index) requires a parameter." }
+error{ errortext = "array.insert(index,value) requires two parameters." }
+error{ errortext = "array.shrink(nelems) requires a parameter." }
+error{ errortext = "array.append(value) requires a parameter." }
+error{ errortext = "array.reverse() doesn't take parameters." }
+error{ errortext = "array.randomentry() doesn't take parameters." }
+error{ errortext = "array.exists(index) requires a parameter." }
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }
+1
+1
+0
+error{ errortext = "Invalid parameter type" }
+0
+{ 1, 2, 3, 4 }
+0
+{ 1, 2, 3, 4 }
+1
+{ 4, 1, 2, 3 }
+1
+{ 2, 3, 4, 1 }
+0
+{  }

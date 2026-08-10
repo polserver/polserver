@@ -1,0 +1,23 @@
+error{ errortext = "Unable to extract type character" }
+error{ errortext = "Unknown object type 'z'" }
+<uninitialized object>
+3:abc
+
+abc
+error{ errortext = "Unable to unpack string length." }
+error{ errortext = "Unable to unpack string length." }
+error{ errortext = "Unable to unpack string length. Bad format. Colon not found!" }
+error{ errortext = "Unable to unpack string length. String length excessive." }
+error{ errortext = "Unable to unpack string length. Invalid length!" }
+error{ errortext = "Unable to unpack array elemcount" }
+error{ errortext = "Unable to unpack array elemcount" }
+error{ errortext = "Unable to unpack array elemcount. Bad format. Colon not found!" }
+error{ errortext = "Unable to unpack array elemcount. Invalid length!" }
+{ 5, 3 }
+error{ errortext = "Unable to unpack struct elemcount" }
+error{ errortext = "Unable to unpack struct elemcount" }
+error{ errortext = "Unable to unpack struct elemcount. Bad format. Colon not found!" }
+error{ errortext = "Unable to unpack struct elemcount. Length given must be positive integer!" }
+error{ errortext = "Error extracting Integer value" }
+error{ errortext = "Error extracting Integer value" }
+42

@@ -1,0 +1,35 @@
+// unpack() reports malformed input as an error object instead of raising. The leading
+// character selects the type, and each type parses the rest of the string itself.
+print( unpack( "" ) );
+print( unpack( "z" ) );
+print( unpack( "x" ) );
+
+// Lower-case s reads the rest of the line verbatim, so nothing about it can be malformed.
+print( unpack( "s3:abc" ) );
+print( unpack( "s" ) );
+
+// Upper-case S carries a length, then a colon, then exactly that many bytes.
+print( unpack( "S3:abc" ) );
+print( unpack( "S" ) );
+print( unpack( "Sabc" ) );
+print( unpack( "S3;abc" ) );
+print( unpack( "S5:ab" ) );
+print( unpack( "S-1:x" ) );
+
+// A packed array carries an element count in the same shape.
+print( unpack( "a" ) );
+print( unpack( "aabc" ) );
+print( unpack( "a2;" ) );
+print( unpack( "a-1:" ) );
+print( unpack( "a2:i5i3" ) );
+
+// A packed struct counts its members the same way.
+print( unpack( "t" ) );
+print( unpack( "tabc" ) );
+print( unpack( "t2;" ) );
+print( unpack( "t-1:" ) );
+
+// A packed integer is the digits alone.
+print( unpack( "i" ) );
+print( unpack( "iabc" ) );
+print( unpack( "i42" ) );

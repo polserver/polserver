@@ -1,0 +1,33 @@
+// The bit and arithmetic operators have a fallback for every operand type that cannot
+// take part in them. None of these combinations raises an error: the fallback hands back
+// a copy of one of the operands, and this pins which one.
+var i := 5;
+var d := 1.5;
+var s := "abc";
+var arr := { 1, 2 };
+var st := struct{ x := 1 };
+var dict := dictionary{ "k" -> 1 };
+var err := error{ errortext := "nope" };
+
+print( s & i );
+print( d | i );
+print( arr ^ i );
+print( st << i );
+print( dict >> i );
+print( err & i );
+
+// The same pairs with the operands the other way round.
+print( i & s );
+print( i | d );
+print( i ^ arr );
+print( i << st );
+print( i >> dict );
+
+// Subtraction, multiplication, division and modulus have the same fallback.
+print( s - i );
+print( arr - i );
+print( s * i );
+print( arr / i );
+print( st % i );
+print( dict - i );
+print( err * i );

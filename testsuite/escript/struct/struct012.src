@@ -1,0 +1,23 @@
+var st := struct{ x := 1 };
+
+print( TypeOf( st ) );
+print( TypeOfInt( st ) );
+print( st.size() );
+
+st.+y := 2;
+print( st );
+print( st.size() );
+print( st.?y );
+print( st.?missing );
+
+st.-y;
+print( st );
+print( st.size() );
+
+// Removing a member that is not there leaves the struct alone.
+st.-missing;
+print( st );
+
+// A method the compiler does not know is looked up by name at runtime.
+var unknown := st.no_such_method();
+print( unknown );

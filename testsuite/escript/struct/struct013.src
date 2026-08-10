@@ -1,0 +1,10 @@
+// struct.size() takes no parameters, and a packed struct counts its members with a length
+// then a colon, so a malformed count is reported rather than assumed.
+var st := struct{ x := 1, y := 2 };
+
+print( st.size() );
+print( st.size( 1 ) );
+print( st.size( 1, 2 ) );
+
+// An unknown method is still looked up by name at runtime.
+print( st.no_such_method( 1 ) );
