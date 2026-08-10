@@ -266,6 +266,12 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
+
+  // A single remaining index means this is the tail of a chained subscript such as
+  // dict["key",n], not a slice: take the element at that position.
+  if ( indices.empty() )
+    return OperSubscript( *start_ref );
+
   BObjectRef length_ref = indices.top();
   indices.pop();
 

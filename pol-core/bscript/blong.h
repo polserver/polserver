@@ -1,8 +1,8 @@
 #pragma once
 
+#include "bscript/bobjectimp.h"
 #include "clib/fixalloc.h"
 #include "clib/passert.h"
-#include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {
@@ -84,28 +84,18 @@ public:  // Class Machinery
 
   BObjectImp* selfBitShiftRightObjImp( const BObjectImp& objimp ) const override;
   BObjectImp* selfBitShiftRightObj( const BLong& objimp ) const override;
-  void selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj ) override;
-  void selfBitShiftRightObj( BLong& objimp, BObject& obj ) override;
 
   BObjectImp* selfBitShiftLeftObjImp( const BObjectImp& objimp ) const override;
   BObjectImp* selfBitShiftLeftObj( const BLong& objimp ) const override;
-  void selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj ) override;
-  void selfBitShiftLeftObj( BLong& objimp, BObject& obj ) override;
 
   BObjectImp* selfBitAndObjImp( const BObjectImp& objimp ) const override;
   BObjectImp* selfBitAndObj( const BLong& objimp ) const override;
-  void selfBitAndObjImp( BObjectImp& objimp, BObject& obj ) override;
-  void selfBitAndObj( BLong& objimp, BObject& obj ) override;
 
   BObjectImp* selfBitXorObjImp( const BObjectImp& objimp ) const override;
   BObjectImp* selfBitXorObj( const BLong& objimp ) const override;
-  void selfBitXorObjImp( BObjectImp& objimp, BObject& obj ) override;
-  void selfBitXorObj( BLong& objimp, BObject& obj ) override;
 
   BObjectImp* selfBitOrObjImp( const BObjectImp& objimp ) const override;
   BObjectImp* selfBitOrObj( const BLong& objimp ) const override;
-  void selfBitOrObjImp( BObjectImp& objimp, BObject& obj ) override;
-  void selfBitOrObj( BLong& objimp, BObject& obj ) override;
 
   BObjectImp* bitnot() const override;
 

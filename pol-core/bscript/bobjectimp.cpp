@@ -20,10 +20,8 @@
 #include <unordered_map>
 #endif
 
-
 namespace Pol::Bscript
 {
-
 
 /**
  * Pack formats:
@@ -90,7 +88,6 @@ BObjectImp* BObjectImp::unpack( const char* pstr )
 
 #if BOBJECTIMP_DEBUG
 typedef std::unordered_map<unsigned int, BObjectImp*> bobjectimps;
-
 
 bobjectimps bobjectimp_instances;
 int display_bobjectimp_instance( BObjectImp* imp )
@@ -188,7 +185,6 @@ const char* BObjectImp::typeOf() const
   return typestr( type_ );
 }
 
-
 u8 BObjectImp::typeOfInt() const
 {
   return type_;
@@ -280,8 +276,9 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices
     return BObjectRef( imp );
   }
 
-  BObjectRef ref = OperSubscript( *index );
-  return ( *ref ).impptr()->OperMultiSubscript( indices );
+  // Only String assigns through a multi-subscript; every other type reaches this and has
+  // nowhere to put the value.
+  return BObjectRef( new BError( "Multiple subscript assignment not supported for this type" ) );
 }
 
 BObjectImp* BObjectImp::selfIsObjImp( const BObjectImp& objimp ) const
@@ -363,10 +360,6 @@ BObjectImp* BObjectImp::selfMinusObj( const String& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfMinusObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
 void BObjectImp::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfMinusObj( *this, obj );
@@ -387,10 +380,6 @@ void BObjectImp::selfMinusObj( String& /*objimp*/, BObject& /*obj*/ )
 {
   //
 }
-void BObjectImp::selfMinusObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
 
 BObjectImp* BObjectImp::selfTimesObjImp( const BObjectImp& objimp ) const
 {
@@ -408,14 +397,6 @@ BObjectImp* BObjectImp::selfTimesObj( const Double& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfTimesObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfTimesObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
 void BObjectImp::selfTimesObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfTimesObj( *this, obj );
@@ -429,14 +410,6 @@ void BObjectImp::selfTimesObj( BLong& /*objimp*/, BObject& /*obj*/ )
   //
 }
 void BObjectImp::selfTimesObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfTimesObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfTimesObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
 {
   //
 }
@@ -457,14 +430,6 @@ BObjectImp* BObjectImp::selfDividedByObj( const Double& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfDividedByObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfDividedByObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
 void BObjectImp::selfDividedByObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfDividedByObj( *this, obj );
@@ -478,14 +443,6 @@ void BObjectImp::selfDividedByObj( BLong& /*objimp*/, BObject& /*obj*/ )
   //
 }
 void BObjectImp::selfDividedByObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfDividedByObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfDividedByObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
 {
   //
 }
@@ -506,14 +463,6 @@ BObjectImp* BObjectImp::selfModulusObj( const Double& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfModulusObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfModulusObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
 void BObjectImp::selfModulusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfModulusObj( *this, obj );
@@ -530,14 +479,6 @@ void BObjectImp::selfModulusObj( Double& /*objimp*/, BObject& /*obj*/ )
 {
   //
 }
-void BObjectImp::selfModulusObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfModulusObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
 
 BObjectImp* BObjectImp::selfBitShiftRightObjImp( const BObjectImp& objimp ) const
 {
@@ -551,43 +492,6 @@ BObjectImp* BObjectImp::selfBitShiftRightObj( const BLong& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfBitShiftRightObj( const Double& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitShiftRightObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitShiftRightObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
-void BObjectImp::selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitShiftRightObj( *this, obj );
-}
-void BObjectImp::selfBitShiftRightObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftRightObj( BLong& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftRightObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftRightObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftRightObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-
 BObjectImp* BObjectImp::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitShiftLeftObj( *this );
@@ -600,43 +504,6 @@ BObjectImp* BObjectImp::selfBitShiftLeftObj( const BLong& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfBitShiftLeftObj( const Double& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitShiftLeftObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitShiftLeftObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
-void BObjectImp::selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitShiftLeftObj( *this, obj );
-}
-void BObjectImp::selfBitShiftLeftObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftLeftObj( BLong& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftLeftObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftLeftObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitShiftLeftObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-
 BObjectImp* BObjectImp::selfBitAndObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitAndObj( *this );
@@ -649,43 +516,6 @@ BObjectImp* BObjectImp::selfBitAndObj( const BLong& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfBitAndObj( const Double& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitAndObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitAndObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
-void BObjectImp::selfBitAndObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitAndObj( *this, obj );
-}
-void BObjectImp::selfBitAndObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitAndObj( BLong& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitAndObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitAndObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitAndObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-
 BObjectImp* BObjectImp::selfBitOrObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitOrObj( *this );
@@ -698,43 +528,6 @@ BObjectImp* BObjectImp::selfBitOrObj( const BLong& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfBitOrObj( const Double& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitOrObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitOrObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
-void BObjectImp::selfBitOrObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitOrObj( *this, obj );
-}
-void BObjectImp::selfBitOrObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitOrObj( BLong& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitOrObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitOrObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitOrObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-
 BObjectImp* BObjectImp::selfBitXorObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitXorObj( *this );
@@ -747,43 +540,6 @@ BObjectImp* BObjectImp::selfBitXorObj( const BLong& /*objimp*/ ) const
 {
   return copy();
 }
-BObjectImp* BObjectImp::selfBitXorObj( const Double& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitXorObj( const String& /*objimp*/ ) const
-{
-  return copy();
-}
-BObjectImp* BObjectImp::selfBitXorObj( const ObjArray& /*objimp*/ ) const
-{
-  return copy();
-}
-void BObjectImp::selfBitXorObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitXorObj( *this, obj );
-}
-void BObjectImp::selfBitXorObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitXorObj( BLong& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitXorObj( Double& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitXorObj( String& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-void BObjectImp::selfBitXorObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
-{
-  //
-}
-
 BObjectImp* BObjectImp::bitnot() const
 {
   return copy();
@@ -793,7 +549,6 @@ void BObjectImp::operInsertInto( BObject& obj, const BObjectImp& /*objimp*/ )
 {
   obj.setimp( new BError( "Object is not a 'container'" ) );
 }
-
 
 void BObjectImp::operPlusEqual( BObject& obj, BObjectImp& objimp )
 {
