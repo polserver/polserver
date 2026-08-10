@@ -1,0 +1,47 @@
+use uo;
+
+include "testutil";
+
+program test_move_to_ground()
+  return 1;
+endprogram
+
+// Destroying a house tips its contents onto the ground. The search for a spot walks a 5x5 block
+// to the south east of the item and takes the first one a land walker could stand on; only when
+// every one of those fails does it fall back to the ground height of the item's own tile.
+//
+// Over water no land walker can stand anywhere, so a house floated out on the map's water border
+// is the way to reach that fallback. Water sits at z -5 and is not blocking, so the ground height
+// is found and the item lands on it.
+const WATER_X := 12;
+const WATER_Y := 12;
+const WATER_Z := -5;
+
+exported function contents_fall_to_ground_height( resmngr )
+  var house := resmngr.CreateMultiAtLocation( WATER_X, WATER_Y, WATER_Z, 0x12000, CRMULTI_IGNORE_ALL );
+  if ( !house )
+    return ret_error( $"failed to float the house: {house}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( WATER_X, WATER_Y, WATER_Z, 0x4ae );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  var res := DestroyMulti( house );
+  if ( !res )
+    return ret_error( $"failed to destroy the house: {res}" );
+  endif
+
+  // The item outlives its house and comes to rest on the water, not at some walkable z.
+  if ( !item )
+    return ret_error( "the item went away with the house" );
+  endif
+  if ( item.z != WATER_Z )
+    return ret_error( $"item came to rest at z {item.z}, expected {WATER_Z}" );
+  endif
+  if ( item.x != WATER_X || item.y != WATER_Y )
+    return ret_error( $"item moved to {item.x},{item.y}, expected {WATER_X},{WATER_Y}" );
+  endif
+  return 1;
+endfunction
