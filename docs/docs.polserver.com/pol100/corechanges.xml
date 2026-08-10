@@ -2,9 +2,14 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-07-2026</datemodified>
+		<datemodified>08-08-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-08-2026</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Custom houses customizable components are no longer limited by a single packet, increasing the number of components allowed.</change>
+		</entry>
 		<entry>
 			<date>08-07-2026</date>
 			<author>Turley:</author>
