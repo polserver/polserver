@@ -294,9 +294,9 @@ Core::Pos3d Item::local_position() const
   if ( loc.holds<Items::InContainer>() || loc.holds<Items::OnCorpse>() )
     return Core::Pos3d( loc.grid(), 0 );
   // Worn or held, the item is wherever the one wearing or holding it is standing, and it moves when
-  // they do. The two are spelled separately because the walk up to an owner treats them differently:
-  // it ends at the character for something worn, and deliberately stops short of the holder for
-  // something on a cursor.
+  // they do. The two are spelled separately because the walk up to an owner treats them
+  // differently: it ends at the character for something worn, and deliberately stops short of the
+  // holder for something on a cursor.
   if ( const auto* equipped = loc.get_if<Items::Equipped>() )
     return equipped->chr->pos3d();
   if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )

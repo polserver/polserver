@@ -191,8 +191,7 @@ void doubleclick( Network::Client* client, PKTIN_06* msg )
       return;
     }
     UObject* obj = item->toplevel_owner();
-    if ( id.use_requires_los && !client->chr->stored_realm()->has_los( *client->chr, *obj ) )  // DAVE
-                                                                                        // 11/24
+    if ( id.use_requires_los && !client->chr->stored_realm()->has_los( *client->chr, *obj ) )
     {
       private_say_above( client->chr, item, "I can't see that." );
       return;
