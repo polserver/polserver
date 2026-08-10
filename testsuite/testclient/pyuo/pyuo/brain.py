@@ -172,6 +172,7 @@ class Event:
   EVT_SPELLBOOK = 26
   EVT_MAP = 27
   EVT_MAP_PIN = 28
+  EVT_OUT_OF_RANGE_OBJ = 29
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -188,6 +189,9 @@ class Event:
   EVT_AOS_TOOLTIP = 112
   EVT_WEAR_ITEM = 113
   EVT_CANCEL_TARGET = 114
+  EVT_BUY_ITEMS = 115
+  EVT_SELL_ITEMS = 116
+  EVT_RACE_CHANGE = 117
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -220,6 +224,8 @@ class Event:
       return "new_item"
     elif self.type==Event.EVT_REMOVED_OBJ:
       return "removed_obj"
+    elif self.type==Event.EVT_OUT_OF_RANGE_OBJ:
+      return "out_of_range_obj"
     elif self.type==Event.EVT_EXIT:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:
@@ -250,6 +256,12 @@ class Event:
       return "wear_item"
     elif self.type==Event.EVT_CANCEL_TARGET:
       return "cancel_target"
+    elif self.type==Event.EVT_BUY_ITEMS:
+      return "buy_items"
+    elif self.type==Event.EVT_SELL_ITEMS:
+      return "sell_items"
+    elif self.type==Event.EVT_RACE_CHANGE:
+      return "race_change"
     elif self.type==Event.EVT_BOAT_MOVE:
       return "boat_move"
     elif self.type==Event.EVT_DROP_APPROVED:

@@ -66,9 +66,7 @@ Item* Item::clone() const
   item->setposition( pos() );
   item->facing = facing;
   item->setamount( amount_ );
-  item->layer = layer;
   item->tile_layer = tile_layer;
-  item->container = nullptr;  // was container
   item->sellprice_( sellprice_() );
   item->buyprice_( buyprice_() );
   item->newbie( newbie() );
@@ -247,23 +245,23 @@ bool Item::getbuyprice( u32& bp ) const
 
 Core::UObject* Item::owner()
 {
-  if ( container != nullptr )
-    return container->self_as_owner();
+  if ( Core::UContainer* cont = container(); cont != nullptr )
+    return cont->self_as_owner();
   return nullptr;
 }
 
 const Core::UObject* Item::owner() const
 {
-  if ( container != nullptr )
-    return container->self_as_owner();
+  if ( const Core::UContainer* cont = container(); cont != nullptr )
+    return cont->self_as_owner();
   return nullptr;
 }
 
 Core::UObject* Item::toplevel_owner()
 {
   Item* item = this;
-  while ( item->container != nullptr )
-    item = item->container;
+  for ( Core::UContainer* cont = item->container(); cont != nullptr; cont = item->container() )
+    item = cont;
 
   return item;
 }
@@ -271,8 +269,9 @@ Core::UObject* Item::toplevel_owner()
 const Core::UObject* Item::toplevel_owner() const
 {
   const Item* item = this;
-  while ( item->container != nullptr )
-    item = item->container;
+  for ( const Core::UContainer* cont = item->container(); cont != nullptr;
+        cont = item->container() )
+    item = cont;
 
   return item;
 }
@@ -360,8 +359,16 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( amount_ != 1 )
     sw.add( "Amount", amount_ );
 
-  if ( layer != 0 )
-    sw.add( "Layer", (int)layer );
+  // Where the item is, not something it carries: only a worn item and the equipment a corpse
+  // renders have a layer, and the loader reads this back as one of the two.
+  if ( u8 worn_on = location().layer(); worn_on != 0 )
+    sw.add( "Layer", (int)worn_on );
+
+  // Same category as Layer: which cell of a container's grid the item occupies. Zero for every
+  // shard not using slots -- relocate refuses to record one there -- so nothing new is written
+  // into their world files.
+  if ( u8 slot = location().slot(); slot != 0 )
+    sw.add( "SlotIndex", (int)slot );
 
   if ( movable() != default_movable() )
     sw.add( "Movable", movable() );
@@ -372,8 +379,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   if ( cursed() != default_cursed() )
     sw.add( "Cursed", cursed() );
 
-  if ( container != nullptr )
-    sw.add( "Container", Clib::hexintv( container->serial ) );
+  if ( const Core::UContainer* cont = container(); cont != nullptr )
+    sw.add( "Container", Clib::hexintv( cont->serial ) );
 
   if ( !on_use_script_.get().empty() )
     sw.add( "OnUseScript", on_use_script_.get() );
@@ -485,11 +492,11 @@ void Item::readProperties( Clib::ConfigElem& elem )
   color &= Core::settingsManager.ssopt.item_color_mask;
 
   amount_ = elem.remove_ushort( "AMOUNT", 1 );
-  layer = static_cast<unsigned char>( elem.remove_ushort( "LAYER", 0 ) );
   movable( elem.remove_bool( "MOVABLE", default_movable() ) );
   invisible( elem.remove_bool( "INVISIBLE", default_invisible() ) );
 
-  // NOTE, container is handled specially - it is extracted by the creator.
+  // NOTE, container and layer are handled specially - they say where the item goes rather than
+  // what it is, so the loader reads them itself and hands them to whatever places the item.
 
   on_use_script_ = elem.remove_string( "ONUSESCRIPT", "" );
   equip_script_ = elem.remove_string( "EQUIPSCRIPT", equip_script_.get().c_str() );
@@ -688,17 +695,6 @@ unsigned short Item::get_senditem_amount() const
   return amount_;
 }
 
-bool Item::setlayer( unsigned char in_layer )
-{
-  if ( Plib::tilelayer( graphic ) == in_layer )
-  {
-    layer = in_layer;
-    return true;
-  }
-
-  return false;
-}
-
 bool Item::stackable() const
 {
   if ( flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) )
@@ -718,8 +714,8 @@ void Item::setamount( u16 amount )
 
   amount_ = amount;
   int newweight = weight();
-  if ( container )
-    container->add_bulk( 0, newweight - oldweight );
+  if ( Core::UContainer* outer = container(); outer != nullptr )
+    outer->add_bulk( 0, newweight - oldweight );
 
   increv();
   send_object_cache_to_inrange( this );
@@ -760,7 +756,7 @@ void Item::increv_send_object_recursive()
   {
     item->increv();
     send_object_cache_to_inrange( item );
-    item = item->container;
+    item = item->container();
   } while ( item != nullptr );
 }
 
@@ -859,12 +855,12 @@ bool Item::can_add_to_self( unsigned short amount, bool force_stacking ) const
   if ( ( amount1 + amount2 ) > this->itemdesc().stack_limit )
     return false;
 
-  if ( container != nullptr )
+  if ( const Core::UContainer* outer = container(); outer != nullptr )
   {
     int more_weight = weight_of( amount_ + amount ) - weight_of( amount_ );
     if ( more_weight > USHRT_MAX /*std::numeric_limits<unsigned short>::max()*/ )
       return false;
-    return container->can_add( static_cast<unsigned short>( more_weight ) );
+    return outer->can_add( static_cast<unsigned short>( more_weight ) );
   }
 
   return true;
@@ -969,7 +965,7 @@ void Item::set_use_script( const std::string& scriptname )
 bool Item::setgraphic( u16 newgraphic )
 {
   /// Can't set the graphic of an equipped item, unless the new graphic has the same layer
-  if ( layer && layer != Plib::tilelayer( newgraphic ) )
+  if ( u8 worn_on = location().layer(); worn_on && worn_on != Plib::tilelayer( newgraphic ) )
   {
     return false;
   }
@@ -1051,27 +1047,7 @@ void Item::on_facing_changed()
   update_item_to_inrange( this );
 }
 
-void Item::extricate()
-{
-  if ( container != nullptr )
-  {
-    // hmm, a good place for a virtual?
-    if ( Core::IsCharacter( container->serial ) )
-    {
-      Mobile::Character* chr = container->get_chr_owner();
-      passert_always( chr != nullptr );  // PRODFIXME linux-crash
-      passert_always( chr->is_equipped( this ) );
-
-      chr->unequip( this );  // FIXME: should run unequip script
-    }
-    else
-    {
-      container->remove( this );  // FIXME: should probably call can/onRemove for the container
-    }
-  }
-}
-
-void Item::spill_contents( Multi::UMulti* /*multi*/ ) {}
+void Item::spill_contents() {}
 
 unsigned int Item::weight_of( unsigned short amount ) const
 {
@@ -1227,11 +1203,9 @@ bool Item::check_equip_script( Mobile::Character* equip_on, Mobile::Character* e
 
 bool Item::check_unequip_script( Mobile::Character* unequip_by )
 {
-  if ( !unequip_script_.get().empty() && container != nullptr &&
-       Core::IsCharacter( container->serial ) )
+  Mobile::Character* chr = wearer();
+  if ( !unequip_script_.get().empty() && chr != nullptr )
   {
-    Mobile::Character* chr = container->get_chr_owner();
-    passert_always( chr != nullptr );
     passert_always( chr->is_equipped( this ) );
 
     Bscript::BObject obj( run_unequip_script( chr, unequip_by ) );
@@ -1319,10 +1293,8 @@ bool Item::check_unequiptest_scripts( Mobile::Character* unequip_on, Mobile::Cha
 
 bool Item::check_unequiptest_scripts( Mobile::Character* unequip_by )
 {
-  if ( container != nullptr && Core::IsCharacter( container->serial ) )
+  if ( Mobile::Character* unequip_on = wearer(); unequip_on != nullptr )
   {
-    Mobile::Character* unequip_on = container->get_chr_owner();
-    passert_always( unequip_on != nullptr );
     passert_always( unequip_on->is_equipped( this ) );
 
     return check_unequiptest_scripts( unequip_on, unequip_by );
@@ -1426,7 +1398,7 @@ bool Item::get_method_hook( const char* methodname, Bscript::Executor* ex,
 
 bool Item::is_attackable() const
 {
-  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) && !orphan() && container == nullptr &&
+  return flags_.get( Core::OBJ_FLAGS::ATTACKABLE ) && !orphan() && container() == nullptr &&
          !has_gotten_by();
 }
 
@@ -1455,7 +1427,9 @@ u16 Item::apply_damage( u16 damage, Mobile::Character* attacker, bool send_damag
   {
     if ( has_gotten_by() )
       gotten_by()->clear_gotten_item();
-    Core::destroy_item_with_script_check( this );
+    // The shard's destroy script can refuse, and nothing here can do anything about it: the item
+    // simply stays where it is with no hit points left, and the next hit asks again.
+    (void)Core::try_destroy_item( this );
   }
   return damage;
 }
@@ -1647,7 +1621,13 @@ void Item::clear_opponents( bool inform_opponents )
 
 void Item::destroy()
 {
+  // Before the item leaves the world, so that the opponents it is disengaging from can still be
+  // found through it.
   clear_opponents( false );
-  base::destroy();
+  // Leaving whatever home the item is in and the end of the item are one step. Split apart, they
+  // are the shape that leaves a destroyed item filed in a container: the container's entry is a
+  // plain pointer, so Reap frees the item and the entry stays behind.
+  detach( *this );
+  mark_orphan();
 }
 }  // namespace Pol::Items

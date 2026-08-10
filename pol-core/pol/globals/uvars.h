@@ -49,6 +49,7 @@ class Equipment;
 class Item;
 class ItemDesc;
 class UWeapon;
+enum class IntrinsicKind : u8;
 }  // namespace Items
 namespace Mobile
 {
@@ -111,8 +112,8 @@ using VitalsByName = std::map<std::string, Vital*, Clib::ci_cmp_pred>;
 using OldObjtypeConversions = std::map<unsigned int, unsigned int>;
 using ObjtypeByNameMap = std::map<std::string, u32, Clib::ci_cmp_pred>;
 using ResourceDefs = std::map<std::string, ResourceDef*>;
-using NameAndLayer = std::pair<std::string, u8>;
-using IntrinsicEquipments = std::map<NameAndLayer, Items::Equipment*>;
+using NameAndKind = std::pair<std::string, Items::IntrinsicKind>;
+using IntrinsicEquipments = std::map<NameAndKind, Items::Equipment*>;
 using BoatShapes = std::map<u16, Multi::BoatShape*>;
 using ListenPoints = std::map<UOExecutor*, ListenPoint*>;
 using TaskQueue = std::priority_queue<ScheduledTask*, std::vector<ScheduledTask*>, SchComparer>;

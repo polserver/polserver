@@ -304,8 +304,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
@@ -406,7 +405,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( validhair( cfBEu16( msg->HairStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -420,7 +418,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   if ( validbeard( cfBEu16( msg->BeardStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -432,23 +429,21 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
+      {
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
-    else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -456,13 +451,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -479,13 +472,11 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -493,7 +484,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -549,8 +539,7 @@ void createchar2( Accounts::Account* acct, unsigned index )
   chr->serial_ext = ctBEu32( chr->serial );
   chr->setposition( Pos4d( 1, 1, 1, find_realm( std::string( "britannia" ) ) ) );
   chr->facing = 1;
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
   chr->position_changed();
   chr->graphic = UOBJ_HUMAN_MALE;
   chr->gender = Plib::GENDER_MALE;
@@ -639,8 +628,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
@@ -751,7 +739,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validhair( cfBEu16( msg->hairstyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->hairstyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->haircolor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -765,7 +752,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validbeard( cfBEu16( msg->beardstyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->beardstyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->beardcolor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -779,7 +765,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   if ( validface( cfBEu16( msg->face_id ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->face_id ) );
-    tmpitem->layer = LAYER_FACE;
     tmpitem->color = cfBEu16( msg->face_color );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -791,23 +776,21 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
+      {
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
-    else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -815,13 +798,11 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -838,13 +819,11 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -852,7 +831,6 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -1008,8 +986,7 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->serial = chr->serial;
-  chr->wornitems->serial_ext = chr->serial_ext;
+  chr->wornitems->adopt( *chr );
 
   chr->graphic = graphic;
   chr->race = race;
@@ -1158,7 +1135,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( validhair( cfBEu16( msg->HairStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->HairStyle ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->HairColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -1172,7 +1148,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   if ( validbeard( cfBEu16( msg->BeardStyle ) ) )
   {
     tmpitem = Items::Item::create( cfBEu16( msg->BeardStyle ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->BeardColor );
     if ( chr->equippable( tmpitem ) )  // check it or passert will trigger
       chr->equip( tmpitem );
@@ -1184,23 +1159,21 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   }
 
   UContainer* backpack = (UContainer*)Items::Item::create( UOBJ_BACKPACK );
-  backpack->layer = LAYER_BACKPACK;
   chr->equip( backpack );
 
   if ( settingsManager.ssopt.starting_gold != 0 )
   {
     tmpitem = Items::Item::create( 0x0EED );
     tmpitem->setamount( settingsManager.ssopt.starting_gold );
-    u8 newSlot = 1;
-    if ( !backpack->can_add_to_slot( newSlot ) || !tmpitem->slot_index( newSlot ) )
+    if ( !Items::move_into( *tmpitem, *backpack, Pos2d( 46, 91 ) ) )
     {
-      tmpitem->setposition( chr->pos() );
-      add_item_to_world( tmpitem );
-      register_with_supporting_multi( tmpitem );
-      move_item( tmpitem, tmpitem->pos() );
+      if ( Items::place_at( *tmpitem, chr->pos() ) )
+      {
+        // Not a move: it is already where it is going, so this only shows it to everyone standing
+        // there.
+        send_item_moved( tmpitem, tmpitem->pos() );
+      }
     }
-    else
-      backpack->add( tmpitem, Pos2d( 46, 91 ) );
   }
 
   if ( chr->race == Plib::RACE_HUMAN ||
@@ -1208,13 +1181,11 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x170F );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_SHOES;
     tmpitem->color = 0x021F;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( 0xF51 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_HAND1;
     chr->equip( tmpitem );
 
     unsigned short pantstype, shirttype;
@@ -1231,13 +1202,11 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
 
     tmpitem = Items::Item::create( pantstype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( pantstype );
     tmpitem->color = cfBEu16( msg->pantscolor );  // 0x0284;
     chr->equip( tmpitem );
 
     tmpitem = Items::Item::create( shirttype );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = Plib::tilelayer( shirttype );
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }
@@ -1245,7 +1214,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
   {
     tmpitem = Items::Item::create( 0x1F03 );
     tmpitem->newbie( settingsManager.ssopt.newbie_starting_equipment );
-    tmpitem->layer = LAYER_ROBE_DRESS;
     tmpitem->color = cfBEu16( msg->shirtcolor );
     chr->equip( tmpitem );
   }

@@ -74,7 +74,7 @@ void Spellbook::double_click( Network::Client* client )
     send_put_in_container( client, this );
     send_wornitem( client, client->chr, this );
   }
-  else if ( container != nullptr )
+  else if ( container() != nullptr )
     send_put_in_container( client, this );
   else
   {
@@ -298,10 +298,20 @@ void Spellbook::calc_current_bitwise_contents()
     bitwise_contents[( spellnum - 1 ) >> 3] |= 1 << ( spellslot - 1 );
   }
 
-  // ok, it's been upgraded. Destroy everything inside it.
-  for ( auto scroll : *this )
+  // ok, it's been upgraded. Destroy everything inside it. Each scroll takes itself out of the book
+  // on the way, so no iterator survives across the destruction.
+  while ( !contents_.empty() )
   {
+    Items::Item* scroll = contents_.back();
+    Items::detach( *scroll );
     scroll->destroy();
+
+    if ( !contents_.empty() && contents_.back() == scroll )
+    {
+      POLLOG_ERRORLN( "spellbook {:#x} would not release scroll {:#x} ({})", serial, scroll->serial,
+                      scroll->location().describe() );
+      break;
+    }
   }
 }
 
@@ -327,9 +337,10 @@ u16 USpellScroll::convert_objtype_to_spellnum( u32 objtype, u8 school )
 // Otherwise, they're stackable I believe.
 u16 USpellScroll::get_senditem_amount() const
 {
-  if ( ( container != nullptr ) && ( container->script_isa( POLCLASS_SPELLBOOK ) ) )
+  Core::UContainer* cont = container();
+  if ( ( cont != nullptr ) && ( cont->script_isa( POLCLASS_SPELLBOOK ) ) )
   {
-    Spellbook* book = static_cast<Spellbook*>( container );
+    Spellbook* book = static_cast<Spellbook*>( cont );
     return convert_objtype_to_spellnum( objtype_, book->spell_school );
   }
   // not contained, or not in a spellbook

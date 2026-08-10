@@ -1,0 +1,9 @@
+use uo;
+
+// Approves the insert, but destroys the container on the way. The core has to notice that the
+// container it was told to add to no longer exists.
+program caninsert_destroy_script( character, container, movetype, inserttype, adding_item,
+                                  existing_stack, amount_to_add )
+  DestroyItem( container );
+  return 1;
+endprogram

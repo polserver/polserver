@@ -155,6 +155,31 @@ class TestBrain(brain.Brain):
           self.client.secureTrade(arg)
         else:
           self.client.secureTrade(arg['action'], arg.get('flag', 0))
+      elif todo=="race_change":
+        self.client.raceChange(arg['bodyhue'], arg['hairid'], arg['hairhue'],
+                               arg['beardid'], arg['beardhue'])
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_RACE_CHANGE,
+            clientid = self.id
+            ))
+      elif todo=="buy_items":
+        # arg['items'] is a list of {serial, amount, layer}; layer is what the client echoes back
+        # from the vendor window and the core ignores it, so it defaults to 0.
+        items = [(i.get('layer', 0), i['serial'], i['amount']) for i in arg['items']]
+        self.client.buy(arg['vendor_serial'], items)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_BUY_ITEMS,
+            clientid = self.id,
+            vendor_serial = arg['vendor_serial']
+            ))
+      elif todo=="sell_items":
+        items = [(i['serial'], i['amount']) for i in arg['items']]
+        self.client.sell(arg['vendor_serial'], items)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_SELL_ITEMS,
+            clientid = self.id,
+            vendor_serial = arg['vendor_serial']
+            ))
       elif todo=="party":
         # the arguments a party command takes, in the order the packet wants
         # them: a serial, then a text, or a loot flag on its own
@@ -407,6 +432,10 @@ class PolServer:
     elif ev.type==Event.EVT_REMOVED_OBJ:
       res["serial"]=ev.serial
       res["oldpos"]=ev.oldpos
+    elif ev.type==Event.EVT_OUT_OF_RANGE_OBJ:
+      res["serial"]=ev.serial
+      res["pos"]=ev.pos
+      res["playerpos"]=ev.playerpos
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():
@@ -515,6 +544,10 @@ class PolServer:
       res['name']=ev.name
       res['hp']=ev.hp
       res['maxhp']=ev.maxhp
+    elif ev.type==Event.EVT_BUY_ITEMS or ev.type==Event.EVT_SELL_ITEMS:
+      res['vendor_serial']=ev.vendor_serial
+    elif ev.type==Event.EVT_RACE_CHANGE:
+      pass
     elif ev.type==Event.EVT_HOUSE_DESIGN:
       # what the header claims and what the planes actually carried are both
       # here on purpose: a design that disagrees with itself is the kind of

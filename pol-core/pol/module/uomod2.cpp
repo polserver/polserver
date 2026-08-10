@@ -217,7 +217,6 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
   NPC* merchant;
   int flags;
   UContainer *for_sale, *bought;
-  unsigned char save_layer_one, save_layer_two;
 
   if ( getCharacterParam( 0, chr ) && getItemParam( 1, item ) && getCharacterParam( 2, mrchnt ) &&
        getItemParam( 3, item2 ) && getParam( 4, flags ) )
@@ -263,17 +262,11 @@ BObjectImp* UOExecutorModule::mf_SendBuyWindow( /* character, container, vendor,
 
 
   // try this
-  save_layer_one = for_sale->layer;
-  for_sale->layer = LAYER_VENDOR_FOR_SALE;
-  send_wornitem( chr->client, merchant, for_sale );
-  for_sale->layer = save_layer_one;
+  send_wornitem( chr->client, merchant, for_sale, LAYER_VENDOR_FOR_SALE );
   for_sale->setposition( merchant->pos() );
   // chr->add_additional_legal_item( for_sale );
 
-  save_layer_two = bought->layer;
-  bought->layer = LAYER_VENDOR_PLAYER_ITEMS;
-  send_wornitem( chr->client, merchant, bought );
-  bought->layer = save_layer_two;
+  send_wornitem( chr->client, merchant, bought, LAYER_VENDOR_PLAYER_ITEMS );
   bought->setposition( merchant->pos() );
   // chr->add_additional_legal_item( bought );
 
@@ -417,6 +410,19 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
   int nitems = ( cfBEu16( msg->msglen ) - offsetof( PKTBI_3B, items ) ) / sizeof msg->items[0];
 
   bool from_bought;
+
+  // Return an item to the vendor container it came out of, when the buyer's pack would not take
+  // it. The vendor container can itself have been destroyed by the pack's CanInsert script, and
+  // then there is nowhere left to put it back.
+  // FIXME : Add Grid Index Default Location Checks here.
+  // Remember, if index fails, move to the ground.
+  auto put_back = [&]( Item* item )
+  {
+    UContainer* cont = from_bought ? vendor_bought : for_sale;
+    if ( !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), item->slot_index() } ) )
+      destroy_item( item );
+  };
+
   for ( int i = 0; i < nitems; ++i )
   {
     from_bought = false;
@@ -454,10 +460,10 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
       }
       else
       {
-        if ( from_bought )
-          vendor_bought->remove( fs_item );
-        else
-          for_sale->remove( fs_item );
+        // Whichever of the two vendor containers it was found in, the item knows; from_bought is
+        // only still needed to decide where an unsold one goes back.
+        if ( !Items::relocate( *fs_item, Items::Detached{} ) )
+          break;
         tobuy = fs_item;
         fs_item = nullptr;
       }
@@ -484,12 +490,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-            // FIXME : Add Grid Index Default Location Checks here.
-            // Remember, if index fails, move to the ground.
-            if ( from_bought )
-              vendor_bought->add( tobuy, tobuy->pos2d() );
-            else
-              for_sale->add( tobuy, tobuy->pos2d() );
+            put_back( tobuy );
           continue;
         }
         numleft -= num;
@@ -519,18 +520,25 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           if ( fs_item )
             fs_item->add_to_self( tobuy );
           else
-            // FIXME : Add Grid Index Default Location Checks here.
-            // Remember, if index fails, move to the ground.
-            if ( from_bought )
-              vendor_bought->add( tobuy, tobuy->pos2d() );
-            else
-              for_sale->add( tobuy, tobuy->pos2d() );
+            put_back( tobuy );
           continue;
         }
 
         // FIXME : Add Grid Index Default Location Checks here.
         // Remember, if index fails, move to the ground.
-        backpack->add_at_random_location( tobuy );
+        // The CanInsert script above is free to destroy the pack it was just asked about, so this
+        // is treated exactly as a refusal by that script.
+        if ( !Items::relocate( *tobuy,
+                               Items::InContainer{ backpack, backpack->get_random_location(),
+                                                   tobuy->slot_index() } ) )
+        {
+          numleft = 0;
+          if ( fs_item )
+            fs_item->add_to_self( tobuy );
+          else
+            put_back( tobuy );
+          continue;
+        }
         update_item_to_inrange( tobuy );
         amount_spent += tobuy->sellprice() * num;
 
@@ -542,14 +550,7 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
         if ( fs_item )
           fs_item->add_to_self( tobuy );
         else
-        {
-          // FIXME : Add Grid Index Default Location Checks here.
-          // Remember, if index fails, move to the ground.
-          if ( from_bought )
-            vendor_bought->add( tobuy, tobuy->pos2d() );
-          else
-            for_sale->add( tobuy, tobuy->pos2d() );
-        }
+          put_back( tobuy );
       }
     }
   }
@@ -762,20 +763,9 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
     return new BError( "Character has no backpack" );
   }
 
-  unsigned char save_layer = wi1a->layer;
-  wi1a->layer = LAYER_VENDOR_FOR_SALE;
-  send_wornitem( chr->client, merchant, wi1a );
-  wi1a->layer = save_layer;
-
-  save_layer = wi1b->layer;
-  wi1b->layer = LAYER_VENDOR_PLAYER_ITEMS;
-  send_wornitem( chr->client, merchant, wi1b );
-  wi1b->layer = save_layer;
-
-  save_layer = wi1c->layer;
-  wi1c->layer = LAYER_VENDOR_BUYABLE_ITEMS;
-  send_wornitem( chr->client, merchant, wi1c );
-  wi1c->layer = save_layer;
+  send_wornitem( chr->client, merchant, wi1a, LAYER_VENDOR_FOR_SALE );
+  send_wornitem( chr->client, merchant, wi1b, LAYER_VENDOR_PLAYER_ITEMS );
+  send_wornitem( chr->client, merchant, wi1c, LAYER_VENDOR_BUYABLE_ITEMS );
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 
@@ -843,20 +833,27 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     if ( vendor_bought->can_add( *item ) )
     {
-      backpack->remove( item );
-      if ( remainder_not_sold != nullptr )
-      {
-        // FIXME : Add Grid Index Default Location Checks here.
-        // Remember, if index fails, move to the ground.
-        backpack->add( remainder_not_sold, item->pos2d() );
-        update_item_to_inrange( remainder_not_sold );
-        remainder_not_sold = nullptr;
-      }
+      // The remainder goes where the sold item was, so the position has to be read before the sale
+      // moves it.
+      const Core::Pos2d packpos = item->pos2d();
+
       // FIXME : Add Grid Index Default Location Checks here.
       // Remember, if index fails, move to the ground.
-      vendor_bought->add_at_random_location( item );
-      update_item_to_inrange( item );
-      cost += buyprice * amount;
+      if ( Items::relocate( *item,
+                            Items::InContainer{ vendor_bought, vendor_bought->get_random_location(),
+                                                item->slot_index() } ) )
+      {
+        if ( remainder_not_sold != nullptr &&
+             Items::relocate(
+                 *remainder_not_sold,
+                 Items::InContainer{ backpack, packpos, remainder_not_sold->slot_index() } ) )
+        {
+          update_item_to_inrange( remainder_not_sold );
+          remainder_not_sold = nullptr;
+        }
+        update_item_to_inrange( item );
+        cost += buyprice * amount;
+      }
     }
 
     if ( remainder_not_sold != nullptr )
@@ -2693,10 +2690,11 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
   if ( validhair( cfBEu16( msg->characterracechanger.result.HairId ) ) )
   {
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.HairId ) );
-    tmpitem->layer = LAYER_HAIR;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.HairHue );
-    client->chr->equip( tmpitem );
-    send_wornitem_to_inrange( client->chr, tmpitem );
+    if ( Items::relocate( *tmpitem, Items::Equipped{ client->chr, tmpitem->tile_layer } ) )
+      send_wornitem_to_inrange( client->chr, tmpitem );
+    else
+      destroy_item( tmpitem );
   }
 
   // Create Beard
@@ -2706,10 +2704,11 @@ void character_race_changer_handler( Client* client, PKTBI_BF* msg )
   if ( validbeard( cfBEu16( msg->characterracechanger.result.BeardId ) ) )
   {
     tmpitem = Item::create( cfBEu16( msg->characterracechanger.result.BeardId ) );
-    tmpitem->layer = LAYER_BEARD;
     tmpitem->color = cfBEu16( msg->characterracechanger.result.BeardHue );
-    client->chr->equip( tmpitem );
-    send_wornitem_to_inrange( client->chr, tmpitem );
+    if ( Items::relocate( *tmpitem, Items::Equipped{ client->chr, tmpitem->tile_layer } ) )
+      send_wornitem_to_inrange( client->chr, tmpitem );
+    else
+      destroy_item( tmpitem );
   }
 }
 

@@ -20,12 +20,17 @@
 #include "pol/baseobject.h"
 #include "pol/dynproperties.h"
 #include "pol/globals/settings.h"
+#include "pol/item/location.h"
 #include "pol/layers.h"
 #include "pol/mobile/attack.h"
 #include "pol/uobject.h"
 
 namespace Pol
 {
+namespace Items
+{
+class Item;
+}
 namespace Bscript
 {
 class Executor;
@@ -47,6 +52,7 @@ namespace Core
 {
 class UContainer;
 class UOExecutor;
+class WornItemsContainer;
 
 std::string format_description( unsigned int polflags, const std::string& descdef,
                                 unsigned short amount, const std::string& suffix );
@@ -110,21 +116,46 @@ public:
   bool inuse() const;
   void inuse( bool newvalue );
 
+  /**
+   * Where this item is.
+   *
+   * Destroyed and OnCursor are derived from serial and the gotten_by link respectively, so they
+   * cannot disagree with the rest of the core; every other alternative is stored.
+   */
+  Location location() const;
+
+  /// The container holding this item: an ordinary container, the wearer's worn-items container, or
+  /// the corpse it is lying on. nullptr when the item is in none of those -- on the ground, on a
+  /// cursor, a storage root, or not yet placed.
+  Core::UContainer* container() const;
+
+  /// The character wearing this item, or nullptr if nobody is.
+  ///
+  /// Replaces asking the container: the worn-items container is given its character's serial, so
+  /// "is this item's container a character?" was the only way to answer this before the location
+  /// could be asked directly.
+  Mobile::Character* wearer() const;
+
+  /// An item's resistances are part of its wearer's armour rating, so changing one refreshes the
+  /// other. Does nothing when the item is not worn.
+  void refresh_wearer_ar() const;
+
   bool invisible() const;
   void invisible( bool newvalue );
   void on_invisible_changed();
 
   void set_decay_after( unsigned int seconds );
+  /// The game clock reading at which the item is due to decay; zero if it never will.
+  unsigned int decayat() const { return decayat_gameclock_; }
   bool should_decay( unsigned int gameclock ) const;
   void restart_decay_timer();
   void disable_decay();
   bool can_decay() const;
 
-  bool setlayer( unsigned char layer );
   bool setgraphic( u16 newobjtype ) override;
   bool setcolor( u16 newcolor ) override;
   void on_color_changed() override;
-  virtual void spill_contents( Multi::UMulti* supporting_multi );
+  virtual void spill_contents();
 
   void setfacing( u8 newfacing ) override;
   void on_facing_changed() override;
@@ -157,9 +188,10 @@ public:
   bool default_no_drop() const;
   void no_drop( bool newvalue );
 
+  /// Which cell of its container's grid the item sits in, or 0 for an item that is not in one.
+  /// Derived: relocate() is what puts an item in a slot, so there is nothing here to keep in
+  /// step with it.
   u8 slot_index() const;
-  bool slot_index( u8 newvalue );
-  void reset_slot();
 
   virtual unsigned int item_count() const;
   unsigned int weight_of( unsigned short amount ) const;  // uses weight_multiplier_mod
@@ -197,7 +229,6 @@ public:
   Item* remove_part_of_stack( u16 amount_to_remove );
 
   void set_use_script( const std::string& scriptname );
-  void extricate();
 
   bool has_equip_script() const;
   Bscript::BObjectImp* run_equip_script( Mobile::Character* chr, bool startup );
@@ -286,8 +317,20 @@ protected:  // only derived classes need the constructor
 private:
   double getItemdescQuality() const;
 
-public:
-  Core::UContainer* container;
+  void set_location( Location loc );
+
+  Location loc_;
+
+  // relocate() decides where an item is; nothing else may. The two exceptions left are the ones
+  // that unlink in bulk or hand an item to a layer, neither of which relocate() can express:
+  // UContainer::extract() empties a container in one pass for a caller that re-homes every item
+  // itself, and Character::equip() reaches PutItemOnLayer/RemoveItemFromLayer from the two dozen
+  // callers that equip without asking whether the character could.
+  friend bool relocate( Item& item, Location to );
+  friend bool relocate_loaded( Item& item, Location to );
+  friend void abandon( Item& item );
+  friend class Core::UContainer;
+  friend class Core::WornItemsContainer;
 
 protected:
   Core::UOExecutor* uoexec_control();
@@ -300,10 +343,8 @@ protected:
 
   unsigned int decayat_gameclock_;
   u16 amount_;
-  u8 slot_index_;
 
 public:
-  u8 layer;
   u8 tile_layer;
   unsigned short hp_;
   unsigned short maxhp() const;
@@ -401,29 +442,6 @@ inline void Item::insured( bool newvalue )
   flags_.change( Core::OBJ_FLAGS::INSURED, newvalue );
 }
 
-inline u8 Item::slot_index() const
-{
-  return slot_index_;
-}
-
-inline void Item::reset_slot()
-{
-  slot_index_ = 0;
-}
-
-inline bool Item::slot_index( u8 newvalue )
-{
-  if ( Core::settingsManager.ssopt.use_slot_index )
-  {
-    if ( newvalue < Core::settingsManager.ssopt.default_max_slots )
-    {
-      slot_index_ = newvalue;
-      return true;
-    }
-    return false;
-  }
-  return true;
-}
 
 inline bool valid_equip_layer( int layer )
 {

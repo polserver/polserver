@@ -40,10 +40,13 @@
 #include "pol/containr.h"
 #include "pol/eventid.h"
 #include "pol/fnsearch.h"
+#include "pol/getitem.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
+#include "pol/layers.h"
 #include "pol/los.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/mobile/npc.h"
 #include "pol/multi/multi.h"
 #include "pol/network/client.h"
@@ -71,7 +74,7 @@ namespace Pol::Core
 void send_trade_statuses( Mobile::Character* chr );
 
 bool place_item_in_container( Network::Client* client, Items::Item* item, UContainer* cont,
-                              const Pos2d& pos, u8 slotIndex )
+                              const Pos2d& pos, u8 slotIndex, const GottenItem& gotten )
 {
   ItemRef itemref( item );
   if ( ( cont->serial == item->serial ) || is_a_parent( cont, item->serial ) )
@@ -101,19 +104,28 @@ bool place_item_in_container( Network::Client* client, Items::Item* item, UConta
     send_sysmessage( client, "The container has no free slots available!" );
     return false;
   }
-  if ( !item->slot_index( slotIndex ) )
-  {
-    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
-    send_sysmessage( client, "The container has no free slots available!" );
-    return false;
-  }
 
   item->set_dirty();
 
   client->pause();
   send_remove_object_to_inrange( item );
 
-  cont->add( item, pos );
+  // An item that came off this corpse's layer goes back onto it. A player dragging loot around
+  // inside the corpse's gump sends a get and a drop like any other move, so without this a tidy-up
+  // would undress the corpse.
+  Items::Location target = Items::InContainer{ cont, pos, slotIndex };
+  if ( gotten.came_off_corpse_layer( cont ) )
+    target = Items::OnCorpse{ static_cast<UCorpse*>( cont ), pos, slotIndex, item->tile_layer };
+
+  // The CanInsert script above can have destroyed the container out from under us; relocate says
+  // no instead of adding to it.
+  if ( !Items::relocate( *item, target ) )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    client->restart();
+    return false;
+  }
+
   cont->restart_decay_timer();
   if ( !item->orphan() )
   {
@@ -219,7 +231,11 @@ bool do_place_item_in_secure_trade_container( Network::Client* client, Items::It
 
   send_remove_object_to_inrange( item );
 
-  cont->add( item, pos );
+  if ( !Items::relocate( *item, Items::InContainer{ cont, pos, item->slot_index() } ) )
+  {
+    client->restart();
+    return false;
+  }
 
   send_put_in_container( client, item );
   send_put_in_container( dropon->client, item );
@@ -243,10 +259,11 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
   // UContainer::MT_CORE_* constants to the can_insert function (yet). :)
 
   ItemRef itemref( item );
+  UContainer* target_cont = target_item->container();
   if ( ( !target_item->stackable() ) || ( !target_item->can_add_to_self( *item, false ) ) ||
-       ( target_item->container &&
-         !target_item->container->can_insert_increase_stack(
-             client->chr, UContainer::MT_PLAYER, target_item, item->getamount(), item ) ) )
+       ( target_cont &&
+         !target_cont->can_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item,
+                                                  item->getamount(), item ) ) )
   {
     send_sysmessage( client, "Could not add item to stack." );
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
@@ -271,17 +288,16 @@ bool add_item_to_stack( Network::Client* client, Items::Item* item, Items::Item*
   target_item->add_to_self( item );
   update_item_to_inrange( target_item );
 
-  if ( target_item->container )
+  if ( UContainer* cont = target_item->container(); cont != nullptr )
   {
-    target_item->container->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER,
-                                                      target_item, amtadded );
-    target_item->container->restart_decay_timer();
+    cont->on_insert_increase_stack( client->chr, UContainer::MT_PLAYER, target_item, amtadded );
+    cont->restart_decay_timer();
   }
   return true;
 }
 
 bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, const Pos2d& pos,
-                 u8 slotIndex )
+                 u8 slotIndex, const GottenItem& gotten )
 {
   Items::Item* target_item = find_legal_item( client->chr, target_serial );
 
@@ -321,7 +337,8 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
   {
     if ( item->no_drop() )
     {
-      if ( target_item->container == nullptr || !target_item->container->no_drop_exception() )
+      const UContainer* target_cont = target_item->container();
+      if ( target_cont == nullptr || !target_cont->no_drop_exception() )
       {
         send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
         return false;
@@ -337,7 +354,7 @@ bool place_item( Network::Client* client, Items::Item* item, u32 target_serial, 
       return false;
     }
     return place_item_in_container( client, item, static_cast<UContainer*>( target_item ), pos,
-                                    slotIndex );
+                                    slotIndex, gotten );
   }
 
   // UNTESTED CLIENT_HOLE?
@@ -356,6 +373,8 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3
 
   Mobile::Character* chr = client->chr;
 
+  // Only an out-parameter of dropheight below; the multi the item ends up registered with is
+  // found by relocate, which has to agree with the one remove_item_from_world unregisters from.
   Multi::UMulti* multi;
   short newz;
   if ( !chr->pos().in_range( pos, 2 ) && !client->chr->can_moveanydist() )
@@ -380,23 +399,10 @@ bool drop_item_on_ground( Network::Client* client, Items::Item* item, const Pos3
   }
 
   item->set_dirty();
-  item->restart_decay_timer();
-  auto oldrealm = item->realm();  // TODO POS get rid of all the realm for_each
-  item->setposition( tgt.pos() );
-  if ( oldrealm != chr->realm() )
+  if ( !Items::place_at( *item, tgt.pos() ) )
   {
-    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      UContainer* cont = static_cast<UContainer*>( item );
-      cont->for_each_item( setrealm, (void*)chr->realm() );
-    }
-  }
-  item->container = nullptr;
-  item->reset_slot();
-  add_item_to_world( item );
-  if ( multi != nullptr )
-  {
-    multi->register_object( item );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    return false;
   }
 
   send_item_to_inrange( item );
@@ -419,17 +425,14 @@ UContainer* find_giveitem_container( Items::Item* item_to_add, u8 slotIndex )
       item->setname( name );
       item->setposition( Pos4d( item->pos().xyz(),
                                 find_realm( std::string( "britannia" ) ) ) );  // TODO POS nullptr
-      area->insert_root_item( item );
+      if ( !Items::relocate( *item, Items::InStorage{ area, name } ) )
+        return nullptr;
     }
     // Changed this from a passert to return null.
     if ( !( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) ) )
       return nullptr;
     UContainer* cont = static_cast<UContainer*>( item );
     if ( !cont->can_add_to_slot( slotIndex ) )
-    {
-      return nullptr;
-    }
-    if ( !item_to_add->slot_index( slotIndex ) )
     {
       return nullptr;
     }
@@ -636,7 +639,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
     return false;
   }
 
-  if ( !cont->can_add_to_slot( slotIndex ) || !item->slot_index( slotIndex ) )
+  if ( !cont->can_add_to_slot( slotIndex ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     return false;
@@ -646,7 +649,13 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
   send_remove_object_to_inrange( item );
 
-  cont->add_at_random_location( item );
+  if ( !Items::relocate( *item,
+                         Items::InContainer{ cont, cont->get_random_location(), slotIndex } ) )
+  {
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
+    client->restart();
+    return false;
+  }
 
   npc->send_event( new Module::ItemGivenEvent( client->chr, item, npc ) );
 
@@ -657,7 +666,7 @@ bool drop_item_on_mobile( Network::Client* client, Items::Item* item, u32 target
 
 // target_serial should indicate a character, or a container, but not a pile.
 bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target_serial,
-                          u8 slotIndex )
+                          u8 slotIndex, const GottenItem& gotten )
 {
   ItemRef itemref( item );
   UContainer* cont = nullptr;
@@ -730,7 +739,7 @@ bool drop_item_on_object( Network::Client* client, Items::Item* item, u32 target
 
   auto contpos = cont->get_random_location();
 
-  return place_item_in_container( client, item, cont, contpos, slotIndex );
+  return place_item_in_container( client, item, cont, contpos, slotIndex, gotten );
 }
 
 /* DROP_ITEM messages come in a couple varieties:
@@ -779,12 +788,13 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   if ( item->serial != item_serial )
   {
     SuspiciousActs::DropItemOtherThanGotten( client, item_serial, item->serial );
-    item->gotten_by( nullptr );  // TODO: shouldn't we clear_gotten_item() here?
+    // The item this drop names is not the one being held, so the held one has no drop to give it
+    // a home: hand it back to where it came from. Releasing only the item's half of the cursor
+    // link left it detached from every registry, with the character still holding the ticket.
+    client->chr->clear_gotten_item();
     return;
   }
-  item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( {} );
+  release_gotten_item( client->chr );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -793,7 +803,7 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
   }
   else if ( pos.x() == 0xFFFF )
   {
-    res = drop_item_on_object( client, item, target_serial, 0 );
+    res = drop_item_on_object( client, item, target_serial, 0, info );
   }
   else
   {
@@ -802,16 +812,14 @@ void drop_item( Network::Client* client, PKTIN_08_V1* msg )
     if ( multi != nullptr )
       res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, pos.xy(), 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0, info );
   }
 
-  if ( !item->orphan() )
-  {
-    if ( !res )
-      info.undo( client->chr );
-    item->inuse( false );
-    item->gotten_by( nullptr );
-  }
+  // Nothing to clear on the way out: the item left the cursor above, and the drop paths never put
+  // it back on one. Clearing in-use here would also throw away a reservation an insert script had
+  // just taken out on the item.
+  if ( !res && !item->orphan() )
+    info.undo( client->chr );
   send_full_statmsg( client, client->chr );
 }
 
@@ -842,12 +850,10 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   if ( item->serial != item_serial )
   {
     SuspiciousActs::DropItemOtherThanGotten( client, item_serial, item->serial );
-    item->gotten_by( nullptr );
+    client->chr->clear_gotten_item();
     return;
   }
-  item->inuse( false );
-  item->gotten_by( nullptr );
-  client->chr->gotten_item( {} );
+  release_gotten_item( client->chr );
 
   bool res;
   if ( target_serial == 0xFFffFFffLu )
@@ -856,7 +862,7 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
   }
   else if ( pos.x() == 0xFFFF )
   {
-    res = drop_item_on_object( client, item, target_serial, slotIndex );
+    res = drop_item_on_object( client, item, target_serial, slotIndex, info );
   }
   else
   {
@@ -865,16 +871,11 @@ void drop_item_v2( Network::Client* client, PKTIN_08_V2* msg )
     if ( multi != nullptr )
       res = drop_item_on_ground( client, item, pos + Vec2d( multi->x(), multi->y() ) );
     else
-      res = place_item( client, item, target_serial, pos.xy(), 0 );
+      res = place_item( client, item, target_serial, pos.xy(), 0, info );
   }
 
-  if ( !item->orphan() )
-  {
-    if ( !res )
-      info.undo( client->chr );
-    item->inuse( false );
-    item->gotten_by( nullptr );
-  }
+  if ( !res && !item->orphan() )
+    info.undo( client->chr );
 
   if ( res )
   {
@@ -892,14 +893,20 @@ void return_traded_items( Mobile::Character* chr )
   if ( cont == nullptr || bp == nullptr )
     return;
 
+  // An item the backpack will not take goes to the character's feet. The whole trade window still
+  // has to be emptied either way, so this never gives up on the items behind it.
+  auto to_feet = [chr]( Items::Item* item )
+  {
+    if ( Items::place_at( *item, chr->pos() ) )
+      send_item_moved( item, item->pos() );
+  };
+
   UContainer::Contents tmp;
   cont->extract( tmp );
   while ( !tmp.empty() )
   {
     Items::Item* item = tmp.back();
     tmp.pop_back();
-    item->container = nullptr;
-    item->layer = 0;
 
     ItemRef itemref( item );
     if ( bp->can_add( *item ) && bp->can_insert_add_item( chr, UContainer::MT_CORE_MOVED, item ) )
@@ -908,26 +915,18 @@ void return_traded_items( Mobile::Character* chr )
       {
         continue;
       }
-      u8 newSlot = 1;
-      if ( !bp->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
+      if ( !Items::move_into( *item, *bp ) )
       {
-        item->setposition( chr->pos() );
-        add_item_to_world( item );
-        register_with_supporting_multi( item );
-        move_item( item, item->pos() );
-        return;
+        to_feet( item );
+        continue;
       }
-      bp->add_at_random_location( item );
       if ( chr->client )
         send_put_in_container( chr->client, item );
       bp->on_insert_add_item( chr, UContainer::MT_CORE_MOVED, item );
     }
     else
     {
-      item->setposition( chr->pos() );
-      add_item_to_world( item );
-      register_with_supporting_multi( item );
-      move_item( item, item->pos() );
+      to_feet( item );
     }
   }
 }

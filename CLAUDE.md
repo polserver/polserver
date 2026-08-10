@@ -20,7 +20,7 @@ cmake --build build --config Release --target pol -- /m
 cd build && cmake .. && make -j$(nproc)
 ```
 
-After pulling changes, rebuild `ecompile`/`poltool`/`uoconvert` too, not just `pol` — the shard tests compile test scripts with `bin/Release/ecompile.exe`, and a stale one fails on newer eScript syntax.
+After pulling changes, build **every** target, not just `pol` — drop the `--target` argument entirely. Each of the other executables backs part of the test suite and a stale one fails in a way that looks like a real regression: the shard tests compile their scripts with `ecompile`, and the `escript_*` tests run them through `runecl`, which links the same module code as `pol` and so goes stale on any core change.
 
 **Useful CMake options** (single-config generators use `-DCMAKE_BUILD_TYPE=`; VS uses `--config`; full list in the root `CMakeLists.txt`):
 - `-DENABLE_ASAN/ENABLE_TSAN/ENABLE_USAN/ENABLE_MSAN=ON` — sanitizers

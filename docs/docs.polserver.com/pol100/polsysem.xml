@@ -233,4 +233,12 @@ const MSGLEN_VARIABLE := -1;</code></explain>
     <return>1 or Error</return>
   </function>
 
+  <function name="CheckItemIntegrity">
+    <prototype>CheckItemIntegrity()</prototype>
+    <explain>Checks that every item agrees with whatever is holding it: the container, corpse, layer, storage area, cursor or world zone an item says it is in must be the one that actually lists it, and vice versa. Every disagreement found is written to the log with the item's serial and where it was found; the check itself changes nothing.</explain>
+    <explain>Returns a struct with two members: "checks", how many item/registry pairings were examined, and "violations", how many of them disagreed. A clean world reports zero violations.</explain>
+    <explain>This walks a large part of the world and is meant for diagnosis after a suspected corruption, not for running on a timer. The same check is available in-game as the .integ text command.</explain>
+    <return>A struct</return>
+  </function>
+
 </ESCRIPT>

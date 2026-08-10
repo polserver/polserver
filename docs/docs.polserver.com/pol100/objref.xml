@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>08/02/2026</datemodified>
+<datemodified>08/03/2026</datemodified>
 </fileheader>
 
 
@@ -417,8 +417,8 @@
 <member mname="house_parts" type="Integer" access="r/o">returns array of structs{graphic,xoffset,yoffset,z} or error if not a custom house. When in edit mode returns the current working design. To get the real coords from an elem add house.x/y</member>
 
 <method proto="setcustom(bool custom)" returns="true/error">Sets the house as custom. Setting to 1 is needed before SendHousingTool() works.</method>
-<method proto="add_component(ItemRef)" returns="true/error">Add item to House components</method>
-<method proto="erase_component(ItemRef)" returns="true/error">Erase item from House components</method>
+<method proto="add_component(ItemRef)" returns="true/error">Add item to House components. The item must be standing in the world and not already be a component of another house.</method>
+<method proto="erase_component(ItemRef)" returns="true/error">Erase item from House components. A component that is moved out of the world is erased automatically.</method>
 <method proto="addhousepart(int graphic | array of struct{graphic,xoffset,yoffset,z}, [int xoffset, int yoffset, int z])" returns="true/error">Adds a part to the custom house design. Single argument version for adding multiple parts</method>
 <method proto="erasehousepart(int graphic | array of struct{graphic,xoffset,yoffset,z}, [int xoffset, int yoffset, int z])" returns="true/error">Removes a part from the custom house design. Single argument version for removing multiple parts</method>
 <method proto="acceptcommit(Character chr, bool commit)" returns="true/error">If commit is 0 then drops the not committed custom house changes or accept them instead</method>
@@ -492,6 +492,7 @@
 <explain>Objects that are created when character objects are killed</explain>
 <member mname="corpsetype" type="Integer" access="r/o">ObjType of the Character killed</member>
 <member mname="ownerserial" type="Integer" access="r/o">Serial of the Mobile that died</member>
+<member mname="equipped_items" type="Array" access="r/o">The items the corpse is shown wearing, in layer order. This is what a player sees on the corpse: an item that has been taken off the corpse is not in it, even if it is put back inside afterwards.</member>
 </class>
 
 

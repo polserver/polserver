@@ -63,7 +63,7 @@ Mobile::Character* find_character( u32 serial )
 Items::Item* find_toplevel_item( u32 serial )
 {
   Items::Item* item = system_find_item( serial );
-  if ( item != nullptr && item->container != nullptr )
+  if ( item != nullptr && item->container() != nullptr )
     return nullptr;
   //{
   //    const UObject* owner = item->toplevel_owner();

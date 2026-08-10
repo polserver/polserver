@@ -1,0 +1,13 @@
+use uo;
+
+// Moves the item being created somewhere other than where the caller asked for it. The item is
+// still detached at this point -- CreateItemAtLocation has set its position but has not yet put it
+// in the world -- so this is what puts it there, at the wrong place on purpose.
+//
+// IGNOREMOVABLE because this script has no controlling character to fall back on, and the item is
+// immobile; without it the move is refused and the script silently does nothing.
+program createscript_move( item )
+  MoveObjectToLocation( item, 55, 55, 0, "britannia",
+                        MOVEOBJECT_FORCELOCATION + MOVEITEM_IGNOREMOVABLE );
+  return 1;
+endprogram

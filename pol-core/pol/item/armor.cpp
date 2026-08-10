@@ -222,11 +222,10 @@ UArmor* create_intrinsic_shield( const char* name, Clib::ConfigElem& elem,
   auto tmpl = new ArmorDesc( Core::settingsManager.extobj.shield, elem, pkg, true );
   tmpl->is_intrinsic = true;
   auto armr = new UArmor( *tmpl, tmpl );
-  armr->layer = Core::LAYER_HAND2;
   armr->tmpl = tmpl;
   armr->copyprops( tmpl->props );
 
-  Items::register_intrinsic_equipment( name, armr );
+  Items::register_intrinsic_equipment( name, IntrinsicKind::Shield, armr );
 
   return armr;
 }

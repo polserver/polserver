@@ -74,6 +74,14 @@ void send_full_corpse( Network::Client* client, const Items::Item* item );
 
 void send_wornitem( Network::Client* client, const Mobile::Character* chr,
                     const Items::Item* item );
+/**
+ * Sends the item as worn on an arbitrary layer, rather than on the one it is actually on.
+ *
+ * Used for the pseudo-layers above HIGHEST_LAYER (vendor windows, bankbox), which exist only in
+ * the wire format and can never be a real equip layer.
+ */
+void send_wornitem( Network::Client* client, const Mobile::Character* chr, const Items::Item* item,
+                    u8 as_layer );
 
 void send_move( Network::Client* client, const Mobile::Character* chr );
 void send_move( Network::Client* client, const Mobile::Character* chr,
@@ -200,10 +208,40 @@ void send_char_data( Network::Client* client, Mobile::Character* chr );
 void transmit_to_inrange( const UObject* center, const void* msg, unsigned msglen );
 void transmit_to_others_inrange( Mobile::Character* center, const void* msg, unsigned msglen );
 
+/**
+ * The two outer rungs of destroying an item. Each does everything the one below it does, so they
+ * differ only in how far the news travels -- not in whether the item is properly taken apart:
+ *
+ *   item->destroy()      the item leaves every registry holding it, and ends
+ *   destroy_item()       + the clients that could see it are told, and its owner's stat bar
+ *   try_destroy_item()   + the shard gets a say: it can refuse, and its unequip scripts run
+ *
+ * Pick by how public the destruction is. The line that matters is between the second and the
+ * third: only try_destroy_item() runs eScript, so only try_destroy_item() can re-enter the core
+ * and dispose of the item -- or of anything near it -- before it returns.
+ */
 void destroy_item( Items::Item* item );
-bool destroy_item_with_script_check( Items::Item* item );
 
-void move_item( Items::Item* item, const Core::Pos4d& oldpos );
+/// @returns false, having destroyed nothing, if the item's destroy script refused.
+[[nodiscard]] bool try_destroy_item( Items::Item* item );
+
+/**
+ * Move an item that is standing in the world to a new position, and show the move to everyone who
+ * can see either end of it.
+ *
+ * place_at() plus the two things place_at() deliberately leaves out: the decay clock restarts,
+ * because a move is the item being handled and handled items do not rot on schedule, and the
+ * clients are told. Doors and boats want neither and call the lower layer directly.
+ *
+ * @returns false, having moved nothing, if the item is in a state that cannot move -- see
+ *          place_at().
+ */
+[[nodiscard]] bool move_item( Items::Item* item, const Core::Pos4d& newpos );
+
+/// The broadcast half of move_item(): show the item to everyone who can see it now, and remove it
+/// for everyone who could see oldpos but cannot see it any more. Separate because oldpos can be a
+/// position the item was never in the world at -- the container it just came out of, say.
+void send_item_moved( Items::Item* item, const Core::Pos4d& oldpos );
 
 void send_char_if_newly_inrange( Mobile::Character* chr, Network::Client* client );
 void send_item_if_newly_inrange( Items::Item* item, Network::Client* client );
@@ -224,9 +262,27 @@ void send_open_gump( Network::Client* client, const UContainer& cont );
 
 void send_multis_newly_inrange( Multi::UMulti* multi, Network::Client* client );
 
+/**
+ * Enter and leave the multi the item is standing on -- today that only ever means a boat, since
+ * UHouse::register_object takes mobiles and nothing else implements it.
+ *
+ * Both find the multi from the item's *current* position, so the unregister has to run before the
+ * item moves: once it has gone, the multi under it is not necessarily the multi it joined.
+ */
 void register_with_supporting_multi( Items::Item* item );
+void unregister_from_supporting_multi( Items::Item* item );
 
-Mobile::Character* UpdateCharacterWeight( Items::Item* item );
+/**
+ * Redraw the status bar of whoever is carrying this item, if they are a player and are online.
+ *
+ * Computes nothing: the weight in the packet is read from the character as it is written, so this
+ * has to be called *after* whatever changed it, and the item has to still be in that character's
+ * possession for them to be found at all. Where those two pull apart -- destroying the item -- use
+ * the returned character to send afterwards instead.
+ *
+ * @returns the character told, or null if nobody was.
+ */
+Mobile::Character* refresh_owner_statbar( Items::Item* item );
 void UpdateCharacterOnDestroyItem( Items::Item* item );
 bool clientHasCharacter( Network::Client* c );
 void login_complete( Network::Client* c );

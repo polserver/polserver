@@ -151,3 +151,43 @@ exported function hook_refuses_the_offer( resmgn )
   close_trades();
   return 1;
 endfunction
+
+// The same for an item that was being worn: it goes back onto its layer, not
+// into the backpack. Where an item came from is one question, and a worn item is
+// the case where the answer is not a container you can simply add it back to.
+exported function hook_refuses_an_equipped_offer( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resmgn.CreateItemInContainer( char.backpack, "shirt_plain" );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  res := EquipItem( char, item );
+  if ( !res )
+    return ret_error( $"could not equip the item to offer: {res}" );
+  endif
+  var layer := item.layer;
+
+  SetGlobalProperty( "#TradeHookRefuse", 1 );
+  res := MoveItemToSecureTradeWin( item, char );
+  EraseGlobalProperty( "#TradeHookRefuse" );
+
+  if ( res )
+    return ret_error( "a refused item was put into the trade window" );
+  endif
+
+  var worn := GetEquipmentByLayer( char, layer );
+  if ( !worn )
+    return ret_error( $"nothing is on layer {layer} after the refusal: {worn}" );
+  elseif ( worn.serial != item.serial )
+    return ret_error( $"layer {layer} holds 0x{worn.serial:x}, expected 0x{item.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction

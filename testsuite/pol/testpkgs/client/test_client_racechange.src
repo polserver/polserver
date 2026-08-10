@@ -1,0 +1,105 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// The race changer creates hair and beard items and puts them straight on a layer. Which hair and
+// beard graphics a shard actually has tiledata for is a shard question, and the handler used to
+// take the shard down when the answer was "none" -- Character::equip opens with an assertion.
+
+enum RaceChangeLayers
+  LAYER_HAIR := 11,
+  LAYER_BEARD := 16
+endenum
+
+// In the shard's tiles.cfg, on layer 11 and flagged equippable.
+const HAIR_SHORT := 0x203B;
+// Passes validbeard(), but the shard has no tiledata for it, so it has no layer at all.
+const BEARD_LONG := 0x203E;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_racechange()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+function race_change( hairid, hairhue, beardid, beardhue )
+  Clear_Event_Queue();
+  // Keep the body hue the character already has: the handler always applies it, and this test is
+  // not about the colour.
+  clientcon.sendevent( struct{ todo := EVT_RACE_CHANGE,
+                               arg := struct{ bodyhue := char.color & 0x7FFF,
+                                              hairid := hairid, hairhue := hairhue,
+                                              beardid := beardid, beardhue := beardhue },
+                               id := 0 } );
+  return waitForClient( 0, { EVT_RACE_CHANGE } );
+endfunction
+
+function wait_for_layer( layer )
+  var attempts := 50;
+  while ( attempts-- )
+    var worn := GetEquipmentByLayer( char, layer );
+    if ( worn )
+      return worn;
+    endif
+    Sleepms( 100 );
+  endwhile
+  return 0;
+endfunction
+
+exported function race_change_equips_hair()
+  var saved_color := char.color;
+  var saved_truecolor := char.truecolor;
+
+  var res := race_change( HAIR_SHORT, 0x44E, 0, 0 );
+  if ( !res )
+    char.color := saved_color;
+    char.truecolor := saved_truecolor;
+    return res;
+  endif
+
+  var hair := wait_for_layer( LAYER_HAIR );
+  char.color := saved_color;
+  char.truecolor := saved_truecolor;
+
+  if ( !hair )
+    return ret_error( "the race changer did not equip any hair" );
+  endif
+
+  var ret := ret_error_not_equal( hair.graphic, HAIR_SHORT,
+                                  $"equipped graphic {hair.graphic:#x}, expected {HAIR_SHORT:#x}" );
+  DestroyItem( hair );
+  return ret;
+endfunction
+
+exported function race_change_bad_beard_refused()
+  // The shard has no tiledata for this beard, so the item comes out with no layer and is not
+  // equippable. Refusing has to be an error, not an assertion.
+  var saved_color := char.color;
+  var saved_truecolor := char.truecolor;
+
+  var res := race_change( 0, 0, BEARD_LONG, 0x44E );
+  char.color := saved_color;
+  char.truecolor := saved_truecolor;
+  if ( !res )
+    return res;
+  endif
+
+  // Nothing to wait for -- assert on the absence, after giving the handler a moment to run.
+  Sleepms( 500 );
+
+  var worn := GetEquipmentByLayer( char, LAYER_BEARD );
+  if ( worn )
+    DestroyItem( worn );
+    return ret_error( "a beard the shard has no tiledata for was equipped anyway" );
+  endif
+
+  return 1;
+endfunction

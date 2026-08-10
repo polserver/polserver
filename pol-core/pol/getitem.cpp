@@ -22,10 +22,13 @@
 #include "pol/containr.h"
 #include "pol/fnsearch.h"
 #include "pol/item/item.h"
+#include "pol/layers.h"
 #include "pol/mobile/charactr.h"
+#include "pol/mobile/corpse.h"
 #include "pol/network/client.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
+#include "pol/polclass.h"
 #include "pol/realms/realms.h"
 #include "pol/reftypes.h"
 #include "pol/statmsg.h"
@@ -56,6 +59,16 @@
 
 namespace Pol::Core
 {
+void release_gotten_item( Mobile::Character* chr )
+{
+  Items::Item* item = chr->gotten_item().item();
+  // A destroyed item has no location to leave. Every core path that destroys an item clears the
+  // cursor first, so this is only here to keep a character from getting stuck holding one.
+  if ( item != nullptr && !item->orphan() )
+    (void)Items::relocate( *item, Items::Detached{} );
+  chr->gotten_item( {} );
+}
+
 void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 {
   u32 serial = cfBEu32( msg->serial );
@@ -131,10 +144,10 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   if ( item->orphan() )
     return;
 
-  if ( item->container )
+  if ( UContainer* cont = item->container(); cont != nullptr )
   {
-    if ( !item->container->check_can_remove_script( client->chr, item,
-                                                    UContainer::MoveType::MT_PLAYER, amount ) )
+    if ( !cont->check_can_remove_script( client->chr, item, UContainer::MoveType::MT_PLAYER,
+                                         amount ) )
     {
       send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
       return;
@@ -147,36 +160,21 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   send_remove_object_to_inrange( item );
 
-  UContainer* orig_container = item->container;
+  UContainer* orig_container = item->container();
   Pos4d orig_pos = item->pos();  // potential container pos
   Pos4d orig_toppos = item->toplevel_pos();
 
-  GottenItem gotten_info{ item, orig_pos };
-  if ( orig_container != nullptr )
+  // One step: unlink from wherever the item is, build the return ticket describing it, and set
+  // both halves of the cursor link. The rejection is reachable — the scripts run above can have
+  // handed this character something else to hold, and overwriting the ticket would strand that
+  // item. The removal was already sent by then, so put the item back on the clients.
+  if ( !Items::relocate( *item, Items::OnCursor{ client->chr } ) )
   {
-    if ( IsCharacter( orig_container->serial ) )
-    {
-      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
-      gotten_info._owner_serial = orig_container->serial;
-    }
-    else
-    {
-      gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-      gotten_info._owner_serial = orig_container->serial;
-    }
-    gotten_info._slot_index = item->slot_index();
-    item->extricate();
+    update_item_to_inrange( item );
+    send_item_move_failure( client, MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP );
+    return;
   }
-  else
-  {
-    gotten_info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
-    remove_item_from_world( item );
-  }
-
-  client->chr->gotten_item( gotten_info );
-  item->inuse( true );
-  item->gotten_by( client->chr );
-  item->setposition( Pos4d( 0, 0, 0, item->realm() ) );  // don't let a boat carry it around
+  const GottenItem gotten_info = client->chr->gotten_item();
 
   /* Check for moving part of a stack.  Here are the possibilities:
       1) Client specified more amount than was in the stack.
@@ -199,27 +197,27 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         orig_container->on_remove( client->chr, item, UContainer::MoveType::MT_PLAYER, new_item );
         if ( new_item->orphan() )
           return;
-        // NOTE: we just removed 'item' from its container,
-        // so there's room for new_item.
-        if ( !orig_container->can_add_to_slot( oldSlot ) || !item->slot_index( oldSlot ) )
+        // NOTE: we just removed 'item' from its container, so there's room for new_item.
+        // The slot goes to new_item, which is what stays behind: the checks used to be run against
+        // it but assigned to 'item', the part being picked up onto the cursor, which then carried a
+        // slot in a container it was leaving while the remainder kept whatever it had.
+        if ( Items::move_into( *new_item, *orig_container, orig_pos.xy(), oldSlot ) )
         {
-          new_item->setposition( client->chr->pos() );
-          add_item_to_world( new_item );
-          register_with_supporting_multi( new_item );
-          move_item( new_item, orig_toppos );
+          send_put_in_container_to_inrange( new_item );
         }
         else
         {
-          orig_container->add( new_item, orig_pos.xy() );
-          send_put_in_container_to_inrange( new_item );
+          // The remainder of the stack has to land somewhere. Besides the slot being unavailable,
+          // the OnRemove script above can have destroyed the container out from under us, which
+          // relocate refuses -- and used to be an assertion inside UContainer::add.
+          if ( Items::place_at( *new_item, client->chr->pos() ) )
+            send_item_moved( new_item, orig_toppos );
         }
       }
       else
       {
-        new_item->setposition( orig_pos );
-        add_item_to_world( new_item );
-        register_with_supporting_multi( new_item );
-        send_item_to_inrange( new_item );
+        if ( Items::place_at( *new_item, orig_pos ) )
+          send_item_to_inrange( new_item );
       }
     }
   }
@@ -269,6 +267,49 @@ GottenItem::GottenItem( Items::Item* item, const Core::Pos4d& pos )
     : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _owner_serial( 0 )
 {
 }
+
+GottenItem GottenItem::for_item( Items::Item* item )
+{
+  GottenItem info{ item, item->pos() };
+
+  const Items::Location loc = item->location();
+  if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+  {
+    // undo() resolves this with system_find_mobile, so it has to be the character's serial. The
+    // worn-items container happens to carry the same one, but say which is meant.
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
+    info._owner_serial = equipped->chr->serial;
+    info._slot_index = item->slot_index();
+  }
+  else if ( const auto* on_corpse = loc.get_if<Items::OnCorpse>() )
+  {
+    // Ahead of the container branch below, which would otherwise claim this: a corpse is a
+    // container, and the whole point of the distinction is that an item rendered on one of its
+    // layers is not the same as an item lying loose in it.
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE;
+    info._owner_serial = on_corpse->corpse->serial;
+    info._slot_index = item->slot_index();
+  }
+  else if ( UContainer* cont = loc.container() )
+  {
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
+    info._owner_serial = cont->serial;
+    info._slot_index = item->slot_index();
+  }
+  else
+  {
+    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
+  }
+
+  return info;
+}
+
+bool GottenItem::came_off_corpse_layer( const UContainer* cont ) const
+{
+  return _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE && _item != nullptr &&
+         cont != nullptr && cont->serial == _owner_serial && cont->script_isa( POLCLASS_CORPSE ) &&
+         Items::valid_equip_layer( _item );
+}
 /*
   undo:
   when a client issues a get_item command, the item is moved into gotten_items.
@@ -289,7 +330,6 @@ void GottenItem::undo( Mobile::Character* chr )
   // or in whatever it used to be in.
   ItemRef itemref( _item );  // dave 1/28/3 prevent item from being destroyed before function ends
   _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
-  _item->gotten_by( nullptr );
   Realms::Realm* realm = nullptr;
   if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
   {
@@ -301,9 +341,11 @@ void GottenItem::undo( Mobile::Character* chr )
         if ( _item->orphan() )
           return;
         // is it possible the character doesn't exist? no, it's my character doing the undoing.
-        equipped_chr->equip( _item );
-        send_wornitem_to_inrange( equipped_chr, _item );
-        return;
+        if ( Items::relocate( *_item, Items::Equipped{ equipped_chr, _item->tile_layer } ) )
+        {
+          send_wornitem_to_inrange( equipped_chr, _item );
+          return;
+        }
       }
     }
 
@@ -315,7 +357,11 @@ void GottenItem::undo( Mobile::Character* chr )
     realm = chr->realm();
   }
 
-  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER )
+  // A corpse layer is returned to the same way an ordinary container is: the backpack is still
+  // offered first, and only the fallback below puts the item back where it came from -- which is
+  // the one branch where the layer matters.
+  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER ||
+       _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE )
   {
     // First attempt to place the item in the player's backpack.
     UContainer* container = nullptr;
@@ -363,19 +409,20 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( container )
     {
       u8 newSlot = _slot_index ? _slot_index : 1;
-      if ( container->can_add_to_slot( newSlot ) && _item->slot_index( newSlot ) )
+      if ( container->can_add_to_slot( newSlot ) )
       {
-        if ( container->is_legal_posn( _pos.xy() ) )
+        const Pos2d where =
+            container->is_legal_posn( _pos.xy() ) ? _pos.xy() : container->get_random_location();
+        Items::Location target = Items::InContainer{ container, where, newSlot };
+        if ( came_off_corpse_layer( container ) )
+          target = Items::OnCorpse{ static_cast<UCorpse*>( container ), where, newSlot,
+                                    _item->tile_layer };
+        if ( Items::relocate( *_item, target ) )
         {
-          container->add( _item, _pos.xy() );
+          update_item_to_inrange( _item );
+          container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
+          return;
         }
-        else
-        {
-          container->add_at_random_location( _item );
-        }
-        update_item_to_inrange( _item );
-        container->on_insert_add_item( chr, UContainer::MT_PLAYER, _item );
-        return;
       }
     }
     _pos = chr->pos3d();
@@ -416,22 +463,12 @@ void GottenItem::undo( Mobile::Character* chr )
     }
   }
 
-  // Last resort - put it on the ground, to players feet in case of error from above.
-  // Recursively update realm if it changed.
-  if ( _item->pos().realm() != realm && _item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    Core::UContainer* cont = static_cast<Core::UContainer*>( _item );
-    cont->for_each_item( Core::setrealm, realm );
-  }
+  // Last resort: nowhere else would take it, so the ground has to. Nothing can refuse it here —
+  // the item is detached and the realm above is never null. place_at carries the realm down to the
+  // contents if it changed.
+  if ( !Items::place_at( *_item, Pos4d( _pos, realm ) ) )
+    return;
 
-  _item->setposition( Pos4d( _pos, realm ) );
-  _item->container = nullptr;
-  // 12-17-2008 MuadDib added to clear item.layer properties.
-  _item->layer = 0;
-
-  add_item_to_world( _item );
-
-  register_with_supporting_multi( _item );
   send_item_to_inrange( _item );
 
   // Need to explicitly send remove_object to chr if realms mismatch. Scenario:

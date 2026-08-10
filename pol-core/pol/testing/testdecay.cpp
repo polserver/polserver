@@ -29,7 +29,7 @@ void decay_test()
   {
     auto item = Items::Item::create( 0x0eed );
     item->setposition( p );
-    Core::add_item_to_world( item );
+    (void)Items::relocate( *item, Items::InWorld{} );
     item->set_decay_after( decay );
   };
   auto createmulti = []( Core::Pos4d p, u32 objtype )

@@ -1,0 +1,18 @@
+use uo;
+use os;
+use attributes;
+
+// Equip script for restart_equip_strreq.
+//
+// It only does anything on startup, that is while the world file is being read back. The core has
+// already decided the item is equippable by then -- part of which is that the wearer meets the
+// item's StrRequired -- so dropping the wearer's strength here makes that answer stale before the
+// item is actually put on. Approving the equip afterwards is the point: a script that refused
+// would take a path the core has always handled.
+program equip_weaken( equipped_on, item, startup, equipped_by )
+  if ( startup )
+    // in tenths, so this is a strength of 1 against the item's StrRequired of 50
+    SetAttributeBaseValue( equipped_on, "Strength", 10 );
+  endif
+  return 1;
+endprogram

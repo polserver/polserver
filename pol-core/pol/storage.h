@@ -7,6 +7,7 @@
 #ifndef H_STORAGE_H
 #define H_STORAGE_H
 
+#include <functional>
 #include <map>
 #include <string>
 
@@ -39,7 +40,17 @@ public:
   Items::Item* find_root_item( const std::string& name );
   void insert_root_item( Items::Item* item );
   bool delete_root_item( const std::string& name );
+  /**
+   * Unlink a root item without destroying it, for a move to some other home.
+   *
+   * Takes the key the item was filed under rather than deriving it from the item, because
+   * renaming a root item leaves the map key behind and the item unreachable by its new name.
+   */
+  bool remove_root_item( const std::string& key, Items::Item* item );
   void on_delete_realm( Realms::Realm* realm );
+
+  /// Visit each root item with the key it is filed under, which is not always its current name.
+  void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
 
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
@@ -63,6 +74,8 @@ public:
   StorageArea* create_area( const std::string& name );
   StorageArea* create_area( Clib::ConfigElem& elem );
   void on_delete_realm( Realms::Realm* realm );
+
+  void for_each_area( const std::function<void( StorageArea& )>& f ) const;
 
   void print( Clib::StreamWriter& sw ) const;
   void read( Clib::ConfigFile& cf );

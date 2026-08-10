@@ -180,6 +180,9 @@ Item* Item::create( const ItemDesc& id, u32 serial )
   ////
 
   item->serial_ext = ctBEu32( item->serial );
+  // It has a serial now, so it is no longer merely under construction. Only equipment built
+  // outside create() -- the intrinsic weapons and shields -- stays Preparing past this point.
+  item->set_location( Detached{} );
 
   item->restart_decay_timer();
 

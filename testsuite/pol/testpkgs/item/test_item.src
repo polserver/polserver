@@ -33,6 +33,78 @@ exported function test_item_realm_move()
   return 1;
 endfunction
 
+exported function test_container_realm_move()
+  // A container used to be its own case in MoveObjectToLocation, so that a hand-written pass could
+  // carry the realm down to its contents afterwards. Placing an item does that now, and a container
+  // moves like anything else -- so this asserts both halves: that it still moves at all, and that
+  // what is inside it comes along.
+  var cont := CreateItemAtLocation( 0, 0, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"Failed to create container {cont}" );
+  endif
+
+  var inside := CreateItemInContainer( cont, 0xf3f );
+  if ( !inside )
+    DestroyItem( cont );
+    return ret_error( $"Failed to create item in container {inside}" );
+  endif
+
+  var res := MoveObjectToLocation( cont, 1000, 1000, 0, "britannia2", MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    DestroyItem( cont );
+    return ret_error( $"Failed to move the container: {res}" );
+  endif
+
+  if ( cont.realm != "britannia2" )
+    var err := $"The container did not change realm: {cont.realm}";
+    DestroyItem( cont );
+    return ret_error( err );
+  endif
+
+  if ( inside.realm != "britannia2" )
+    var err := $"The contents were left behind in realm {inside.realm}";
+    DestroyItem( cont );
+    return ret_error( err );
+  endif
+
+  DestroyItem( cont );
+  return 1;
+endfunction
+
+exported function test_create_beats_createscript()
+  // An item created at a location belongs at that location, whatever its create script did with it
+  // in the meantime -- and 0x40000F's create script deliberately moves it somewhere else. The item
+  // is already in the world by the time the create call gets it back, which is the case that used
+  // to be waved through: with no coordinates of its own to compare, "put this in the world" looked
+  // like it had already been done.
+  var item := CreateItemAtLocation( 90, 90, 0, 0x40000F );
+  if ( !item )
+    return ret_error( $"Failed to create item {item}" );
+  endif
+
+  if ( item.x != 90 || item.y != 90 )
+    var err := $"The create script kept the item at {item.x},{item.y}";
+    DestroyItem( item );
+    return ret_error( err );
+  endif
+
+  // and it is filed where it stands, not merely reporting the position: the zone walk is the only
+  // thing that can tell those apart
+  var found := 0;
+  foreach nearby in ListItemsNearLocation( 90, 90, 0, 0, "britannia" )
+    if ( nearby.serial == item.serial )
+      found := 1;
+    endif
+  endforeach
+  if ( !found )
+    DestroyItem( item );
+    return ret_error( "The item is not in the world zone it says it is in" );
+  endif
+
+  DestroyItem( item );
+  return 1;
+endfunction
+
 exported function test_item_cursed()
   var cnt := CreateItemAtLocation( 0, 0, 0, 0x200001 );
   if ( !cnt )
@@ -759,3 +831,166 @@ exported function test_stack_ignore( resmngr )
   return 1;
 endfunction
 
+
+exported function test_caninsert_destroys_cont( resmngr )
+  // A CanInsert script may destroy the container it was just asked about. Both the create-into and
+  // the move-into path have to refuse; adding to a destroyed container aborts the shard.
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, "selfdestruct_container" );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+
+  var made := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( made )
+    return ret_error( "CreateItemInContainer succeeded into a destroyed container" );
+  endif
+
+  cont := resmngr.CreateItemAtLocation( 0, 0, 0, "selfdestruct_container" );
+  if ( !cont )
+    return ret_error( $"failed to create second container: {cont}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin" );
+  if ( !item )
+    return ret_error( $"failed to create item: {item}" );
+  endif
+
+  if ( MoveItemToContainer( item, cont ) )
+    return ret_error( "MoveItemToContainer succeeded into a destroyed container" );
+  endif
+
+  // A refused move leaves the item alone -- it may not be destroyed along with the container.
+  if ( !item )
+    return ret_error( "the refused move destroyed the item" );
+  endif
+
+  return 1;
+endfunction
+
+enum ItemTestLayers
+  LAYER_SHIRT := 0x5
+endenum
+
+exported function test_equip_layer_taken_by_script( resmngr )
+  // The equip script fills the layer this item was validated for and still approves. The layer
+  // check has to be made again after the script, or the equip goes through onto an occupied layer.
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var blocker := resmngr.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_plain" );
+  if ( !blocker )
+    return ret_error( $"failed to create blocker: {blocker}" );
+  endif
+
+  var shirt := resmngr.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_occupy" );
+  if ( !shirt )
+    return ret_error( $"failed to create shirt: {shirt}" );
+  endif
+  SetObjProperty( shirt, "#OccupyWith", blocker.serial );
+
+  if ( EquipItem( npc, shirt ) )
+    return ret_error( "EquipItem succeeded onto a layer its own equip script had filled" );
+  endif
+
+  if ( !shirt )
+    return ret_error( "the refused equip destroyed the item" );
+  endif
+
+  return ret_error_not_equal( GetEquipmentByLayer( npc, LAYER_SHIRT ), blocker,
+                              "the refused equip displaced the item the script equipped" );
+endfunction
+
+exported function test_equip_from_container( resmngr )
+  // Equipping out of a container has to take the item out of that container, not just add it to a
+  // layer as well.
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var cont := resmngr.CreateItemAtLocation( npc.x, npc.y, npc.z, 0x200001 );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+
+  var shirt := resmngr.CreateItemInContainer( cont, "shirt_plain", 1 );
+  if ( !shirt )
+    return ret_error( $"failed to create shirt: {shirt}" );
+  endif
+
+  var res := EquipItem( npc, shirt );
+  if ( !res )
+    return ret_error( $"EquipItem out of a container failed: {res}" );
+  endif
+
+  if ( EnumerateItemsInContainer( cont ).size() != 0 )
+    return ret_error( "the equipped item is still listed in the container it came from" );
+  endif
+
+  return ret_error_not_equal( GetEquipmentByLayer( npc, LAYER_SHIRT ), shirt,
+                              "the item was not equipped" );
+endfunction
+
+exported function test_destroy_equipped_item( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 100, 100, 0 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var shirt := resmngr.CreateItemAtLocation( npc.x, npc.y, npc.z, "shirt_plain" );
+  if ( !shirt )
+    return ret_error( $"failed to create shirt: {shirt}" );
+  endif
+
+  var res := EquipItem( npc, shirt );
+  if ( !res )
+    return ret_error( $"EquipItem failed: {res}" );
+  endif
+
+  res := DestroyItem( shirt );
+  if ( !res )
+    return ret_error( $"DestroyItem on an equipped item failed: {res}" );
+  endif
+
+  // GetEquipmentByLayer returns an error when the layer is empty, which is what is wanted here.
+  if ( GetEquipmentByLayer( npc, LAYER_SHIRT ) )
+    return ret_error( "the character is still wearing the destroyed item" );
+  endif
+
+  return 1;
+endfunction
+
+exported function test_move_contained_item_to_loc( resmngr )
+  // Moving an item out of a container and onto the ground in one call.
+  var cont := resmngr.CreateItemAtLocation( 100, 100, 0, 0x200001 );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+
+  var item := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( !item )
+    return ret_error( $"failed to create item: {item}" );
+  endif
+
+  var res := MoveObjectToLocation( item, 105, 105, 0, _DEFAULT_REALM, MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"MoveObjectToLocation out of a container failed: {res}" );
+  endif
+
+  if ( EnumerateItemsInContainer( cont ).size() != 0 )
+    return ret_error( "the moved item is still listed in the container it came from" );
+  endif
+
+  if ( item.x != 105 || item.y != 105 )
+    return ret_error( $"the item landed at {item.x},{item.y} instead of 105,105" );
+  endif
+
+  // item.container is 0, not an error, for an item on the ground.
+  if ( item.container )
+    return ret_error( "the moved item still names a container" );
+  endif
+
+  return 1;
+endfunction

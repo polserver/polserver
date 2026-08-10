@@ -335,6 +335,9 @@ void GameState::cleanup_vars()
     {
       for ( auto& item : realm->getzone_grid( p ).items )
       {
+        // The zone is cleared wholesale below, so the items must not each remove themselves from
+        // the vector being walked here.
+        Items::abandon( *item );
         item->destroy();
       }
       realm->getzone_grid( p ).items.clear();

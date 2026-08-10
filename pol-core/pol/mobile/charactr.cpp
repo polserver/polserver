@@ -122,6 +122,7 @@
 #include "pol/item/armor.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
+#include "pol/item/location.h"
 #include "pol/item/weapon.h"
 #include "pol/item/wepntmpl.h"
 #include "pol/layers.h"
@@ -474,8 +475,7 @@ void Character::clear_gotten_item()
   auto info = gotten_item();
   if ( info.item() != nullptr )
   {
-    gotten_item( {} );
-    info.item()->inuse( false );
+    Core::release_gotten_item( this );
     if ( connected() )
       Core::send_item_move_failure( client, MOVE_ITEM_FAILURE_UNKNOWN );
     info.undo( this );
@@ -854,8 +854,7 @@ void Character::readCommonProperties( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Character '{:#x}' has no name!", serial );
     throw std::runtime_error( "Data integrity error" );
   }
-  wornitems->serial = serial;
-  wornitems->serial_ext = serial_ext;
+  wornitems->adopt( *this );
   position_changed();
 
   std::string cmdaccstr = elem.remove_string( "CMDLEVEL", "player" );
@@ -1414,17 +1413,18 @@ void Character::equip( Items::Item* item )
   item->setposition( pos() );  // TODO POS realm should be nullptr
   wornitems->PutItemOnLayer( item );
 
-  // PutItemOnLayer sets the layer, so we can go on now
-  // checking item->layer instead of item->tile_layer
-  if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) &&
-       ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 ) )
+  // The layer it is now worn on is the one its tiledata entry names -- that is what PutItemOnLayer
+  // just filed it under.
+  const bool in_hand =
+      item->tile_layer == Core::LAYER_HAND1 || item->tile_layer == Core::LAYER_HAND2;
+  if ( item->isa( Core::UOBJ_CLASS::CLASS_WEAPON ) && in_hand )
   {
     weapon = static_cast<Items::UWeapon*>( item );
     reset_swing_timer();
   }
   else if ( item->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
   {
-    if ( item->layer == Core::LAYER_HAND1 || item->layer == Core::LAYER_HAND2 )
+    if ( in_hand )
     {
       shield = static_cast<Items::UArmor*>( item );
     }
@@ -1442,7 +1442,7 @@ void Character::unequip( Items::Item* item )
 {
   passert( Items::valid_equip_layer( item ) );
   // assume any item being de-equipped is in fact being worn.
-  passert( item->container == wornitems.get() );
+  passert( item->container() == wornitems.get() );
   passert( is_equipped( item ) );
 
   wornitems->RemoveItemFromLayer( item );
@@ -1950,19 +1950,16 @@ void Character::heal_damage_hundredths( unsigned int amount )
 Items::Item* create_death_shroud()
 {
   Items::Item* item = Items::Item::create( UOBJ_DEATH_SHROUD );
-  item->layer = Core::LAYER_ROBE_DRESS;
   return item;
 }
 Items::Item* create_death_robe()
 {
   Items::Item* item = Items::Item::create( UOBJ_DEATH_ROBE );
-  item->layer = Core::LAYER_ROBE_DRESS;
   return item;
 }
 Items::Item* create_backpack()
 {
   Items::Item* item = Items::Item::create( UOBJ_BACKPACK );
-  item->layer = Core::LAYER_BACKPACK;
   return item;
 }
 
@@ -2226,7 +2223,6 @@ void Character::die()
   // corpse->dir = dir;
   UPDATE_CHECKPOINT();
 
-  register_with_supporting_multi( corpse );
   if ( is_trading() )
     Core::cancel_trade( this );
   clear_gotten_item();
@@ -2246,14 +2242,23 @@ void Character::die()
   // small lambdas to reduce the mess inside the loops
   auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
+    if ( !Items::relocate( *copy, Items::OnCorpse{ corpse, corpse->get_random_location(),
+                                                   copy->slot_index(), copy->tile_layer } ) )
+    {
+      Core::destroy_item( copy );
+      return;
+    }
     copied_items.push_back( copy );
-    corpse->equip_and_add( copy, copy->layer );
   };
   auto _drop_item_to_world = [&]( Items::Item* _item ) {  // places the item onto the corpse coords
-    _item->setposition( corpse->pos() );
-    add_item_to_world( _item );
-    register_with_supporting_multi( _item );
-    move_item( _item, corpse->pos() );
+    if ( !Items::place_at( *_item, corpse->pos() ) )
+    {
+      Core::destroy_item( _item );
+      return;
+    }
+    // Not a move: the item is already where it is going, so this only shows it to everyone
+    // standing there.
+    send_item_moved( _item, _item->pos() );
   };
 
   // WARNING: never ever touch or be 10000% sure what you are doing!!!!
@@ -2262,13 +2267,12 @@ void Character::die()
     Items::Item* item = wornitems->GetItemOnLayer( layer );
     if ( item == nullptr )
       continue;
-    if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
+    if ( layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
       continue;
     // never ever touch this order
     // first only copy the hair layers and only these!
     // then check for newbie and then I dont care
-    if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR ||
-         item->layer == Core::LAYER_FACE )
+    if ( layer == Core::LAYER_BEARD || layer == Core::LAYER_HAIR || layer == Core::LAYER_FACE )
     {
       // Copies hair items onto the corpse
       _copy_item( item );
@@ -2276,15 +2280,14 @@ void Character::die()
     }
     if ( item->newbie() || item->insured() || item->no_drop() )
       continue;
-    if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
+    if ( layer != Core::LAYER_MOUNT && layer != Core::LAYER_ROBE_DRESS &&
          !item->movable() )  // dress layer needs to be unequipped for deathrobe
     {
       _copy_item( item );
       continue;
     }
 
-    if ( item->layer == Core::LAYER_MOUNT &&
-         item->objtype_ == Core::settingsManager.extobj.boatmount )
+    if ( layer == Core::LAYER_MOUNT && item->objtype_ == Core::settingsManager.extobj.boatmount )
     {
       Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
 
@@ -2324,17 +2327,15 @@ void Character::die()
       item->check_unequip_script();
     }
     UPDATE_CHECKPOINT();
-    unequip( item );
-    UPDATE_CHECKPOINT();
 
+    // relocate does the unequip, and leaves the item worn if the corpse turns it down -- so the
+    // fallback below is reached with the item still on the character, and unequips it itself.
     u8 newSlot = 1;
-    if ( !corpse->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
+    if ( !corpse->can_add_to_slot( newSlot ) ||
+         !Items::relocate( *item, Items::OnCorpse{ corpse, corpse->get_random_location(), newSlot,
+                                                   item->tile_layer } ) )
     {
       _drop_item_to_world( item );
-    }
-    else
-    {
-      corpse->equip_and_add( item, layer );
     }
     UPDATE_CHECKPOINT();
   }
@@ -2357,31 +2358,23 @@ void Character::die()
     {
       Items::Item* bp_item = tmp.back();
       tmp.pop_back();
-      bp_item->container = nullptr;
-      bp_item->layer = 0;
       UPDATE_CHECKPOINT();
       if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
            bp->can_add( *bp_item ) )
       {
-        if ( !bp->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
+        if ( !Items::move_into( *bp_item, *bp, bp_item->pos2d(), packSlot ) )
         {
           _drop_item_to_world( bp_item );
-        }
-        else
-        {
-          bp->add( bp_item, bp_item->pos2d() );
         }
         UPDATE_CHECKPOINT();
       }
       else if ( corpse->can_add( *bp_item ) )
       {
-        if ( !corpse->can_add_to_slot( packSlot ) || !bp_item->slot_index( packSlot ) )
+        // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
+        // former backpack contents, which it holds like any other container would.
+        if ( !Items::move_into( *bp_item, *corpse, packSlot ) )
         {
           _drop_item_to_world( bp_item );
-        }
-        else
-        {
-          corpse->add_at_random_location( bp_item );
         }
         UPDATE_CHECKPOINT();
       }
@@ -2400,13 +2393,11 @@ void Character::die()
       Items::Item* item = wornitems->GetItemOnLayer( layer );
       if ( item == nullptr )
         continue;
-      if ( item->layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
+      if ( layer == Core::LAYER_BACKPACK )  // These needs to be the first!!!!
         continue;
-      if ( item->layer == Core::LAYER_BEARD || item->layer == Core::LAYER_HAIR ||
-           item->layer == Core::LAYER_FACE )
+      if ( layer == Core::LAYER_BEARD || layer == Core::LAYER_HAIR || layer == Core::LAYER_FACE )
         continue;
-      if ( item->layer != Core::LAYER_MOUNT && item->layer != Core::LAYER_ROBE_DRESS &&
-           !item->movable() )
+      if ( layer != Core::LAYER_MOUNT && layer != Core::LAYER_ROBE_DRESS && !item->movable() )
         continue;
       if ( ( item->newbie() || item->no_drop() || item->use_insurance() ) && bp->can_add( *item ) )
       {
@@ -2423,16 +2414,12 @@ void Character::die()
           item->check_unequip_script();
         }
         UPDATE_CHECKPOINT();
-        unequip( item );
-        item->layer = 0;
-        UPDATE_CHECKPOINT();
-        if ( !bp->can_add_to_slot( packSlot ) || !item->slot_index( packSlot ) )
+        if ( !Items::move_into( *item, *bp, packSlot ) )
         {
           _drop_item_to_world( item );
         }
         else
         {
-          bp->add_at_random_location( item );
           update_item_to_inrange( item );
         }
         UPDATE_CHECKPOINT();
@@ -2446,11 +2433,13 @@ void Character::die()
   send_death_message( this, corpse );
 
   UPDATE_CHECKPOINT();
-  corpse->restart_decay_timer();
-  UPDATE_CHECKPOINT();
-  add_item_to_world( corpse );
-  UPDATE_CHECKPOINT();
-  send_item_to_inrange( corpse );
+  // This is also where the corpse joins the multi it is standing on. It used to register with the
+  // multi right after it was created, which left a boat moving a corpse that was not in a zone yet.
+  if ( Items::relocate( *corpse, Items::InWorld{} ) )
+  {
+    UPDATE_CHECKPOINT();
+    send_item_to_inrange( corpse );
+  }
   UPDATE_CHECKPOINT();
   // Set the items to unmovable, now that the client knows about the corpse container.
   for ( auto* copied_item : copied_items )

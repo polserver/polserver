@@ -193,26 +193,34 @@ function npc_test_areaevents( template, expected_to_see )
   return 1;
 endfunction
 
-exported function test_load_desc_props()
-  var npc := CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
+exported function test_load_desc_props( resources )
+  // Through the resource manager, so the cleanup takes the corpse away too: a bare kill() leaves
+  // one behind, and every exit path had to remember to call it.
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
   if ( !npc )
     return ret_error( "Could not create NPC: " + npc );
   endif
 
   if ( !npc.weapon.getprop( "weaponcprop" ) )
-    npc.kill();
     return ret_error( "Failed to load weapon cprop" );
   endif
   if ( !npc.shield.getprop( "shieldcprop" ) )
-    npc.kill();
     return ret_error( "Failed to load shield cprop" );
   endif
+
+  // Intrinsic equipment is shared between every NPC of the template and is never actually worn,
+  // so the hand it stands for is the only thing that says which of the two it is. Nothing else in
+  // the suite reads these: deleting the core's assignments once passed the whole run.
+  if ( npc.weapon.layer != 1 )  // LAYER_HAND1
+    return ret_error( $"intrinsic weapon reports layer {npc.weapon.layer}, expected 1" );
+  endif
+  if ( npc.shield.layer != 2 )  // LAYER_HAND2
+    return ret_error( $"intrinsic shield reports layer {npc.shield.layer}, expected 2" );
+  endif
   if ( !npc.no_drop_exception )
-    npc.kill();
     return ret_error( "Failed to load nodropexception" );
   endif
 
-  npc.kill();
   return 1;
 endfunction
 

@@ -1,0 +1,243 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// Vendor buy and sell go through oldBuyHandler / oldSellHandler, which are reached only when
+// ScriptedMerchantHandlers is 0 -- which is what the test shard sets. Those two handlers move
+// items between the vendor's hidden containers and the buyer's pack, and nothing else in the
+// suite touches them.
+
+var char;
+var clientcon := getClientConnection();
+
+program test_vendor()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// Builds a vendor next to the character and opens its buy window. Returns a struct of the pieces,
+// or an error.
+function open_vendor( resources, ware_objtype, ware_amount, price )
+  // forcelocation: the vendor is spawned on the character, and the character is wherever the tests
+  // that ran before left them. A tile a player is standing on is not necessarily one that passes
+  // the walkheight check CreateNPCFromTemplate makes, so without this the package only works when
+  // something earlier happens to have moved the character somewhere agreeable. probeNPC has no
+  // script and never moves, and neither handler under test looks at where the vendor is, so the
+  // position is only there to keep it in the client's view.
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z, 0,
+                                              _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create vendor npc: {npc}" );
+  endif
+
+  var for_sale := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !for_sale )
+    return ret_error( $"failed to create for-sale container: {for_sale}" );
+  endif
+
+  var bought := resources.CreateItemAtLocation( char.x, char.y, char.z, 0xE75 );
+  if ( !bought )
+    return ret_error( $"failed to create bought container: {bought}" );
+  endif
+
+  var ware := error;
+  if ( ware_objtype )
+    ware := resources.CreateItemInContainer( for_sale, ware_objtype, ware_amount );
+    if ( !ware )
+      return ret_error( $"failed to create ware: {ware}" );
+    endif
+    ware.sellprice := price;
+    ware.buyprice := price;
+  endif
+
+  var res := SendBuyWindow( char, for_sale, npc, bought, 0 );
+  if ( !res )
+    return ret_error( $"SendBuyWindow failed: {res}" );
+  endif
+
+  return struct{ npc := npc, for_sale := for_sale, bought := bought, ware := ware };
+endfunction
+
+function buy( vendor_serial, items )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_BUY_ITEMS,
+                               arg := struct{ vendor_serial := vendor_serial, items := items },
+                               id := 0 } );
+  return waitForClient( 0, { EVT_BUY_ITEMS } );
+endfunction
+
+function sell( vendor_serial, items )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_SELL_ITEMS,
+                               arg := struct{ vendor_serial := vendor_serial, items := items },
+                               id := 0 } );
+  return waitForClient( 0, { EVT_SELL_ITEMS } );
+endfunction
+
+// The buy handler runs on the server after the packet lands; the ack above only says the client
+// sent it. Wait for the container membership the handler is supposed to produce.
+function wait_for_container( item, cont, what )
+  var attempts := 50;
+  while ( attempts-- )
+    if ( item.container == cont )
+      return 1;
+    endif
+    Sleepms( 100 );
+  endwhile
+  return ret_error( $"{what} (it is in {item.container})" );
+endfunction
+
+exported function vendor_buy_moves_ware_to_pack( resources )
+  var gold := resources.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  if ( !gold )
+    return ret_error( $"failed to create gold: {gold}" );
+  endif
+
+  var v := open_vendor( resources, "shirt_plain", 1, 1 );
+  if ( !v )
+    return v;
+  endif
+
+  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  res := wait_for_container( v.ware, char.backpack,
+                             "the bought item never reached the buyer's pack" );
+  if ( !res )
+    return res;
+  endif
+
+  if ( EnumerateItemsInContainer( v.for_sale ).size() != 0 )
+    return ret_error( "the bought item is still listed in the vendor's for-sale container" );
+  endif
+
+  return 1;
+endfunction
+
+exported function vendor_buy_too_heavy_puts_back( resources )
+  // The pack refuses the ware, which takes the handler's put-back path. The ware is detached by
+  // then, so a put-back that does not land leaves it in no container and in no zone -- invisible,
+  // and not written by the next save.
+  var gold := resources.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  if ( !gold )
+    return ret_error( $"failed to create gold: {gold}" );
+  endif
+
+  // A backpack with no MaxWeight of its own is capped at USHRT_MAX, so the 65435-stone robe fits
+  // on its own. 200 stones of ballast puts the total over the top; goldcoin_heavy weighs 1 each
+  // and is a different objtype from gold, so it does not change what the buyer can afford.
+  var ballast := resources.CreateItemInContainer( char.backpack, "goldcoin_heavy", 200 );
+  if ( !ballast )
+    return ret_error( $"failed to create ballast: {ballast}" );
+  endif
+
+  var v := open_vendor( resources, "heavyrobe", 1, 1 );
+  if ( !v )
+    return v;
+  endif
+
+  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  // Give the handler the same window the other cases get before deciding it did nothing.
+  Sleepms( 500 );
+
+  if ( !v.ware )
+    return ret_error( "the refused ware was destroyed" );
+  endif
+
+  return ret_error_not_equal( v.ware.container, v.for_sale,
+                              $"the refused ware ended up in {v.ware.container} instead of back in the vendor's container" );
+endfunction
+
+exported function vendor_buy_partial_stack_merges( resources )
+  // Buying part of a stack takes the two branches the whole-item cases never reach: the ware is
+  // split off with remove_part_of_stack, and what is bought is merged into the stack already in
+  // the buyer's pack instead of being added to it.
+  var gold := resources.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  if ( !gold )
+    return ret_error( $"failed to create gold: {gold}" );
+  endif
+
+  var have := resources.CreateItemInContainer( char.backpack, "NormalStackable", 5 );
+  if ( !have )
+    return ret_error( $"failed to create the pack stack: {have}" );
+  endif
+
+  var v := open_vendor( resources, "NormalStackable", 10, 1 );
+  if ( !v )
+    return v;
+  endif
+
+  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 3 } } );
+  if ( !res )
+    return res;
+  endif
+
+  var attempts := 50;
+  while ( attempts-- )
+    if ( have.amount == 8 )
+      break;
+    endif
+    Sleepms( 100 );
+  endwhile
+
+  if ( have.amount != 8 )
+    return ret_error( $"the pack stack holds {have.amount}, expected 5 + 3 bought" );
+  endif
+
+  // The rest of the ware stays for sale, and stays in the vendor's container.
+  if ( !v.ware )
+    return ret_error( "the remainder of the ware stack was destroyed" );
+  endif
+
+  if ( v.ware.amount != 7 )
+    return ret_error( $"the vendor's stack holds {v.ware.amount}, expected 10 - 3 sold" );
+  endif
+
+  return ret_error_not_equal( v.ware.container, v.for_sale,
+                              "the remainder left the vendor's for-sale container" );
+endfunction
+
+exported function vendor_sell_moves_item_to_npc( resources )
+  // oldSellHandler needs only the vendor and its bought container, both of which SendBuyWindow
+  // sets up, so there is no need to open a sell window as well.
+  var v := open_vendor( resources, 0, 0, 0 );
+  if ( !v )
+    return v;
+  endif
+
+  var mine := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
+  if ( !mine )
+    return ret_error( $"failed to create item to sell: {mine}" );
+  endif
+  mine.buyprice := 1;
+
+  var res := sell( v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  res := wait_for_container( mine, v.bought, "the sold item never reached the vendor" );
+  if ( !res )
+    return res;
+  endif
+
+  foreach item in ( EnumerateItemsInContainer( char.backpack ) )
+    if ( item == mine )
+      return ret_error( "the sold item is still listed in the seller's pack" );
+    endif
+  endforeach
+
+  return 1;
+endfunction

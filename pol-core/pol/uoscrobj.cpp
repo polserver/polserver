@@ -812,14 +812,14 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     return new BLong( amount_ );
     break;
   case MBR_LAYER:
-    return new BLong( layer );
+    return new BLong( location().layer() );
     break;
   case MBR_TILE_LAYER:
     return new BLong( tile_layer );
     break;
   case MBR_CONTAINER:
-    if ( container != nullptr )
-      return container->make_ref();
+    if ( Core::UContainer* cont = container(); cont != nullptr )
+      return cont->make_ref();
     return new BLong( 0 );
     break;
   case MBR_USESCRIPT:
@@ -1193,359 +1193,143 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     return new BLong( saveonexit() );
   case MBR_FIRE_RESIST_MOD:
     fire_resist( fire_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( fire_resist().mod );
     break;
   case MBR_COLD_RESIST_MOD:
     cold_resist( cold_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( cold_resist().mod );
     break;
   case MBR_ENERGY_RESIST_MOD:
     energy_resist( energy_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( energy_resist().mod );
     break;
   case MBR_POISON_RESIST_MOD:
     poison_resist( poison_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( poison_resist().mod );
     break;
   case MBR_PHYSICAL_RESIST_MOD:
     physical_resist( physical_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( physical_resist().mod );
     break;
   case MBR_FIRE_RESIST_CAP_MOD:
     fire_resist_cap( fire_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( fire_resist_cap().mod );
     break;
   case MBR_COLD_RESIST_CAP_MOD:
     cold_resist_cap( cold_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( cold_resist_cap().mod );
     break;
   case MBR_ENERGY_RESIST_CAP_MOD:
     energy_resist_cap( energy_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( energy_resist_cap().mod );
     break;
   case MBR_POISON_RESIST_CAP_MOD:
     poison_resist_cap( poison_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( poison_resist_cap().mod );
     break;
   case MBR_PHYSICAL_RESIST_CAP_MOD:
     physical_resist_cap( physical_resist_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( physical_resist_cap().mod );
     break;
 
   case MBR_FIRE_DAMAGE_MOD:
     fire_damage( fire_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( fire_damage().mod );
     break;
   case MBR_COLD_DAMAGE_MOD:
     cold_damage( cold_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( cold_damage().mod );
     break;
   case MBR_ENERGY_DAMAGE_MOD:
     energy_damage( energy_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( energy_damage().mod );
     break;
   case MBR_POISON_DAMAGE_MOD:
     poison_damage( poison_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( poison_damage().mod );
     break;
 
   case MBR_PHYSICAL_DAMAGE_MOD:
     physical_damage( physical_damage().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( physical_damage().mod );
     break;
 
   case MBR_LOWER_REAG_COST_MOD:
     lower_reagent_cost( lower_reagent_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( lower_reagent_cost().mod );
     break;
   case MBR_SPELL_DAMAGE_INCREASE_MOD:
     spell_damage_increase( spell_damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( spell_damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
     faster_casting( faster_casting().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( faster_casting().mod );
     break;
   case MBR_FASTER_CAST_RECOVERY_MOD:
     faster_cast_recovery( faster_cast_recovery().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( faster_cast_recovery().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_MOD:
     defence_increase( defence_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( defence_increase().mod );
     break;
   case MBR_DEFENCE_CHANCE_INCREASE_CAP_MOD:
     defence_increase_cap( defence_increase_cap().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( defence_increase_cap().mod );
     break;
   case MBR_LOWER_MANA_COST_MOD:
     lower_mana_cost( lower_mana_cost().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( lower_mana_cost().mod );
     break;
   case MBR_HITCHANCE_MOD:  // to be made redundant in the future
   case MBR_HIT_CHANCE_MOD:
     hit_chance( hit_chance().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( hit_chance().mod );
     break;
   case MBR_LUCK_MOD:
     luck( luck().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( luck().mod );
     break;
   case MBR_SWING_SPEED_INCREASE_MOD:
     swing_speed_increase( swing_speed_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( swing_speed_increase().mod );
     break;
   case MBR_MIN_ATTACK_RANGE_INCREASE_MOD:
     min_attack_range_increase(
         min_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( min_attack_range_increase().mod );
     break;
   case MBR_MAX_ATTACK_RANGE_INCREASE_MOD:
     max_attack_range_increase(
         max_attack_range_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          chr->refresh_ar();
-      }
-    }
+    refresh_wearer_ar();
     return new BLong( max_attack_range_increase().mod );
     break;
 
@@ -1558,15 +1342,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
 
     if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
-      if ( container != nullptr )
-      {
-        if ( Core::IsCharacter( container->serial ) )
-        {
-          Mobile::Character* chr = container->get_chr_owner();
-          if ( chr != nullptr )
-            chr->refresh_ar();
-        }
-      }
+      refresh_wearer_ar();
     }
     send_hit_status_inrange();
     return new BLong( hp_ );
@@ -1574,15 +1350,7 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     this->maxhp_mod( Clib::clamp_convert<s16>( value ) );
     if ( this->isa( Core::UOBJ_CLASS::CLASS_ARMOR ) )
     {
-      if ( container != nullptr )
-      {
-        if ( Core::IsCharacter( container->serial ) )
-        {
-          Mobile::Character* chr = container->get_chr_owner();
-          if ( chr != nullptr )
-            chr->refresh_ar();
-        }
-      }
+      refresh_wearer_ar();
     }
     send_hit_status_inrange();
     return new BLong( value );
@@ -1621,13 +1389,13 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
       return new BError( "weight_multiplier_mod cannot be less than 0.0" );
     }
 
-    if ( container )
+    if ( Core::UContainer* outer = container(); outer != nullptr )
     {
       int old_weight = weight();
       weight_multiplier_mod( value );
       int new_weight = weight();
       int weight_delta = new_weight - old_weight;
-      container->add_bulk( 0, weight_delta );
+      outer->add_bulk( 0, weight_delta );
     }
     else
     {
@@ -1636,7 +1404,7 @@ BObjectImp* Item::set_script_member_id_double( const int id, double value )
 
     increv_send_object_recursive();
 
-    UpdateCharacterWeight( this );
+    refresh_owner_statbar( this );
     return new Double( weight_multiplier_mod() );
     break;
   }
@@ -1691,10 +1459,11 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           new_stack = this->clone();
         else
           new_stack = this->remove_part_of_stack( 1 );
-        new_stack->setposition( newpos );
-        add_item_to_world( new_stack );
-        move_item( new_stack, newpos );
-        update_item_to_inrange( new_stack );
+        if ( Items::place_at( *new_stack, newpos ) )
+        {
+          send_item_moved( new_stack, newpos );
+          update_item_to_inrange( new_stack );
+        }
       }
 
       if ( this->getamount() == 1 )
@@ -1712,11 +1481,12 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     else
       new_stack = this->remove_part_of_stack( amt );
 
-    new_stack->setposition( newpos );
     new_stack->setamount( amt );
-    add_item_to_world( new_stack );
-    move_item( new_stack, newpos );
-    update_item_to_inrange( new_stack );
+    if ( Items::place_at( *new_stack, newpos ) )
+    {
+      send_item_moved( new_stack, newpos );
+      update_item_to_inrange( new_stack );
+    }
 
     if ( amt == item_amount )
       destroy_item( this );
@@ -1773,9 +1543,16 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           return new BError( "Could not insert new stack into container" );
         }
 
-        newcontainer->add_at_random_location( new_stack );
+        // The CanInsert script above can have destroyed the container or the new stack; move_into
+        // says no rather than linking one of them into the other.
+        if ( !Items::move_into( *new_stack, *newcontainer ) )
+        {
+          if ( new_stack != this )
+            this->add_to_self( new_stack );
+          return new BError( "Could not insert new stack into container" );
+        }
         update_item_to_inrange( new_stack );
-        UpdateCharacterWeight( new_stack );
+        refresh_owner_statbar( new_stack );
         newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
       }
 
@@ -1804,10 +1581,15 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
           this->add_to_self( new_stack );
         return new BError( "Could not insert new stack into container" );
       }
-      newcontainer->add_at_random_location( new_stack );
+      if ( !Items::move_into( *new_stack, *newcontainer ) )
+      {
+        if ( new_stack != this )
+          this->add_to_self( new_stack );
+        return new BError( "Could not insert new stack into container" );
+      }
       new_stack->setamount( amt );
       update_item_to_inrange( new_stack );
-      UpdateCharacterWeight( new_stack );
+      refresh_owner_statbar( new_stack );
       newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
 
       if ( amt == item_amount )
@@ -1841,7 +1623,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
       existing_stack->add_to_self( new_stack );
       update_item_to_inrange( existing_stack );
 
-      UpdateCharacterWeight( existing_stack );
+      refresh_owner_statbar( existing_stack );
 
       newcontainer->on_insert_increase_stack( nullptr, Core::UContainer::MT_CORE_MOVED,
                                               existing_stack, amount );
@@ -3856,11 +3638,11 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
   {
   case MBR_HELD_WEIGHT_MULTIPLIER:
   {
-    if ( container )
+    if ( Core::UContainer* outer = container(); outer != nullptr )
     {
       int oldweight = weight();
       held_weight_multiplier( value );
-      container->add_bulk( 0, weight() - oldweight );
+      outer->add_bulk( 0, weight() - oldweight );
     }
     else
     {
@@ -3869,7 +3651,7 @@ Bscript::BObjectImp* UContainer::set_script_member_id_double( const int id, doub
 
     increv_send_object_recursive();
 
-    UpdateCharacterWeight( this );
+    refresh_owner_statbar( this );
 
     return new Double( held_weight_multiplier() );
   }
@@ -3901,6 +3683,18 @@ BObjectImp* UCorpse::get_script_member_id( const int id ) const
   case MBR_OWNERSERIAL:
     return new BLong( ownerserial );
     break;
+  case MBR_EQUIPPED_ITEMS:
+  {
+    // What the corpse is rendered wearing, in layer order -- the same set the client is sent, so a
+    // script and a player looking at the corpse see the same thing.
+    std::unique_ptr<ObjArray> arr( new ObjArray );
+    for ( const auto& item : layer_view() )
+    {
+      if ( item != nullptr )
+        arr->addElement( new Module::EItemRefObjImp( item ) );
+    }
+    return arr.release();
+  }
   default:
     return nullptr;
   }
@@ -4698,15 +4492,8 @@ BObjectImp* UArmor::set_script_member_id( const int id, int value )
   {
   case MBR_AR_MOD:
     this->ar_mod( Clib::clamp_convert<s16>( value ) );
-    if ( container != nullptr )
-    {
-      if ( Core::IsCharacter( container->serial ) )
-      {
-        Mobile::Character* chr = container->get_chr_owner();
-        if ( chr != nullptr )
-          Mobile::ARUpdater::on_change( chr );
-      }
-    }
+    if ( Mobile::Character* chr = wearer(); chr != nullptr )
+      Mobile::ARUpdater::on_change( chr );
     return new BLong( value );
   default:
     return nullptr;
@@ -4911,7 +4698,7 @@ ItemGivenEvent::ItemGivenEvent( Mobile::Character* chr_givenby, Items::Item* ite
 
   given_time_ = Core::read_gameclock();
   item_.set( item_given );
-  cont_.set( item_given->container );
+  cont_.set( item_given->container() );
   given_by_.set( chr_givenby );
 
   item_given->setprop( "GivenBy", BLong::pack( chr_givenby->serial ) );
@@ -4942,33 +4729,25 @@ ItemGivenEvent::~ItemGivenEvent()
   if ( item->orphan() || cont->orphan() || chr->orphan() )
     return;
 
-  if ( item->container == cont && Clib::tostring( given_time_ ) == Clib::tostring( gts ) )
+  if ( item->container() == cont && Clib::tostring( given_time_ ) == Clib::tostring( gts ) )
   {
     Core::UContainer* backpack = chr->backpack();
     if ( backpack != nullptr && !chr->dead() )
     {
       if ( backpack->can_add( *item ) )
       {
-        cont->remove( item );
-        u8 newSlot = 1;
-        if ( !backpack->can_add_to_slot( newSlot ) || !item->slot_index( newSlot ) )
+        if ( Items::move_into( *item, *backpack, item->pos2d() ) )
         {
-          item->setposition( chr->pos() );
-          add_item_to_world( item );
-          register_with_supporting_multi( item );
-          move_item( item, item->pos() );
+          update_item_to_inrange( item );
           return;
         }
-        backpack->add( item, item->pos2d() );
-        update_item_to_inrange( item );
+        if ( Items::place_at( *item, chr->pos() ) )
+          send_item_moved( item, item->pos() );
         return;
       }
     }
-    cont->remove( item );
-    item->setposition( chr->pos() );
-    add_item_to_world( item );
-    register_with_supporting_multi( item );
-    move_item( item, item->pos() );
+    if ( Items::place_at( *item, chr->pos() ) )
+      send_item_moved( item, item->pos() );
   }
 }
 

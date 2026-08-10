@@ -48,7 +48,7 @@ Item* add_item( unsigned int objtype, unsigned short x, unsigned short y, short 
   item = Item::create( objtype );
   passert( item );
   item->setposition( Pos4d( x, y, static_cast<s8>( z ), Core::gamestate.main_realm ) );
-  add_item_to_world( item );
+  (void)Items::relocate( *item, Items::InWorld{} );
   return item;
 }
 
