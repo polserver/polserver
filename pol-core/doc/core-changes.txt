@@ -1,5 +1,5 @@
 -- POL100.3.0 --
-08-09-2026 Nando:
+08-10-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone
            an item says it is in must be the one that actually lists it, and the other way
@@ -78,6 +78,8 @@
            and one put into a container was pulled back out to whatever coordinates the
            container had given it, usually near the corner of the map. The requested
            location now wins in every case.
+08-08-2026 Kevin:
+    Fixed: Custom houses customizable components are no longer limited by a single packet, increasing the number of components allowed.
 08-07-2026 Turley:
     Fixed: AuxConnection: transmit() didnt guarantee that the order was kept.
     Fixed: Datastore loading once the version overflows

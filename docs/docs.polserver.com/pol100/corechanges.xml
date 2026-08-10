@@ -2,11 +2,11 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-09-2026</datemodified>
+		<datemodified>08-10-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>08-09-2026</date>
+			<date>08-10-2026</date>
 			<author>Nando:</author>
 			<change type="Added">polsys::CheckItemIntegrity(), which checks that every item agrees with whatever<br/>
 is holding it - the container, corpse layer, storage area, cursor or world zone<br/>
@@ -86,6 +86,11 @@ meantime. An item moved elsewhere in the world stayed where the script put it,<b
 and one put into a container was pulled back out to whatever coordinates the<br/>
 container had given it, usually near the corner of the map. The requested<br/>
 location now wins in every case.</change>
+		</entry>
+		<entry>
+			<date>08-08-2026</date>
+			<author>Kevin:</author>
+			<change type="Fixed">Custom houses customizable components are no longer limited by a single packet, increasing the number of components allowed.</change>
 		</entry>
 		<entry>
 			<date>08-07-2026</date>
