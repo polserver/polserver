@@ -234,3 +234,55 @@ exported function bankbox_needs_no_position()
   DestroyRootItemInStorageArea( area, "reachbox" );
   return res;
 endfunction
+
+// The other half of standing nowhere: being told about it. When something a client can see changes
+// its name, the core announces the new revision so the client drops its cached tooltip. It finds
+// who to tell by walking the region the object stands in - which answers nobody for a bank box, so
+// the announcement has to fall back to asking who was shown the container.
+exported function bankbox_change_is_announced()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "revbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    var opened := SendOpenSpecialContainer( char, cont );
+    if ( !opened )
+      res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+    else
+      // Showing the container announces the container's own revision, and that packet is in flight
+      // rather than queued - clearing the queue does not catch it. Drain it here, or the wait below
+      // passes on it and never looks at the item at all.
+      Clear_Event_Queue();
+      var stale := waitForClient( 0, { EVT_OBJ_REVISION }, 1 );
+      while ( stale )
+        stale := waitForClient( 0, { EVT_OBJ_REVISION }, 1 );
+      endwhile
+
+      item.name := "a renamed thing";
+
+      var ev := waitForClient( 0, { EVT_OBJ_REVISION } );
+      if ( !ev )
+        res := ret_error( "the client was not told the item in the bank box had changed" );
+      elseif ( ev.serial != item.serial )
+        res := ret_error( $"told about 0x{ev.serial:x}, expected the item 0x{item.serial:x}" );
+      endif
+    endif
+    DestroyItem( item );
+  endif
+
+  DestroyRootItemInStorageArea( area, "revbox" );
+  return res;
+endfunction

@@ -1048,7 +1048,11 @@ class Client(threading.Thread):
       self.view_range = pkt.visualrange
       self.log.info(f"update view range to {self.view_range}")
     elif isinstance(pkt, packets.MegaClilocRevPacket):
-      pass
+      # The server telling us a cached tooltip is out of date. Raised without looking the object
+      # up, because the interesting case is exactly the one we may not be holding: something in a
+      # container that stands nowhere.
+      self.brain.event(brain.Event(brain.Event.EVT_OBJ_REVISION,
+        serial = pkt.serial, revision = pkt.revision))
     elif isinstance(pkt, packets.AOSTooltipPacket):
       self.brain.event(brain.Event(brain.Event.EVT_AOS_TOOLTIP, serial = pkt.serial, text=pkt.text))
     elif isinstance(pkt, packets.EnableFeaturesPacket):

@@ -436,6 +436,9 @@ class PolServer:
       res["serial"]=ev.serial
       res["pos"]=ev.pos
       res["playerpos"]=ev.playerpos
+    elif ev.type==Event.EVT_OBJ_REVISION:
+      res["serial"]=ev.serial
+      res["revision"]=ev.revision
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():
