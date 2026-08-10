@@ -71,7 +71,7 @@ item.x, item.y and item.realm read on any of them now report that it is nowhere<
 rather than repeating where its owner stands.</change>
 		</entry>
 		<entry>
-			<date>08-09-2026</date>
+			<date>08-10-2026</date>
 			<author>Nando:</author>
 			<change type="Added">polsys::CheckItemIntegrity(), which checks that every item agrees with whatever<br/>
 is holding it - the container, corpse layer, storage area, cursor or world zone<br/>
