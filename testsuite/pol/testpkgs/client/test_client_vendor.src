@@ -3,6 +3,7 @@ include "testutil";
 
 use os;
 use uo;
+use storage;
 
 // Vendor buy and sell go through oldBuyHandler / oldSellHandler, which are reached only when
 // ScriptedMerchantHandlers is 0 -- which is what the test shard sets. Those two handlers move
@@ -303,4 +304,89 @@ exported function vendor_ware_not_liftable( resources )
   endif
 
   return 1;
+endfunction
+
+// The same vendor with its stock filed in a storage area, which is how a shard keeps a merchant's
+// inventory across restarts. It is also the arrangement with no position anywhere: a storage root
+// is in no world, and something in no world compares out of range of everything, realms first.
+//
+// So who is told that a sold item reached the vendor cannot be answered by asking where the
+// container is. It works today only because SendBuyWindow writes the merchant's position onto the
+// container -- a value that is not true of it and that the integrity sweep objects to. This is the
+// case that has to keep working when that write goes.
+function open_stored_vendor( resources, ware_objtype, price )
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z, 0,
+                                              _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create vendor npc: {npc}" );
+  endif
+
+  var area := FindStorageArea( "vendorstock" );
+  if ( !area )
+    area := CreateStorageArea( "vendorstock" );
+    if ( !area )
+      return ret_error( $"failed to create the stock area: {area}" );
+    endif
+  endif
+
+  var for_sale := CreateRootItemInStorageArea( area, "forsale", 0xE75 );
+  if ( !for_sale )
+    return ret_error( $"failed to create the for-sale root: {for_sale}" );
+  endif
+  var bought := CreateRootItemInStorageArea( area, "bought", 0xE75 );
+  if ( !bought )
+    return ret_error( $"failed to create the bought root: {bought}" );
+  endif
+
+  var ware := resources.CreateItemInContainer( for_sale, ware_objtype, 1 );
+  if ( !ware )
+    return ret_error( $"failed to create ware: {ware}" );
+  endif
+  ware.sellprice := price;
+  ware.buyprice := price;
+
+  var res := SendBuyWindow( char, for_sale, npc, bought, 0 );
+  if ( !res )
+    return ret_error( $"SendBuyWindow failed: {res}" );
+  endif
+
+  return struct{ npc := npc, area := area, for_sale := for_sale, bought := bought, ware := ware };
+endfunction
+
+function close_stored_vendor( v )
+  DestroyRootItemInStorageArea( v.area, "forsale" );
+  DestroyRootItemInStorageArea( v.area, "bought" );
+endfunction
+
+exported function vendor_sell_seen_in_storage( resources )
+  var v := open_stored_vendor( resources, "shirt_plain", 1 );
+  if ( !v )
+    return v;
+  endif
+
+  var res := 1;
+  var mine := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
+  if ( !mine )
+    res := ret_error( $"failed to create item to sell: {mine}" );
+  else
+    mine.buyprice := 1;
+
+    var sold := sell( v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
+    if ( !sold )
+      res := sold;
+    else
+      res := wait_for_container( mine, v.bought, "the sold item never reached the vendor" );
+      if ( res )
+        // The server moved it; the question is whether the seller's client was told, which is the
+        // half that has no position to go on.
+        var seen := client_finds_obj( clientcon, 0, mine.serial, v.bought.serial );
+        if ( !seen )
+          res := ret_error( "the seller was not told the item reached the vendor" );
+        endif
+      endif
+    endif
+  endif
+
+  close_stored_vendor( v );
+  return res;
 endfunction

@@ -4144,15 +4144,46 @@ Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemot
   return nullptr;
 }
 
-bool Character::mightsee( const Items::Item* item ) const
+bool Character::shown_a_container( const Core::UObject* obj ) const
 {
-  const auto* owner = item->toplevel_owner();
+  if ( obj == nullptr )
+    return false;
+
+  // A container a script opened for this character with SendOpenSpecialContainer, a bank box being
+  // the usual one.
   for ( const auto& elem : remote_containers_ )
   {
-    Items::Item* additional_item = elem.get();
-    if ( additional_item == owner )
+    if ( elem.get() == obj )
       return true;
   }
+
+  // Both sides of a trade window: each party is shown their own offer and the other's.
+  if ( const Character* partner = trading_with(); partner != nullptr )
+  {
+    if ( obj == trading_cont_.get() || obj == partner->trading_cont_.get() )
+      return true;
+  }
+
+  // A merchant's stock, for as long as its window is open. Derived from the handles the window
+  // already keeps rather than recorded a second time, so it ends exactly when the window does.
+  if ( client != nullptr && client->gd != nullptr )
+  {
+    if ( obj == client->gd->vendor_for_sale.get() || obj == client->gd->vendor_bought.get() )
+      return true;
+  }
+
+  return false;
+}
+
+bool Character::mightsee( const Items::Item* item ) const
+{
+  // These containers are shown to a client without being anywhere: a bank box lives in a storage
+  // area, a trade window and a vendor's stock belong to no place at all. Asking where they are is
+  // the wrong question -- and it has no answer, because something in no world compares out of range
+  // of everything, realms first. So who was shown it decides, and only failing that, where it is.
+  const auto* owner = item->toplevel_owner();
+  if ( shown_a_container( owner ) )
+    return true;
 
   return in_visual_range( owner );
 }
