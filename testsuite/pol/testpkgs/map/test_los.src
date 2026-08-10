@@ -36,6 +36,266 @@ exported function test_los_between( resmngr )
   return 1;
 endfunction
 
+// The line walk picks whichever axis moves furthest and steps the other two along it, so each
+// dominant axis is a separate loop. The cases above only ever walk with dy zero, which leaves
+// the y dominant loop and the sideways steps of the other two unwalked.
+const wx := 70;
+const wy := 60;
+
+exported function test_los_x_dominant( resmngr )
+  // |dx| is the largest, and z still has to be stepped along the way.
+  var los := CheckLosBetween( wx, wy, 0, wx + 10, wy + 1, 5 );
+  if ( !los )
+    return ret_error( $"no LOS across open air: {los}" );
+  endif
+
+  // A plane of height 0 items sits at z 2, which blocks the single z coordinate 1.
+  var i;
+  for ( i := wx; i <= wx + 10; ++i )
+    var item := resmngr.CreateItemAtLocation( i, wy, 2, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create blocker at {i}: {item}" );
+    endif
+  endfor
+  los := CheckLosBetween( wx, wy, 0, wx + 10, wy, 5 );
+  if ( los )
+    return ret_error( $"LOS through the blocking plane: {los}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_los_y_dominant( resmngr )
+  // |dy| is the largest, which is the loop the older cases never reach.
+  var los := CheckLosBetween( wx + 20, wy, 0, wx + 21, wy + 20, 4 );
+  if ( !los )
+    return ret_error( $"no LOS across open air: {los}" );
+  endif
+
+  var i;
+  for ( i := wy; i <= wy + 20; ++i )
+    var item := resmngr.CreateItemAtLocation( wx + 20, i, 2, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create blocker at {i}: {item}" );
+    endif
+  endfor
+  los := CheckLosBetween( wx + 20, wy, 0, wx + 20, wy + 20, 4 );
+  if ( los )
+    return ret_error( $"LOS through the blocking plane: {los}" );
+  endif
+  return 1;
+endfunction
+
+exported function test_los_z_dominant( resmngr )
+  // |dz| is the largest, and y has to be stepped along the way.
+  var los := CheckLosBetween( wx + 40, wy, 0, wx + 41, wy + 5, 40 );
+  if ( !los )
+    return ret_error( $"no LOS across open air: {los}" );
+  endif
+  return 1;
+endfunction
+
+// Sight is blocked by two independent sources: loose items, which every case above uses, and
+// map statics plus multi components, which nothing reached before.
+const hx := 100;
+const hy := 120;
+const hz := 10;
+
+// The ground is a shape like any other. Grass is BlockSight with height 0, so it occupies the
+// single z coordinate below itself and no line at z -1 gets anywhere.
+exported function test_los_terrain_blocks( resmngr )
+  var los := CheckLosBetween( hx - 5, hy, 0, hx + 5, hy, 0 );
+  if ( !los )
+    return ret_error( $"no LOS just above the ground: {los}" );
+  endif
+
+  los := CheckLosBetween( hx - 5, hy, -1, hx + 5, hy, -1 );
+  if ( los )
+    return ret_error( $"LOS through the ground: {los}" );
+  endif
+  return 1;
+endfunction
+
+// The generated map carries a static house centred on 150,150, and its west wall at x 147 is a
+// stone wall of height 5 sitting at z 0 with a wooden wall of height 20 above it at z 7. Statics
+// reach the same check by a different route than multis do, through getmapshapes.
+const shx := 147;
+const shy := 150;
+
+exported function test_los_static_house( resmngr )
+  // Straight through the wall, at a z the stone part covers.
+  var los := CheckLosBetween( shx - 3, shy, 2, shx + 3, shy, 2 );
+  if ( los )
+    return ret_error( $"LOS through the static wall: {los}" );
+  endif
+
+  // The same line well south of the house is clear at that z.
+  los := CheckLosBetween( shx - 3, shy + 10, 2, shx + 3, shy + 10, 2 );
+  if ( !los )
+    return ret_error( $"no LOS clear of the house: {los}" );
+  endif
+
+  // The wooden wall above starts at z 7, so the two leave a gap the stone wall does not cover.
+  los := CheckLosBetween( shx - 3, shy, 30, shx + 3, shy, 30 );
+  if ( !los )
+    return ret_error( $"no LOS above the walls: {los}" );
+  endif
+  return 1;
+endfunction
+
+// House 0x12001 is a line of 61 "wooden boards" along x on a single row. They are BlockSight
+// with height 0, so like a height 0 item they block the one z coordinate below where they sit,
+// which is well clear of the ground once the multi is raised.
+exported function test_los_static_multi( resmngr )
+  var multi := resmngr.CreateMultiAtLocation( hx, hy, hz, 0x12001, CRMULTI_IGNORE_ALL );
+  if ( !multi )
+    return ret_error( $"failed to create the multi: {multi}" );
+  endif
+
+  // Level with the boards nothing is in the way.
+  var los := CheckLosBetween( hx - 5, hy, hz, hx + 5, hy, hz );
+  if ( !los )
+    return ret_error( $"no LOS level with the boards: {los}" );
+  endif
+
+  // One below them is the coordinate they occupy.
+  los := CheckLosBetween( hx - 5, hy, hz - 1, hx + 5, hy, hz - 1 );
+  if ( los )
+    return ret_error( $"LOS through the boards: {los}" );
+  endif
+
+  // The neighbouring row carries no boards, which is what tells the multi apart from the ground.
+  los := CheckLosBetween( hx - 5, hy + 1, hz - 1, hx + 5, hy + 1, hz - 1 );
+  if ( !los )
+    return ret_error( $"no LOS on the row beside the boards: {los}" );
+  endif
+  return 1;
+endfunction
+
+// A looker and a target in different realms never see each other, whatever the geometry. The
+// realm is checked inside the CLASS_CHARACTER branch, so this needs a player character too.
+exported function test_los_cross_realm( resmngr )
+  var pc := createAccountWithChar( "testlosany", "pass" );
+  if ( !pc )
+    return pc;
+  endif
+
+  // A neighbour in the same realm, in open air, is visible.
+  var near := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", pc.x + 1, pc.y, pc.z, 0, pc.realm,
+                                             1 );
+  if ( !near )
+    return ret_error( $"failed to create the near npc: {near}" );
+  endif
+  var los := CheckLineOfSight( pc, near );
+  if ( !los )
+    return ret_error( $"no LOS to a neighbour in open air: {los}" );
+  endif
+
+  // The same check against the other realm is refused before any line is walked.
+  var far := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 150, 150, 0, 0, "britannia2", 1 );
+  if ( !far )
+    return ret_error( $"failed to create the far npc: {far}" );
+  endif
+  if ( far.realm == pc.realm )
+    return ret_error( $"the far npc shares the realm: {far.realm}" );
+  endif
+  los := CheckLineOfSight( pc, far );
+  if ( los )
+    return ret_error( $"LOS across realms: {los}" );
+  endif
+  return 1;
+endfunction
+
+// has_los only consults the privilege when the looker is CLASS_CHARACTER, and isa() is an exact
+// class test, so this needs a player character rather than an NPC.
+exported function test_los_losany_privilege( resmngr )
+  var pc := createAccountWithChar( "testlosany", "pass" );
+  if ( !pc )
+    return pc;
+  endif
+
+  // A mobile looks out from its own height, so the blocking plane goes above it and the target
+  // sits above that, the same shape the mobile case below uses.
+  var i;
+  for ( i := pc.x; i <= pc.x + 10; ++i )
+    var item := resmngr.CreateItemAtLocation( i, pc.y, pc.z + z, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create blocker at {i}: {item}" );
+    endif
+  endfor
+  var los := CheckLosAt( pc, pc.x + 10, pc.y, pc.z + z + player_height );
+  if ( los )
+    return ret_error( $"LOS through the blocking plane: {los}" );
+  endif
+
+  // A privilege only permits the setting, it does not turn it on, so enable() is refused until
+  // the privilege is granted, and granting alone changes nothing.
+  var res := pc.enable( "losany" );
+  if ( !res.errortext )
+    return ret_error( $"enable without the privilege was allowed: {res}" );
+  endif
+  GrantPrivilege( pc, "losany" );
+  los := CheckLosAt( pc, pc.x + 10, pc.y, pc.z + z + player_height );
+  if ( los )
+    return ret_error( $"granting the privilege alone granted LOS: {los}" );
+  endif
+
+  // Enabling the setting answers before the line is ever walked.
+  res := pc.enable( "losany" );
+  if ( res.errortext )
+    return ret_error( $"enable with the privilege failed: {res}" );
+  endif
+  if ( !pc.enabled( "losany" ) )
+    return ret_error( "losany did not read back as enabled" );
+  endif
+  los := CheckLosAt( pc, pc.x + 10, pc.y, pc.z + z + player_height );
+  if ( !los )
+    return ret_error( $"losany did not grant LOS: {los}" );
+  endif
+
+  pc.disable( "losany" );
+  los := CheckLosAt( pc, pc.x + 10, pc.y, pc.z + z + player_height );
+  if ( los )
+    return ret_error( $"LOS still granted after disable: {los}" );
+  endif
+
+  // Revoking takes the setting away with the privilege.
+  pc.enable( "losany" );
+  RevokePrivilege( pc, "losany" );
+  los := CheckLosAt( pc, pc.x + 10, pc.y, pc.z + z + player_height );
+  if ( los )
+    return ret_error( $"LOS still granted after revoke: {los}" );
+  endif
+  return 1;
+endfunction
+
+// The same privilege on an NPC has no effect: has_los tests isa( CLASS_CHARACTER ) and an NPC is
+// CLASS_NPC, so the whole branch is skipped for it. Pinned as it stands.
+exported function test_los_losany_npc( resmngr )
+  var mob := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", wx + 60, wy, 0 );
+  if ( !mob )
+    return ret_error( $"failed to create mob: {mob}" );
+  endif
+
+  var i;
+  for ( i := wx + 60; i <= wx + 70; ++i )
+    var item := resmngr.CreateItemAtLocation( i, wy, z, 0x4ae );
+    if ( !item )
+      return ret_error( $"failed to create blocker at {i}: {item}" );
+    endif
+  endfor
+
+  GrantPrivilege( mob, "losany" );
+  mob.enable( "losany" );
+  if ( !mob.enabled( "losany" ) )
+    return ret_error( "losany did not read back as enabled on the npc" );
+  endif
+  var los := CheckLosAt( mob, wx + 70, wy, z + player_height );
+  if ( los )
+    return ret_error( $"losany took effect on an npc: {los}" );
+  endif
+  return 1;
+endfunction
+
 exported function test_los_between_mobiles( resmngr )
   var mob1 := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x1, y, 0 );
   if ( !mob1 )
@@ -71,4 +331,3 @@ exported function test_los_between_mobiles( resmngr )
   endif
   return 1;
 endfunction
-
