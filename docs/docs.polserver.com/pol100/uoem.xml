@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>07/30/2026</datemodified>
+    <datemodified>08/09/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -486,12 +486,13 @@ endif</code></explain>
 </function>
 
 <function name="AssignRectToWeatherRegion">
-  <prototype>AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth )</prototype>
-  <parameter name="region" value="string" />
+  <prototype>AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth, realm := _DEFAULT_REALM )</prototype>
+  <parameter name="region" value="string. An empty string puts the rect back to the region that covered it when the shard loaded" />
   <parameter name="xwest" value="integer" />
   <parameter name="ynorth" value="integer" />
   <parameter name="xeast" value="integer" />
   <parameter name="ysouth" value="integer" />
+  <parameter name="realm" value="String - case-sensitive name of the realm" />
   <explain>Sets the range for weather region named "region". Useful for making moving storms.
   Notes: Weather region strings as defined in regions/weather.cfg</explain>
   <return>1 on success</return>

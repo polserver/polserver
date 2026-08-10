@@ -256,7 +256,7 @@ Accessible( by_character, item, range := ACCESSIBLE_DEFAULT );
 AddAmount( item, amount );
 AddMenuItem( menu, objtype, text, color := 0 );
 ApplyConstraint( objlist, configfile, propertyname, minvalue );
-AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth );
+AssignRectToWeatherRegion( region, xwest, ynorth, xeast, ysouth, realm := _DEFAULT_REALM );
 Attach( character );
 Broadcast( text, font := _DEFAULT_TEXT_FONT, color := _DEFAULT_TEXT_COLOR, required_cmdlevel := _DEFAULT_TEXT_REQUIREDCMD );
 CancelTarget( of_whom );
