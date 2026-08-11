@@ -1,0 +1,37 @@
+--- subscripting
+integer:     e
+real:        e
+past end:    error{ errortext = "Subscript out of range" }
+--- slicing
+from, len:   ell
+find:        w
+find, len:   wor
+not found:   <uninitialized object>
+real length: ell
+start zero:  error{ errortext = "Subscript out of range" }
+start past:  error{ errortext = "Subscript out of range" }
+--- assigning through a slice
+replaced:    howdy world
+by find:     howdy there
+out of rng:  error{ errortext = "Subscript out of range" }
+--- method parameters
+length:      error{ errortext = "string.length() doesn't take parameters." }
+find none:   error{ errortext = "string.find(Search, [Start]) takes at least one parameter" }
+find three:  error{ errortext = "string.find(Search, [Start]) takes only two parameters" }
+find type:   error{ errortext = "string.find(Search, [Start]): Search must be a string or regex" }
+split none:  error{ errortext = "string.split(Separator[, Max_Split]) takes at least one parameter" }
+split three: error{ errortext = "string.split(Separator[, Max_Split]) takes at most two parameters" }
+split type:  error{ errortext = "string.split(Separator[, Max_Split]): Separator must be a RegExp or string" }
+upper:       error{ errortext = "string.upper() doesn't take parameters." }
+lower:       error{ errortext = "string.lower() doesn't take parameters." }
+format none: error{ errortext = "string.format() requires a parameter." }
+join none:   error{ errortext = "string.join(array) requires a parameter." }
+join type:   error{ errortext = "string.join expects an array" }
+unknown mth: <uninitialized object>
+--- format tags
+no index:    <idx required before: 'prop'>
+with index:  5
+padded:      7
+unclosed:    {
+missing arg: 7<invalid index: #2>
+join holes:  x

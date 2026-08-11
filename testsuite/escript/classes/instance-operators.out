@@ -1,0 +1,15 @@
+typeof:      ClassInstanceRef
+typeofint:   42
+istrue:      1
+member:      5
+subscript:   5
+by index:    error{ errortext = "Struct members can only be accessed by name" }
+assigned:    9
+in method:   10
+dotplus:     <uninitialized object>
+dotplus 2:   error{ errortext = "Member already exists" }
+has y:       1
+dotminus:    1
+has y now:   0
+dotminus 2:  1
+empty true:  1

@@ -1,0 +1,66 @@
+// Array methods that no other test reaches: sorting by sub index, sorted_insert, the parameter
+// refusals of insert/append/erase/shrink/exists, and what an array with holes in it does.
+
+program array24()
+
+  print( "--- holes" );
+  // assigning past the end grows the array with empty slots, which are not uninit values but
+  // missing references, and every reader has to cope with them
+  var holes := array{};
+  holes[3] := "three";
+  print( "array:       " + holes );
+  print( "size:        " + holes.size() );
+  print( "read hole:   " + holes[1] );
+  print( "past end:    " + holes[9] );
+  // assigning the array copies it element by element and keeps the holes as holes, while
+  // concatenating it turns the first one into an uninitialized value
+  var assigned := holes;
+  print( "assigned:    " + assigned );
+  print( "concat:      " + ( holes + array{} ) );
+  print( "slice:       " + holes[1, 3] );
+  // searching one walks past the holes instead of stopping at them
+  print( "in:          " + ( "three" in holes ) );
+  print( "not in:      " + ( "zz" in holes ) );
+
+  print( "--- adding and removing members" );
+  print( "dotplus:     " + ( holes.+member ) );
+  print( "dotplus 2:   " + ( holes.+member ) );
+  print( "unknown mth: " + holes.zzz_not_a_method() );
+
+  print( "--- sorting by a sub index" );
+  var rows := array{ array{ 3, "c" }, array{ 1, "a" }, array{ 2, "b" } };
+  print( "sorted:      " + rows.sort( 1 ) + " " + rows );
+  // sub indexes are 1 based for sort, so 0 is not "no sub index" here
+  print( "sub zero:    " + rows.sort( 0 ) );
+  print( "sub bad:     " + rows.sort( "x" ) );
+  print( "two params:  " + rows.sort( 1, 2 ) );
+
+  print( "--- sorted_insert" );
+  var sorted := array{ 1, 3, 5 };
+  print( "insert:      " + sorted.sorted_insert( 4 ) + " " + sorted );
+  print( "reversed:    " + sorted.sorted_insert( 2, 0, 1 ) + " " + sorted );
+  print( "no params:   " + sorted.sorted_insert() );
+  print( "sub neg:     " + sorted.sorted_insert( 4, -1 ) );
+  print( "sub bad:     " + sorted.sorted_insert( 4, "x" ) );
+  print( "reverse bad: " + sorted.sorted_insert( 4, 0, "x" ) );
+
+  print( "--- parameter refusals" );
+  var a := array{ 3, 1, 2 };
+  print( "insert one:  " + a.insert( 1 ) );
+  print( "insert bad:  " + a.insert( "x", 1 ) );
+  print( "append none: " + a.append() );
+  print( "erase bad:   " + a.erase( "x" ) );
+  print( "shrink bad:  " + a.shrink( "x" ) );
+  print( "exists bad:  " + a.exists( "x" ) );
+  print( "reverse parm:" + a.reverse( 1 ) );
+
+  print( "--- an array that changes under the callback" );
+  // find walks by index, so emptying the array from inside the callback ends the walk
+  var shrinking := array{ 1, 2, 3, 4 };
+  print( "find:        " + shrinking.find( @( x ) {
+    shrinking.shrink( 1 );
+    return x > 90;
+  } ) );
+  print( "left:        " + shrinking );
+
+endprogram

@@ -1,0 +1,14 @@
+keys:        { a, b }
+keys param:  error{ errortext = "struct.keys() doesn't take parameters." }
+size:        2
+size param:  error{ errortext = "struct.size() doesn't take parameters." }
+exists:      1
+exists miss: 0
+exists int:  error{ errortext = "Struct keys must be strings" }
+exists none: error{ errortext = "struct.exists(key) requires a parameter." }
+erase:       1
+erase miss:  0
+erase int:   error{ errortext = "Struct keys must be strings" }
+erase none:  error{ errortext = "struct.erase(key) requires a parameter." }
+unknown:     <uninitialized object>
+left:        struct{ b = 2 }

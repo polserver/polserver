@@ -33,3 +33,15 @@ print( unpack( "t-1:" ) );
 print( unpack( "i" ) );
 print( unpack( "iabc" ) );
 print( unpack( "i42" ) );
+
+// A packed dictionary counts its entries the same way again.
+print( unpack( "d" ) );
+print( unpack( "dabc" ) );
+print( unpack( "d1x" ) );
+print( unpack( "d-1:" ) );
+
+// An array with holes in it packs them as "x" and reads them back as holes.
+var holes := array{};
+holes[3] := "three";
+print( pack( holes ) );
+print( unpack( pack( holes ) ) );

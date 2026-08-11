@@ -1,0 +1,66 @@
+use datafile;
+
+// The datafile module. Nothing here reaches the disk: a data store is only written during a
+// world save, which runecl never performs, so every file made below lives in memory only.
+
+program datafiletest()
+
+  print( "--- descriptors" );
+  // a bare name, "::name" and ":package:name" all name a store; anything else is refused
+  print( "plain:        " + TypeOf( CreateDataFile( "dftest" ) ) );
+  print( "core:         " + TypeOf( CreateDataFile( "::dfcore" ) ) );
+  print( "package:      " + TypeOf( CreateDataFile( ":filetest:dfpkg" ) ) );
+  print( "malformed:    " + CreateDataFile( ":bad" ) );
+  print( "create type:  " + CreateDataFile( 1 ) );
+  print( "listed:       " + ListDataFiles().size() );
+
+  print( "--- opening" );
+  print( "open:         " + TypeOf( OpenDataFile( "dftest" ) ) );
+  print( "open missing: " + OpenDataFile( "nosuchdatafile" ) );
+  print( "open desc:    " + OpenDataFile( ":bad" ) );
+  print( "open type:    " + OpenDataFile( 1 ) );
+  print( "unload:       " + UnloadDataFile( "::dfcore" ) );
+  print( "unload miss:  " + UnloadDataFile( "nosuchdatafile" ) );
+  print( "unload type:  " + UnloadDataFile( 1 ) );
+
+  print( "--- integer keys" );
+  var intfile := CreateDataFile( "dfint", DF_KEYTYPE_INTEGER );
+  var elem := intfile.CreateElement( 5 );
+  print( "element:      " + TypeOf( elem ) );
+  print( "setprop:      " + elem.SetProp( "one", 1 ) );
+  print( "propnames:    " + elem.PropNames() );
+  print( "getprop:      " + elem.GetProp( "one" ) );
+  print( "keys:         " + intfile.Keys() );
+  print( "find:         " + TypeOf( intfile.FindElement( 5 ) ) );
+  print( "find missing: " + intfile.FindElement( 3 ) );
+  print( "delete:       " + intfile.DeleteElement( 5 ) );
+  print( "delete again: " + intfile.DeleteElement( 5 ) );
+  print( "keys after:   " + intfile.Keys() );
+
+  print( "--- key type is enforced both ways" );
+  print( "create none:  " + intfile.CreateElement() );
+  print( "create type:  " + intfile.CreateElement( "five" ) );
+  print( "find none:    " + intfile.FindElement() );
+  print( "find type:    " + intfile.FindElement( "five" ) );
+  print( "delete none:  " + intfile.DeleteElement() );
+  print( "delete type:  " + intfile.DeleteElement( "five" ) );
+
+  var strfile := CreateDataFile( "dfstr" );
+  print( "screate type: " + strfile.CreateElement( 1 ) );
+  print( "sfind type:   " + strfile.FindElement( 1 ) );
+  print( "sdelete type: " + strfile.DeleteElement( 1 ) );
+  print( "sdelete:      " + strfile.DeleteElement( "nosuchkey" ) );
+
+  print( "--- by name and by value" );
+  var strelem := strfile.CreateElement( "key" );
+  strelem.SetProp( "p", 7 );
+  // a method the compiler does not know is looked up on the object by name
+  print( "file method:  " + strfile.zzz_not_a_method() );
+  print( "elem method:  " + strelem.zzz_not_a_method() );
+  // copying an array copies each element, the only route to the copy handlers
+  var holder := { strfile, strelem };
+  var copied := holder;
+  print( "copies:       " + TypeOf( copied[1] ) + " " + TypeOf( copied[2] ) );
+  print( "copied prop:  " + copied[2].GetProp( "p" ) );
+
+endprogram

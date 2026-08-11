@@ -21,3 +21,9 @@ error{ errortext = "Unable to unpack struct elemcount. Length given must be posi
 error{ errortext = "Error extracting Integer value" }
 error{ errortext = "Error extracting Integer value" }
 42
+error{ errortext = "Unable to unpack dictionary elemcount" }
+error{ errortext = "Unable to unpack dictionary elemcount" }
+error{ errortext = "Unable to unpack dictionary elemcount. Bad format. Colon not found!" }
+error{ errortext = "Unable to unpack dictionary elemcount. Length given must be positive integer!" }
+a3:xxS5:three
+{ , , three }

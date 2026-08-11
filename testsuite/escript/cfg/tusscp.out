@@ -1,0 +1,21 @@
+type:     ConfigFileRef
+elements: { 0, 1, 2 }
+highest:  2
+
+elem 0: { VERSION }
+   VERSION = 1
+elem 1: { _key, ITEMDEF, NAME, VALUE, WEIGHT }
+   _key = ITEMDEF 04001
+   ITEMDEF = 16385
+   NAME = Test Item
+   VALUE = 37
+   WEIGHT = 3
+elem 2: { _key, ITEMDEF, NAME }
+   _key = ITEMDEF 04002 
+   ITEMDEF = 16386
+   NAME = Second
+
+key:      ITEMDEF 04001
+header:   16385
+base 16:  37
+spaced:   "ITEMDEF 04002 "

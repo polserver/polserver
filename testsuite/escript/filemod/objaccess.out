@@ -1,0 +1,18 @@
+--- binary file
+known member: 0
+unknown:      <uninitialized object>
+unknown mth:  <uninitialized object>
+as boolean:   1
+vs itself:    1
+copy:         BinaryFile
+--- xml document
+known member: <uninitialized object>
+unknown:      <uninitialized object>
+unknown mth:  <uninitialized object>
+--- xml node
+known member: <uninitialized object>
+unknown:      <uninitialized object>
+unknown mth:  <uninitialized object>
+--- xml attributes
+typeof:       XMLAttributes
+unknown mth:  <uninitialized object>

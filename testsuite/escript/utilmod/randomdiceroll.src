@@ -2,5 +2,20 @@ use util;
 
 print( RandomDiceRoll( "1d1" ) == 1 );
 print( RandomDiceRoll( "1d1 - 10" ) == 0 );
-print( RandomDiceRoll( "1d1 - 10", 1 ) == -9 );  // allow_negatives
-print( RandomDiceRoll( "1d1 + 0xffff" ) == 0xffff );  // clamp
+print( RandomDiceRoll( "1d1 - 10", 1 ) == -9 ); // allow_negatives
+print( RandomDiceRoll( "1d1 + 0xffff" ) == 0xffff ); // clamp
+print( RandomDiceRoll( "d1" ) == 1 ); // a leading 'd' means one die
+print( RandomDiceRoll( "1" ) == 1 ); // no 'd' at all: a plain number
+
+// every complaint the die string parser can make, in the order it checks them
+print( RandomDiceRoll( "0d6" ) );
+print( RandomDiceRoll( "1x6d" ) );
+print( RandomDiceRoll( "1dx" ) );
+print( RandomDiceRoll( "1d0" ) );
+print( RandomDiceRoll( "1d6*2" ) );
+
+// the refusals: a dice string the parser rejects, and a non-string parameter
+print( RandomDiceRoll( "nonsense" ) );
+print( RandomDiceRoll( "" ) );
+print( RandomDiceRoll( 4 ) );
+print( RandomDiceRoll( "1d1", "yes" ) );

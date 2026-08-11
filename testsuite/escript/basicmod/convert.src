@@ -1,0 +1,18 @@
+// basic.em conversions: the type arms of CDbl / CAsc / CAscZ / Hex that no other test reaches
+
+print( CDbl( 1.5 ) );
+print( CDbl( struct{} ) );
+
+print( CAsc( "A" ) );
+// a character outside the BMP is a surrogate pair, which does not fit one number
+print( CAsc( "😀" ) );
+
+print( CAscZ( "ab" ) );
+print( CAscZ( "ab", 1 ) );
+
+print( Hex( 255 ) );
+print( Hex( 1.5 ) );
+print( Hex( "255" ) );
+print( Hex( struct{} ) );
+
+print( Bin( "25" ) );

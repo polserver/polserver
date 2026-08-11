@@ -1,0 +1,14 @@
+1
+1
+1
+true
+false
+true
+error{ errortext = "Boolean() expects an Integer or Boolean" }
+5
+error{ errortext = "Invalid parameter type" }
+{ a, b, c }
+error{ errortext = "Invalid parameter type." }
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }

@@ -1,0 +1,37 @@
+use cfgfile;
+
+// Every branch of get_cfgfilename, which turns a config file descriptor into a path, plus
+// the two entry points that do nothing else with it. A script run by runecl belongs to no
+// package, so an unqualified name resolves against config/ instead of a package directory.
+
+program cfgdesc()
+
+  print( "plain:        " + TypeOf( ReadConfigFile( "pkgroots" ) ) );
+  // "::name" asks for a core config file explicitly
+  print( "core:         " + TypeOf( ReadConfigFile( "::pkgroots" ) ) );
+  // "::regions/name" is a kludge for region configs: it resolves outside config/
+  print( "regions:      " + ReadConfigFile( "::regions/nosuch" ) );
+  // ":*:name" reads the file of that name from every package at once
+  print( "all packages: " + TypeOf( ReadConfigFile( ":*:cfg" ) ) );
+  print( "unknown pkg:  " + ReadConfigFile( ":nosuchpkg:cfg" ) );
+  print( "no 2nd colon: " + ReadConfigFile( ":cfgtests" ) );
+
+  // AppendConfigFileElem needs a single file to write to, so the all-package form is
+  // refused - and that refusal carries no message of its own
+  print( "append all:   " + AppendConfigFileElem( ":*:cfg", "elem", 1, {} ) );
+  print( "append type:  " + AppendConfigFileElem( 1, "elem", 1, {} ) );
+
+  // unloading marks a loaded file for a modification check and answers what is still
+  // holding it; a file that was never loaded answers -1
+  print( "unload cold:  " + UnloadConfigFile( ":cfgtests:cfg2" ) );
+  print( "read:         " + TypeOf( ReadConfigFile( ":cfgtests:cfg2" ) ) );
+  print( "unload warm:  " + UnloadConfigFile( ":cfgtests:cfg2" ) );
+  print( "unload pkg:   " + UnloadConfigFile( ":nosuchpkg:cfg" ) );
+  print( "unload type:  " + UnloadConfigFile( 1 ) );
+
+  // a TUS .scp import always lives in import/tus/, so the name may not carry a path
+  print( "tus type:     " + LoadTusScpFile( 1 ) );
+  print( "tus path:     " + LoadTusScpFile( "tus/name" ) );
+  print( "tus missing:  " + LoadTusScpFile( "nosuch" ) );
+
+endprogram

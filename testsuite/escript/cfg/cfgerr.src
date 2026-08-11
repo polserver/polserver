@@ -1,0 +1,50 @@
+use cfgfile;
+
+// The config element paths a normal read never takes, and one case per parameter refusal
+// in cfgmod.cpp - each function words its own, so a shared expectation would hide a change.
+
+program cfgerr()
+
+  var cfg := ReadConfigFile( ":cfgtests:cfgmisc" );
+  var elem := cfg[1];
+
+  // an element is subscriptable by property name and by number ...
+  print( "by name:      " + elem["num"] );
+  print( "by number:    " + elem[1] );
+  // ... and by nothing else
+  print( "by real:      " + elem[1.5] );
+  // an unknown property reads as uninitialized rather than as an error
+  print( "unknown prop: " + ( elem["nosuch"] == uninit ) );
+
+  // GetElemProperty is a second name for GetConfigString
+  print( "elem property:" + GetElemProperty( elem, "text" ) );
+  print( "prop missing: " + GetConfigString( elem, "nosuch" ) );
+  print( "int missing:  " + GetConfigInt( elem, "nosuch" ) );
+  print( "real missing: " + GetConfigReal( elem, "nosuch" ) );
+
+  // a property named without a value is skipped by both readers of repeated properties
+  print( "dict:         " + GetConfigStringDictionary( cfg[2], "pair" ) );
+  print( "array:        " + GetConfigStringArray( cfg[2], "pair" ) );
+
+  // copying an array copies every element, the only route to the element's copy handler
+  var holder := { elem };
+  var copied := holder;
+  print( "copied:       " + TypeOf( copied[1] ) + " " + copied[1].text );
+
+  print( "maxintkey:    " + GetConfigMaxIntKey( 1 ) );
+  print( "stringkeys:   " + GetConfigStringKeys( 1 ) );
+  print( "intkeys:      " + GetConfigIntKeys( 1 ) );
+  print( "findelem key: " + FindConfigElem( cfg, struct{} ) );
+  print( "findelem miss:" + FindConfigElem( cfg, 99 ) );
+  print( "findelem cfg: " + FindConfigElem( 1, 1 ) );
+  print( "getstring:    " + GetConfigString( 1, "x" ) );
+  print( "getstrarray:  " + GetConfigStringArray( 1, "x" ) );
+  print( "getstrdict:   " + GetConfigStringDictionary( 1, "x" ) );
+  print( "getint:       " + GetConfigInt( 1, "x" ) );
+  print( "getintarray:  " + GetConfigIntArray( 1, "x" ) );
+  print( "getreal:      " + GetConfigReal( 1, "x" ) );
+  print( "listprops:    " + ListConfigElemProps( 1 ) );
+  // the property name is checked too, not just the element
+  print( "propname:     " + GetConfigString( elem, 1 ) );
+
+endprogram

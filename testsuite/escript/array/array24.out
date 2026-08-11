@@ -1,0 +1,37 @@
+--- holes
+array:       { , , three }
+size:        3
+read hole:   <uninitialized object>
+past end:    error{ errortext = "Array index out of bounds" }
+assigned:    { <uninitialized object>, , three }
+concat:      { <uninitialized object>, , three }
+slice:       { <uninitialized object>, , three }
+in:          3
+not in:      0
+--- adding and removing members
+dotplus:     <uninitialized object>
+dotplus 2:   error{ errortext = "Member already exists" }
+unknown mth: <uninitialized object>
+--- sorting by a sub index
+sorted:      1 { { 1, a }, { 2, b }, { 3, c } }
+sub zero:    error{ errortext = "Invalid sub_index value" }
+sub bad:     error{ errortext = "Invalid parameter type" }
+two params:  error{ errortext = "array.sort(sub_index=0) takes at most one parameter." }
+--- sorted_insert
+insert:      1 { 1, 3, 4, 5 }
+reversed:    1 { 1, 3, 4, 5, 2 }
+no params:   error{ errortext = "array.sorted_insert(obj, sub_index:=0, reverse:=0) takes at least one parameter." }
+sub neg:     error{ errortext = "Invalid sub_index value" }
+sub bad:     error{ errortext = "Invalid parameter type" }
+reverse bad: error{ errortext = "Invalid parameter type" }
+--- parameter refusals
+insert one:  error{ errortext = "array.insert(index,value) requires two parameters." }
+insert bad:  error{ errortext = "Invalid parameter type.  Expected param 0 as Integer, got String" }
+append none: error{ errortext = "array.append(value) requires a parameter." }
+erase bad:   error{ errortext = "Invalid parameter type.  Expected param 0 as Integer, got String" }
+shrink bad:  error{ errortext = "Invalid parameter type.  Expected param 0 as Integer, got String" }
+exists bad:  error{ errortext = "Invalid parameter type" }
+reverse parm:error{ errortext = "array.reverse() doesn't take parameters." }
+--- an array that changes under the callback
+find:        <uninitialized object>
+left:        { 1 }

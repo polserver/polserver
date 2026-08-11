@@ -1,0 +1,23 @@
+// basic.em SizeOf / Boolean / Unpack / SplitWords / base64, the arms with no other caller
+
+// the estimate is platform dependent, so only its ordering is assertable
+print( SizeOf( "" ) > 0 );
+print( SizeOf( "a long string, several times the length of the empty one" ) > SizeOf( "" ) );
+print( SizeOf( array{ 1, 2, 3 } ) > SizeOf( array{} ) );
+
+print( Boolean( 1 ) );
+print( Boolean( 0 ) );
+print( Boolean( Boolean( 1 ) ) );
+print( Boolean( "1" ) );
+
+print( Unpack( "i5" ) );
+print( Unpack( 5 ) );
+
+print( SplitWords( "a b c" ) );
+print( SplitWords( "a b c", 5 ) );
+
+print( EncodeBase64( "" ) );
+print( DecodeBase64( "" ) );
+
+// basicio.em Print: a console colour that is not a string is refused, and nothing is written
+print( Print( "not printed", 5 ) );
