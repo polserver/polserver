@@ -4186,13 +4186,17 @@ bool Character::can_reach( const Core::UObject* obj, u16 range ) const
   return in_range( obj, range );
 }
 
-bool Character::mightsee( const Items::Item* item ) const
+bool Character::is_shown( const Core::UObject* obj ) const
 {
   // These containers are shown to a client without being anywhere: a bank box lives in a storage
   // area, a trade window and a vendor's stock belong to no place at all. Asking where they are is
   // the wrong question -- and it has no answer, because something in no world compares out of range
   // of everything, realms first. So who was shown it decides, and only failing that, where it is.
-  const auto* owner = item->toplevel_owner();
+  //
+  // Neither arm subsumes the other. A container standing in the world can be shown to somebody far
+  // from it, and then both are needed: those standing nearby are reached by the second, whoever was
+  // shown it by the first.
+  const auto* owner = obj->toplevel_owner();
   if ( shown_a_container( owner ) )
     return true;
 

@@ -286,3 +286,152 @@ exported function bankbox_change_is_announced()
   DestroyRootItemInStorageArea( area, "revbox" );
   return res;
 endfunction
+
+// An item going away has to be announced as well, and that direction has nothing to fall back on.
+// Being put in or changed reaches whoever was shown the container; being removed is told to whoever
+// the region the item stands in turns up, and a bank box stands in none -- so that walk reaches
+// nobody and the client goes on drawing an item that no longer exists.
+//
+// DestroyItem is the probe because it is a removal and nothing else. Every other way out of the box
+// sends the item's new home straight after, which lets a client re-parent it and repairs the view by
+// accident, hiding the missing removal rather than showing it.
+exported function bankbox_removal_is_announced()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "delbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item;
+  var destroyed := 0;
+  do
+    item := CreateItemInContainer( cont, 0x1F03, 1 );
+    if ( !item )
+      res := ret_error( $"Could not make the contents: {item}" );
+      break;
+    endif
+
+    // Read while the item still has one: destroying it clears the serial.
+    var serial := item.serial;
+
+    var opened := SendOpenSpecialContainer( char, cont );
+    if ( !opened )
+      res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+      break;
+    endif
+
+    // The client has to be holding the item before a missing removal can be told from anything
+    // else. Without this the wait below is equally satisfied by a client that was never sent the
+    // contents at all -- the same silence, for the opposite reason, and a test that passes on it
+    // whichever way the core behaves.
+    var known := client_finds_obj( clientcon, 0, serial, cont.serial );
+    if ( !known )
+      res := ret_error( $"client 0 never saw the item in the bank box: {known}" );
+      break;
+    endif
+
+    Clear_Event_Queue();
+    DestroyItem( item );
+    destroyed := 1;
+
+    var ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
+    if ( !ev )
+      res := ret_error( "the client was not told the item in the bank box was destroyed" );
+    elseif ( CInt( ev.serial ) != CInt( serial ) )
+      res := ret_error( $"told 0x{CInt( ev.serial ):x} went away, expected the item 0x{serial:x}" );
+    endif
+  dowhile ( false );
+
+  if ( item && !destroyed )
+    DestroyItem( item );
+  endif
+
+  DestroyRootItemInStorageArea( area, "delbox" );
+  return res;
+endfunction
+
+// The same announcement, for a container that does stand somewhere. SendOpenSpecialContainer takes
+// any container at any distance -- it never asks where either party is -- so a chest on the ground
+// can be shown to somebody nowhere near it, who may then take things out of it.
+//
+// That makes the two audiences overlap rather than alternate: whoever stands next to the chest, and
+// whoever was shown it. Deciding between them on whether the container has a position answers the
+// first and silently drops the second, which is what a walk over the chest's own region does.
+exported function worldbox_removal_reaches_viewer()
+  var cont := CreateItemAtLocation( char.x + 4, char.y, char.z, 0x200E75, 1, char.realm );
+  if ( !cont )
+    return ret_error( $"Failed to create the chest: {cont}" );
+  endif
+
+  var res := 1;
+  var item;
+  var destroyed := 0;
+  var home := struct{ x := char.x, y := char.y, z := char.z, realm := char.realm };
+
+  do
+    item := CreateItemInContainer( cont, 0x1F03, 1 );
+    if ( !item )
+      res := ret_error( $"Could not make the contents: {item}" );
+      break;
+    endif
+    var serial := item.serial;
+
+    // Shown while standing on top of it, so the client is sent the contents...
+    var opened := SendOpenSpecialContainer( char, cont );
+    if ( !opened )
+      res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+      break;
+    endif
+
+    var known := client_finds_obj( clientcon, 0, serial, cont.serial );
+    if ( !known )
+      res := ret_error( $"client 0 never saw the item in the chest: {known}" );
+      break;
+    endif
+
+    // ... and the reach is then taken away from geometry, without taking it away from membership.
+    // Moving would flush the list, so the chest is what travels: it goes far enough that nobody
+    // standing near it is near the character any more.
+    MoveObjectToLocation( cont, char.x + 40, char.y + 40, char.z, char.realm,
+                          MOVEOBJECT_FORCELOCATION );
+    if ( char.x - cont.x <= 18 && cont.x - char.x <= 18 )
+      res := ret_error( $"the chest did not end up out of visual range: {cont.x},{cont.y} vs {char.x},{char.y}" );
+      break;
+    endif
+
+    // Taking the chest out of sight is itself announced, correctly and for the chest's own serial.
+    // That packet is in flight rather than queued, so clearing the queue does not catch it: without
+    // draining it the wait below is answered by the chest going away, one serial below the item,
+    // and never looks at the item at all.
+    Clear_Event_Queue();
+    var stale := waitForClient( 0, { EVT_REMOVED_OBJ }, 1 );
+    while ( stale )
+      stale := waitForClient( 0, { EVT_REMOVED_OBJ }, 1 );
+    endwhile
+
+    DestroyItem( item );
+    destroyed := 1;
+
+    var ev := waitForClient( 0, { EVT_REMOVED_OBJ } );
+    if ( !ev )
+      res := ret_error( "the client was not told the item in the chest it was shown was destroyed" );
+    elseif ( CInt( ev.serial ) != CInt( serial ) )
+      res := ret_error( $"told 0x{CInt( ev.serial ):x} went away, expected the item 0x{serial:x}" );
+    endif
+  dowhile ( false );
+
+  if ( item && !destroyed )
+    DestroyItem( item );
+  endif
+  DestroyItem( cont );
+  MoveObjectToLocation( char, home.x, home.y, home.z, home.realm, MOVEOBJECT_FORCELOCATION );
+  return res;
+endfunction

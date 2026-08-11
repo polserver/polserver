@@ -445,16 +445,37 @@ void send_remove_object( Client* client, const UObject* object )
   msgremove.Send( client );
 }
 
-void send_remove_object_to_inrange( const UObject* centerObject )
+namespace
 {
-  Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
-  Core::WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
-      centerObject,
-      [&]( Character* chr )
-      {
-        if ( chr->in_visual_range( centerObject ) )
-          msgremove.Send( chr->client );
-      } );
+// Whoever was watching this used to be found by walking the region it stands in, which answers
+// nobody for anything held by a container that stands nowhere -- a bank box, a trade window, a
+// vendor's stock. The client was then never told the item had gone and went on drawing one that no
+// longer existed. is_shown() asks the characters instead, which is the only place that can answer
+// both for a container standing somewhere and for one standing nowhere.
+//
+// A spatial iterator cannot be used for the same reason it cannot in
+// send_put_in_container_to_inrange(): membership is not a property of any region.
+void send_remove_to_shown( const UObject& centerObject )
+{
+  Network::RemoveObjectPkt msgremove( centerObject.serial_ext );
+  for ( auto& client : networkManager.clients )
+  {
+    if ( !client->ready )
+      continue;
+    if ( client->chr->is_shown( &centerObject ) )
+      msgremove.Send( client );
+  }
+}
+}  // namespace
+
+void send_remove_object_to_inrange( const Items::Item* centerObject )
+{
+  send_remove_to_shown( *centerObject );
+}
+
+void send_remove_object_to_inrange( const Multi::UMulti* centerObject )
+{
+  send_remove_to_shown( *centerObject );
 }
 
 void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& pkt )
@@ -484,12 +505,14 @@ void send_put_in_container_to_inrange( const Item* item )
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
 
-  // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
+  // is_shown() also answers by membership, so the spatial ForEachPlayer functions cannot be used:
+  // a container shown to somebody is not necessarily anywhere they, or it, can be found by walking
+  // the map.
   for ( auto& client2 : networkManager.clients )
   {
     if ( !client2->ready )
       continue;
-    if ( client2->chr->mightsee( item->container() ) )
+    if ( client2->chr->is_shown( item->container() ) )
     {
       // FIXME if the container has an owner, and I'm not it, don't tell me?
       msg.Send( client2 );

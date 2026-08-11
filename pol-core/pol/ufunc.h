@@ -109,7 +109,18 @@ void send_remove_character( Network::Client* client, const Mobile::Character* ch
                             Network::RemoveObjectPkt& pkt );
 void send_remove_character( Network::Client* client, const Mobile::Character* chr );
 void send_remove_object_if_inrange( Network::Client* client, const Items::Item* obj );
-void send_remove_object_to_inrange( const UObject* centerObject );
+
+/**
+ * Tell everybody who was being shown this object that it has gone.
+ *
+ * Split by kind rather than taking a UObject, because the audience rule is not the same for all
+ * of them and every caller already knows which it holds. A mobile's audience has to answer a
+ * privilege question -- who may see someone hidden, concealed or dead -- that neither of these
+ * asks; that is send_remove_character_to_nearby_cansee()'s job. Keeping mobiles out of the
+ * signature is what stops them being given the wrong answer by default.
+ */
+void send_remove_object_to_inrange( const Items::Item* centerObject );
+void send_remove_object_to_inrange( const Multi::UMulti* centerObject );
 void send_remove_object( Network::Client* client, const UObject* item,
                          Network::RemoveObjectPkt& pkt );
 void send_remove_object( Network::Client* client, const UObject* obj );

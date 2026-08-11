@@ -10,6 +10,7 @@ Makefile
 __pycache__
 gen/
 build/
+build-ninja/
 .vscode
 compile_commands.json
 /.cache

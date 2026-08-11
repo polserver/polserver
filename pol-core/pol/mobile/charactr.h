@@ -32,6 +32,7 @@
 #ifndef __CHARACTR_H
 #define __CHARACTR_H
 
+#include <cstddef>
 #include <ctime>
 #include <map>
 #include <set>
@@ -393,7 +394,28 @@ public:
   Items::Item* search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const;
   bool shown_a_container( const Core::UObject* obj ) const;
   bool can_reach( const Core::UObject* obj, u16 range ) const;
-  bool mightsee( const Items::Item* item ) const;
+
+  /**
+   * Is this object somewhere this character is being kept updated about?
+   *
+   * The union of the two ways an object reaches a client: membership -- it sits in a container
+   * they were shown, which may stand nowhere at all -- and geometry, whatever holds it being
+   * close enough to see. `shown_a_container()` is the first arm alone; this is both, and it is
+   * what decides who a change to the object has to be sent to.
+   *
+   * Coarse on purpose, and says nothing about whether the player can *perceive* the object:
+   * concealment, hiding, invisibility and line of sight are the caller's business.
+   *
+   * Mobiles are not its business. They are never shown through a container, so membership cannot
+   * apply to them, and the real question for them carries a privilege layer this does not
+   * implement -- a hidden or concealed character would come back as shown. Ask is_visible_to_me()
+   * instead, and broadcast with the send_*_to_nearby_cansee() family. The deleted overload turns
+   * the tempting call into a compile error; it cannot catch a mobile arriving as a UObject, which
+   * is why the callers that broadcast are themselves typed by kind.
+   */
+  bool is_shown( const Core::UObject* obj ) const;
+  bool is_shown( const Character* ) const = delete;
+  bool is_shown( std::nullptr_t ) const = delete;
 
   Items::Item* find_wornitem( u32 find_serial ) const;
   bool has_shield() const;
