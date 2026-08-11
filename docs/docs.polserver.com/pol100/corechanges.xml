@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-10-2026</datemodified>
+		<datemodified>08-11-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -59,6 +59,12 @@ ended up - including from another realm, since such a container is also granted<
 line of sight - until they took a single walking step. It now stops being<br/>
 reachable whenever the character's position changes, which is what the core<br/>
 always intended.</change>
+			<change type="Fixed">An item removed from a container that stands nowhere - a bank box opened with<br/>
+uo::SendOpenSpecialContainer(), a vendor's stock, a secure trade window - was<br/>
+not announced to the clients being shown it, so a destroyed item stayed drawn<br/>
+in the window. Everyone shown the container is now told, including when the<br/>
+container itself stands in the world but was shown to a character too far<br/>
+away to see it.</change>
 			<change type="Fixed">uo::SendOpenSpecialContainer() moved the container onto the character, so that<br/>
 the checks made when a client reaches for it would measure a distance of zero. A<br/>
 container standing in the world was silently dragged to the player's feet while<br/>
