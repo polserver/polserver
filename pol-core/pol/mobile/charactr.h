@@ -391,27 +391,27 @@ public:
   void clear_gotten_item();
 
   void add_remote_container( Items::Item* );
+
+  /// Drop shown containers that have since been destroyed. Housekeeping only -- nothing reads such
+  /// an entry, but a strong reference stops ObjectHash::Reap from collecting what it points at.
+  void prune_remote_containers();
+
   Items::Item* search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const;
   bool shown_a_container( const Core::UObject* obj ) const;
   bool can_reach( const Core::UObject* obj, u16 range ) const;
 
   /**
-   * Is this object somewhere this character is being kept updated about?
+   * Is this object somewhere this character is being kept updated about, and so has to be told when
+   * it changes?
    *
-   * The union of the two ways an object reaches a client: membership -- it sits in a container
-   * they were shown, which may stand nowhere at all -- and geometry, whatever holds it being
-   * close enough to see. `shown_a_container()` is the first arm alone; this is both, and it is
-   * what decides who a change to the object has to be sent to.
+   * Both ways an object reaches a client: membership -- it sits in a container they were shown,
+   * which may stand nowhere at all -- and geometry. `shown_a_container()` is the membership arm on
+   * its own.
    *
-   * Coarse on purpose, and says nothing about whether the player can *perceive* the object:
-   * concealment, hiding, invisibility and line of sight are the caller's business.
-   *
-   * Mobiles are not its business. They are never shown through a container, so membership cannot
-   * apply to them, and the real question for them carries a privilege layer this does not
-   * implement -- a hidden or concealed character would come back as shown. Ask is_visible_to_me()
-   * instead, and broadcast with the send_*_to_nearby_cansee() family. The deleted overload turns
-   * the tempting call into a compile error; it cannot catch a mobile arriving as a UObject, which
-   * is why the callers that broadcast are themselves typed by kind.
+   * Coarse: it says nothing about whether the player can *perceive* the object, so concealment,
+   * hiding, invisibility and line of sight remain the caller's business. Mobiles are not its
+   * business at all, since that question carries a privilege layer this does not implement -- ask
+   * is_visible_to_me() and broadcast with the send_*_to_nearby_cansee() family.
    */
   bool is_shown( const Core::UObject* obj ) const;
   bool is_shown( const Character* ) const = delete;
@@ -789,7 +789,8 @@ protected:
 
 private:
   // Containers a script has shown this character with uo::SendOpenSpecialContainer(), which they
-  // may reach regardless of where either of them stands. Cleared whenever they move.
+  // may reach regardless of where either of them stands. Cleared whenever they move and when they
+  // disconnect. The references are strong, so a listed container cannot be collected.
   std::vector<Core::ItemRef> remote_containers_;
 
   // MOVEMENT

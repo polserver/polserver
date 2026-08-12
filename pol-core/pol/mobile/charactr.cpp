@@ -81,6 +81,7 @@
 
 #include "pol/mobile/charactr.h"
 
+#include <algorithm>
 #include <iterator>
 #include <list>
 #include <memory>
@@ -420,6 +421,10 @@ void Character::disconnect_cleanup()
 
   stop_skill_script();
   on_loggoff_party( this );
+
+  // A shown container lasts only as long as the session; nothing re-sends one on relogin. Login
+  // clears the list too, but only inside a walkheight() check that can fail.
+  remote_containers_.clear();
 }
 
 bool Character::logged_in() const
@@ -4112,7 +4117,19 @@ void Character::tellmove()
 
 void Character::add_remote_container( Items::Item* item )
 {
-  remote_containers_.emplace_back( item );
+  // Here rather than on read, which is what leaves search_remote_containers() const. This is the
+  // only place the list grows.
+  prune_remote_containers();
+
+  // Scripts routinely reopen the same bank box, and both readers only ask whether it is listed.
+  if ( std::find( remote_containers_.begin(), remote_containers_.end(), item ) ==
+       remote_containers_.end() )
+    remote_containers_.emplace_back( item );
+}
+
+void Character::prune_remote_containers()
+{
+  std::erase_if( remote_containers_, []( const Core::ItemRef& ref ) { return ref->orphan(); } );
 }
 
 Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const
@@ -4188,14 +4205,8 @@ bool Character::can_reach( const Core::UObject* obj, u16 range ) const
 
 bool Character::is_shown( const Core::UObject* obj ) const
 {
-  // These containers are shown to a client without being anywhere: a bank box lives in a storage
-  // area, a trade window and a vendor's stock belong to no place at all. Asking where they are is
-  // the wrong question -- and it has no answer, because something in no world compares out of range
-  // of everything, realms first. So who was shown it decides, and only failing that, where it is.
-  //
-  // Neither arm subsumes the other. A container standing in the world can be shown to somebody far
-  // from it, and then both are needed: those standing nearby are reached by the second, whoever was
-  // shown it by the first.
+  // Neither arm subsumes the other: a container standing nowhere is out of range of everything,
+  // realms first, while one standing in the world may still be shown to somebody far from it.
   const auto* owner = obj->toplevel_owner();
   if ( shown_a_container( owner ) )
     return true;

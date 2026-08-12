@@ -447,14 +447,8 @@ void send_remove_object( Client* client, const UObject* object )
 
 namespace
 {
-// Whoever was watching this used to be found by walking the region it stands in, which answers
-// nobody for anything held by a container that stands nowhere -- a bank box, a trade window, a
-// vendor's stock. The client was then never told the item had gone and went on drawing one that no
-// longer existed. is_shown() asks the characters instead, which is the only place that can answer
-// both for a container standing somewhere and for one standing nowhere.
-//
-// A spatial iterator cannot be used for the same reason it cannot in
-// send_put_in_container_to_inrange(): membership is not a property of any region.
+// A scan over clients rather than a spatial iterator: a bank box, a trade window or a vendor's
+// stock stands in no region, so only the characters themselves can say who is being shown it.
 void send_remove_to_shown( const UObject& centerObject )
 {
   Network::RemoveObjectPkt msgremove( centerObject.serial_ext );
@@ -963,9 +957,16 @@ Item* find_snoopable_item( u32 serial, Character** pchr )
   return nullptr;
 }
 
-// assume if you pass additlegal or isRemoteContainer, you init to false
-Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool* isRemoteContainer )
+Item* find_legal_item( const Character* chr, u32 serial, bool* found_remotely,
+                       bool* isRemoteContainer )
 {
+  // Every branch below can return without reaching the remote lookup, so the flags are cleared here
+  // rather than relied upon to arrive false.
+  if ( found_remotely != nullptr )
+    *found_remotely = false;
+  if ( isRemoteContainer != nullptr )
+    *isRemoteContainer = false;
+
   UContainer* backpack = chr->backpack();
   if ( backpack != nullptr && backpack->serial == serial )
     return backpack;
@@ -1033,9 +1034,12 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
     }
   }
 
-  if ( additlegal != nullptr )
-    *additlegal = true;
-  return chr->search_remote_containers( serial, isRemoteContainer );
+  // Set only on success: its reader takes it as licence to skip a line-of-sight check, which is
+  // sound for something actually reached this way and a lie otherwise.
+  Item* found = chr->search_remote_containers( serial, isRemoteContainer );
+  if ( found_remotely != nullptr && found != nullptr )
+    *found_remotely = true;
+  return found;
 }
 
 void play_sound_effect( const UObject* center, u16 effect )

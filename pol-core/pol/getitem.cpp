@@ -90,8 +90,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   // try to find the item the client referenced, in all the legal places it might be.
 
-  bool inRemoteContainer = false, isRemoteContainer = false;
-  item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
+  bool isRemoteContainer = false;
+  item = find_legal_item( client->chr, serial, nullptr, &isRemoteContainer );
   if ( item == nullptr || isRemoteContainer )
   {
     Mobile::Character* owner = nullptr;
