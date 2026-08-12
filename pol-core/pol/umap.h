@@ -75,7 +75,6 @@ protected:
   friend Items::Item* Items::Item::create( const Items::ItemDesc& itemdesc, u32 serial );
 
   void builtin_on_use( Network::Client* client ) override;
-  Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test

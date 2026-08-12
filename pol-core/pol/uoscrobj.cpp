@@ -1678,14 +1678,6 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
   }
 }
 
-BObjectImp* Item::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
-
 BObjectImp* Item::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   const ItemDesc& id = itemdesc();
@@ -3256,14 +3248,6 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
 }
 
 
-BObjectImp* Character::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
-
 BObjectImp* Character::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   // TODO uoclient entry deprecated
@@ -3503,14 +3487,6 @@ BObjectImp* NPC::script_method_id( const int id, Core::UOExecutor& executor )
   default:
     return nullptr;
   }
-}
-
-BObjectImp* NPC::script_method( const char* methodname, Core::UOExecutor& executor )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, executor );
-  return nullptr;
 }
 
 BObjectImp* NPC::custom_script_method( const char* methodname, Core::UOExecutor& executor )
@@ -3798,13 +3774,6 @@ BObjectImp* Spellbook::script_method_id( const int id, Core::UOExecutor& ex )
   return new BError( "Invalid parameter type" );
 }
 
-BObjectImp* Spellbook::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
 }  // namespace Core
 namespace Multi
 {
@@ -4001,14 +3970,6 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
   }
 }
 
-BObjectImp* UBoat::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
-
 BObjectImp* UPlank::get_script_member_id( const int id ) const
 {
   switch ( id )
@@ -4180,20 +4141,6 @@ BObjectImp* UObject::script_method_id( const int id, Core::UOExecutor& ex )
 }
 
 
-BObjectImp* UObject::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-
-  bool changed = false;
-  BObjectImp* imp = CallPropertyListMethod( proplist_, methodname, ex, changed );
-  if ( changed )
-    set_dirty();
-
-  return imp;
-}
-
 BObjectImp* UObject::custom_script_method( const char* methodname, Core::UOExecutor& ex )
 {
   ObjMethod* objmethod = getKnownObjMethod( methodname );
@@ -4249,13 +4196,6 @@ BObjectImp* UDoor::script_method_id( const int id, Core::UOExecutor& ex )
   return new BLong( 1 );
 }
 
-BObjectImp* UDoor::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  ObjMethod* objmethod = getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
 }  // namespace Core
 namespace Items
 {
@@ -4363,6 +4303,12 @@ BObjectImp* UWeapon::get_script_member( const char* membername ) const
 
 BObjectImp* UWeapon::set_script_member_id( const int id, const std::string& value )
 {
+  if ( is_intrinsic() )
+    return new BError( "Cannot alter an intrinsic NPC weapon member values" );  // executor won't
+                                                                                // return this to
+                                                                                // the script
+                                                                                // currently.
+
   BObjectImp* imp = Item::set_script_member_id( id, value );
   if ( imp != nullptr )
     return imp;
@@ -4387,10 +4333,10 @@ BObjectImp* UWeapon::set_script_member( const char* membername, const std::strin
 BObjectImp* UWeapon::set_script_member_id( const int id, int value )
 {
   if ( is_intrinsic() )
-    return new BError( "Cannot alter an instrinsic NPC weapon member values" );  // executor won't
-                                                                                 // return this to
-                                                                                 // the script
-                                                                                 // currently.
+    return new BError( "Cannot alter an intrinsic NPC weapon member values" );  // executor won't
+                                                                                // return this to
+                                                                                // the script
+                                                                                // currently.
 
   BObjectImp* imp = Equipment::set_script_member_id( id, value );
   if ( imp != nullptr )
@@ -4421,10 +4367,10 @@ BObjectImp* UWeapon::set_script_member( const char* membername, int value )
 BObjectImp* UWeapon::set_script_member_id_double( const int id, double value )
 {
   if ( is_intrinsic() )
-    return new BError( "Cannot alter an instrinsic NPC weapon member values" );  // executor won't
-                                                                                 // return this to
-                                                                                 // the script
-                                                                                 // currently.
+    return new BError( "Cannot alter an intrinsic NPC weapon member values" );  // executor won't
+                                                                                // return this to
+                                                                                // the script
+                                                                                // currently.
   return base::set_script_member_id_double( id, value );
 }
 
@@ -4472,6 +4418,9 @@ BObjectImp* UArmor::get_script_member( const char* membername ) const
 
 BObjectImp* UArmor::set_script_member_id( const int id, const std::string& value )
 {
+  if ( is_intrinsic() )
+    return new BError( "Cannot alter an intrinsic NPC shield member values" );
+
   BObjectImp* imp = Item::set_script_member_id( id, value );
   if ( imp != nullptr )
     return imp;
@@ -4495,6 +4444,9 @@ BObjectImp* UArmor::set_script_member( const char* membername, const std::string
 
 BObjectImp* UArmor::set_script_member_id( const int id, int value )
 {
+  if ( is_intrinsic() )
+    return new BError( "Cannot alter an intrinsic NPC shield member values" );
+
   BObjectImp* imp = Equipment::set_script_member_id( id, value );
   if ( imp != nullptr )
     return imp;
@@ -4517,6 +4469,14 @@ BObjectImp* UArmor::set_script_member( const char* membername, int value )
   if ( objmember != nullptr )
     return this->set_script_member_id( objmember->id, value );
   return nullptr;
+}
+
+BObjectImp* UArmor::set_script_member_id_double( const int id, double value )
+{
+  if ( is_intrinsic() )
+    return new BError( "Cannot alter an intrinsic NPC shield member values" );
+
+  return base::set_script_member_id_double( id, value );
 }
 }  // namespace Items
 namespace Module

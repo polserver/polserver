@@ -54,7 +54,6 @@ private:
   bool is_open() const;
   Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
-  Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   bool script_isa( unsigned isatype ) const override;
 
