@@ -301,7 +301,8 @@ class PolServer:
       if todo=="connect":
         self.threads.append(
           threading.Thread(target=self.startclient,
-              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]))
+              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
+              daemon=True)
           )
         self.threads[-1].start()
       elif todo=="createchar":
@@ -312,7 +313,7 @@ class PolServer:
         self.threads.append(
           threading.Thread(target=self.startclient,
               args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
-              kwargs={"create":opts})
+              kwargs={"create":opts}, daemon=True)
           )
         self.threads[-1].start()
       elif todo=="exit":
@@ -327,8 +328,15 @@ class PolServer:
         for i, t in enumerate(self.threads):
           self.log.info("LIFECYCLE joining client thread %d/%d (%s)",
                         i + 1, len(self.threads), t.name)
-          t.join()
-          self.log.info("LIFECYCLE joined client thread %d/%d", i + 1, len(self.threads))
+          t.join(timeout=30)
+          if t.is_alive():
+            # Bounded on purpose: a client that cannot finish is worth a loud line in the job
+            # output, not a silent timeout on the whole pipeline. The threads are daemons, so
+            # leaving this one behind does not stop the process from exiting.
+            self.log.error("LIFECYCLE client thread %d/%d (%s) did not end within 30s, "
+                           "leaving it behind", i + 1, len(self.threads), t.name)
+          else:
+            self.log.info("LIFECYCLE joined client thread %d/%d", i + 1, len(self.threads))
         self.log.info("LIFECYCLE all client threads joined")
         self.sendEvent(brain.Event(brain.Event.EVT_EXIT,clientid=0))
         self.log.info("LIFECYCLE run() returning")
