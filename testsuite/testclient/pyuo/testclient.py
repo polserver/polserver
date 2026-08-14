@@ -303,6 +303,17 @@ class PolServer:
               args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]))
           )
         self.threads[-1].start()
+      elif todo=="createchar":
+        # everything past the account is handed to the create packet, so a test can pin any of
+        # the values the server validates without another todo per field
+        opts = {k:v for k,v in res.items()
+                if k not in ("todo","account","psw","name","chrindex","id")}
+        self.threads.append(
+          threading.Thread(target=self.startclient,
+              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
+              kwargs={"create":opts})
+          )
+        self.threads[-1].start()
       elif todo=="exit":
         with self.clientLock:
           for b in self.brains:
@@ -320,13 +331,16 @@ class PolServer:
           else:
             self.log.error("invalid clientid")
 
-  def startclient(self,user,psw,charname,charidx,id):
+  def startclient(self,user,psw,charname,charidx,id,create=None):
     with self.clientLock:
       c = client.Client(id)
       self.clients.append(c)
     servers = c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
     chars = c.selectServer(self.lconf.getint('serveridx'))
-    c.selectCharacter(charname, charidx)
+    if create is None:
+      c.selectCharacter(charname, charidx)
+    else:
+      c.createCharacter(charname, charidx, **create)
     TestBrain(c,self)
 
   def addBrain(self, brain):

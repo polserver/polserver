@@ -36,7 +36,8 @@ class Packet():
   ''' Base class for packets '''
 
   def __init__(self):
-    assert self.cmd
+    # 0x00 is a real command (create character), so the test is for a missing one, not a false one
+    assert self.cmd is not None
     self.log = logging.getLogger('packet')
     self.validated = False
 
@@ -946,6 +947,74 @@ class LoginCharacterPacket(Packet):
     self.euint(0x00000000) # unknown2
     self.euint(self.idx)
     self.eip('127.0.0.1')
+
+
+class CreateCharacterPacket(Packet):
+  ''' Creates a new character in one of the account's free slots '''
+
+  cmd = 0x00
+  length = 104
+
+  def fill(self, name, slot, sex=0, strength=25, dexterity=20, intelligence=20,
+           skills=((1, 50), (2, 50), (3, 0)), skincolor=0x83ea, hairstyle=0x203b,
+           haircolor=0x044e, startindex=0, profession=0):
+    '''!
+    @param name string: The character name
+    @param slot int: The character slot to create it in
+    @param sex int: 0/1 human male/female, 2/3 elf, 6/7 gargoyle on a 7.0 client
+    @param strength int: starting strength, at least 10
+    @param dexterity int: starting dexterity, at least 10
+    @param intelligence int: starting intelligence, at least 10
+    @param skills tuple: three (skill number, value) pairs, the values summing to 100
+    @param skincolor int: body hue
+    @param hairstyle int: hair graphic
+    @param haircolor int: hair hue
+    @param startindex int: index into the shard's starting locations
+    @param profession int: profession id, 0 for none
+    '''
+    self.name = name
+    self.slot = slot
+    self.sex = sex
+    self.strength = strength
+    self.dexterity = dexterity
+    self.intelligence = intelligence
+    self.skills = skills
+    self.skincolor = skincolor
+    self.hairstyle = hairstyle
+    self.haircolor = haircolor
+    self.startindex = startindex
+    self.profession = profession
+
+  def encodeChild(self):
+    self.euint(0xedededed) # pattern1
+    self.euint(0xffffffff) # pattern2
+    self.euchar(0x00)      # unknown
+    self.estring(self.name, 30)
+    self.eushort(0x0000)   # unknown0
+    self.euint(0x00000000) # clientflag
+    self.euint(0x00000000) # unknown1
+    self.euint(0x0000001d) # login count
+    self.euchar(self.profession)
+    for i in range(15):
+      self.euchar(0x00)    # unknown2
+    self.euchar(self.sex)
+    self.euchar(self.strength)
+    self.euchar(self.dexterity)
+    self.euchar(self.intelligence)
+    for number, value in self.skills:
+      self.euchar(number)
+      self.euchar(value)
+    self.eushort(self.skincolor)
+    self.eushort(self.hairstyle)
+    self.eushort(self.haircolor)
+    self.eushort(0x0000)   # beard style
+    self.eushort(0x0000)   # beard color
+    self.eushort(self.startindex) # byte 90 is unknown, the index is byte 91
+    self.eushort(0x0000)   # unknown
+    self.eushort(self.slot)       # byte 94 is unknown, the slot is byte 95
+    self.eip('127.0.0.1')
+    self.eushort(0x0000)   # shirt color
+    self.eushort(0x0000)   # pants color
 
 
 class SetWeatherPacket(Packet):
