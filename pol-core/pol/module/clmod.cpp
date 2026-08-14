@@ -95,7 +95,10 @@ BObjectImp* ClilocExecutorModule::mf_PrintTextAbovePrivateCL()
     if ( !chr->has_active_client() )
       return new BError( "Mobile has no active client" );
 
-    if ( chr->realm() != obj->realm() )
+    // Whichever world each of them can be reached in, not whichever one their own coordinates are
+    // measured against: text printed above an item in a backpack is printed above the backpack's
+    // owner, who is standing in a realm even though the item has no coordinates of its own.
+    if ( chr->toplevel_realm() != obj->toplevel_realm() )
       return new BError( "Cannot print messages across realms!" );
 
     if ( text->length() > SPEECH_MAX_LEN )

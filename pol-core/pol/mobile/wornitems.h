@@ -49,7 +49,6 @@ public:
   void adopt( const Mobile::Character& chr );
 
   Bscript::BObjectImp* make_ref() override;
-  Mobile::Character* get_chr_owner() const override;
   Mobile::Character* chr_owner;
 
   UObject* owner() override;
@@ -82,10 +81,6 @@ inline Items::Item* WornItemsContainer::GetItemOnLayer( unsigned idx ) const
   return nullptr;
 }
 
-inline Mobile::Character* WornItemsContainer::get_chr_owner() const
-{
-  return chr_owner;
-}
 }  // namespace Pol::Core
 
 

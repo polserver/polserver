@@ -471,9 +471,9 @@ bool UWeapon::in_range( const Mobile::Character* wielder, const Mobile::Attackab
     "has_los:  {}\n",
     wielder->serial, tar_obj->serial, dist, WEAPON_TMPL->minrange, min_dist_mod,
     WEAPON_TMPL->maxrange, max_dist_mod, min_dist, max_dist,
-    wielder->realm()->has_los( *wielder, *tar_obj ) );
+    wielder->stored_realm()->has_los( *wielder, *tar_obj ) );
   return ( dist >= min_dist && dist <= max_dist &&
-           wielder->realm()->has_los( *wielder, *tar_obj ) );
+           wielder->stored_realm()->has_los( *wielder, *tar_obj ) );
 }
 
 // FIXME weak, weak..

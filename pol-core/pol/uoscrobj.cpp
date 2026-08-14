@@ -656,13 +656,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
   switch ( id )
   {
   case MBR_X:
-    return new BLong( x() );
+    return new BLong( local_position().x() );
     break;
   case MBR_Y:
-    return new BLong( y() );
+    return new BLong( local_position().y() );
     break;
   case MBR_Z:
-    return new BLong( z() );
+    return new BLong( local_position().z() );
     break;
   case MBR_NAME:
     return new String( name() );
@@ -692,10 +692,16 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
     return new BLong( weight() );
     break;
   case MBR_MULTI:
-    if ( realm() != nullptr )
+    // Which multi covers this object is a question about a place in the world, so it can only be
+    // asked of something that is in one. An item in a container, worn, on a cursor or in a storage
+    // area has no coordinates of its own to look up -- answering 0 would claim it is on no multi,
+    // which is not the same thing and is plainly wrong for a chest standing inside a house.
+    if ( !has_world_position() )
+      return new BError( "object has no position of its own in the world" );
+    if ( stored_realm() != nullptr )
     {
       Multi::UMulti* multi;
-      if ( nullptr != ( multi = realm()->find_supporting_multi( pos3d() ) ) )
+      if ( nullptr != ( multi = stored_realm()->find_supporting_multi( pos3d() ) ) )
         return multi->make_ref();
       return new BLong( 0 );
     }
@@ -703,8 +709,13 @@ BObjectImp* UObject::get_script_member_id( const int id ) const
       return new BLong( 0 );
     break;
   case MBR_REALM:
-    if ( realm() != nullptr )
-      return new String( realm()->name() );
+    // The world this can be reached in, which for anything held by something else is its holder's.
+    // An item in a backpack has no coordinates of its own but it is still in whichever world its
+    // owner is standing in, and it can be dropped there -- so a realm is a question it can answer
+    // where a position is not. What genuinely cannot answer is something in no world at all: a
+    // storage root, or an item that belongs to nothing yet.
+    if ( const Realms::Realm* in_world = toplevel_realm(); in_world != nullptr )
+      return new String( in_world->name() );
     else
       return new BError( "object does not belong to a realm." );
     break;
@@ -1834,8 +1845,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   }
   case MBR_TRADEWINDOW:
   {
-    Core::UContainer* tw = trading_cont.get();
-    if ( trading_with != nullptr )
+    Core::UContainer* tw = trading_cont_.get();
+    if ( is_trading() )
       return tw->make_ref();
     return new BError( "That has no active tradewindow" );
     break;
@@ -1964,8 +1975,8 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     return new BLong( connected() ? 1 : 0 );
     break;
   case MBR_TRADING_WITH:
-    if ( trading_with != nullptr )
-      return trading_with->make_ref();
+    if ( is_trading() )
+      return trading_with()->make_ref();
     return new BError( "Mobile is not currently trading with anyone." );
     break;
   case MBR_CLIENTTYPE:
@@ -3923,10 +3934,10 @@ BObjectImp* UBoat::script_method_id( const int id, Core::UOExecutor& ex )
     if ( ex.numParams() == 3 )
     {
       Core::Pos3d pos;
-      if ( !ex.getPos3dParam( 0, 1, 2, &pos, realm() ) )
+      if ( !ex.getPos3dParam( 0, 1, 2, &pos, stored_realm() ) )
         return new BError( "Invalid parameter type" );
       set_dirty();
-      move_offline_mobiles( Core::Pos4d( pos, realm() ) );
+      move_offline_mobiles( Core::Pos4d( pos, stored_realm() ) );
       return new BLong( 1 );
     }
     if ( ex.numParams() == 4 )
@@ -4736,7 +4747,7 @@ ItemGivenEvent::~ItemGivenEvent()
     {
       if ( backpack->can_add( *item ) )
       {
-        if ( Items::move_into( *item, *backpack, item->pos2d() ) )
+        if ( Items::move_into( *item, *backpack, item->location().grid() ) )
         {
           update_item_to_inrange( item );
           return;

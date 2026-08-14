@@ -174,13 +174,43 @@ public:
 
   virtual unsigned int weight() const = 0;
 
-  virtual UObject* toplevel_owner();  // this isn't really right, it returns the WornItemsContainer
+  /// Whatever ultimately holds this, or the object itself when nothing does. An item worn by a
+  /// character answers with the character, not with the container its layers live in.
+  virtual UObject* toplevel_owner();
   virtual UObject* owner();
   virtual const UObject* owner() const;
   virtual UObject* self_as_owner();
   virtual const UObject* self_as_owner() const;
   virtual const UObject* toplevel_owner() const;
   const Pos4d& toplevel_pos() const;
+
+  /**
+   * Where this object sits inside whatever holds it.
+   *
+   * Its world position when nothing holds it, its cell in the owner's gump when something does.
+   * That is what x/y/z have always meant here; an Item is the only kind of object with a second
+   * case, and it is the only one that overrides this.
+   */
+  virtual Pos3d local_position() const;
+
+  /**
+   * Whether this object's coordinates name a place in the world, as opposed to a cell in someone
+   * else's gump, a layer, or nothing at all.
+   *
+   * Only worth asking of an Item -- a mobile is somewhere or it is nowhere, and a multi is always
+   * standing where it was built.
+   */
+  virtual bool has_world_position() const;
+
+  /**
+   * The world this object is in, counting whoever holds it -- null when nothing placed does.
+   *
+   * A realm survives the walk up to an owner where a position does not: an item in a backpack has
+   * no coordinates of its own, but it is still in whichever world its holder is standing in, and it
+   * can be dropped there. Anything asking which realm an object can be reached in wants this, not
+   * stored_realm(); the two differ exactly for the objects that have no position of their own.
+   */
+  virtual Realms::Realm* toplevel_realm() const;
 
   virtual u8 visible_size() const;
   bool in_range( const UObject* other, u16 range ) const;

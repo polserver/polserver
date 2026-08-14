@@ -54,7 +54,7 @@ public:
   /// Add an item the corpse renders on one of its layers. Which layer is the item's own business
   /// -- it is in the item's location -- so all this adds over a plain insert is that the corpse now
   /// looks different.
-  void add_rendered_item( Item* item, const Pos2d& pos );
+  void add_rendered_item( Item* item );
   void remove( iterator itr ) override;
 
   void on_insert_add_item( Mobile::Character* mob, MoveType move, Items::Item* new_item ) override;

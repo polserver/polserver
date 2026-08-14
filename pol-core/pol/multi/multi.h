@@ -86,6 +86,12 @@ public:
   virtual void unregister_object( UObject* obj );
   bool script_isa( unsigned isatype ) const override;
 
+  /// A multi stands where it was built, which the base Item cannot work out for itself: nothing
+  /// gives a multi a location, so it reports being in no registry at all. Stating it here rather
+  /// than inheriting the wrong answer; it stops being needed once multis are placed like anything
+  /// else.
+  bool has_world_position() const override { return true; }
+
   bool setgraphic( u16 newobjtype ) override;
 
   const MultiDef& multidef() const;

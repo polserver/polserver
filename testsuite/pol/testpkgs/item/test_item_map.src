@@ -202,33 +202,85 @@ exported function map_pins_erase_empty( resmngr )
   return 1;
 endfunction
 
-// A pin is a world coordinate, so it has to be one the map's realm holds.
-exported function map_pins_realm_bounds( resmngr )
-  var mp := make_map( resmngr, { { 10, 20 } } );
+// A pin marks a place on the map, so the area the map covers is what says
+// whether it can be placed - not the realm the map is being carried through,
+// which is what used to be asked and gave one pin different answers depending
+// on who was holding it.
+exported function map_pins_map_bounds( resmngr )
+  var mp := make_map( resmngr );
   if ( !mp )
     return mp;
   endif
 
-  var res := mp.appendpin( OUT_OF_REALM, 20 );
+  mp.xwest := 10;
+  mp.ynorth := 20;
+  mp.xeast := 110;
+  mp.ysouth := 120;
+
+  var res := mp.appendpin( 50, 60 );
+  if ( res != 1 )
+    return ret_error( $"a pin inside the map area returned {res}" );
+  endif
+
+  res := mp.appendpin( 200, 60 );
   var text := res.errortext;
-  if ( text != "Invalid Coordinates for Realm" )
+  if ( text != "Pin is outside the area this map covers" )
     return ret_error( $"wrong error for x: '{text}'" );
   endif
 
-  res := mp.appendpin( 10, OUT_OF_REALM );
+  res := mp.appendpin( 50, 200 );
   text := res.errortext;
-  if ( text != "Invalid Coordinates for Realm" )
+  if ( text != "Pin is outside the area this map covers" )
     return ret_error( $"wrong error for y: '{text}'" );
   endif
 
-  res := mp.insertpin( 0, OUT_OF_REALM, OUT_OF_REALM );
+  // north and west of it counts as outside just as much as south and east
+  res := mp.insertpin( 0, 5, 5 );
   text := res.errortext;
-  if ( text != "Invalid Coordinates for Realm" )
+  if ( text != "Pin is outside the area this map covers" )
     return ret_error( $"wrong error for insertpin: '{text}'" );
   endif
 
+  // The realm is no longer consulted at all: britannia is 192x192, so this pin
+  // is outside the realm the map is lying in, and on the area the map covers.
+  mp.xeast := OUT_OF_REALM + 100;
+  res := mp.appendpin( OUT_OF_REALM, 60 );
+  if ( res != 1 )
+    return ret_error( $"a pin off the realm but on the map returned {res}" );
+  endif
+
   text := pin_text( mp );
-  if ( text != "10,20;" )
+  if ( text != $"50,60;{OUT_OF_REALM},60;" )
+    return ret_error( $"wrong pins: {text}" );
+  endif
+
+  return 1;
+endfunction
+
+// A map that has not been given an area yet covers nowhere, so there is nothing
+// for a pin to be outside of and every pin is taken. That is what leaves a
+// script free to drop pins in before it sets the bounds - which it has to do
+// one member at a time, so the map passes through states with no area at all.
+exported function map_pins_unbounded_map( resmngr )
+  var mp := make_map( resmngr );
+  if ( !mp )
+    return mp;
+  endif
+
+  var res := mp.appendpin( OUT_OF_REALM, OUT_OF_REALM );
+  if ( res != 1 )
+    return ret_error( $"a pin on a map with no area returned {res}" );
+  endif
+
+  // one bound set is still no area
+  mp.xeast := 200;
+  res := mp.appendpin( 10, 20 );
+  if ( res != 1 )
+    return ret_error( $"a pin on a half-described map returned {res}" );
+  endif
+
+  var text := pin_text( mp );
+  if ( text != $"{OUT_OF_REALM},{OUT_OF_REALM};10,20;" )
     return ret_error( $"wrong pins: {text}" );
   endif
 

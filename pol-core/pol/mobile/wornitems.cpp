@@ -60,7 +60,6 @@ void WornItemsContainer::PutItemOnLayer( Items::Item* item )
       item ) );  // Calling code must make sure that item->tile_layer is valid!
 
   item->set_dirty();
-  item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );  // TODO POS nullptr
   contents_[item->tile_layer] = Contents::value_type( item );
   item->set_location( Items::Equipped{ chr_owner, item->tile_layer } );
   add_bulk( item );

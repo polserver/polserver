@@ -6,6 +6,9 @@
 
 #ifndef __GETITEM_H
 #define __GETITEM_H
+#include <string>
+#include <variant>
+
 #include "pol/base/position.h"
 namespace Pol
 {
@@ -26,17 +29,6 @@ namespace Core
 class UContainer;
 struct PKTIN_07;
 
-enum class GOTTEN_ITEM_TYPE : u8
-{
-  GOTTEN_ITEM_ON_GROUND,
-  GOTTEN_ITEM_EQUIPPED,
-  GOTTEN_ITEM_IN_CONTAINER,
-  /// Rendered on one of a corpse's layers, as opposed to loose among its contents. The two are
-  /// both "in a container" as far as the item is concerned, but only the first goes back onto a
-  /// layer when it is put back.
-  GOTTEN_ITEM_ON_CORPSE
-};
-
 /**
  * Let go of whatever the character is holding on its cursor, without deciding where it goes.
  *
@@ -52,7 +44,10 @@ public:
   GottenItem() = default;
 
   Items::Item* item() { return _item; };
-  void undo( Mobile::Character* chr );
+  /// Put the item back where it came from, or as close to it as anything will allow. Reads the
+  /// ticket and never rewrites it: the ladder of fallbacks runs on locals, so "where did this come
+  /// from" answers the same at every step.
+  void undo( Mobile::Character* chr ) const;
   static void handle( Network::Client* client, PKTIN_07* msg );
 
   /**
@@ -74,15 +69,48 @@ public:
   bool operator==( const GottenItem& o ) const { return _item == o._item; }
 
 private:
-  GottenItem( Items::Item* item, const Core::Pos4d& pos );
+  /// It was lying in the world.
+  struct FromGround
+  {
+    Core::Pos3d pos;
+    /// By name rather than a Realms::Realm*: the ticket outlives its origin, and the realm can be
+    /// gone by the time the undo runs.
+    std::string realm;
+  };
+  /// It was in an ordinary container, at a cell in the gump and a slot.
+  struct FromContainer
+  {
+    u32 serial = 0;
+    Core::Pos2d grid;
+    u8 slot = 0;
+  };
+  /// It was rendered on one of a corpse's layers, as opposed to lying loose among its contents.
+  /// Both are "in a container" as far as the item is concerned, but only this one goes back onto a
+  /// layer. The layer is not recorded: on a corpse it is always the item's own tile layer.
+  struct FromCorpse
+  {
+    u32 serial = 0;
+    Core::Pos2d grid;
+    u8 slot = 0;
+  };
+  /// It was worn. No cell and no slot, because a layer is not a gump.
+  struct FromLayer
+  {
+    u32 serial = 0;
+  };
+
+  /// Where the item came from, and the only thing this ticket is. One alternative per home, each
+  /// carrying exactly what putting the item back there needs -- so a cell can never be read as a
+  /// world position, which is what a shared position field allowed for years.
+  ///
+  /// Deliberately not an Items::Location, though it mirrors one: this outlives its origin, so it
+  /// names owners by serial and re-resolves them, where Location holds raw pointers.
+  using Origin = std::variant<FromGround, FromContainer, FromCorpse, FromLayer>;
+
+  GottenItem( Items::Item* item, Origin origin );
+
   Items::Item* _item = nullptr;
-  Core::Pos3d _pos = Core::Pos3d( 0, 0, 0 );
-  // Use string realm instead of Pos4d, as realm could be deleted when handling
-  // the undo
-  std::string _realm;
-  u32 _owner_serial = 0;
-  u8 _slot_index = 0;
-  GOTTEN_ITEM_TYPE _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
+  Origin _origin;
 };
 
 }  // namespace Core

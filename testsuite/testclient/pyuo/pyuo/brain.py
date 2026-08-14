@@ -173,6 +173,7 @@ class Event:
   EVT_MAP = 27
   EVT_MAP_PIN = 28
   EVT_OUT_OF_RANGE_OBJ = 29
+  EVT_OBJ_REVISION = 30
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -226,6 +227,8 @@ class Event:
       return "removed_obj"
     elif self.type==Event.EVT_OUT_OF_RANGE_OBJ:
       return "out_of_range_obj"
+    elif self.type==Event.EVT_OBJ_REVISION:
+      return "obj_revision"
     elif self.type==Event.EVT_EXIT:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:

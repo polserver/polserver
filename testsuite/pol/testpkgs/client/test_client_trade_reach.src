@@ -1,0 +1,161 @@
+// What a trade window does not let a client reach.
+//
+// Every other trade test drives an action the core allows. The rules themselves live in the actions
+// it refuses, and those are enforced by absence: a trade container is in none of the lookups that
+// find an item to pick up or a container to drop into, so a client naming one is answered with a
+// refusal that no line of code states. The single exception is one serial comparison, which is the
+// whole of "you may fill your own side of the window and not your partner's".
+//
+// Absence is invisible to a test that only exercises what works, so a change that widened any of
+// this - threading the trade containers into find_legal_item, say - would pass the rest of the
+// suite. That is what these are here to catch.
+
+include "trade";
+
+program test_trade_reach()
+  return trade_setup();
+endprogram
+
+// Offers an item on behalf of one of the two characters and returns it.
+function offer_item( resmgn, who )
+  var item := resmgn.CreateItemInContainer( who.backpack, 0x1F03 );
+  if ( !item )
+    return item;
+  endif
+  item.movable := 1;
+
+  var res := MoveItemToSecureTradeWin( item, who );
+  if ( !res )
+    return ret_error( $"Could not offer the item: {res}" );
+  endif
+  return item;
+endfunction
+
+// The item the other side has offered is shown to both clients, so its serial is known to a client
+// that may not touch it. Naming it in a lift has to be refused, or a trade could be emptied from
+// the wrong side of the window.
+exported function partner_offer_cannot_be_lifted( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := offer_item( resmgn, char2 );
+  if ( !item )
+    close_trades();
+    return item;
+  endif
+
+  var cont := char2.tradewindow.serial;
+  res := client_finds_obj( clientcon, 0, item.serial, cont );
+  if ( !res )
+    close_trades();
+    return ret_error( $"client 0 was never shown the offered item: {res}" );
+  endif
+
+  res := lift_item_denied( item.serial );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  if ( item.container.serial != cont )
+    close_trades();
+    return ret_error( $"the offered item left 0x{cont:x} for 0x{item.container.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// The same refusal applies to the character's own offer. Nobody wrote this rule down either - it is
+// the same absence seen from the other side - so what it really pins is that the two sides of the
+// window are reached the same way. An offer is taken back by cancelling the trade, which is what
+// cancel_returns_items covers; if retrieving one by dragging it out is ever made to work, this is
+// the test that says so.
+exported function own_offer_cannot_be_lifted( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := offer_item( resmgn, char );
+  if ( !item )
+    close_trades();
+    return item;
+  endif
+
+  var cont := char.tradewindow.serial;
+  res := lift_item_denied( item.serial );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  if ( item.container.serial != cont )
+    close_trades();
+    return ret_error( $"the offered item left 0x{cont:x} for 0x{item.container.serial:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction
+
+// Dropping into the window is the one thing a client may do to it, and only to its own side. Both
+// halves are one comparison of the target serial against the character's own trade container, so
+// both are asserted here: the same item, the same action, the two containers, opposite answers.
+exported function drop_reaches_own_side_only( resmgn )
+  var res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var item := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !item )
+    close_trades();
+    return item;
+  endif
+  item.movable := 1;
+
+  var mine := char.tradewindow.serial;
+  var theirs := char2.tradewindow.serial;
+
+  res := lift_item( item.serial );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  res := drop_in_container_denied( item.serial, theirs );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  // A refused drop is undone by the core rather than left on the cursor, and undo offers the
+  // backpack before anywhere else, so the item is back where it started.
+  if ( item.container.serial != char.backpack.serial )
+    close_trades();
+    return ret_error( $"the refused item ended in 0x{item.container.serial:x}, not the backpack" );
+  endif
+
+  res := lift_item( item.serial );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  res := drop_in_container( item.serial, mine );
+  if ( !res )
+    close_trades();
+    return res;
+  endif
+
+  if ( item.container.serial != mine )
+    close_trades();
+    return ret_error( $"the item was accepted but is in 0x{item.container.serial:x}, not 0x{mine:x}" );
+  endif
+
+  close_trades();
+  return 1;
+endfunction

@@ -445,16 +445,31 @@ void send_remove_object( Client* client, const UObject* object )
   msgremove.Send( client );
 }
 
-void send_remove_object_to_inrange( const UObject* centerObject )
+namespace
 {
-  Network::RemoveObjectPkt msgremove( centerObject->serial_ext );
-  Core::WorldIterator<OnlinePlayerFilter>::InMaxVisualRange(
-      centerObject,
-      [&]( Character* chr )
-      {
-        if ( chr->in_visual_range( centerObject ) )
-          msgremove.Send( chr->client );
-      } );
+// A scan over clients rather than a spatial iterator: a bank box, a trade window or a vendor's
+// stock stands in no region, so only the characters themselves can say who is being shown it.
+void send_remove_to_shown( const UObject& centerObject )
+{
+  Network::RemoveObjectPkt msgremove( centerObject.serial_ext );
+  for ( auto& client : networkManager.clients )
+  {
+    if ( !client->ready )
+      continue;
+    if ( client->chr->is_shown( &centerObject ) )
+      msgremove.Send( client );
+  }
+}
+}  // namespace
+
+void send_remove_object_to_inrange( const Items::Item* centerObject )
+{
+  send_remove_to_shown( *centerObject );
+}
+
+void send_remove_object_to_inrange( const Multi::UMulti* centerObject )
+{
+  send_remove_to_shown( *centerObject );
 }
 
 void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& pkt )
@@ -468,7 +483,7 @@ void send_remove_object( Client* client, const UObject* item, RemoveObjectPkt& p
 void send_put_in_container( Client* client, const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->location().grid(),
       item->slot_index(), item->container()->serial_ext, item->color );
   msg.Send( client );
 
@@ -479,19 +494,19 @@ void send_put_in_container( Client* client, const Item* item )
 void send_put_in_container_to_inrange( const Item* item )
 {
   auto msg = Network::AddItemContainerMsg(
-      item->serial_ext, item->graphic, item->get_senditem_amount(), item->pos2d(),
+      item->serial_ext, item->graphic, item->get_senditem_amount(), item->location().grid(),
       item->slot_index(), item->container()->serial_ext, item->color );
 
   auto pkt_rev = Network::ObjRevisionPkt( item->serial_ext, item->rev() );
 
-  // FIXME mightsee also checks remote containers thus the ForEachPlayer functions cannot be used
+  // is_shown() also answers by membership, so the spatial ForEachPlayer functions cannot be used:
+  // a container shown to somebody is not necessarily anywhere they, or it, can be found by walking
+  // the map.
   for ( auto& client2 : networkManager.clients )
   {
     if ( !client2->ready )
       continue;
-    // FIXME need to check character's additional_legal_items.
-    // looks like inrange should be a Character member function.
-    if ( client2->chr->mightsee( item->container() ) )
+    if ( client2->chr->is_shown( item->container() ) )
     {
       // FIXME if the container has an owner, and I'm not it, don't tell me?
       msg.Send( client2 );
@@ -558,12 +573,13 @@ void send_corpse_contents( Client* client, const UCorpse* corpse )
     if ( item == nullptr || !can_see_on_corpse( client, item ) )
       continue;
 
+    const Core::Pos2d grid = item->location().grid();
     msg->Write<u32>( item->serial_ext );
     msg->WriteFlipped<u16>( item->graphic );
     msg->offset++;  // unk6
     msg->WriteFlipped<u16>( item->get_senditem_amount() );
-    msg->WriteFlipped<u16>( item->x() );
-    msg->WriteFlipped<u16>( item->y() );
+    msg->WriteFlipped<u16>( grid.x() );
+    msg->WriteFlipped<u16>( grid.y() );
     if ( client->ClientType & CLIENTTYPE_6017 )
       msg->Write<u8>( item->slot_index() );
     msg->Write<u32>( corpse->serial_ext );
@@ -866,7 +882,7 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
                     zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( auto& item : chr->realm()->getzone_grid( gpos ).items )
+    for ( auto& item : chr->stored_realm()->getzone_grid( gpos ).items )
     {
       if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
@@ -923,7 +939,10 @@ UContainer* find_legal_container( const Character* chr, u32 serial )
 Item* find_snoopable_item( u32 serial, Character** pchr )
 {
   Item* item = system_find_item( serial );
-  if ( item != nullptr )
+  // Something held on a cursor is nobody else's to reach. This is the lookup that decides whether
+  // an item another character owns can be looked at at all, and the ones on a cursor were only
+  // ever excluded because the walk up to an owner stopped short of the one holding it.
+  if ( item != nullptr && !item->has_gotten_by() )
   {
     Character* owner = item->GetCharacterOwner();
     if ( owner != nullptr )
@@ -938,9 +957,16 @@ Item* find_snoopable_item( u32 serial, Character** pchr )
   return nullptr;
 }
 
-// assume if you pass additlegal or isRemoteContainer, you init to false
-Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool* isRemoteContainer )
+Item* find_legal_item( const Character* chr, u32 serial, bool* found_remotely,
+                       bool* isRemoteContainer )
 {
+  // Every branch below can return without reaching the remote lookup, so the flags are cleared here
+  // rather than relied upon to arrive false.
+  if ( found_remotely != nullptr )
+    *found_remotely = false;
+  if ( isRemoteContainer != nullptr )
+    *isRemoteContainer = false;
+
   UContainer* backpack = chr->backpack();
   if ( backpack != nullptr && backpack->serial == serial )
     return backpack;
@@ -969,7 +995,7 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
                     zone_convert( chr->pos() + Vec2d( 8, 8 ) ), nullptr );
   for ( const auto& gpos : gridarea )
   {
-    for ( const auto& _item : chr->realm()->getzone_grid( gpos ).items )
+    for ( const auto& _item : chr->stored_realm()->getzone_grid( gpos ).items )
     {
       if ( !chr->in_visual_range( _item ) )
         continue;
@@ -1008,9 +1034,12 @@ Item* find_legal_item( const Character* chr, u32 serial, bool* additlegal, bool*
     }
   }
 
-  if ( additlegal != nullptr )
-    *additlegal = true;
-  return chr->search_remote_containers( serial, isRemoteContainer );
+  // Set only on success: its reader takes it as licence to skip a line-of-sight check, which is
+  // sound for something actually reached this way and a lie otherwise.
+  Item* found = chr->search_remote_containers( serial, isRemoteContainer );
+  if ( found_remotely != nullptr && found != nullptr )
+    *found_remotely = true;
+  return found;
 }
 
 void play_sound_effect( const UObject* center, u16 effect )
@@ -1632,19 +1661,6 @@ bool try_destroy_item( Items::Item* item )
   return true;
 }
 
-void setrealm( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  item->setposition( Pos4d( item->pos().xyz(), realm ) );
-}
-
-void setrealmif( Item* item, void* arg )
-{
-  Realms::Realm* realm = static_cast<Realms::Realm*>( arg );
-  if ( item->realm() == realm )
-    item->setposition( Pos4d( item->pos().xyz(), realm->baserealm ) );
-}
-
 void subtract_amount_from_item( Item* item, unsigned short amount )
 {
   if ( amount >= item->getamount() )
@@ -1923,7 +1939,7 @@ void register_with_supporting_multi( Item* item )
 {
   if ( item->container() == nullptr )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    Multi::UMulti* multi = item->stored_realm()->find_supporting_multi( item->pos3d() );
     if ( multi )
       multi->register_object( item );
   }
@@ -1936,7 +1952,7 @@ void unregister_from_supporting_multi( Item* item )
   // conditions are not the same question.
   if ( item->container() == nullptr && !item->has_gotten_by() )
   {
-    Multi::UMulti* multi = item->realm()->find_supporting_multi( item->pos3d() );
+    Multi::UMulti* multi = item->stored_realm()->find_supporting_multi( item->pos3d() );
     if ( multi != nullptr )
       multi->unregister_object( item );
   }
@@ -2109,7 +2125,7 @@ void send_season_info( Client* client )
   if ( client->getversiondetail().major >= 1 )
   {
     PktHelper::PacketOut<PktOut_BC> msg;
-    msg->Write<u8>( client->chr->realm()->season() );
+    msg->Write<u8>( client->chr->stored_realm()->season() );
     msg->Write<u8>( PKTOUT_BC::PLAYSOUND_YES );
     msg.Send( client );
 
@@ -2130,8 +2146,8 @@ void send_new_subserver( Client* client )
   msg->WriteFlipped<u16>( client->chr->y() );
   msg->WriteFlipped<u16>( static_cast<u16>( client->chr->z() ) );
   msg->offset += 5;  // unk0,x1,y2
-  msg->WriteFlipped<u16>( client->chr->realm()->width() );
-  msg->WriteFlipped<u16>( client->chr->realm()->height() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->width() );
+  msg->WriteFlipped<u16>( client->chr->stored_realm()->height() );
   msg.Send( client );
 }
 

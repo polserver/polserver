@@ -187,6 +187,9 @@ bool add_loaded_item_to_layer( UContainer* cont, Items::Item* item, u8 slot, u8 
     return false;
 
   UCorpse* corpse = static_cast<UCorpse*>( cont );
+  // The gump cell comes off the item's own position here, and only here: readProperties has just
+  // filled it from the saved X and Y, which is where the save format keeps the cell. Everywhere
+  // else it is read from the location.
   return Items::relocate( *item, Items::OnCorpse{ corpse, item->pos2d(), slot, item->tile_layer } );
 }
 }  // namespace
@@ -244,6 +247,7 @@ void add_loaded_item( Items::Item* cont_item, Items::Item* item, u8 saved_layer,
     // world file no longer gets the benefit of the doubt on two things UContainer::add would
     // simply have done: adding to a destroyed container, which add answers with a passert, and
     // putting a container inside itself, which nothing checked at all.
+    // item->pos2d() is the saved gump cell, as above.
     if ( !add_loaded_item_to_layer( cont, item, slotIndex, saved_layer ) &&
          !Items::relocate( *item, Items::InContainer{ cont, item->pos2d(), slotIndex } ) )
     {

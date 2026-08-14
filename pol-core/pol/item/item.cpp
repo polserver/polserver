@@ -263,7 +263,10 @@ Core::UObject* Item::toplevel_owner()
   for ( Core::UContainer* cont = item->container(); cont != nullptr; cont = item->container() )
     item = cont;
 
-  return item;
+  // A character's worn items hang in a container that is part of the character rather than an
+  // object of its own, so the walk ends one step short of what holds them. self_as_owner() is what
+  // takes that last step; for every other container it is the container itself.
+  return item->self_as_owner();
 }
 
 const Core::UObject* Item::toplevel_owner() const
@@ -273,7 +276,44 @@ const Core::UObject* Item::toplevel_owner() const
         cont = item->container() )
     item = cont;
 
-  return item;
+  return item->self_as_owner();
+}
+
+bool Item::has_world_position() const
+{
+  // Everywhere else an item can be, its coordinates are somebody else's business: a cell in a
+  // gump, a layer on a character, a cursor, a storage area, or nowhere at all.
+  return location().holds<Items::InWorld>();
+}
+
+Core::Pos3d Item::local_position() const
+{
+  // A gump has columns and rows but no depth, hence the zero z -- which is also what the container
+  // used to write into the position field.
+  const Items::Location loc = location();
+  if ( loc.holds<Items::InContainer>() || loc.holds<Items::OnCorpse>() )
+    return Core::Pos3d( loc.grid(), 0 );
+  // Worn or held, the item is wherever the one wearing or holding it is standing, and it moves when
+  // they do. The two are spelled separately because the walk up to an owner treats them
+  // differently: it ends at the character for something worn, and deliberately stops short of the
+  // holder for something on a cursor.
+  if ( const auto* equipped = loc.get_if<Items::Equipped>() )
+    return equipped->chr->pos3d();
+  if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
+    return on_cursor->holder->pos3d();
+  return pos3d();
+}
+
+Realms::Realm* Item::toplevel_realm() const
+{
+  // The cursor is the one home the walk deliberately stops short of -- toplevel_owner() must not
+  // terminate at the holder, or an item somebody is carrying becomes reachable through every lookup
+  // that goes looking for an owner. It is still in that holder's world, though, so it is named here
+  // rather than by widening the walk.
+  const Items::Location loc = location();
+  if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
+    return on_cursor->holder->toplevel_realm();
+  return base::toplevel_realm();
 }
 
 const char* Item::classname() const
@@ -1310,18 +1350,13 @@ bool Item::check_unequiptest_scripts( Mobile::Character* unequip_by )
  */
 Mobile::Character* Item::GetCharacterOwner() const
 {
-  const UObject* top_level_item = toplevel_owner();
-  if ( top_level_item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    Mobile::Character* chr_owner =
-        static_cast<const Core::UContainer*>( top_level_item )->get_chr_owner();
-    if ( chr_owner != nullptr )
-    {
-      return chr_owner;
-    }
+  // The chain ends at a character exactly when this item is worn by one, or sits inside something
+  // that is; anywhere else it ends at an item. The cast away from const is the one this has always
+  // made -- asking who holds an item says nothing about whether that owner may be changed.
+  const UObject* top = toplevel_owner();
+  if ( !top->ismobile() )
     return nullptr;
-  }
-  return nullptr;
+  return static_cast<Mobile::Character*>( const_cast<UObject*>( top ) );
 }
 
 const char* Item::target_tag() const
@@ -1472,7 +1507,7 @@ bool Item::is_visible_to_me( const Mobile::Character* chr ) const
 {
   if ( chr == nullptr )
     return false;
-  if ( chr->realm() != realm() )
+  if ( chr->toplevel_realm() != toplevel_realm() )
     return false;  // noone can see across different realms.
   if ( !chr->logged_in() )
     return false;

@@ -95,7 +95,8 @@ void remove_realm( const std::string& name )
   {
     if ( ( *itr )->name() == name )
     {
-      gamestate.storage.on_delete_realm( *itr );
+      // Nothing else has to be told: only placed objects carry a realm, and a realm cannot be
+      // deleted while anything is standing in it.
       gamestate.decay.on_delete_realm( *itr );
       delete *itr;
       gamestate.Realms.erase( itr );

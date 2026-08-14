@@ -1,0 +1,7 @@
+use uo;
+
+var a := FindAccount( "testdeathpack" );
+if ( a )
+  a.deletecharacter( 1 );
+  a.delete();
+endif

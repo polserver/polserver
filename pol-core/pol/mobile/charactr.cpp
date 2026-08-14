@@ -81,6 +81,7 @@
 
 #include "pol/mobile/charactr.h"
 
+#include <algorithm>
 #include <iterator>
 #include <list>
 #include <memory>
@@ -301,8 +302,8 @@ Character::Character( u32 objtype, Core::UOBJ_CLASS uobj_class )
       // PARTY
       party_decline_timeout_( nullptr ),
       // SECURE TRADING
-      trading_cont(),
-      trading_with( nullptr ),
+      trading_cont_(),
+      trading_with_( nullptr ),
       // SCRIPT
       script_ex( nullptr ),
       spell_task( nullptr ),
@@ -380,8 +381,8 @@ Character::~Character()
   wornitems->destroy();
 
   // clean up trade container if it exists
-  if ( trading_cont != nullptr )
-    trading_cont->destroy();
+  if ( trading_cont_ != nullptr )
+    trading_cont_->destroy();
 
   if ( repsys_task_ != nullptr )
     repsys_task_->cancel();
@@ -420,6 +421,10 @@ void Character::disconnect_cleanup()
 
   stop_skill_script();
   on_loggoff_party( this );
+
+  // A shown container lasts only as long as the session; nothing re-sends one on relogin. Login
+  // clears the list too, but only inside a walkheight() check that can fail.
+  remote_containers_.clear();
 }
 
 bool Character::logged_in() const
@@ -533,8 +538,8 @@ unsigned int Character::weight() const
   unsigned int wt = 10 + wornitems->weight();
   if ( has_gotten_item() )
     wt += gotten_item().item()->weight();
-  if ( trading_cont.get() )
-    wt += trading_cont->weight();
+  if ( trading_cont_.get() )
+    wt += trading_cont_->weight();
   return wt;
 }
 
@@ -1410,7 +1415,10 @@ void Character::equip( Items::Item* item )
   passert_r( equippable( item ),
              "It is impossible to equip Item with ObjType " + Clib::hexint( item->objtype_ ) );
 
-  item->setposition( pos() );  // TODO POS realm should be nullptr
+  // Nothing of the item's own position survives being worn: where it is, and which world that is
+  // in, are both this character's answers now, and asking is what keeps them right when the
+  // character moves.
+  item->setposition( Core::Pos4d() );
   wornitems->PutItemOnLayer( item );
 
   // The layer it is now worn on is the one its tiledata entry names -- that is what PutItemOnLayer
@@ -2065,7 +2073,7 @@ void Character::resurrect()
   // Tell other connected players, if in range, about this character.
   send_remove_character_to_nearby_cansee( this );
   send_create_mobile_to_nearby_cansee( this );
-  realm()->notify_resurrected( *this );
+  stored_realm()->notify_resurrected( *this );
 }
 
 void Character::on_death( Items::Item* corpse )
@@ -2289,7 +2297,7 @@ void Character::die()
 
     if ( layer == Core::LAYER_MOUNT && item->objtype_ == Core::settingsManager.extobj.boatmount )
     {
-      Multi::UMulti* multi = realm()->find_supporting_multi( pos3d() );
+      Multi::UMulti* multi = stored_realm()->find_supporting_multi( pos3d() );
 
       // Clear the pilot from the boat
       if ( multi != nullptr && multi->script_isa( Core::POLCLASS_BOAT ) )
@@ -2345,42 +2353,34 @@ void Character::die()
   Core::UContainer* bp = backpack();
   if ( bp )
   {
-    Core::UContainer::Contents tmp;
     UPDATE_CHECKPOINT();
-    bp->extract( tmp );
+    // Newbie, no-drop and insured items stay behind, so those are the only ones that need to move.
+    // Deciding first and moving afterwards leaves the survivors exactly where they were -- same
+    // cell, same slot, same order -- and never has to ask the pack whether it has room for
+    // something that is already inside it.
+    Core::UContainer::Contents leaving;
+    for ( Items::Item* bp_item : *bp )
+    {
+      if ( !bp_item->newbie() && !bp_item->no_drop() && !bp_item->use_insurance() )
+        leaving.push_back( bp_item );
+    }
     UPDATE_CHECKPOINT();
+
     // We set slot to 1 outside the loop. As it cycles through, this will continue
     // to increase. This will reduce the amount of checks to find next available
-    // slots
+    // slots. One hint per container: can_add_to_slot advances it past what it hands out, so a
+    // count of the corpse's slots says nothing about the pack's.
+    u8 corpseSlot = 1;
     u8 packSlot = 1;
-    // u8 corpseSlot = 1;
-    while ( !tmp.empty() )
+    while ( !leaving.empty() )
     {
-      Items::Item* bp_item = tmp.back();
-      tmp.pop_back();
+      Items::Item* bp_item = leaving.back();
+      leaving.pop_back();
       UPDATE_CHECKPOINT();
-      if ( ( bp_item->newbie() || bp_item->no_drop() || bp_item->use_insurance() ) &&
-           bp->can_add( *bp_item ) )
+      // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
+      // former backpack contents, which it holds like any other container would.
+      if ( !corpse->can_add( *bp_item ) || !Items::move_into( *bp_item, *corpse, corpseSlot ) )
       {
-        if ( !Items::move_into( *bp_item, *bp, bp_item->pos2d(), packSlot ) )
-        {
-          _drop_item_to_world( bp_item );
-        }
-        UPDATE_CHECKPOINT();
-      }
-      else if ( corpse->can_add( *bp_item ) )
-      {
-        // Not OnCorpse: only the items a corpse renders on a layer are that, and these are the
-        // former backpack contents, which it holds like any other container would.
-        if ( !Items::move_into( *bp_item, *corpse, packSlot ) )
-        {
-          _drop_item_to_world( bp_item );
-        }
-        UPDATE_CHECKPOINT();
-      }
-      else
-      {
-        UPDATE_CHECKPOINT();
         _drop_item_to_world( bp_item );
       }
       UPDATE_CHECKPOINT();
@@ -2724,7 +2724,7 @@ bool Character::is_visible_to_me( const Character* chr, bool check_range ) const
     if ( !in_visual_range( chr ) )
       return false;
   }
-  else if ( chr->realm() != this->realm() )
+  else if ( chr->stored_realm() != this->stored_realm() )
     return false;
 
   if ( dead() )
@@ -2972,7 +2972,7 @@ bool Character::is_attackable( const Attackable& attackable ) const
     if ( is_concealed_from_me( mob ) )
       return false;
   }
-  if ( !realm()->has_los( *this, *obj ) )
+  if ( !stored_realm()->has_los( *this, *obj ) )
     return false;
   return true;
 }
@@ -3122,7 +3122,7 @@ void Character::select_opponent( Attackable opponent )
   // if you double-click the same guy over and over
   if ( !opponent_ || opponent_ != opponent )
   {
-    if ( opponent && realm() != opponent.object()->realm() )
+    if ( opponent && stored_realm() != opponent.object()->stored_realm() )
       return;
     set_opponent( std::move( opponent ) );
   }
@@ -3723,8 +3723,14 @@ void Character::check_region_changes()
 
 void Character::position_changed()
 {
-  wornitems->setposition( pos() );
   position_changed_at_ = Core::polclock();
+
+  // Whatever the character could reach from where they were standing, they cannot reach from
+  // somewhere else. This belongs here rather than in the walk handler where it used to live: a
+  // teleport, a gate, a boat under way, a step taken while editing a house and a login all move a
+  // character without walking, and search_remote_containers is consulted by has_los ahead of the
+  // realm comparison, so the reach outlived even a change of realm.
+  remote_containers_.clear();
 }
 
 void Character::unhide()
@@ -3752,7 +3758,7 @@ void Character::unhide()
           send_owncreate( chr->client, this );
         } );
 
-    realm()->notify_unhid( *this );
+    stored_realm()->notify_unhid( *this );
 
     if ( !Clib::exit_signalled )
     {
@@ -3929,14 +3935,14 @@ bool Character::move( unsigned char i_dir )
       auto tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
       // needs to save because if only one direction is blocked, it shouldn't block ;)
-      bool walk1 =
-          realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr, nullptr, nullptr );
+      bool walk1 = stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
+                                               nullptr, nullptr );
 
       tmp_facing = ( facing - 1 ) & 0x7;
       tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
 
-      if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
-                                           nullptr, nullptr ) )
+      if ( !walk1 && !stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &new_z, nullptr,
+                                                  nullptr, nullptr ) )
         return false;
     }
     auto new_pos = pos().move( static_cast<Core::UFACING>( facing ) );
@@ -3947,11 +3953,10 @@ bool Character::move( unsigned char i_dir )
     Items::Item* walkon_item;
 
     short current_boost = gradual_boost;
-    if ( !realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
-                               &walkon_item, &current_boost ) )
+    if ( !stored_realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
+                                      &walkon_item, &current_boost ) )
       return false;
     new_pos.z( static_cast<s8>( newz ) );
-    remote_containers_.clear();
 
     if ( !CheckPushthrough() )
       return false;
@@ -4050,34 +4055,13 @@ bool Character::move( unsigned char i_dir )
 
 void Character::realm_changed()
 {
-  // Commented out the explicit backpack handling, should be handled
-  // automagically by wormitems realm handling.  There is a slim
-  // possibility that backpacks might be assigned to a character but
-  // not be a worn item?  If this is the case, that will be broken.
-  //  backpack()->realm = realm;
-  //  backpack()->for_each_item(setrealm, (void*)realm);
-  wornitems->for_each_item( Core::setrealm, (void*)realm() );
-  // TODO Pos: realm should be all the time nullptr for these items
-  if ( has_gotten_item() )
-  {
-    auto* item = gotten_item().item();
-    item->setposition( Core::Pos4d( item->pos().xyz(), realm() ) );
-    if ( item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-    {
-      Core::UContainer* cont = static_cast<Core::UContainer*>( item );
-      cont->for_each_item( Core::setrealm, (void*)realm() );
-    }
-  }
-  if ( trading_cont.get() )
-  {
-    trading_cont->setposition( Core::Pos4d( trading_cont->pos().xyz(), realm() ) );
-    trading_cont->for_each_item( Core::setrealm, (void*)realm() );
-  }
+  // Nothing carried has to be told: what a held item answers to "which world are you in" is this
+  // character's realm, asked for on demand rather than copied onto every item at every crossing.
 
   if ( has_active_client() )
   {
     // these are important to keep here in this order
-    Core::send_realm_change( client, realm() );
+    Core::send_realm_change( client, stored_realm() );
     Core::send_map_difs( client );
     if ( Core::settingsManager.ssopt.core_sends_season )
       Core::send_season_info( client );
@@ -4124,7 +4108,7 @@ void Character::tellmove()
 
   // notify npcs and items (maybe the PropagateMove should also go there eventually? - Nando
   // 2018-06-16)
-  realm()->notify_moved( *this );
+  stored_realm()->notify_moved( *this );
 
   check_attack_after_move( true );
 
@@ -4133,7 +4117,19 @@ void Character::tellmove()
 
 void Character::add_remote_container( Items::Item* item )
 {
-  remote_containers_.emplace_back( item );
+  // Here rather than on read, which is what leaves search_remote_containers() const. This is the
+  // only place the list grows.
+  prune_remote_containers();
+
+  // Scripts routinely reopen the same bank box, and both readers only ask whether it is listed.
+  if ( std::find( remote_containers_.begin(), remote_containers_.end(), item ) ==
+       remote_containers_.end() )
+    remote_containers_.emplace_back( item );
+}
+
+void Character::prune_remote_containers()
+{
+  std::erase_if( remote_containers_, []( const Core::ItemRef& ref ) { return ref->orphan(); } );
 }
 
 Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const
@@ -4165,15 +4161,55 @@ Items::Item* Character::search_remote_containers( u32 find_serial, bool* isRemot
   return nullptr;
 }
 
-bool Character::mightsee( const Items::Item* item ) const
+bool Character::shown_a_container( const Core::UObject* obj ) const
 {
-  const auto* owner = item->toplevel_owner();
+  if ( obj == nullptr )
+    return false;
+
+  // A container a script opened for this character with SendOpenSpecialContainer, a bank box being
+  // the usual one.
   for ( const auto& elem : remote_containers_ )
   {
-    Items::Item* additional_item = elem.get();
-    if ( additional_item == owner )
+    if ( elem.get() == obj )
       return true;
   }
+
+  // Both sides of a trade window: each party is shown their own offer and the other's.
+  if ( const Character* partner = trading_with(); partner != nullptr )
+  {
+    if ( obj == trading_cont_.get() || obj == partner->trading_cont_.get() )
+      return true;
+  }
+
+  // A merchant's stock, for as long as its window is open. Derived from the handles the window
+  // already keeps rather than recorded a second time, so it ends exactly when the window does.
+  if ( client != nullptr && client->gd != nullptr )
+  {
+    if ( obj == client->gd->vendor_for_sale.get() || obj == client->gd->vendor_bought.get() )
+      return true;
+  }
+
+  return false;
+}
+
+bool Character::can_reach( const Core::UObject* obj, u16 range ) const
+{
+  // Being shown one of these containers is what puts it within reach: it stands nowhere, so there
+  // is no distance to measure and every comparison would say it is impossibly far. Line of sight
+  // has always answered this way; distance used to be told a convenient lie instead.
+  if ( shown_a_container( obj->toplevel_owner() ) )
+    return true;
+
+  return in_range( obj, range );
+}
+
+bool Character::is_shown( const Core::UObject* obj ) const
+{
+  // Neither arm subsumes the other: a container standing nowhere is out of range of everything,
+  // realms first, while one standing in the world may still be shown to somebody far from it.
+  const auto* owner = obj->toplevel_owner();
+  if ( shown_a_container( owner ) )
+    return true;
 
   return in_visual_range( owner );
 }
@@ -4250,7 +4286,17 @@ void Character::cancel_menu()
 
 bool Character::is_trading() const
 {
-  return ( trading_with.get() != nullptr );
+  return ( trading_with_.get() != nullptr );
+}
+
+Character* Character::trading_with() const
+{
+  return trading_with_.get();
+}
+
+void Character::trading_with( Character* other )
+{
+  trading_with_.set( other );
 }
 
 bool Character::trade_accepted() const
@@ -4265,18 +4311,16 @@ void Character::trade_accepted( bool newvalue )
 
 void Character::create_trade_container()
 {
-  if ( trading_cont.get() == nullptr )  // FIXME hardcoded
+  if ( trading_cont_.get() == nullptr )  // FIXME hardcoded
   {
     Items::Item* cont = Items::Item::create( Core::settingsManager.extobj.secure_trade_container );
-    // TODO Pos: no realm
-    cont->setposition( pos() );
-    trading_cont.set( static_cast<Core::UContainer*>( cont ) );
+    trading_cont_.set( static_cast<Core::UContainer*>( cont ) );
   }
 }
 
 Core::UContainer* Character::trade_container()
 {
-  return trading_cont.get();
+  return trading_cont_.get();
 }
 
 // SkillValue removed for no use - MuadDib
@@ -4442,8 +4486,8 @@ size_t Character::estimatedSize() const
 
 void Character::on_delete_from_account()
 {
-  if ( realm() )
-    realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
+  if ( stored_realm() )
+    stored_realm()->remove_mobile( *this, Realms::WorldChangeReason::PlayerDeleted );
 }
 
 bool Character::has_paperdoll() const

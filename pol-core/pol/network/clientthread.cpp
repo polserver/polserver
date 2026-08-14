@@ -785,9 +785,9 @@ void Client::on_logoff()
   if ( chr )
   {
     call_chr_scripts( chr, "scripts/misc/logoff.ecl", "logoff.ecl" );
-    if ( chr->realm() )
+    if ( chr->stored_realm() )
     {
-      chr->realm()->notify_left( *chr );
+      chr->stored_realm()->notify_left( *chr );
     }
   }
 }

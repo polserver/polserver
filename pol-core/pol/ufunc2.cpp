@@ -83,12 +83,13 @@ void send_container_contents( Client* client, const UContainer& cont )
   {
     if ( !item->invisible() || client->chr->can_seeinvisitems() )
     {
+      const Core::Pos2d grid = item->location().grid();
       msg->Write<u32>( item->serial_ext );
       msg->WriteFlipped<u16>( item->graphic );
       msg->offset++;  // unk6
       msg->WriteFlipped<u16>( item->get_senditem_amount() );
-      msg->WriteFlipped<u16>( item->x() );
-      msg->WriteFlipped<u16>( item->y() );
+      msg->WriteFlipped<u16>( grid.x() );
+      msg->WriteFlipped<u16>( grid.y() );
       if ( client->ClientType & CLIENTTYPE_6017 )
         msg->Write<u8>( item->slot_index() );
       msg->Write<u32>( cont.serial_ext );

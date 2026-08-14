@@ -47,7 +47,6 @@ public:
    * renaming a root item leaves the map key behind and the item unreachable by its new name.
    */
   bool remove_root_item( const std::string& key, Items::Item* item );
-  void on_delete_realm( Realms::Realm* realm );
 
   /// Visit each root item with the key it is filed under, which is not always its current name.
   void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
@@ -73,7 +72,6 @@ public:
   StorageArea* find_area( const std::string& name );
   StorageArea* create_area( const std::string& name );
   StorageArea* create_area( Clib::ConfigElem& elem );
-  void on_delete_realm( Realms::Realm* realm );
 
   void for_each_area( const std::function<void( StorageArea& )>& f ) const;
 

@@ -83,7 +83,7 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
         chr, chr->los_size(),
         [&]( Mobile::Character* zonechr )
         {
-          Multi::UMulti* multi = zonechr->realm()->find_supporting_multi( zonechr->pos3d() );
+          Multi::UMulti* multi = zonechr->stored_realm()->find_supporting_multi( zonechr->pos3d() );
 
           if ( multi != nullptr && multi->serial == serial )
             return;
@@ -94,7 +94,8 @@ void send_objects_newly_inrange_on_boat( Network::Client* client, u32 serial )
         chr,
         [&]( Items::Item* zoneitem )
         {
-          Multi::UMulti* multi = zoneitem->realm()->find_supporting_multi( zoneitem->pos3d() );
+          Multi::UMulti* multi =
+              zoneitem->stored_realm()->find_supporting_multi( zoneitem->pos3d() );
 
           if ( multi != nullptr && multi->serial == serial )
             return;
@@ -175,7 +176,7 @@ void handle_walk( Network::Client* client, PKTIN_02* msg02 )
       if ( chr->is_trading() )
       {
         if ( ( oldfacing == ( msg02->dir & PKTIN_02_FACING_MASK ) ) &&
-             !chr->in_range( chr->trading_with.get(), 3 ) )
+             !chr->in_range( chr->trading_with(), 3 ) )
         {
           cancel_trade( chr );
         }

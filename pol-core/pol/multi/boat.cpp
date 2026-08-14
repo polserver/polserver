@@ -641,8 +641,8 @@ void UBoat::regself()
 
     Core::Pos2d hullpos = pos2d() + ele->relpos.xy();
 
-    unsigned int gh = realm()->encode_global_hull( hullpos );
-    realm()->global_hulls.insert( gh );
+    unsigned int gh = stored_realm()->encode_global_hull( hullpos );
+    stored_realm()->global_hulls.insert( gh );
   }
 }
 
@@ -656,8 +656,8 @@ void UBoat::unregself()
 
     Core::Pos2d hullpos = pos2d() + ele->relpos.xy();
 
-    unsigned int gh = realm()->encode_global_hull( hullpos );
-    realm()->global_hulls.erase( gh );
+    unsigned int gh = stored_realm()->encode_global_hull( hullpos );
+    stored_realm()->global_hulls.erase( gh );
   }
 }
 
@@ -778,13 +778,6 @@ void UBoat::move_boat_item( Items::Item* item, const Core::Pos4d& newpos )
   const Core::Pos4d oldpos = item->pos();
   item->setposition( newpos );
   MoveItemWorldPosition( oldpos, item );
-  // TODO POS should be removed
-  if ( oldpos.realm() != newpos.realm() && item->isa( Core::UOBJ_CLASS::CLASS_CONTAINER ) )
-  {
-    auto* cont = static_cast<Core::UContainer*>( item );
-    cont->for_each_item( Core::setrealm, (void*)realm() );
-  }
-
   Core::WorldIterator<Core::OnlinePlayerFilter>::InMaxVisualRange(
       item,
       [&]( Mobile::Character* zonechr )
@@ -834,7 +827,7 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
   chr->position_changed();
   if ( chr->has_active_client() )
   {
-    if ( oldpos.realm() != chr->realm() )
+    if ( oldpos.realm() != chr->stored_realm() )
     {
       Core::send_new_subserver( chr->client );
       Core::send_owncreate( chr->client, chr );

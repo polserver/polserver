@@ -16,6 +16,8 @@
 #include "pol/getitem.h"
 
 #include <cstdio>
+#include <optional>
+#include <variant>
 
 #include "clib/clib_endian.h"
 #include "clib/rawtypes.h"
@@ -88,8 +90,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
   }
   // try to find the item the client referenced, in all the legal places it might be.
 
-  bool inRemoteContainer = false, isRemoteContainer = false;
-  item = find_legal_item( client->chr, serial, &inRemoteContainer, &isRemoteContainer );
+  bool isRemoteContainer = false;
+  item = find_legal_item( client->chr, serial, nullptr, &isRemoteContainer );
   if ( item == nullptr || isRemoteContainer )
   {
     Mobile::Character* owner = nullptr;
@@ -110,12 +112,12 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
 
   u8 oldSlot = item->slot_index();
 
-  if ( !client->chr->in_range( item, 2 ) && !client->chr->can_moveanydist() )
+  if ( !client->chr->can_reach( item, 2 ) && !client->chr->can_moveanydist() )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_TOO_FAR_AWAY );
     return;
   }
-  if ( !client->chr->realm()->has_los( *client->chr, *( item->toplevel_owner() ) ) )
+  if ( !client->chr->stored_realm()->has_los( *client->chr, *( item->toplevel_owner() ) ) )
   {
     send_item_move_failure( client, MOVE_ITEM_FAILURE_OUT_OF_SIGHT );
     return;
@@ -156,13 +158,14 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
       return;
   }
 
-  UObject* my_owner = item->toplevel_owner();
-
   send_remove_object_to_inrange( item );
 
   UContainer* orig_container = item->container();
-  Pos4d orig_pos = item->pos();  // potential container pos
-  Pos4d orig_toppos = item->toplevel_pos();
+  // Two questions that used to share one variable: which cell the item sat in inside whatever held
+  // it, and where it was standing in the world. Exactly one of them applies in each branch below,
+  // and the item is about to move, so both have to be read now.
+  const Pos2d orig_grid = item->location().grid();
+  const Pos4d orig_toppos = item->toplevel_pos();
 
   // One step: unlink from wherever the item is, build the return ticket describing it, and set
   // both halves of the cursor link. The rejection is reachable — the scripts run above can have
@@ -201,7 +204,7 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         // The slot goes to new_item, which is what stays behind: the checks used to be run against
         // it but assigned to 'item', the part being picked up onto the cursor, which then carried a
         // slot in a container it was leaving while the remainder kept whatever it had.
-        if ( Items::move_into( *new_item, *orig_container, orig_pos.xy(), oldSlot ) )
+        if ( Items::move_into( *new_item, *orig_container, orig_grid, oldSlot ) )
         {
           send_put_in_container_to_inrange( new_item );
         }
@@ -216,7 +219,8 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
       }
       else
       {
-        if ( Items::place_at( *new_item, orig_pos ) )
+        // Nothing held it, so toplevel_owner() was the item itself and this is its own position.
+        if ( Items::place_at( *new_item, orig_toppos ) )
           send_item_to_inrange( new_item );
       }
     }
@@ -237,77 +241,62 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
     orig_container->increv_send_object_recursive();
   }
 
-  // FIXME : Are these all the possibilities for sources and updating, correctly?
-  if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND )
+  // Picking anything up changes what the character is carrying, so the stat bar always needs
+  // resending. Coming off a layer changes the armor rating as well, and refresh_ar() sends the
+  // stat bar itself -- to the wearer, who is not necessarily the one lifting.
+  if ( const auto* from_layer = std::get_if<FromLayer>( &gotten_info._origin ) )
   {
-    // Item was on the ground, so we ONLY need to update the character's weight
-    // to the client.
-    send_full_statmsg( client, client->chr );
-  }
-  else if ( gotten_info._source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
-  {
-    // Item was equipped, let's send the full update for ar and statmsg.
-    if ( auto chr = system_find_mobile( gotten_info._owner_serial ) )
+    if ( auto chr = system_find_mobile( from_layer->serial ) )
       chr->refresh_ar();
   }
-  else if ( my_owner->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+  else
   {
-    // Toplevel owner was a container (not a character). Only update weight.
-    send_full_statmsg( client, client->chr );
-  }
-  else if ( ( my_owner->ismobile() ) && my_owner->serial != client->chr->serial )
-  {
-    // Toplevel was a mob. Make sure mob was not us. If it's not, send update to weight.
     send_full_statmsg( client, client->chr );
   }
 }
 
 
-GottenItem::GottenItem( Items::Item* item, const Core::Pos4d& pos )
-    : _item( item ), _pos( pos.xyz() ), _realm( pos.realm()->name() ), _owner_serial( 0 )
+GottenItem::GottenItem( Items::Item* item, Origin origin )
+    : _item( item ), _origin( std::move( origin ) )
 {
 }
 
 GottenItem GottenItem::for_item( Items::Item* item )
 {
-  GottenItem info{ item, item->pos() };
-
   const Items::Location loc = item->location();
+
   if ( const auto* equipped = loc.get_if<Items::Equipped>() )
   {
     // undo() resolves this with system_find_mobile, so it has to be the character's serial. The
     // worn-items container happens to carry the same one, but say which is meant.
-    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED;
-    info._owner_serial = equipped->chr->serial;
-    info._slot_index = item->slot_index();
+    return GottenItem{ item, FromLayer{ equipped->chr->serial } };
   }
-  else if ( const auto* on_corpse = loc.get_if<Items::OnCorpse>() )
+  if ( const auto* on_corpse = loc.get_if<Items::OnCorpse>() )
   {
-    // Ahead of the container branch below, which would otherwise claim this: a corpse is a
-    // container, and the whole point of the distinction is that an item rendered on one of its
-    // layers is not the same as an item lying loose in it.
-    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE;
-    info._owner_serial = on_corpse->corpse->serial;
-    info._slot_index = item->slot_index();
+    // Distinct from the container below on purpose: a corpse is a container, and the whole point
+    // of the distinction is that an item rendered on one of its layers is not the same as an item
+    // lying loose in it.
+    return GottenItem{ item,
+                       FromCorpse{ on_corpse->corpse->serial, on_corpse->grid, on_corpse->slot } };
   }
-  else if ( UContainer* cont = loc.container() )
-  {
-    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-    info._owner_serial = cont->serial;
-    info._slot_index = item->slot_index();
-  }
-  else
-  {
-    info._source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_GROUND;
-  }
+  // The alternative rather than the container() view, which also answers for Equipped and
+  // OnCorpse: asking for InContainer directly means these three branches do not depend on the
+  // order they are written in.
+  if ( const auto* in_cont = loc.get_if<Items::InContainer>() )
+    return GottenItem{ item, FromContainer{ in_cont->cont->serial, in_cont->grid, in_cont->slot } };
 
-  return info;
+  // Whatever is left is InWorld: relocate refuses to put anything else on a cursor, precisely so
+  // that this has a home to name. The toplevel position rather than item->pos() because the two
+  // agree here and this says which is meant.
+  const Core::Pos4d& pos = item->toplevel_pos();
+  return GottenItem{ item, FromGround{ pos.xyz(), pos.realm()->name() } };
 }
 
 bool GottenItem::came_off_corpse_layer( const UContainer* cont ) const
 {
-  return _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE && _item != nullptr &&
-         cont != nullptr && cont->serial == _owner_serial && cont->script_isa( POLCLASS_CORPSE ) &&
+  const auto* from_corpse = std::get_if<FromCorpse>( &_origin );
+  return from_corpse != nullptr && _item != nullptr && cont != nullptr &&
+         cont->serial == from_corpse->serial && cont->script_isa( POLCLASS_CORPSE ) &&
          Items::valid_equip_layer( _item );
 }
 /*
@@ -321,7 +310,7 @@ bool GottenItem::came_off_corpse_layer( const UContainer* cont ) const
   is replaced in gotten_items, for a later EQUIP_ITEM message.
   */
 
-void GottenItem::undo( Mobile::Character* chr )
+void GottenItem::undo( Mobile::Character* chr ) const
 {
   if ( !_item )
     return;
@@ -330,10 +319,40 @@ void GottenItem::undo( Mobile::Character* chr )
   // or in whatever it used to be in.
   ItemRef itemref( _item );  // dave 1/28/3 prevent item from being destroyed before function ends
   _item->restart_decay_timer();  // MuadDib: moved to top to help with instant decay.
+
+  // What follows is a ladder of places to try, and it runs entirely on locals. The ticket says
+  // where the item came from and keeps saying it, so every step below can still ask -- where the
+  // ladder used to rewrite the ticket as it descended, which meant the answer to "where did this
+  // come from" depended on how far down you already were.
   Realms::Realm* realm = nullptr;
-  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_EQUIPPED )
+  Core::Pos3d ground;               ///< where it lands if nothing else will take it
+  std::optional<Core::Pos2d> cell;  ///< the cell to aim for, once a container is found
+  u32 owner_serial = 0;             ///< the container to offer, while it is still in the running
+  u8 slot = 0;
+  bool try_container = false;
+
+  if ( const auto* from_ground = std::get_if<FromGround>( &_origin ) )
   {
-    if ( auto equipped_chr = system_find_mobile( _owner_serial ) )
+    ground = from_ground->pos;
+  }
+  else if ( const auto* from_container = std::get_if<FromContainer>( &_origin ) )
+  {
+    owner_serial = from_container->serial;
+    cell = from_container->grid;
+    slot = from_container->slot;
+    try_container = true;
+  }
+  else if ( const auto* from_corpse = std::get_if<FromCorpse>( &_origin ) )
+  {
+    owner_serial = from_corpse->serial;
+    cell = from_corpse->grid;
+    slot = from_corpse->slot;
+    try_container = true;
+  }
+
+  if ( const auto* from_layer = std::get_if<FromLayer>( &_origin ) )
+  {
+    if ( auto equipped_chr = system_find_mobile( from_layer->serial ) )
     {
       if ( equipped_chr->equippable( _item ) && _item->check_equiptest_scripts( equipped_chr ) &&
            _item->check_equip_script( equipped_chr, false ) )
@@ -351,17 +370,18 @@ void GottenItem::undo( Mobile::Character* chr )
 
     if ( _item->orphan() )
       return;
-    _source = GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER;
-    _owner_serial = 0;
-    _pos = chr->pos().xyz();
-    realm = chr->realm();
+    // The layer would not take it back, so carry on at the containers. A layer origin names no
+    // container to offer and no cell to aim for -- it came off a layer, not out of a gump -- so
+    // owner_serial and cell stay empty and the backpack gets first refusal.
+    try_container = true;
+    ground = chr->pos().xyz();
+    realm = chr->stored_realm();
   }
 
   // A corpse layer is returned to the same way an ordinary container is: the backpack is still
   // offered first, and only the fallback below puts the item back where it came from -- which is
   // the one branch where the layer matters.
-  if ( _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_IN_CONTAINER ||
-       _source == GOTTEN_ITEM_TYPE::GOTTEN_ITEM_ON_CORPSE )
+  if ( try_container )
   {
     // First attempt to place the item in the player's backpack.
     UContainer* container = nullptr;
@@ -378,12 +398,12 @@ void GottenItem::undo( Mobile::Character* chr )
     if ( !container &&
          ( !Core::settingsManager.ssopt.undo_get_item_drop_here || _item->no_drop() ) )
     {
-      auto* orig_obj = system_find_object( _owner_serial );
+      auto* orig_obj = system_find_object( owner_serial );
       if ( orig_obj && orig_obj->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
       {
         if ( _item->no_drop() || chr->can_moveanydist() ||
              !Core::settingsManager.ssopt.undo_get_item_enable_range_check ||
-             chr->in_range( orig_obj, Core::settingsManager.ssopt.default_accessible_range ) )
+             chr->can_reach( orig_obj, Core::settingsManager.ssopt.default_accessible_range ) )
         {
           container = static_cast<UContainer*>( orig_obj );
           if ( !container->can_add( *_item ) ||
@@ -408,11 +428,12 @@ void GottenItem::undo( Mobile::Character* chr )
 
     if ( container )
     {
-      u8 newSlot = _slot_index ? _slot_index : 1;
+      u8 newSlot = slot ? slot : 1;
       if ( container->can_add_to_slot( newSlot ) )
       {
-        const Pos2d where =
-            container->is_legal_posn( _pos.xy() ) ? _pos.xy() : container->get_random_location();
+        const Pos2d where = ( cell && container->is_legal_posn( *cell ) )
+                                ? *cell
+                                : container->get_random_location();
         Items::Location target = Items::InContainer{ container, where, newSlot };
         if ( came_off_corpse_layer( container ) )
           target = Items::OnCorpse{ static_cast<UCorpse*>( container ), where, newSlot,
@@ -425,48 +446,53 @@ void GottenItem::undo( Mobile::Character* chr )
         }
       }
     }
-    _pos = chr->pos3d();
-    realm = chr->realm();
+    ground = chr->pos3d();
+    realm = chr->stored_realm();
   }
+
+  // Only an item that was lying in the world has a spot of its own left to go back to. Every other
+  // rung above has already settled on the character's own position, which is trivially within
+  // range of the character and in the character's realm, so the check below has nothing to say
+  // about them.
+  const auto* from_ground = std::get_if<FromGround>( &_origin );
 
   if ( Core::settingsManager.ssopt.undo_get_item_drop_here )
   {
-    _pos = chr->pos3d();
-    realm = chr->realm();
+    ground = chr->pos3d();
+    realm = chr->stored_realm();
   }
-  else if ( !chr->can_moveanydist() )
+  else if ( from_ground != nullptr && !chr->can_moveanydist() &&
+            Core::settingsManager.ssopt.undo_get_item_enable_range_check )
   {
-    if ( Core::settingsManager.ssopt.undo_get_item_enable_range_check )
+    realm = Core::find_realm( from_ground->realm );
+    if ( realm == nullptr ||
+         !chr->in_range( Pos4d( ground, realm ),
+                         Core::settingsManager.ssopt.default_accessible_range ) )
     {
-      realm = Core::find_realm( _realm );
-      if ( realm == nullptr ||
-           !chr->in_range( Pos4d( _pos, realm ),
-                           Core::settingsManager.ssopt.default_accessible_range ) )
-      {
-        _pos = chr->pos3d();
-        realm = chr->realm();
-      }
+      ground = chr->pos3d();
+      realm = chr->stored_realm();
     }
   }
 
   // The (local variable) `realm` will be set in case of error from above.
   if ( realm == nullptr )
   {
-    // Try finding realm from (instance member) `_realm` string.
-    realm = Core::find_realm( _realm );
+    // Try finding the realm the item was lying in, by name.
+    if ( from_ground != nullptr )
+      realm = Core::find_realm( from_ground->realm );
 
     // If the realm is not found, set it to the position of the character.
     if ( realm == nullptr )
     {
-      realm = chr->realm();
-      _pos = chr->pos3d();
+      realm = chr->stored_realm();
+      ground = chr->pos3d();
     }
   }
 
   // Last resort: nowhere else would take it, so the ground has to. Nothing can refuse it here —
   // the item is detached and the realm above is never null. place_at carries the realm down to the
   // contents if it changed.
-  if ( !Items::place_at( *_item, Pos4d( _pos, realm ) ) )
+  if ( !Items::place_at( *_item, Pos4d( ground, realm ) ) )
     return;
 
   send_item_to_inrange( _item );
@@ -482,7 +508,7 @@ void GottenItem::undo( Mobile::Character* chr )
   // automatically place it back at old `x,y` location. The item is in
   // `britannia`, but character is still in `shadow-britannia`, so the item will
   // appear on the ground in the client.
-  if ( chr->realm() != realm )
+  if ( chr->stored_realm() != realm )
   {
     send_remove_object( chr->client, _item );
   }

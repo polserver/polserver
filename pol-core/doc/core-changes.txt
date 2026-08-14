@@ -1,5 +1,73 @@
 -- POL100.3.0 --
 08-10-2026 Nando:
+    Changed: item.x, item.y and item.z on an equipped item now report where its wearer is
+             standing, and follow that character as they move. They used to report the
+             coordinates the wearer happened to be standing on at the moment the item was
+             equipped, frozen from then on - so a worn sword reported where you put it on
+             rather than where you are. The saved X/Y/Z for equipped items changes to
+             match; nothing reads it back, because equipping recomputes the position when
+             the world is loaded.
+    Changed: item.realm now answers with the realm the item can be reached in, rather than
+             with a copy of its holder's realm kept on the item itself. An item in a
+             container, worn, or on a cursor answers exactly as before - the realm of
+             whatever ultimately holds it. What changes is an item that is in no realm
+             at all: one filed in a storage area used to answer "britannia", a value
+             invented when it was created and never meaningful, and now returns an
+             error. The same applies to uo::CheckLineOfSight(), uo::CheckLosAt(),
+             uo::PlayMovingEffect(), uo::PlayMovingEffectEx() and
+             cliloc::PrintTextAbovePrivate() when handed such an object; passing one an
+             item held by a character is unaffected.
+    Changed: uo::ListMobilesInLineOfSight() called on an item a character is carrying or
+             wearing now looks out from that character. It previously looked out from the
+             character's equipment as if that were a separate object standing in the same
+             spot, so the character was reported as being within its own line of sight, and
+             its ability to see past obstacles was not taken into account.
+    Changed: item.multi now returns an error for an item that has no place of its own in
+             the world - one in a container, worn, on a cursor, or in a storage area.
+             It used to look up whichever multi stood at the item's stored coordinates,
+             which for a contained item are its column and row in the container gump, so
+             the answer depended on whether anything happened to be built near the corner
+             of the map. Scripts testing "if ( item.multi )" or reading item.multi.serial
+             are unaffected; only a comparison against 0 changes. To ask which multi an
+             item is really inside, walk up .container first.
+    Changed: map.insertpin() and map.appendpin() now check the pin against the area the map
+             covers, given by its xwest, ynorth, xeast and ysouth bounds. They used to check
+             it against whichever realm the map was being carried in, which asks a different
+             question - a map depicts a region rather than standing in one - so the same pin
+             was accepted or refused depending on who happened to be holding the map, and a
+             map kept in a storage area was not checked at all. A map whose bounds have no
+             extent yet still accepts any pin, so pins may be placed before the bounds are.
+             Pins already saved are untouched, and pins a player places through the client
+             were always checked against the map gump instead.
+    Fixed: The items death leaves in a dead character's backpack - newbie, no-drop and
+           insured ones - came back in reverse order, because the whole pack was emptied
+           and those items were then put back one at a time. They are no longer taken out
+           of it at all, so they keep the order and the container slot they already had.
+    Fixed: A container opened with uo::SendOpenSpecialContainer(), a bank box for instance,
+           stayed reachable after the character was moved by anything other than walking. A
+           gate, a teleport spell, being carried by a boat, a step taken while editing a
+           house and logging back in all left it open and usable from wherever the character
+           ended up - including from another realm, since such a container is also granted
+           line of sight - until they took a single walking step. It now stops being
+           reachable whenever the character's position changes, which is what the core
+           always intended.
+    Fixed: An item removed from a container that stands nowhere - a bank box opened with
+           uo::SendOpenSpecialContainer(), a vendor's stock, a secure trade window - was
+           not announced to the clients being shown it, so a destroyed item stayed drawn
+           in the window. Everyone shown the container is now told, including when the
+           container itself stands in the world but was shown to a character too far
+           away to see it.
+    Fixed: uo::SendOpenSpecialContainer() moved the container onto the character, so that
+           the checks made when a client reaches for it would measure a distance of zero. A
+           container standing in the world was silently dragged to the player's feet while
+           still recorded in the map region it came from, and one filed in a storage area
+           was given coordinates it has no business having. It is no longer moved: having
+           been shown it is what puts it within reach, which is how line of sight has
+           always treated these containers. uo::SendBuyWindow() did the same to the two
+           containers behind a vendor window, and the secure trade window to its own, so
+           item.x, item.y and item.realm read on any of them now report that it is nowhere
+           rather than repeating where its owner stands.
+08-10-2026 Nando:
     Added: polsys::CheckItemIntegrity(), which checks that every item agrees with whatever
            is holding it - the container, corpse layer, storage area, cursor or world zone
            an item says it is in must be the one that actually lists it, and the other way

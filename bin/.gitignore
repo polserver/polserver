@@ -13,6 +13,8 @@ Release
 Debug
 *.pdb
 *.lib
+*.exp
+*.ilk
 *.exe
 *.dll
 *.exe.manifest

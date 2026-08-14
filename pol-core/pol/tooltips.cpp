@@ -20,6 +20,7 @@
 #include "clib/rawtypes.h"
 #include "plib/uoexpansion.h"
 
+#include "pol/globals/network.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"
@@ -78,14 +79,30 @@ void send_object_cache_to_inrange( const UObject* obj )
     return;
   auto pkt_rev = Network::ObjRevisionPkt( obj->serial_ext, obj->rev() );
 
-  WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
-                                                       [&]( Mobile::Character* chr )
-                                                       {
-                                                         if ( chr->in_visual_range( obj ) )
-                                                           pkt_rev.Send( chr->client );
-                                                         // FIXME need to check character's
-                                                         // additional_legal_items.
-                                                       } );
+  // Whoever is looking at this can normally be found by walking the region it stands in. Something
+  // held by a container that stands nowhere - a bank box, a trade window, a vendor's stock - is in
+  // no region, so that walk reaches nobody; there the audience is whoever was shown the container,
+  // which only the characters themselves can answer. Rare enough to pay for: it takes an open
+  // window and someone changing what is inside it.
+  const UObject* top = obj->toplevel_owner();
+  if ( top->stored_realm() != nullptr )
+  {
+    WorldIterator<OnlinePlayerFilter>::InMaxVisualRange( obj,
+                                                         [&]( Mobile::Character* chr )
+                                                         {
+                                                           if ( chr->in_visual_range( obj ) )
+                                                             pkt_rev.Send( chr->client );
+                                                         } );
+    return;
+  }
+
+  for ( auto& client : networkManager.clients )
+  {
+    if ( !client->ready )
+      continue;
+    if ( client->chr->shown_a_container( top ) )
+      pkt_rev.Send( client );
+  }
 }
 
 

@@ -237,6 +237,29 @@ const UObject* UObject::toplevel_owner() const
   return this;
 }
 
+Pos3d UObject::local_position() const
+{
+  return pos3d();
+}
+
+bool UObject::has_world_position() const
+{
+  return true;
+}
+
+Realms::Realm* UObject::toplevel_realm() const
+{
+  // Whatever the walk ends at answers for itself rather than being interrogated from here, because
+  // the end of the walk is not always the end of the question: a container held on a cursor holds
+  // no world position, but the one holding it is standing somewhere, and only that container knows
+  // to ask. Handing back its field instead would put everything inside it in no realm at all.
+  if ( const UObject* top = toplevel_owner(); top != this )
+    return top->toplevel_realm();
+
+  // Nothing holds this, so the field is the answer -- but only if it names somewhere real.
+  return has_world_position() ? stored_realm() : nullptr;
+}
+
 void UObject::setposition( Pos4d newpos )
 {
   set_dirty();
@@ -274,18 +297,23 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( color != 0 )
     sw.add( "Color", Clib::hexintv( color ) );
 
-  sw.add( "X", x() );
-  sw.add( "Y", y() );
-  sw.add( "Z", (int)z() );
+  const Pos3d local = local_position();
+  sw.add( "X", local.x() );
+  sw.add( "Y", local.y() );
+  sw.add( "Z", (int)local.z() );
 
   if ( facing )
     sw.add( "Facing", static_cast<int>( facing ) );
 
   sw.add( "Revision", rev() );
-  if ( realm() == nullptr )
-    sw.add( "Realm", "britannia" );
+  // The world this can be reached in, which for anything held by something else is its holder's
+  // -- the same value the borrowed copy used to carry. Something in no world at all still names the
+  // default realm, as it always has: nothing reads the line back for those, and dropping it would
+  // change the file format rather than just the value in it.
+  if ( const Realms::Realm* in_world = toplevel_realm(); in_world != nullptr )
+    sw.add( "Realm", in_world->name() );
   else
-    sw.add( "Realm", realm()->name() );
+    sw.add( "Realm", "britannia" );
 
 
   if ( has_fire_resist() )

@@ -154,7 +154,7 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
   chr->set_dirty();
   Pos4d oldpos = chr->pos();
 
-  if ( ( chr->realm() != nullptr ) && ( chr->realm() != newpos.realm() ) )
+  if ( ( chr->stored_realm() != nullptr ) && ( chr->stored_realm() != newpos.realm() ) )
   {
     // Notify NPCs in the old realm that the player left the realm.
     oldpos.realm()->notify_left( *chr );
@@ -202,7 +202,7 @@ bool move_character_to( Mobile::Character* chr, Pos4d newpos, int flags )
     passert_assume( chr->client !=
                     nullptr );  // tells compiler to assume this is true during static code analysis
 
-    if ( oldpos.realm() != chr->realm() )
+    if ( oldpos.realm() != chr->stored_realm() )
       send_new_subserver( chr->client );
     send_owncreate( chr->client, chr );
     send_goxyz( chr->client, chr );

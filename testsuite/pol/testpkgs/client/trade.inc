@@ -189,3 +189,64 @@ function drop_on_mobile_rejected( serial, target_serial )
   endif
   return 1;
 endfunction
+
+// Tries to pick an item up with client 0 and expects the core to refuse. The
+// counterpart of lift_item(): a serial the client may not reach is answered with
+// a rejection, and the reason says which of the refusals it was.
+function lift_item_denied( serial, expected_reason := MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := serial, id := 0 } );
+  var ev := waitForClient( 0, { EVT_LIFT_ITEM } );
+  if ( !ev )
+    return ret_error( $"client 0 did not lift 0x{serial:x}: {ev}" );
+  endif
+  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  if ( !ev )
+    return ret_error( $"lifting 0x{serial:x} was allowed" );
+  endif
+  if ( ev.reason != expected_reason )
+    return ret_error( $"lifting 0x{serial:x} was refused with reason {ev.reason}, expected {expected_reason}" );
+  endif
+  return 1;
+endfunction
+
+// Drops the held item into a container, addressing it the way a client does: by
+// the container's serial and a cell within its gump. A cell is what separates
+// this from drop_on_mobile() above -- the core reads a drop with x 0xFFFF as
+// "onto that object" and anything else as "into that container".
+function drop_in_container( serial, cont_serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "drop_item",
+                               arg := struct{ serial := serial, x := 20, y := 20, z := 0,
+                                              dropped_on_serial := cont_serial },
+                               id := 0 } );
+  var ev := waitForClient( 0, { EVT_DROP_ITEM } );
+  if ( !ev )
+    return ret_error( $"client 0 did not drop 0x{serial:x}: {ev}" );
+  endif
+  ev := waitForClient( 0, { EVT_DROP_APPROVED } );
+  if ( !ev )
+    return ret_error( $"dropping 0x{serial:x} into 0x{cont_serial:x} was not approved" );
+  endif
+  return 1;
+endfunction
+
+// The same drop, expected to be refused. A refused drop is undone by the core,
+// which puts the item back rather than leaving it on the cursor, so nothing has
+// to be cleaned up afterwards.
+function drop_in_container_denied( serial, cont_serial )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "drop_item",
+                               arg := struct{ serial := serial, x := 20, y := 20, z := 0,
+                                              dropped_on_serial := cont_serial },
+                               id := 0 } );
+  var ev := waitForClient( 0, { EVT_DROP_ITEM } );
+  if ( !ev )
+    return ret_error( $"client 0 did not drop 0x{serial:x}: {ev}" );
+  endif
+  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  if ( !ev )
+    return ret_error( $"dropping 0x{serial:x} into 0x{cont_serial:x} was allowed" );
+  endif
+  return 1;
+endfunction

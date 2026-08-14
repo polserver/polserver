@@ -103,15 +103,22 @@ void send_midi( Network::Client* client, unsigned short midi );
 Mobile::Character* find_character( u32 serial );
 
 UObject* find_toplevel_object( u32 serial );
-void setrealm( Items::Item* item, void* arg );
-void setrealmif( Items::Item* item, void* arg );
 
 // TODO: 9 global functions for remove pkt???
 void send_remove_character( Network::Client* client, const Mobile::Character* chr,
                             Network::RemoveObjectPkt& pkt );
 void send_remove_character( Network::Client* client, const Mobile::Character* chr );
 void send_remove_object_if_inrange( Network::Client* client, const Items::Item* obj );
-void send_remove_object_to_inrange( const UObject* centerObject );
+
+/**
+ * Tell everybody being shown this object that it has gone.
+ *
+ * Split by kind because a mobile's audience answers a privilege question -- who may see someone
+ * hidden, concealed or dead -- that neither of these asks. Use
+ * send_remove_character_to_nearby_cansee() for those.
+ */
+void send_remove_object_to_inrange( const Items::Item* centerObject );
+void send_remove_object_to_inrange( const Multi::UMulti* centerObject );
 void send_remove_object( Network::Client* client, const UObject* item,
                          Network::RemoveObjectPkt& pkt );
 void send_remove_object( Network::Client* client, const UObject* obj );
@@ -157,10 +164,19 @@ void play_moving_effect2_ex( const Pos3d& src, const Pos3d& dst, Realms::Realm* 
                              u16 effect3d, u16 effect3dexplode, u16 effect3dsound );
 
 
-// find_legal_item: search worn items, including backpack recursively, and
-// items on the ground, recursively, for an item of a given serial.
-Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial, bool* additlegal = nullptr,
-                              bool* isRemoteContainer = nullptr );
+/**
+ * Search everywhere this character may legally reach: the backpack and its contents, worn items and
+ * containers on layers, the ground within 8 tiles, optionally an owned NPC's pack, and finally the
+ * containers a script has shown them.
+ *
+ * @param found_remotely set only when the item was reached through that last route, where the item
+ *        -- or the container holding it -- may stand nowhere at all. Its one reader uses it to skip
+ *        a line-of-sight test, which would otherwise refuse everything in a bank box.
+ * @param isRemoteContainer set when the thing found *is* one of those shown containers rather than
+ *        something inside it, which is how a lift is refused for the bank box itself.
+ */
+Items::Item* find_legal_item( const Mobile::Character* chr, u32 serial,
+                              bool* found_remotely = nullptr, bool* isRemoteContainer = nullptr );
 
 Items::Item* find_snoopable_item( u32 serial, Mobile::Character** powner = nullptr );
 

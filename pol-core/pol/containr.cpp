@@ -205,7 +205,7 @@ bool UContainer::can_add_to_slot( u8& slotIndex )
   return find_empty_slot( slotIndex );
 }
 
-void UContainer::add( Items::Item* item, const Pos2d& pos )
+void UContainer::add( Items::Item* item )
 {
   // passert( can_add( *item ) );
   if ( orphan() )
@@ -213,7 +213,12 @@ void UContainer::add( Items::Item* item, const Pos2d& pos )
     POLLOG_ERRORLN( "Trying to add item to orphan container!" );
     passert_always( 0 );  // TODO remove once found
   }
-  item->setposition( Pos4d( pos, 0, realm() ) );  // TODO POS realm should be a nullptr
+  // Nothing of where the item was survives being put away. The cell it sits in now lives in its
+  // Location, which is where local_position() reads it from, and the world it can still be reached
+  // in is this container's to answer -- so the field is left holding neither. Emptied rather than
+  // left alone: a leftover coordinate makes an item answer questions about where it is, and a
+  // plausible wrong answer is worse than an obviously absent one.
+  item->setposition( Pos4d() );
   item->set_dirty();
   contents_.push_back( Contents::value_type( item ) );
 
@@ -384,7 +389,8 @@ void UContainer::swap( UContainer& cont )
     {
       if ( item == nullptr )
         continue;
-      item->set_location( Items::InContainer{ &into, item->pos2d(), item->slot_index() } );
+      const Items::Location loc = item->location();
+      item->set_location( Items::InContainer{ &into, loc.grid(), loc.slot() } );
       item->set_dirty();
     }
   };

@@ -32,6 +32,7 @@
 #ifndef __CHARACTR_H
 #define __CHARACTR_H
 
+#include <cstddef>
 #include <ctime>
 #include <map>
 #include <set>
@@ -390,8 +391,31 @@ public:
   void clear_gotten_item();
 
   void add_remote_container( Items::Item* );
+
+  /// Drop shown containers that have since been destroyed. Housekeeping only -- nothing reads such
+  /// an entry, but a strong reference stops ObjectHash::Reap from collecting what it points at.
+  void prune_remote_containers();
+
   Items::Item* search_remote_containers( u32 find_serial, bool* isRemoteContainer ) const;
-  bool mightsee( const Items::Item* item ) const;
+  bool shown_a_container( const Core::UObject* obj ) const;
+  bool can_reach( const Core::UObject* obj, u16 range ) const;
+
+  /**
+   * Is this object somewhere this character is being kept updated about, and so has to be told when
+   * it changes?
+   *
+   * Both ways an object reaches a client: membership -- it sits in a container they were shown,
+   * which may stand nowhere at all -- and geometry. `shown_a_container()` is the membership arm on
+   * its own.
+   *
+   * Coarse: it says nothing about whether the player can *perceive* the object, so concealment,
+   * hiding, invisibility and line of sight remain the caller's business. Mobiles are not its
+   * business at all, since that question carries a privilege layer this does not implement -- ask
+   * is_visible_to_me() and broadcast with the send_*_to_nearby_cansee() family.
+   */
+  bool is_shown( const Core::UObject* obj ) const;
+  bool is_shown( const Character* ) const = delete;
+  bool is_shown( std::nullptr_t ) const = delete;
 
   Items::Item* find_wornitem( u32 find_serial ) const;
   bool has_shield() const;
@@ -599,6 +623,8 @@ public:
   bool is_trading() const;
   void create_trade_container();
   Core::UContainer* trade_container();
+  Character* trading_with() const;
+  void trading_with( Character* other );
   bool trade_accepted() const;
   void trade_accepted( bool newvalue );
 
@@ -761,8 +787,12 @@ protected:
 
   ref_ptr<Core::WornItemsContainer> wornitems;
 
-public:
-  std::vector<Core::ItemRef> remote_containers_;  // does not own its objects
+private:
+  // Containers a script has shown this character with uo::SendOpenSpecialContainer(), which they
+  // may reach regardless of where either of them stands. Cleared whenever they move and when they
+  // disconnect. The references are strong, so a listed container cannot be collected.
+  std::vector<Core::ItemRef> remote_containers_;
+
   // MOVEMENT
 public:
   u8 dir;  // the entire 'dir' from their last MSG02_WALK
@@ -820,9 +850,9 @@ private:
 private:
   Core::OneShotTask* party_decline_timeout_;
   // SECURE TRADING
-public:
-  ref_ptr<Core::UContainer> trading_cont;
-  Core::CharacterRef trading_with;
+private:
+  ref_ptr<Core::UContainer> trading_cont_;
+  Core::CharacterRef trading_with_;
   // SCRIPT
 public:
   DYN_PROPERTY( disable_skills_until, time_t, Core::PROP_DISABLE_SKILLS_UNTIL, 0 );

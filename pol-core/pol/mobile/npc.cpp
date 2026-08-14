@@ -178,20 +178,20 @@ bool NPC::could_move( Core::UFACING fdir ) const
 
     // needs to save because if only one direction is blocked, it shouldn't block ;)
     short current_boost = gradual_boost;
-    bool walk1 = realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
-                                      &walkon_item, &current_boost );
+    bool walk1 = stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz,
+                                             &supporting_multi, &walkon_item, &current_boost );
 
     tmp_facing = ( fdir - 1 ) & 0x7;
     tmp_pos = pos().move( static_cast<Core::UFACING>( tmp_facing ) );
     current_boost = gradual_boost;
-    if ( !walk1 && !realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz, &supporting_multi,
-                                         &walkon_item, &current_boost ) )
+    if ( !walk1 && !stored_realm()->walkheight( this, tmp_pos.xy(), tmp_pos.z(), &newz,
+                                                &supporting_multi, &walkon_item, &current_boost ) )
       return false;
   }
   auto new_pos = pos().move( fdir );
   short current_boost = gradual_boost;
-  return realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
-                              &walkon_item, &current_boost ) &&
+  return stored_realm()->walkheight( this, new_pos.xy(), new_pos.z(), &newz, &supporting_multi,
+                                     &walkon_item, &current_boost ) &&
          !npc_path_blocked( fdir ) && anchor_allows_move( fdir );
 }
 
@@ -213,7 +213,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
 
   if ( moveBlockMode == Core::MOVEBLOCKMODE_ALL )
   {
-    for ( const auto& chr : realm()->getzone_grid( gridp ).characters )
+    for ( const auto& chr : stored_realm()->getzone_grid( gridp ).characters )
     {
       // First check if there really is a character blocking
       if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )
@@ -224,7 +224,7 @@ bool NPC::npc_path_blocked( Core::UFACING fdir ) const
     }
   }
 
-  for ( const auto& chr : realm()->getzone_grid( gridp ).npcs )
+  for ( const auto& chr : stored_realm()->getzone_grid( gridp ).npcs )
   {
     // First check if there really is a character blocking
     if ( chr->pos2d() == new_pos.xy() && chr->z() >= z() - 10 && chr->z() <= z() + 10 )

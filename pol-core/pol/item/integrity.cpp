@@ -87,14 +87,32 @@ void check_forward( Sweep& sweep, Item& item )
 {
   const Location loc = item.location();
 
+  // Coordinates are measured against a world, so only something actually placed has a position of
+  // its own. Whatever is held by something else used to keep a stale one in the field anyway: a
+  // gump cell for something in a container, the wearer's coordinates frozen at the moment it was
+  // equipped, a borrowed realm kept true by a cascade nothing ever read. Each of those was a second
+  // answer to a question its holder already answers, and this is the claim that replaced all of
+  // them at once -- the field holds nothing. Detached is deliberately not on this list, because it
+  // is not one state: an item on its way between two homes is Detached, and so is a newborn one,
+  // and so are the containers a mobile keeps for trading and vending, which are held by nothing and
+  // never will be. There is no single thing the field ought to say for all three.
+  const bool held_by_something = loc.holds<InContainer>() || loc.holds<OnCorpse>() ||
+                                 loc.holds<Equipped>() || loc.holds<OnCursor>() ||
+                                 loc.holds<InStorage>();
+  if ( held_by_something && item.pos() != Core::Pos4d() )
+  {
+    sweep.note( item, fmt::format( "is held by something else but still carries the position {}",
+                                   item.pos() ) );
+  }
+
   if ( const auto* in_world = loc.get_if<InWorld>(); in_world != nullptr )
   {
-    if ( item.realm() == nullptr )
+    if ( item.stored_realm() == nullptr )
     {
       sweep.note( item, "in the world with no realm" );
       return;
     }
-    const Core::ZoneItems& zone = item.realm()->getzone( item.pos().xy() ).items;
+    const Core::ZoneItems& zone = item.stored_realm()->getzone( item.pos().xy() ).items;
     if ( std::find( zone.begin(), zone.end(), &item ) == zone.end() )
       sweep.note( item, fmt::format( "not in the zone for its position {}", item.pos() ) );
   }
