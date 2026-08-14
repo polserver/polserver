@@ -1,0 +1,290 @@
+// An effect played between two worn items, as the clients are told it.
+//
+// Something worn stands nowhere on its own: the only place it has is the one it
+// borrows from its wearer, and both endpoints of the effect carry coordinates - so
+// they have to be read from the wearers, at the moment the effect is played, not
+// from wherever the item was before it was put on.
+//
+// The probes are created away from their wearers on purpose. An endpoint taken from
+// the item's own retained position would still name a real place, and a probe made
+// where its wearer already stands cannot tell the two apart.
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+// A graphic nothing else on this shard plays, so these effects can be picked out of
+// everything the spell and combat tests are setting off.
+const EFFECT_GRAPHIC := 0x7EDF;
+const EFFECT_SPEED := 5;
+
+// a plain wearable item (graphic 0x1517 is a shirt, layer 5) that does nothing else
+const EFFECT_SHIRT := 0x400010;
+const LAYER_SHIRT := 0x5;
+
+// where the probe items are created: nowhere near either wearer, in both x and y
+const DECOY_X := 120;
+const DECOY_Y := 60;
+
+const HOME_X := 100;
+const HOME_Y := 50;
+
+var char;
+var char2;
+
+// takes ownership of the client events, which is what puts them in this script's queue
+var clientcon := getClientConnection();
+
+program test_client_effect()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+endprogram
+
+// Creates a probe item at the decoy spot and equips it, leaving the wearer as the
+// only thing that knows where it is.
+function equip_probe( resmgn, who )
+  var item := resmgn.CreateItemAtLocation( DECOY_X, DECOY_Y, 0, EFFECT_SHIRT );
+  if ( !item )
+    return ret_error( $"could not create the probe item: {item}" );
+  endif
+
+  var res := EquipItem( who, item );
+  if ( !res )
+    return ret_error( $"could not equip the probe on 0x{who.serial:x}: {res}" );
+  endif
+  return item;
+endfunction
+
+// puts both wearers where a test wants them, close enough that each client is in
+// range of both endpoints
+function place_wearers( x, y, x2, y2 )
+  var res := MoveObjectToLocation( char, x, y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"could not place the first wearer at {x},{y}: {res}" );
+  endif
+  res := MoveObjectToLocation( char2, x2, y2, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"could not place the second wearer at {x2},{y2}: {res}" );
+  endif
+  // the teleports announce both characters to both clients; those events are not
+  // what this file measures and would otherwise be read as the effect's
+  return drain_events();
+endfunction
+
+// Waits until both clients have been told about the effect this file plays and
+// returns what each of them got, client 0 first.
+//
+// Both at once, in one pass: an effect standing between the two of them reaches
+// both, the two events arrive in no fixed order, and a loop waiting for one of them
+// throws the other away on its way past. The clients are talked at constantly, so
+// the graphic is what tells the wanted events from the noise.
+function wait_for_effects( timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var seen := array{ 0, 0 };
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_EFFECT or CInt( ev.graphic ) != EFFECT_GRAPHIC )
+      continue;
+    endif
+    seen[CInt( ev.id ) + 1] := ev;
+    if ( seen[1] and seen[2] )
+      return seen;
+    endif
+  endwhile
+  var missing := seen[1] ? "1" : ( seen[2] ? "0" : "0 and 1" );
+  return ret_error( $"client {missing} never got effect 0x{EFFECT_GRAPHIC:x}" );
+endfunction
+
+// One endpoint against the wearer as it stands right now. The packet lifts the
+// effect off the ground by the object's own height, which for something worn is the
+// item's, so that is the only part of this that is not the wearer's.
+function check_endpoint( label, pos, item, wearer )
+  var z := wearer.z + item.height;
+  if ( CInt( pos[1] ) != wearer.x or CInt( pos[2] ) != wearer.y or CInt( pos[3] ) != z )
+    return ret_error( $"the {label} of the effect is at {pos[1]},{pos[2]},{pos[3]}, "
+                      + $"its wearer stands at {wearer.x},{wearer.y},{z}" );
+  endif
+  return 1;
+endfunction
+
+// everything one client was told about an effect played from `worn` to `worn2`
+function check_effect( ev, worn, worn2 )
+  if ( CInt( ev.kind ) != EFFECT_KIND_MOVING )
+    return ret_error( $"the effect arrived as kind {ev.kind}, expected a moving one" );
+  elseif ( CInt( ev.serial ) != worn.serial )
+    return ret_error( $"the effect comes from 0x{CInt( ev.serial ):x}, expected the worn item 0x{worn.serial:x}" );
+  elseif ( CInt( ev.target ) != worn2.serial )
+    return ret_error( $"the effect ends at 0x{CInt( ev.target ):x}, expected the worn item 0x{worn2.serial:x}" );
+  endif
+
+  var res := check_endpoint( "source", ev.pos, worn, char );
+  if ( !res )
+    return res;
+  endif
+  return check_endpoint( "destination", ev.tpos, worn2, char2 );
+endfunction
+
+// equips a probe on each wearer, both created away from where they stand
+function equip_probes( resmgn )
+  var worn := equip_probe( resmgn, char );
+  if ( !worn )
+    return worn;
+  endif
+  var worn2 := equip_probe( resmgn, char2 );
+  if ( !worn2 )
+    return worn2;
+  endif
+  return array{ worn, worn2 };
+endfunction
+
+// Both endpoints are the wearers, not the places the items were made in - and the
+// items are still what the effect is about, so a client can attach it to them.
+exported function effect_worn_names_wearers( resmgn )
+  var res := place_wearers( HOME_X, HOME_Y, HOME_X + 1, HOME_Y );
+  if ( !res )
+    return res;
+  endif
+
+  var probes := equip_probes( resmgn );
+  if ( !probes )
+    return probes;
+  endif
+  var [ worn, worn2 ] := probes;
+
+  res := PlayMovingEffect( worn, worn2, EFFECT_GRAPHIC, EFFECT_SPEED );
+  if ( !res )
+    return ret_error( $"PlayMovingEffect refused the worn items: {res}" );
+  endif
+
+  var seen := wait_for_effects();
+  if ( !seen )
+    return seen;
+  endif
+  var ev := seen[1];
+  res := check_effect( ev, worn, worn2 );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.cmd ) != EFFECT_PKT )
+    return ret_error( $"the effect arrived as packet 0x{CInt( ev.cmd ):x}" );
+  endif
+
+  // the decoy did its job only if it is nowhere near what the client was told
+  if ( CInt( ev.pos[1] ) == DECOY_X and CInt( ev.pos[2] ) == DECOY_Y )
+    return ret_error( "the effect was drawn where the item was made, not where it is worn" );
+  endif
+
+  // the second client stands next to the first, so it was told the same effect
+  return check_effect( seen[2], worn, worn2 );
+endfunction
+
+// The wearers walk and the items never move, because they have nothing to move: the
+// next effect between the same two items is drawn wherever they now stand.
+exported function effect_worn_follows_wearers( resmgn )
+  var res := place_wearers( HOME_X, HOME_Y, HOME_X + 1, HOME_Y );
+  if ( !res )
+    return res;
+  endif
+
+  var probes := equip_probes( resmgn );
+  if ( !probes )
+    return probes;
+  endif
+  var [ worn, worn2 ] := probes;
+
+  PlayMovingEffect( worn, worn2, EFFECT_GRAPHIC, EFFECT_SPEED );
+  var seen := wait_for_effects();
+  if ( !seen )
+    return seen;
+  endif
+  res := check_effect( seen[1], worn, worn2 );
+  if ( !res )
+    return res;
+  endif
+  var first := seen[1].pos;
+
+  // away from home, both wearers to a different spot
+  res := place_wearers( HOME_X + 5, HOME_Y + 3, HOME_X + 9, HOME_Y + 4 );
+  if ( !res )
+    return res;
+  endif
+
+  PlayMovingEffect( worn, worn2, EFFECT_GRAPHIC, EFFECT_SPEED );
+  seen := wait_for_effects();
+  if ( !seen )
+    return seen;
+  endif
+  var ev := seen[1];
+  res := check_effect( ev, worn, worn2 );
+  if ( !res )
+    return res;
+  endif
+
+  // an effect that reads a place stored on the item passes every check above while
+  // never changing, so the two readings have to differ
+  if ( CInt( ev.pos[1] ) == CInt( first[1] ) and CInt( ev.pos[2] ) == CInt( first[2] ) )
+    return ret_error( $"the effect stayed at {first[1]},{first[2]} after the wearer walked" );
+  endif
+
+  // and the item is still on its wearer's layer throughout, so nothing above moved
+  // the item itself to make the coordinates come out right
+  if ( GetEquipmentByLayer( char, LAYER_SHIRT ) != worn )
+    return ret_error( "the probe item is no longer worn by its wearer" );
+  endif
+
+  // back home, where the rest of this package expects to find them
+  res := place_wearers( HOME_X, HOME_Y, HOME_X + 1, HOME_Y );
+  if ( !res )
+    return res;
+  endif
+
+  PlayMovingEffect( worn, worn2, EFFECT_GRAPHIC, EFFECT_SPEED );
+  seen := wait_for_effects();
+  if ( !seen )
+    return seen;
+  endif
+  return check_effect( seen[1], worn, worn2 );
+endfunction
+
+// The extended effect is a second packet built from its own copy of the same two
+// lines, and a client has to be able to read it at all - which is the half a check
+// on the core's own bytes cannot see.
+exported function effect_ex_worn_names_wearers( resmgn )
+  var res := place_wearers( HOME_X, HOME_Y, HOME_X + 1, HOME_Y );
+  if ( !res )
+    return res;
+  endif
+
+  var probes := equip_probes( resmgn );
+  if ( !probes )
+    return probes;
+  endif
+  var [ worn, worn2 ] := probes;
+
+  res := PlayMovingEffectEx( worn, worn2, EFFECT_GRAPHIC, EFFECT_SPEED );
+  if ( !res )
+    return ret_error( $"PlayMovingEffectEx refused the worn items: {res}" );
+  endif
+
+  var seen := wait_for_effects();
+  if ( !seen )
+    return seen;
+  endif
+  res := check_effect( seen[1], worn, worn2 );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( seen[1].cmd ) != EFFECT_PKT_EX )
+    return ret_error( $"the extended effect arrived as packet 0x{CInt( seen[1].cmd ):x}" );
+  endif
+  return check_effect( seen[2], worn, worn2 );
+endfunction

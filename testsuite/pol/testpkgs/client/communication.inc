@@ -18,6 +18,16 @@ const EVT_REMOVED_OBJ := "removed_obj";
 // is the only trace of it.
 const EVT_OUT_OF_RANGE_OBJ := "out_of_range_obj";
 const EVT_OBJ_REVISION := "obj_revision";
+// A graphic effect. It carries both of its endpoints as coordinates, so an effect
+// between two objects says where the client draws it, not merely which objects it
+// is about. "cmd" is 0x70 or the extended 0xC7, "kind" the effect type below.
+const EVT_EFFECT := "effect";
+const EFFECT_KIND_MOVING := 0;
+const EFFECT_KIND_LIGHTNING := 1;
+const EFFECT_KIND_FIXEDXYZ := 2;
+const EFFECT_KIND_FIXEDFROM := 3;
+const EFFECT_PKT := 0x70;
+const EFFECT_PKT_EX := 0xC7;
 const EVT_LIST_OBJS := "list_objs";
 const EVT_LIST_EQUIPPED_ITEMS := "list_equipped_items";
 const EVT_OPEN_BACKPACK := "open_bp";

@@ -439,6 +439,17 @@ class PolServer:
     elif ev.type==Event.EVT_OBJ_REVISION:
       res["serial"]=ev.serial
       res["revision"]=ev.revision
+    elif ev.type==Event.EVT_EFFECT:
+      # "cmd" tells the plain effect packet from the extended one, "kind" is the
+      # effect type: 0 moving, 1 lightning, 2 fixed at a place, 3 following an
+      # object. The two positions are the endpoints the client draws between.
+      res["cmd"]=ev.cmd
+      res["kind"]=ev.kind
+      res["serial"]=ev.serial
+      res["target"]=ev.target
+      res["graphic"]=ev.graphic
+      res["pos"]=[ev.x, ev.y, ev.z]
+      res["tpos"]=[ev.tx, ev.ty, ev.tz]
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():

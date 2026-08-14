@@ -997,9 +997,16 @@ class Client(threading.Thread):
       assert self.lc
       self.log.info('Ignoring animation packet')
 
-    elif isinstance(pkt, packets.GraphicalEffectPacket):
+    elif (isinstance(pkt, packets.GraphicalEffectPacket) or
+        isinstance(pkt, packets.GraphicalEffectExPacket)):
       assert self.lc
-      self.log.info('Graphical effect packet')
+      # Both endpoints come with their own coordinates: an effect between two
+      # objects is drawn where the packet says, not where the client last saw
+      # the objects, so this is the whole of what the client is told.
+      self.brain.event(brain.Event(brain.Event.EVT_EFFECT, cmd=pkt.cmd,
+          kind=pkt.direction, serial=pkt.serial, target=pkt.target,
+          graphic=pkt.graphic, x=pkt.x, y=pkt.y, z=pkt.z,
+          tx=pkt.tx, ty=pkt.ty, tz=pkt.tz))
 
     elif isinstance(pkt, packets.PlaySoundPacket):
       assert self.lc
