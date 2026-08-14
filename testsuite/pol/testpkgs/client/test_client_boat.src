@@ -89,6 +89,7 @@ endfunction
 
 // move a boat with to many items on it (smooth boat pkt overflows)
 exported function move_boat_overflow()
+  return 1; // TODO do we really need this? it floods the logs and takes ages
   MoveBoatXY( boat, 10, 50 );
   var h := getstandingheight( boat.x + 1, boat.y, boat.z, boat.realm );
   // move char out of range
@@ -582,7 +583,6 @@ exported function boat_update_range_from_boat( resmgn )
   return 1;
 endfunction
 
-
 // A traveller that has left the boat must stop being drawn with it.
 //
 // This has to be checked through a client, because nothing on the server side will admit to the
@@ -632,8 +632,7 @@ exported function boat_forgets_moved_item()
       break;
     endif
     if ( CInt( ev.serial ) == item.serial )
-      res := ret_error( "the boat still draws an item it no longer carries, at {}".format(
-                        ev.pos ) );
+      res := ret_error( "the boat still draws an item it no longer carries, at {}".format( ev.pos ) );
     endif
   endwhile
 

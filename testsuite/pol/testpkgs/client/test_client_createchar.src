@@ -36,25 +36,24 @@ program test_createchar()
 endprogram
 
 // A created character is left logged in, and a later package asserts that nobody on the shard is
-// online - so each case takes its own back out again. Deleting it needs it offline first, which
-// the server only notices once the socket has gone.
-function log_out_and_remove( acct, chr, id )
+// online - so each case takes its own back out again.
+//
+// The delete is what gets retried, rather than waiting on something that stands in for it:
+// chr.client reads false the moment the connection drops, but the core holds the character in use
+// until Client::PreDelete has taken the client apart a cycle or two later, and deleting inside
+// that window is refused with "That character is in use".
+function log_out_and_remove( acct, id )
   clientcon.sendevent( struct{ todo := "disconnect", id := id } );
-  var deadline := ReadMillisecondClock() + 5000;
+  var deadline := ReadMillisecondClock() + 10000;
+  var res;
   while ( ReadMillisecondClock() < deadline )
-    if ( !chr.client )
-      break;
+    res := acct.deletecharacter( 1 );
+    if ( res )
+      return 1;
     endif
     sleepms( 50 );
   endwhile
-  if ( chr.client )
-    return ret_error( $"client {id} was still logged in 5s after being told to go" );
-  endif
-  var res := acct.deletecharacter( 1 );
-  if ( !res )
-    return ret_error( $"could not delete the character it made: {res}" );
-  endif
-  return 1;
+  return ret_error( $"could not delete the character it made: {res}" );
 endfunction
 
 // The second shard run starts on the world the first one left, so the slot may already hold the
@@ -136,7 +135,7 @@ exported function createchar_new_character( unused resources )
     bad.append( "the new character is not the one its client is playing" );
   endif
 
-  var gone := log_out_and_remove( acct, chr, CLIENT_ID );
+  var gone := log_out_and_remove( acct, CLIENT_ID );
   if ( !gone )
     bad.append( $"{gone}" );
   endif
@@ -187,7 +186,7 @@ exported function createchar_elf_body( unused resources )
     bad.append( $"gender is {chr.gender}, expected male" );
   endif
 
-  var gone := log_out_and_remove( acct, chr, ELF_CLIENT_ID );
+  var gone := log_out_and_remove( acct, ELF_CLIENT_ID );
   if ( !gone )
     bad.append( $"{gone}" );
   endif
@@ -279,7 +278,7 @@ exported function createchar_gargoyle_body( unused resources )
     bad.append( "a gargoyle started in a shirt" );
   endif
 
-  var gone := log_out_and_remove( acct, chr, GARG_CLIENT_ID );
+  var gone := log_out_and_remove( acct, GARG_CLIENT_ID );
   if ( !gone )
     bad.append( $"{gone}" );
   endif
