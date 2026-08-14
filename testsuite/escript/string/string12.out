@@ -1,1 +1,1 @@
-error{ errortext = "Array index out of bounds" }
+error{ errortext = "Multiple subscript not supported for this type" }

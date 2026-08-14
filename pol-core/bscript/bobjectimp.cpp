@@ -255,14 +255,13 @@ BObjectImp* BObjectImp::array_assign( BObjectImp* /*idx*/, BObjectImp* /*target*
   return this;
 }
 
-BObjectRef BObjectImp::OperMultiSubscript( std::stack<BObjectRef>& indices )
+BObjectRef BObjectImp::OperMultiSubscript( std::stack<BObjectRef>& /*indices*/ )
 {
-  BObjectRef index = indices.top();
-  indices.pop();
-  BObjectRef ref = OperSubscript( *index );
-  if ( indices.empty() )
-    return ref;
-  return ( *ref ).impptr()->OperMultiSubscript( indices );
+  // a[x,y] means a slice -- a start and a length -- and only Array and String have one to give.
+  // Everything else used to read this as chained subscripting, so the same syntax meant two
+  // different things depending on what it was applied to. Reach the members of a dictionary or a
+  // struct with a[x][y] instead.
+  return BObjectRef( new BError( "Multiple subscript not supported for this type" ) );
 }
 
 BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices,

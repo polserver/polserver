@@ -52,15 +52,18 @@ print( s );
 flat[2] := 42;
 print( flat );
 
-// On a dictionary or a struct several indexes chain instead of slicing, to any depth.
+// Several indexes mean a slice -- a start and a length -- and only an array or a string has one
+// to give. Anything else is refused rather than quietly meaning something different: a dictionary
+// and a struct used to read this as chained access, so the same syntax did two unrelated things.
 var deep := dictionary{ "a" -> dictionary{ "b" -> dictionary{ "c" -> 3 } } };
 print( deep["a", "b"] );
 print( deep["a", "b", "c"] );
 print( struct{ x := struct{ y := 7 } }["x", "y"] );
-
-// The last step of such a chain lands on an array or a string with one index left over, and
-// takes the element or character at that position rather than a slice.
 print( dictionary{ "k" -> array{ 7, 8 } }["k", 1] );
 print( struct{ x := array{ 7, 8 } }["x", 1] );
 print( dictionary{ "k" -> "abcdef" }["k", 2] );
 print( dictionary{ "k" -> 1 }["k", 1] );
+
+// Reaching a member of a member is what a repeated subscript is for, and it still works.
+print( deep["a"]["b"]["c"] );
+print( struct{ x := array{ 7, 8 } }["x"][1] );
