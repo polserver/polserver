@@ -1126,6 +1126,43 @@ class GraphicalEffectPacket(Packet):
     self.explode = self.duchar()
 
 
+class GraphicalEffectExPacket(Packet):
+  ''' Play a generic graphical effect, extended version
+
+  The server sends this one instead of 0x70 for the *Ex effect functions. Its
+  first 22 bytes are laid out exactly like 0x70's, so the two decode alike as far
+  as the endpoints go.
+  '''
+
+  cmd = 0xc7
+  length = 49
+
+  def decodeChild(self):
+    self.direction = self.duchar()
+    self.serial = self.duint()
+    self.target = self.duint()
+    self.graphic = self.dushort()
+    self.x = self.dushort()
+    self.y = self.dushort()
+    self.z = self.dschar()
+    self.tx = self.dushort()
+    self.ty = self.dushort()
+    self.tz = self.dschar()
+    self.speed = self.duchar()
+    self.duration = self.duchar()
+    self.dushort() # Unknown
+    self.adjust = self.duchar()
+    self.explode = self.duchar()
+    self.hue = self.duint()
+    self.rendermode = self.duint()
+    self.effect3d = self.dushort()
+    self.effect3dexplode = self.dushort()
+    self.effect3dsound = self.dushort()
+    self.itemid = self.duint()
+    self.layer = self.duchar()
+    self.dushort() # Unknown
+
+
 class WarModePacket(Packet):
   ''' Request/Set war mode '''
 
