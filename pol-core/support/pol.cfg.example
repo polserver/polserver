@@ -105,9 +105,12 @@ InactivityDisconnectTimeout=20
 #
 # LoginServerDisconnectUnknownPkts:
 #   during login process disconnect connection if unknown/non-allowed pkt is received
-# default 0
+#   Set this to 0 only if a client or tool of yours legitimately sends packets the core
+#   does not know before a character is attached; with it off, the parser resumes reading
+#   the next byte as a fresh message type instead of dropping the connection.
+# default 1
 #
-#LoginServerDisconnectUnknownPkts=0
+#LoginServerDisconnectUnknownPkts=1
 
 #############################################################################
 ## System Profiling and Performance

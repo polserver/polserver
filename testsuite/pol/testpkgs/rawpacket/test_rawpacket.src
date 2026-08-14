@@ -1,0 +1,179 @@
+// Regression test for issue #452: hostile / malformed traffic on the game port must not
+// take the shard down.
+//
+// The reported crash was a port scanner sending a 128-byte packet 0x45 (a 5-byte packet
+// in the protocol) to a shard on 5003, with no account attached, and a stack trace
+// through Client::handle_msg -> ClientCreateChar -> Account::get_character. That exact
+// trace has never been reproduced and the network layer has been rewritten since
+// (#894, #910, #911, #912, #916), so this does not claim to reproduce it. What it does
+// is pin the surface: every message type an unauthenticated peer can reach, fed bytes it
+// would never send, with the shard still serving afterwards.
+//
+// Bytes go on the wire through testsuite/rawpeer/rawpeer.py, because eScript cannot put
+// arbitrary bytes on a socket -- see that file's docstring for why both obvious routes
+// (CChrZ and Packet.transmit) mangle them.
+//
+// Two things stop this from being a test that passes for the wrong reason:
+//
+//  * The helper reports CLOSED / OPEN / REFUSED rather than "did not crash". REFUSED
+//    fails the test, so a run where nothing ever reached the shard cannot look like a
+//    pass -- the trap catalogued in specs/testsuite/05-harness-traps.md.
+//  * test_rawpkt_partial_open is a deliberate control: it is the one case whose
+//    correct answer is OPEN. If the helper ever reported CLOSED unconditionally, every
+//    other assertion here would be worthless and that one would fail.
+//
+// Note what the undefined-type cases actually prove on this shard. testsuite/pol/pol.cfg
+// sets LoginServerDisconnectUnknownPkts=1, so an unknown or non-allowlisted type is
+// dropped at the type byte (clientthread.cpp:369-385) and never reaches a handler. Those
+// cases test the filter. The cases that reach real handler code are the allowlisted ones
+// in test_rawpkt_allowed_garbage -- 0x00 among them, which is the reported frame.
+use os;
+use polsys;
+include "testutil";
+
+const RAWPEER_PORT := 5012;
+
+// The crypt seed a fresh connection consumes before any message parsing begins
+// (RECV_STATE_CRYPTSEED_WAIT). Must not be 0xffffffff (UOKR probe) or start with 0xef
+// (6.0.5.0+ seed), which take other branches. Same value testsuite/loginlatency uses.
+const SEED := "7f000001";
+
+// Fixed packet lengths, from the static_asserts in pol-core/pol/network/pktin.h.
+// Sending exactly this many bytes makes the handler dispatch once, so a CLOSED verdict
+// is attributable to the handler rather than to surplus bytes reparsed as new messages.
+const LEN_00 := 104;  // create character
+const LEN_80 := 62;   // account login
+const LEN_91 := 65;   // game server login
+const LEN_A0 := 3;    // select server
+
+function hexbyte( b )
+  var h := $"{b:x}";
+  if ( h.length() < 2 )
+    return "0" + h;
+  endif
+  return h;
+endfunction
+
+// A packet of `total_len` bytes: `first_byte`, then `fill_byte` repeated.
+function hexfill( first_byte, total_len, fill_byte )
+  var s := hexbyte( first_byte );
+  var i;
+  for ( i := 2; i <= total_len; i := i + 1 )
+    s := s + hexbyte( fill_byte );
+  endfor
+  return s;
+endfunction
+
+// Open a fresh connection to the game port, write each hex word, and report what the
+// shard did with it. Returns the helper's struct{ verdict, ms, read_back } or an error.
+function raw_send( words )
+  var conn := OpenConnection( "127.0.0.1", RAWPEER_PORT, "rawctl",
+                              params := struct{
+                                test_script_pid := GetPid(),
+                                command := "SEND " + words },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 0 );
+  if ( !conn )
+    return ret_error( $"could not reach the raw peer helper: {conn}" );
+  endif
+
+  var result := wait_for_event( 90 );
+  if ( !result )
+    return ret_error( "raw peer helper never reported a result" );
+  endif
+  if ( result.verdict == "REFUSED" )
+    return ret_error( "raw peer helper could not connect to the game port" );
+  endif
+  return result;
+endfunction
+
+// Assert the shard hung up on this payload.
+function expect_closed( words, what )
+  var result := raw_send( words );
+  if ( result.errortext )
+    return result;
+  endif
+  if ( result.verdict != "CLOSED" )
+    return ret_error( $"{what}: expected the shard to close the connection, got {result.verdict} after {result.ms}ms" );
+  endif
+  return 1;
+endfunction
+
+// The shard must still answer once the barrage is over. A crash takes the whole run with
+// it, so this is really about a wedged shard: it exercises a subsystem the packets above
+// never touched.
+function shard_still_serving()
+  var response := www_get( "/" );
+  if ( !response )
+    return ret_error( $"shard stopped serving after malformed packets: {response}" );
+  endif
+  return 1;
+endfunction
+
+
+// #452 as reported: message type 0x45, 128 bytes. 0x45 is listed in pktniid.h (not
+// implemented), so it is undefined and the type byte alone ends the connection.
+exported function test_rawpkt_undefined_big()
+  var res := expect_closed( SEED + " " + hexfill( 0x45, 128, 0x41 ), "0x45 x128" );
+  if ( res.errortext )
+    return res;
+  endif
+  return shard_still_serving();
+endfunction
+
+// The half that reaches real handler code. These types are on the login allowlist
+// (msgfiltr.cpp:44-50), so they are dispatched with attacker-controlled bytes even
+// though nobody has authenticated. 0x00 is the frame from the reported trace.
+exported function test_rawpkt_allowed_garbage()
+  var cases := array{
+    array{ hexfill( 0xA0, LEN_A0, 0xFF ), "0xA0 select_server with server index 0xFFFF" },
+    array{ hexfill( 0x80, LEN_80, 0xFF ), "0x80 account login with a garbage name" },
+    array{ hexfill( 0x91, LEN_91, 0xFF ), "0x91 game login with a garbage name" },
+    array{ hexfill( 0x00, LEN_00, 0xFF ), "0x00 create character with no account" }
+  };
+
+  foreach entry in cases
+    var [ payload, what ] := entry;
+    var res := expect_closed( SEED + " " + payload, what );
+    if ( res.errortext )
+      return res;
+    endif
+  endforeach
+
+  return shard_still_serving();
+endfunction
+
+// A variable-length packet whose declared length lies. 0xE4 is the only allowlisted
+// variable-length type, so it is the only one that reaches valid_message_length()
+// before the unknown-type filter can drop it.
+exported function test_rawpkt_lying_length()
+  // declared length 1: below the 3-byte minimum -> "Too-short message"
+  var res := expect_closed( SEED + " " + "e40001", "0xE4 declaring a 1-byte length" );
+  if ( res.errortext )
+    return res;
+  endif
+
+  // declared length 0xFFFF: larger than the session buffer -> humongous packet
+  res := expect_closed( SEED + " " + "e4ffff", "0xE4 declaring a 65535-byte length" );
+  if ( res.errortext )
+    return res;
+  endif
+
+  return shard_still_serving();
+endfunction
+
+// Control case, and the reason the assertions above mean anything: an allowlisted type
+// whose body never arrives is correct to leave hanging, so this is the one payload that
+// must NOT be closed. It fails if the helper ever starts reporting CLOSED regardless.
+exported function test_rawpkt_partial_open()
+  // 0x80 announces 62 bytes; send 11 and stop.
+  var result := raw_send( SEED + " " + hexfill( 0x80, 11, 0xFF ) );
+  if ( result.errortext )
+    return result;
+  endif
+  if ( result.verdict != "OPEN" )
+    return ret_error( $"a truncated 0x80 should leave the connection open while the core waits for the rest, got {result.verdict} after {result.ms}ms" );
+  endif
+
+  return shard_still_serving();
+endfunction

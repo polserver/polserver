@@ -2,9 +2,23 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-11-2026</datemodified>
+		<datemodified>08-14-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-14-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).<br/>
+During the login phase, a connection that sends an unknown or non-allowed<br/>
+message type is dropped. With the old default the core logged the type and<br/>
+went back to reading the next byte as a fresh message type, so a peer sending<br/>
+a block of arbitrary bytes had every one of them treated as a new message -<br/>
+and any byte landing on an allowed type entered its handler with whatever<br/>
+followed as the packet body.<br/>
+Set it to 0 to restore the old behaviour, which is only needed if a client or<br/>
+tool of yours legitimately sends message types the core does not know before<br/>
+a character is attached.</change>
+		</entry>
 		<entry>
 			<date>08-10-2026</date>
 			<author>Nando:</author>
