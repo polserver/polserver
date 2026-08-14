@@ -1,0 +1,246 @@
+use os;
+use uo;
+
+include "testutil";
+
+// Reading the character members. The mods are all read/write and are round tripped rather than
+// compared against a fixed default, because the package's other tests leave their own values
+// behind and equipped items contribute to several of them.
+
+var chr;
+
+program chrmemberreads()
+  var a := FindAccount( "test" );
+  chr := a.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// a const cannot hold a non-empty array, so this is a function rather than a constant
+function mod_members()
+  return { "ar_mod",
+           "delay_mod",
+           "hitchance_mod",
+           "evasionchance_mod",
+           "parrychance_mod",
+           "carrying_capacity_mod",
+           "resist_fire_mod",
+           "resist_cold_mod",
+           "resist_energy_mod",
+           "resist_poison_mod",
+           "resist_physical_mod",
+           "resist_fire_cap_mod",
+           "resist_cold_cap_mod",
+           "resist_energy_cap_mod",
+           "resist_poison_cap_mod",
+           "resist_physical_cap_mod",
+           "damage_fire_mod",
+           "damage_cold_mod",
+           "damage_energy_mod",
+           "damage_poison_mod",
+           "damage_physical_mod",
+           "lower_reagent_cost_mod",
+           "spell_damage_increase_mod",
+           "faster_casting_mod",
+           "faster_cast_recovery_mod",
+           "defence_increase_mod",
+           "defence_increase_cap_mod",
+           "lower_mana_cost_mod",
+           "hit_chance_mod",
+           "luck_mod",
+           "swing_speed_increase_mod",
+           "min_attack_range_increase_mod",
+           "max_attack_range_increase_mod" };
+endfunction
+
+exported function chr_mod_members_round_trip( unused resmngr )
+  var bad := {};
+  foreach name in ( mod_members() )
+    var original := chr.get_member( name );
+    if ( TypeOf( original ) != "Integer" )
+      bad.append( $"{name} reads as {TypeOf( original )}" );
+      continue;
+    endif
+    chr.set_member( name, 7 );
+    var written := chr.get_member( name );
+    if ( written != 7 )
+      bad.append( $"{name} kept {written}" );
+    endif
+    chr.set_member( name, original );
+    if ( chr.get_member( name ) != original )
+      bad.append( $"{name} did not restore to {original}" );
+    endif
+  endforeach
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Members that report state rather than a modifier. carrying_capacity is derived and has no
+// setter of its own; it moves when carrying_capacity_mod does.
+exported function chr_state_members( unused resmngr )
+  var bad := {};
+  if ( chr.paralyzed != 0 )
+    bad.append( $"paralyzed {chr.paralyzed}" );
+  endif
+  if ( chr.poisoned != 0 )
+    bad.append( $"poisoned {chr.poisoned}" );
+  endif
+  if ( chr.stealthsteps != 0 )
+    bad.append( $"stealthsteps {chr.stealthsteps}" );
+  endif
+  if ( chr.casting_spell != 0 )
+    bad.append( $"casting_spell {chr.casting_spell}" );
+  endif
+  if ( chr.house_editing != 0 )
+    bad.append( $"house_editing {chr.house_editing}" );
+  endif
+  if ( TypeOf( chr.last_textcolor ) != "Integer" )
+    bad.append( $"last_textcolor {TypeOf( chr.last_textcolor )}" );
+  endif
+  if ( TypeOf( chr.gold ) != "Integer" )
+    bad.append( $"gold {TypeOf( chr.gold )}" );
+  endif
+  if ( TypeOf( chr.createdat ) != "Integer" )
+    bad.append( $"createdat {TypeOf( chr.createdat )}" );
+  endif
+  if ( TypeOf( chr.uclang ) != "String" )
+    bad.append( $"uclang {TypeOf( chr.uclang )}" );
+  endif
+  // nobody is logged in during a test run
+  if ( chr.connected != 0 )
+    bad.append( $"connected {chr.connected}" );
+  endif
+
+  var capacity := chr.carrying_capacity;
+  chr.carrying_capacity_mod := 5;
+  if ( chr.carrying_capacity != capacity + 5 )
+    bad.append( $"carrying_capacity {chr.carrying_capacity} after +5 on {capacity}" );
+  endif
+  chr.carrying_capacity_mod := 0;
+
+  // movemode is spelled as the letters of the modes the character has
+  if ( chr.movemode != "L" )
+    bad.append( $"movemode {chr.movemode}" );
+  endif
+
+  if ( chr.cmdlevelstr != "player" )
+    bad.append( $"cmdlevelstr {chr.cmdlevelstr}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// weapon is never empty - a character without one wields an intrinsic weapon - while shield is
+// empty until something is equipped on that layer.
+exported function chr_weapon_and_shield( unused resmngr )
+  if ( !chr.weapon )
+    return ret_error( "expected an intrinsic weapon" );
+  endif
+  if ( chr.shield )
+    return ret_error( $"expected no shield, got {chr.shield}" );
+  endif
+
+  var shield := resmngr.CreateItemInContainer( chr.backpack, 0x301518 );
+  if ( !shield )
+    return ret_error( $"could not make a shield: {shield}" );
+  endif
+  var res := EquipItem( chr, shield );
+  if ( !res )
+    return ret_error( $"could not equip the shield: {res}" );
+  endif
+  var equipped := chr.shield;
+  MoveObjectToLocation( shield, chr.x, chr.y, chr.z, chr.realm, MOVEOBJECT_FORCELOCATION );
+  if ( !equipped )
+    return ret_error( "shield read empty while one was equipped" );
+  endif
+  if ( equipped.serial != shield.serial )
+    return ret_error( $"shield read {equipped.serial:x}, expected {shield.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+// A player character has an account behind it and an NPC does not, and the members say so
+// rather than answering an empty value.
+exported function chr_account_members( resmngr )
+  if ( chr.acctname != "test" )
+    return ret_error( $"acctname {chr.acctname}" );
+  endif
+  if ( TypeOf( chr.acct ) != "AccountRef" )
+    return ret_error( $"acct {TypeOf( chr.acct )}" );
+  endif
+  if ( chr.acct.name != "test" )
+    return ret_error( $"acct.name {chr.acct.name}" );
+  endif
+
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 40, 40, 0 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  if ( npc.acctname.errortext != "Not attached to an account" )
+    return ret_error( $"npc acctname {npc.acctname}" );
+  endif
+  if ( npc.acct.errortext != "Not attached to an account" )
+    return ret_error( $"npc acct {npc.acct}" );
+  endif
+  return 1;
+endfunction
+
+// Every member that reports something about the connection has a second answer for a character
+// with no client, and that is the one a test run ever sees.
+exported function chr_client_members_offline( unused resmngr )
+  var bad := {};
+  if ( chr.ip != "" )
+    bad.append( $"ip {chr.ip}" );
+  endif
+  if ( chr.clientversion != "" )
+    bad.append( $"clientversion {chr.clientversion}" );
+  endif
+  if ( chr.clientinfo != 0 )
+    bad.append( $"clientinfo {chr.clientinfo}" );
+  endif
+  if ( chr.clienttype != 0 )
+    bad.append( $"clienttype {chr.clienttype}" );
+  endif
+  if ( chr.uo_expansion_client != 0 )
+    bad.append( $"uo_expansion_client {chr.uo_expansion_client}" );
+  endif
+  if ( chr.cursor != 0 )
+    bad.append( $"cursor {chr.cursor}" );
+  endif
+  if ( chr.gump != 0 )
+    bad.append( $"gump {chr.gump}" );
+  endif
+  if ( chr.prompt != 0 )
+    bad.append( $"prompt {chr.prompt}" );
+  endif
+  if ( chr.client.errortext != "No client attached." )
+    bad.append( $"client {chr.client}" );
+  endif
+  if ( chr.lastcoord.errortext != "No client attached." )
+    bad.append( $"lastcoord {chr.lastcoord}" );
+  endif
+  if ( chr.trading_with.errortext != "Mobile is not currently trading with anyone." )
+    bad.append( $"trading_with {chr.trading_with}" );
+  endif
+  if ( chr.attached.errortext != "No script attached." )
+    bad.append( $"attached {chr.attached}" );
+  endif
+
+  // the version detail is a struct either way, zeroed when there is nobody to ask
+  var detail := chr.clientver_detail;
+  if ( TypeOf( detail ) != "Struct" )
+    bad.append( $"clientver_detail {TypeOf( detail )}" );
+  elseif ( detail.major != 0 || detail.minor != 0 || detail.rev != 0 || detail.patch != 0 )
+    bad.append( $"clientver_detail {detail}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

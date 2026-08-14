@@ -1,0 +1,354 @@
+use uo;
+use os;
+
+include "testutil";
+
+// item.splitstackat, item.splitstackinto and item.hasexistingstack: the three stack methods on
+// the item script object. Between them they are the largest untested block in uoscrobj.cpp.
+//
+// Each of the first two has a separate path for an item the tiledata does not mark stackable.
+// Such an item can still carry an amount above one, because CreateItemInInventory force stacks,
+// and then the method clones it one at a time instead of splitting an amount off.
+
+const CONTAINER := 0xE75;
+const UNSTACKABLE := 0x200030;
+
+// somewhere on the grass nothing else in the suite uses
+const SPLIT_X := 45;
+const SPLIT_Y := 45;
+
+program testitemstack()
+  return 1;
+endprogram
+
+function at_split_point()
+  return ListItemsAtLocation( SPLIT_X, SPLIT_Y, 0 );
+endfunction
+
+function clear_split_point()
+  foreach item in ( at_split_point() )
+    DestroyItem( item );
+  endforeach
+endfunction
+
+exported function stack_split_at_refusals( resmngr )
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  if ( !gold )
+    return ret_error( $"could not create gold: {gold}" );
+  endif
+  var bad := {};
+
+  if ( gold.splitstackat( SPLIT_X, SPLIT_Y, 0 ).errortext != "Not enough parameters" )
+    bad.append( "three parameters were accepted" );
+  endif
+  // the executor checks the parameter before the method sees it, and its complaint is the one
+  // that comes back - the method's own "Invalid parameter type" runs but is discarded
+  var res := gold.splitstackat( "x", SPLIT_Y, 0, _DEFAULT_REALM, 1 );
+  if ( !res.errortext.find( "Expected param 0 as Integer" ) )
+    bad.append( $"a non-numeric coordinate gave {res}" );
+  endif
+  res := gold.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, "x" );
+  if ( !res.errortext.find( "Expected param 4 as Integer" ) )
+    bad.append( $"a non-numeric amount gave {res}" );
+  endif
+  res := gold.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 11 );
+  if ( res.errortext != "Amount must be less than or equal to the stack amount" )
+    bad.append( $"splitting more than the stack gave {res}" );
+  endif
+  res := gold.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 0 );
+  if ( res.errortext != "Amount was less than 1" )
+    bad.append( $"splitting nothing gave {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Splitting part of a stack leaves the original behind with the rest.
+exported function stack_split_at_partial( resmngr )
+  clear_split_point();
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var bad := {};
+
+  var split := gold.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 4 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  else
+    if ( split.amount != 4 )
+      bad.append( $"the new stack holds {split.amount}" );
+    endif
+    if ( split.x != SPLIT_X || split.y != SPLIT_Y )
+      bad.append( $"the new stack is at {split.x},{split.y}" );
+    endif
+    if ( split.serial == gold.serial )
+      bad.append( "the new stack is the old one" );
+    endif
+  endif
+  if ( gold.amount != 6 )
+    bad.append( $"the original holds {gold.amount}" );
+  endif
+  if ( at_split_point().size() != 1 )
+    bad.append( $"{at_split_point().size()} items landed at the split point" );
+  endif
+
+  clear_split_point();
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Splitting the whole stack moves it in one piece: the original is destroyed and what comes
+// back is a clone of it.
+exported function stack_split_at_whole( resmngr )
+  clear_split_point();
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var serial := gold.serial;
+  var bad := {};
+
+  var split := gold.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 10 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  elseif ( split.amount != 10 )
+    bad.append( $"the new stack holds {split.amount}" );
+  endif
+  // a destroyed item keeps its ref, but every member of it reads as uninitialized
+  if ( TypeOf( gold.amount ) != "Uninit" )
+    bad.append( $"the original survived holding {gold.amount}" );
+  endif
+  if ( split && split.serial == serial )
+    bad.append( "the new stack reused the old serial" );
+  endif
+
+  clear_split_point();
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// An unstackable stack is taken apart one item at a time, so what lands at the target is that
+// many separate items rather than one stack. Moving the whole of one works out right.
+exported function stack_split_at_unstackable( resmngr )
+  clear_split_point();
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var forced := CreateItemInInventory( box, UNSTACKABLE, 3 );
+  var bad := {};
+
+  if ( !forced )
+    return ret_error( $"could not force a stack: {forced}" );
+  endif
+  if ( forced.amount != 3 )
+    return ret_error( $"the forced stack holds {forced.amount}" );
+  endif
+  if ( forced.stackable != 0 )
+    return ret_error( "the test item turned out to be stackable" );
+  endif
+
+  var split := forced.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 3 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  elseif ( split.amount != 1 )
+    bad.append( $"a cloned item holds {split.amount}" );
+  endif
+  if ( at_split_point().size() != 3 )
+    bad.append( $"{at_split_point().size()} items landed at the split point, expected 3" );
+  endif
+  if ( TypeOf( forced.amount ) != "Uninit" )
+    bad.append( $"the original survived holding {forced.amount}" );
+  endif
+
+  clear_split_point();
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// DEFECT, pinned as it stands: taking only part of an unstackable stack loses the remainder.
+// The loop pulls one item off at a time, and when that has driven the amount down to 1 the
+// method destroys what is left instead of keeping it - so splitting 2 out of 3 leaves 2 items
+// at the target and nothing behind, and the third is simply gone.
+exported function stack_split_at_loses_rest( resmngr )
+  clear_split_point();
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var forced := CreateItemInInventory( box, UNSTACKABLE, 3 );
+  var bad := {};
+
+  forced.splitstackat( SPLIT_X, SPLIT_Y, 0, _DEFAULT_REALM, 2 );
+  if ( at_split_point().size() != 2 )
+    bad.append( $"{at_split_point().size()} items landed at the split point, expected 2" );
+  endif
+  if ( TypeOf( forced.amount ) != "Uninit" )
+    bad.append( $"the original survived holding {forced.amount}, so the loss is fixed" );
+  endif
+  if ( EnumerateItemsInContainer( box, ENUMERATE_ROOT_ONLY ).size() != 0 )
+    bad.append( "something was left in the container" );
+  endif
+
+  clear_split_point();
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function stack_split_into_refusals( resmngr )
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var bad := {};
+
+  if ( gold.splitstackinto( box ).errortext != "Not enough parameters" )
+    bad.append( "one parameter was accepted" );
+  endif
+  if ( gold.splitstackinto( 5, 1 ).errortext != "No container specified" )
+    bad.append( "a number as the container was accepted" );
+  endif
+  if ( !gold.splitstackinto( box, "x" ).errortext.find( "Expected param 1 as Integer" ) )
+    bad.append( "a non-numeric amount was accepted" );
+  endif
+  if ( gold.splitstackinto( box, 11 ).errortext != "Amount must be less than or equal to stack amount" )
+    bad.append( "splitting more than the stack was accepted" );
+  endif
+  if ( gold.splitstackinto( box, 0 ).errortext != "Amount was less than 1" )
+    bad.append( "splitting nothing was accepted" );
+  endif
+  if ( gold.splitstackinto( gold, 1 ).errortext != "Non-container selected as target" )
+    bad.append( "a non-container target was accepted" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Into an empty container there is nothing to merge with, so a new stack is made.
+exported function stack_split_into_new( resmngr )
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var bad := {};
+
+  var split := gold.splitstackinto( box, 4 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  else
+    if ( split.amount != 4 )
+      bad.append( $"the new stack holds {split.amount}" );
+    endif
+    if ( !split.container || split.container.serial != box.serial )
+      bad.append( "the new stack is not in the container" );
+    endif
+  endif
+  if ( gold.amount != 6 )
+    bad.append( $"the original holds {gold.amount}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// With a stack already in the container the split is added to it rather than laid beside it,
+// and the third parameter is what turns that off.
+exported function stack_split_into_existing( resmngr )
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var existing := resmngr.CreateItemInContainer( box, "goldcoin", 5 );
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var bad := {};
+
+  var split := gold.splitstackinto( box, 4 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  elseif ( split.serial != existing.serial )
+    bad.append( "the split did not join the stack already there" );
+  endif
+  if ( existing.amount != 9 )
+    bad.append( $"the existing stack holds {existing.amount}, expected 9" );
+  endif
+  if ( gold.amount != 6 )
+    bad.append( $"the original holds {gold.amount}" );
+  endif
+  if ( EnumerateItemsInContainer( box, ENUMERATE_ROOT_ONLY ).size() != 1 )
+    bad.append( "the container holds more than one stack" );
+  endif
+
+  split := gold.splitstackinto( box, 2, 0 );
+  if ( !split )
+    bad.append( $"the second split failed: {split}" );
+  elseif ( split.serial == existing.serial )
+    bad.append( "the second split joined the existing stack anyway" );
+  endif
+  if ( EnumerateItemsInContainer( box, ENUMERATE_ROOT_ONLY ).size() != 2 )
+    bad.append( "the container did not end up with two stacks" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Splitting the whole of a stack into a container leaves nothing behind.
+exported function stack_split_into_whole( resmngr )
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 7 );
+  var bad := {};
+
+  var split := gold.splitstackinto( box, 7 );
+  if ( !split )
+    bad.append( $"the split failed: {split}" );
+  elseif ( split.amount != 7 )
+    bad.append( $"the new stack holds {split.amount}" );
+  endif
+  // a destroyed item keeps its ref, but every member of it reads as uninitialized
+  if ( TypeOf( gold.amount ) != "Uninit" )
+    bad.append( $"the original survived holding {gold.amount}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// hasexistingstack answers with the stack an item would join, and nothing at all when it would
+// have to start its own.
+exported function stack_has_existing_stack( resmngr )
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var bad := {};
+
+  if ( gold.hasexistingstack().errortext != "Not enough params" )
+    bad.append( "no parameter was accepted" );
+  endif
+  if ( gold.hasexistingstack( 5 ).errortext != "No container specified" )
+    bad.append( "a number as the container was accepted" );
+  endif
+  if ( gold.hasexistingstack( gold ).errortext != "Non-container selected as target" )
+    bad.append( "a non-container was accepted" );
+  endif
+  // DEFECT, pinned as it stands: with no stack to join, the method returns a null imp, and the
+  // executor reads that as "there is no such method" rather than as "there is no such stack".
+  // The caller cannot tell the two apart.
+  var none := gold.hasexistingstack( box );
+  if ( !none.errortext.find( "not found" ) )
+    bad.append( $"an empty container offered {none}" );
+  endif
+
+  var existing := resmngr.CreateItemInContainer( box, "goldcoin", 5 );
+  var found := gold.hasexistingstack( box );
+  if ( !found )
+    bad.append( $"the stack already there was not found: {found}" );
+  elseif ( found.serial != existing.serial )
+    bad.append( "a different item was offered" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

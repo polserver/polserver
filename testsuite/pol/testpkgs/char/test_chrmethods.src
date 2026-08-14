@@ -1,0 +1,348 @@
+use os;
+use uo;
+
+include "testutil";
+
+// The character methods no other test calls. Most of them have a parameter check in front of
+// the work, and those checks are what a shard with nobody logged in can reach; the ones that
+// end in a packet to the client are pinned at the answer they give with no client attached.
+
+var chr;
+
+program chrmethods()
+  var a := FindAccount( "test" );
+  chr := a.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// setpoisoned and setparalyzed default to setting the flag, take a flag to clear it, and do
+// nothing at all when the flag already has that value.
+exported function chr_poison_and_paralyze( unused resmngr )
+  var bad := {};
+  if ( chr.setparalyzed() != 1 || chr.paralyzed != 1 )
+    bad.append( $"setparalyzed() left {chr.paralyzed}" );
+  endif
+  if ( chr.setparalyzed( 1 ) != 1 || chr.paralyzed != 1 )
+    bad.append( "setparalyzed(1) on an already paralyzed character changed something" );
+  endif
+  if ( chr.setparalyzed( 0 ) != 1 || chr.paralyzed != 0 )
+    bad.append( $"setparalyzed(0) left {chr.paralyzed}" );
+  endif
+  if ( chr.setparalyzed( "x" ).errortext != "Invalid parameter type" )
+    bad.append( $"setparalyzed(\"x\") gave {chr.setparalyzed( "x" )}" );
+  endif
+
+  if ( chr.setpoisoned() != 1 || chr.poisoned != 1 )
+    bad.append( $"setpoisoned() left {chr.poisoned}" );
+  endif
+  if ( chr.setpoisoned( 0 ) != 1 || chr.poisoned != 0 )
+    bad.append( $"setpoisoned(0) left {chr.poisoned}" );
+  endif
+  if ( chr.setpoisoned( "x" ).errortext != "Invalid parameter type" )
+    bad.append( "setpoisoned(\"x\") was not refused" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Three methods that all take a duration in the same shape: -1 forever, 0 to clear, anything
+// else counted from now.
+exported function chr_timed_states( unused resmngr )
+  var bad := {};
+  if ( chr.squelch( -1 ) != -1 )
+    bad.append( "squelch(-1) did not answer -1" );
+  endif
+  if ( chr.squelch( 10 ) <= 0 )
+    bad.append( "squelch(10) did not answer a deadline" );
+  endif
+  if ( chr.squelch( 0 ) != 0 )
+    bad.append( "squelch(0) did not clear" );
+  endif
+  if ( chr.squelch().errortext != "Not enough parameters" )
+    bad.append( "squelch() was not refused" );
+  endif
+
+  if ( chr.deaf( -1 ) != -1 )
+    bad.append( "deaf(-1) did not answer -1" );
+  endif
+  if ( chr.deaf( 10 ) <= 0 )
+    bad.append( "deaf(10) did not answer a deadline" );
+  endif
+  if ( chr.deaf( 0 ) != 0 )
+    bad.append( "deaf(0) did not clear" );
+  endif
+  if ( chr.deaf().errortext != "Not enough parameters" )
+    bad.append( "deaf() was not refused" );
+  endif
+
+  // this one counts in seconds from now and refuses to look backwards
+  if ( chr.disableskillsfor( 5 ) <= 0 )
+    bad.append( "disableskillsfor(5) did not answer a deadline" );
+  endif
+  if ( chr.disableskillsfor( -1 ).errortext != "Duration must be >= 0" )
+    bad.append( "disableskillsfor(-1) was not refused" );
+  endif
+  if ( chr.disableskillsfor().errortext != "Not enough parameters" )
+    bad.append( "disableskillsfor() was not refused" );
+  endif
+  chr.disableskillsfor( 0 );
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// setlightlevel is the same duration shape again, but it also repaints the region the
+// character stands in, so it works with nobody watching.
+exported function chr_light_and_season( unused resmngr )
+  var bad := {};
+  if ( chr.setlightlevel( 5 ).errortext != "Not enough parameters" )
+    bad.append( "setlightlevel with one parameter was not refused" );
+  endif
+  if ( chr.setlightlevel( 5, -1 ) != -1 )
+    bad.append( "setlightlevel(5,-1) did not answer -1" );
+  endif
+  if ( chr.setlightlevel( 5, 10 ) <= 0 )
+    bad.append( "setlightlevel(5,10) did not answer a deadline" );
+  endif
+  if ( chr.setlightlevel( 5, 0 ) != 0 )
+    bad.append( "setlightlevel(5,0) did not clear" );
+  endif
+
+  // a season is a packet and nothing else, so with no client the call falls through its own
+  // checks and ends at the method's generic refusal
+  if ( chr.setseason( 1 ).errortext != "Not enough parameters" )
+    bad.append( "setseason with one parameter was not refused" );
+  endif
+  if ( chr.setseason( 5, 0 ).errortext != "Invalid season id" )
+    bad.append( "setseason(5,0) was not refused" );
+  endif
+  if ( chr.setseason( -1, 0 ).errortext != "Invalid season id" )
+    bad.append( "setseason(-1,0) was not refused" );
+  endif
+  if ( chr.setseason( 1, 0 ).errortext != "Invalid parameter type" )
+    bad.append( $"setseason(1,0) with no client gave {chr.setseason( 1, 0 )}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// setcmdlevel takes the level by name, not by number.
+exported function chr_setcmdlevel( unused resmngr )
+  var original := chr.cmdlevel;
+  var bad := {};
+  if ( chr.setcmdlevel( "Test" ) != 1 || chr.cmdlevel != 1 )
+    bad.append( $"setcmdlevel(Test) left {chr.cmdlevel}" );
+  endif
+  if ( chr.setcmdlevel( "nosuchlevel" ).errortext != "No such command level" )
+    bad.append( "an unknown level was not refused" );
+  endif
+  if ( chr.setcmdlevel().errortext != "Not enough parameters" )
+    bad.append( "setcmdlevel() was not refused" );
+  endif
+  chr.cmdlevel := original;
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A privilege has to be granted before it can be enabled, and the two are separate lists.
+exported function chr_enable_and_disable( unused resmngr )
+  var bad := {};
+  if ( chr.enable().errortext != "Not enough parameters" )
+    bad.append( "enable() was not refused" );
+  endif
+  if ( chr.disable().errortext != "Not enough parameters" )
+    bad.append( "disable() was not refused" );
+  endif
+  if ( chr.enabled().errortext != "Not enough parameters" )
+    bad.append( "enabled() was not refused" );
+  endif
+  if ( chr.enable( "losany" ).errortext != "Mobile doesn't have that privilege" )
+    bad.append( "enabling a privilege the character does not have was allowed" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// spendgold takes it out of the backpack and refuses to overdraw.
+exported function chr_spendgold( resmngr )
+  var bad := {};
+  var before := chr.gold;
+  if ( chr.spendgold( before + 100 ).errortext != "Insufficient funds" )
+    bad.append( "overdrawing was allowed" );
+  endif
+  if ( chr.spendgold().errortext != "Invalid parameter type" )
+    bad.append( "spendgold() was not refused" );
+  endif
+  if ( chr.spendgold( 1, 2 ).errortext != "Invalid parameter type" )
+    bad.append( "spendgold with two parameters was not refused" );
+  endif
+
+  var coins := resmngr.CreateItemInContainer( chr.backpack, 0xEED, 50 );
+  if ( !coins )
+    return ret_error( $"could not make gold: {coins}" );
+  endif
+  if ( chr.gold != before + 50 )
+    bad.append( $"gold read {chr.gold}, expected {before + 50}" );
+  endif
+  if ( chr.spendgold( 20 ) != 1 )
+    bad.append( "spending 20 of 50 was refused" );
+  endif
+  if ( chr.gold != before + 30 )
+    bad.append( $"gold read {chr.gold} after spending 20, expected {before + 30}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// setfacing takes either a direction name or a number, masks the number to the eight
+// directions, and takes a flag that turns the character without asking whether it may. That
+// flag is the only way an offline character turns: the check behind it wants stamina, and an
+// offline one has none.
+exported function chr_setfacing( unused resmngr )
+  var original := chr.facing;
+  var bad := {};
+
+  var wanted := original + 1;
+  if ( chr.setfacing( wanted ) != 0 )
+    bad.append( "an offline character turned without the flag" );
+  endif
+  if ( chr.facing != original )
+    bad.append( $"facing moved to {chr.facing} on a refused turn" );
+  endif
+
+  if ( chr.setfacing( "N", 1 ) != 1 || chr.facing != 0 )
+    bad.append( $"setfacing(N) left {chr.facing}" );
+  endif
+  if ( chr.setfacing( "SE", 1 ) != 1 || chr.facing != 3 )
+    bad.append( $"setfacing(SE) left {chr.facing}" );
+  endif
+  if ( chr.setfacing( 2, 1 ) != 1 || chr.facing != 2 )
+    bad.append( $"setfacing(2) left {chr.facing}" );
+  endif
+  if ( chr.setfacing( 9, 1 ) != 1 || chr.facing != 1 )
+    bad.append( $"setfacing(9) left {chr.facing}, expected it masked to 1" );
+  endif
+
+  if ( chr.setfacing( "nowhere" ).errortext != "Invalid string for parameter 0" )
+    bad.append( "an unknown direction was not refused" );
+  endif
+  if ( chr.setfacing( struct{} ).errortext != "Invalid type for parameter 0" )
+    bad.append( "a struct as a direction was not refused" );
+  endif
+  var flagged := chr.setfacing( 0, 2 );
+  if ( !flagged.errortext.find( "out of expected range" ) )
+    bad.append( $"an out of range flag gave {flagged}" );
+  endif
+
+  chr.setfacing( original, 1 );
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Buffs are an icon with two cliloc numbers and a description, and every one of those has to
+// be there.
+exported function chr_buffs( unused resmngr )
+  var bad := {};
+  if ( chr.addbuff( 1, 2, 3, 4 ).errortext != "Not enough parameters" )
+    bad.append( "addbuff with four parameters was not refused" );
+  endif
+  if ( chr.addbuff( 0, 10, 1042971, 1042971, "text" ).errortext != "Invalid parameters" )
+    bad.append( "addbuff with no icon was not refused" );
+  endif
+  if ( chr.addbuff( 0x3E9, 10, 0, 1042971, "text" ).errortext != "Invalid parameters" )
+    bad.append( "addbuff with no title cliloc was not refused" );
+  endif
+  if ( chr.addbuff( 0x3E9, 10, 1042971, 0, "text" ).errortext != "Invalid parameters" )
+    bad.append( "addbuff with no description cliloc was not refused" );
+  endif
+  if ( chr.addbuff( 0x3E9, 10, 1042971, 1042971, "text" ) != 1 )
+    bad.append( "a complete addbuff was refused" );
+  endif
+  if ( chr.addbuff( 0x3EA, 10, 1042971, 1042971, "text", "title" ) != 1 )
+    bad.append( "addbuff with a title was refused" );
+  endif
+
+  if ( chr.delbuff().errortext != "Not enough parameters" )
+    bad.append( "delbuff() was not refused" );
+  endif
+  if ( chr.delbuff( 0 ).errortext != "Invalid parameter" )
+    bad.append( "delbuff(0) was not refused" );
+  endif
+  if ( chr.delbuff( 0x3EB ).errortext != "Buff not found" )
+    bad.append( "removing a buff that is not there was allowed" );
+  endif
+  if ( chr.delbuff( 0x3E9 ) != 1 )
+    bad.append( "removing a buff that is there was refused" );
+  endif
+  if ( chr.delbuff( 0x3EA ) != 1 )
+    bad.append( "removing the titled buff was refused" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The rest: each is one check in front of work that needs either a client or a fight.
+exported function chr_misc_methods( resmngr )
+  var bad := {};
+  // there is no gotten item without a client dragging one
+  if ( chr.cleargottenitem().errortext != "No Gotten Item" )
+    bad.append( "cleargottenitem answered something with nothing held" );
+  endif
+  if ( chr.compareversion( "7.0.0.0" ).errortext != "No client attached" )
+    bad.append( "compareversion answered with no client" );
+  endif
+  if ( chr.setwarmode().errortext != "Not enough parameters" )
+    bad.append( "setwarmode() was not refused" );
+  endif
+  if ( chr.setwarmode( 1 ) != 1 )
+    bad.append( "setwarmode(1) was refused" );
+  endif
+  chr.setwarmode( 0 );
+
+  if ( chr.removereportable( 1 ).errortext != "Not enough parameters" )
+    bad.append( "removereportable with one parameter was not refused" );
+  endif
+  if ( chr.removereportable( 0x40000001, 0 ) != 1 )
+    bad.append( "removereportable was refused" );
+  endif
+
+  // the swing timer is only settable while there is something to swing at
+  if ( chr.setswingtimer().errortext != "Not enough parameters" )
+    bad.append( "setswingtimer() was not refused" );
+  endif
+  if ( chr.setswingtimer( -1 ).errortext != "Time must be >= 0" )
+    bad.append( "setswingtimer(-1) was not refused" );
+  endif
+  if ( chr.setswingtimer( 1000 ) != 0 )
+    bad.append( "setswingtimer answered 1 with no opponent" );
+  endif
+
+  if ( chr.attack_once().errortext != "No opponent" )
+    bad.append( "attack_once answered with no opponent" );
+  endif
+  if ( chr.attack_once( chr.backpack ).errortext != "Opponent is not attackable" )
+    bad.append( "attacking a backpack was allowed" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

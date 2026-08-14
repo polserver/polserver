@@ -1,0 +1,237 @@
+use os;
+use uo;
+
+include "testutil";
+
+// The small item classes: door, bare lockable, container, map, corpse and spellbook. Each adds a
+// handful of members to Item and answers for nothing else, so every case is the class's own
+// members and then the same class asked for something it does not have.
+
+const DOOR := 0x06a5;
+const LOCKABLE := 0x200031;
+const CONTAINER := 0x200001;
+const MAP := 0x200015;
+const SPELLBOOK := 0x210001;
+
+const IC_X := 158;
+const IC_Y := 158;
+
+program testitemclasses()
+  return 1;
+endprogram
+
+function missing( name )
+  return $"Member {name} not found on that object";
+endfunction
+
+// A door opens, closes and toggles, and says which of the two it is.
+exported function itemclass_door( resmngr )
+  var door := resmngr.CreateItemAtLocation( IC_X, IC_Y, 0, DOOR );
+  if ( !door )
+    return ret_error( $"could not create a door: {door}" );
+  endif
+  var bad := {};
+
+  // each of these opens or closes the door, so the answer is kept rather than asked for twice
+  if ( door.isopen != 0 )
+    bad.append( $"a new door reports isopen {door.isopen}" );
+  endif
+  var res := door.open();
+  if ( res != 1 )
+    bad.append( $"open() answered {res}" );
+  endif
+  if ( door.isopen != 1 )
+    bad.append( $"an opened door reports isopen {door.isopen}" );
+  endif
+  res := door.close();
+  if ( res != 1 )
+    bad.append( $"close() answered {res}" );
+  endif
+  if ( door.isopen != 0 )
+    bad.append( $"a closed door reports isopen {door.isopen}" );
+  endif
+  res := door.toggle();
+  if ( res != 1 )
+    bad.append( $"toggle() answered {res}" );
+  endif
+  if ( door.isopen != 1 )
+    bad.append( $"a toggled door reports isopen {door.isopen}" );
+  endif
+  door.toggle();
+  if ( door.isopen != 0 )
+    bad.append( $"a twice-toggled door reports isopen {door.isopen}" );
+  endif
+
+  if ( door.get_member( "isopen" ) != 0 )
+    bad.append( $"isopen by name reads {door.get_member( "isopen" )}" );
+  endif
+  if ( door.get_member( "zzz_no_such" ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"an unknown member gave {door.get_member( "zzz_no_such" )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A bare lockable is neither a container nor a door: locked is all it adds.
+exported function itemclass_lockable( resmngr )
+  var lockable := resmngr.CreateItemAtLocation( IC_X, IC_Y, 0, LOCKABLE );
+  if ( !lockable )
+    return ret_error( $"could not create a lockable: {lockable}" );
+  endif
+  var bad := {};
+
+  if ( lockable.get_member( "locked" ) != 0 )
+    bad.append( $"a new lockable reads locked {lockable.get_member( "locked" )}" );
+  endif
+  if ( lockable.set_member( "locked", 1 ) != 1 )
+    bad.append( $"locking it answered {lockable.set_member( "locked", 1 )}" );
+  endif
+  if ( lockable.locked != 1 )
+    bad.append( $"after locking it reads {lockable.locked}" );
+  endif
+
+  if ( lockable.get_member( "zzz_no_such" ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"an unknown member gave {lockable.get_member( "zzz_no_such" )}" );
+  endif
+  if ( lockable.set_member( "zzz_no_such", 1 ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"writing an unknown member gave {lockable.set_member( "zzz_no_such", 1 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A container routes two of its members to the real-valued setter even when it is given an
+// integer, which is the only way those two are reached from an integer assignment.
+exported function itemclass_container( resmngr )
+  var box := resmngr.CreateItemAtLocation( IC_X, IC_Y, 0, CONTAINER );
+  if ( !box )
+    return ret_error( $"could not create a container: {box}" );
+  endif
+  var bad := {};
+
+  box.weight_multiplier_mod := 2;
+  if ( box.weight_multiplier_mod != 2.0 )
+    bad.append( $"weight_multiplier_mod is {box.weight_multiplier_mod} after an integer 2" );
+  endif
+  box.held_weight_multiplier := 2;
+  if ( box.held_weight_multiplier != 2.0 )
+    bad.append( $"held_weight_multiplier is {box.held_weight_multiplier} after an integer 2" );
+  endif
+
+  // a member of another class, once per value type
+  if ( box.get_member( "zzz_no_such" ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"an unknown member gave {box.get_member( "zzz_no_such" )}" );
+  endif
+  if ( box.set_member( "dmg_mod", 5 ).errortext != missing( "dmg_mod" ) )
+    bad.append( $"dmg_mod as an integer gave {box.set_member( "dmg_mod", 5 )}" );
+  endif
+  if ( box.set_member( "dmg_mod", 2.5 ).errortext != missing( "dmg_mod" ) )
+    bad.append( $"dmg_mod as a real gave {box.set_member( "dmg_mod", 2.5 )}" );
+  endif
+  if ( box.set_member( "zzz_no_such", 5 ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"writing an unknown member gave {box.set_member( "zzz_no_such", 5 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A map's own members are the rectangle it shows.
+exported function itemclass_map( resmngr )
+  var map := resmngr.CreateItemAtLocation( IC_X, IC_Y, 0, MAP );
+  if ( !map )
+    return ret_error( $"could not create a map: {map}" );
+  endif
+  var bad := {};
+
+  if ( map.get_member( "editable" ) != 1 )
+    bad.append( $"editable by name reads {map.get_member( "editable" )}" );
+  endif
+  if ( map.set_member( "xeast", 20 ) != 20 )
+    bad.append( $"setting xeast answered {map.set_member( "xeast", 20 )}" );
+  endif
+  // an item member set through the map class still reaches Item
+  if ( map.set_member( "color", 0x123 ) != 0x123 )
+    bad.append( $"setting the color answered {map.set_member( "color", 0x123 )}" );
+  endif
+
+  if ( map.get_member( "zzz_no_such" ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"an unknown member gave {map.get_member( "zzz_no_such" )}" );
+  endif
+  if ( map.set_member( "dmg_mod", 5 ).errortext != missing( "dmg_mod" ) )
+    bad.append( $"dmg_mod gave {map.set_member( "dmg_mod", 5 )}" );
+  endif
+  if ( map.set_member( "zzz_no_such", 5 ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"writing an unknown member gave {map.set_member( "zzz_no_such", 5 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A corpse is a container with a few members of its own.
+exported function itemclass_corpse( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", IC_X, IC_Y, 0 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var bad := {};
+
+  var x := npc.x, y := npc.y, z := npc.z;
+  npc.kill();
+  var corpse := 0;
+  foreach item in ( ListItemsNearLocation( x, y, z, 2 ) )
+    if ( item.isa( POLCLASS_CORPSE ) )
+      corpse := item;
+      break;
+    endif
+  endforeach
+  if ( !corpse )
+    return ret_error( "the killed npc left no corpse" );
+  endif
+
+  if ( corpse.get_member( "zzz_no_such" ).errortext != missing( "zzz_no_such" ) )
+    bad.append( $"an unknown member gave {corpse.get_member( "zzz_no_such" )}" );
+  endif
+  if ( corpse.get_member( "dmg_mod" ).errortext != missing( "dmg_mod" ) )
+    bad.append( $"dmg_mod gave {corpse.get_member( "dmg_mod" )}" );
+  endif
+
+  // the npc is gone with its death, so its own cleanup cannot take the corpse away
+  DestroyItem( corpse );
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A spellbook answers its own methods and nothing else. A method the object model knows but the
+// spellbook does not handle falls through to the reference, which reports it by id.
+exported function itemclass_spellbook( resmngr )
+  var book := resmngr.CreateItemAtLocation( IC_X, IC_Y, 0, SPELLBOOK );
+  if ( !book )
+    return ret_error( $"could not create a spellbook: {book}" );
+  endif
+  var bad := {};
+
+  var res := book.open();
+  if ( !res.errortext.find( "not found" ) )
+    bad.append( $"a door's method on a spellbook gave {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

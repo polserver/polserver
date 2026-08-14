@@ -49,6 +49,14 @@ if ( a )
   a.deletecharacter( 1 );
   a.delete();
 endif
+// the accounts test_client_createchar.src makes its characters in, one per case
+foreach name in ( { "testclient2", "testclient3", "testclient4", "testclient5" } )
+  a := FindAccount( name );
+  if ( a )
+    a.deletecharacter( 1 );
+    a.delete();
+  endif
+endforeach
 
 var res := GetGlobalProperty( "#SnoopingNpc" );
 if ( res )
