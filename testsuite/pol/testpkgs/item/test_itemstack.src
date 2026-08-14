@@ -167,11 +167,10 @@ exported function stack_split_at_unstackable( resmngr )
   return 1;
 endfunction
 
-// DEFECT, pinned as it stands: taking only part of an unstackable stack loses the remainder.
-// The loop pulls one item off at a time, and when that has driven the amount down to 1 the
-// method destroys what is left instead of keeping it - so splitting 2 out of 3 leaves 2 items
-// at the target and nothing behind, and the third is simply gone.
-exported function stack_split_at_loses_rest( resmngr )
+// Splitting part of a force-stacked unstackable stack leaves the remainder where it was. The
+// items come off one at a time here, and only the pass that finds one left takes the item itself
+// -- so what is still held after a partial split is a real item, not an empty shell to destroy.
+exported function stack_split_at_keeps_rest( resmngr )
   clear_split_point();
   var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
   var forced := CreateItemInInventory( box, UNSTACKABLE, 3 );
@@ -181,11 +180,14 @@ exported function stack_split_at_loses_rest( resmngr )
   if ( at_split_point().size() != 2 )
     bad.append( $"{at_split_point().size()} items landed at the split point, expected 2" );
   endif
-  if ( TypeOf( forced.amount ) != "Uninit" )
-    bad.append( $"the original survived holding {forced.amount}, so the loss is fixed" );
+  if ( forced.amount != 1 )
+    bad.append( $"the remainder holds {forced.amount}, expected 1" );
   endif
-  if ( EnumerateItemsInContainer( box, ENUMERATE_ROOT_ONLY ).size() != 0 )
-    bad.append( "something was left in the container" );
+  var left := EnumerateItemsInContainer( box, ENUMERATE_ROOT_ONLY );
+  if ( left.size() != 1 )
+    bad.append( $"the container holds {left.size()} items, expected the remainder" );
+  elseif ( left[1].serial != forced.serial )
+    bad.append( "the container holds something other than the remainder" );
   endif
 
   clear_split_point();
@@ -331,12 +333,14 @@ exported function stack_has_existing_stack( resmngr )
   if ( gold.hasexistingstack( gold ).errortext != "Non-container selected as target" )
     bad.append( "a non-container was accepted" );
   endif
-  // DEFECT, pinned as it stands: with no stack to join, the method returns a null imp, and the
-  // executor reads that as "there is no such method" rather than as "there is no such stack".
-  // The caller cannot tell the two apart.
+  // Nothing to join reads as uninit, the same answer array.find gives when it finds nothing -
+  // falsy, and distinguishable from the method being missing.
   var none := gold.hasexistingstack( box );
-  if ( !none.errortext.find( "not found" ) )
+  if ( TypeOf( none ) != "Uninit" )
     bad.append( $"an empty container offered {none}" );
+  endif
+  if ( none )
+    bad.append( "an empty container answered something true" );
   endif
 
   var existing := resmngr.CreateItemInContainer( box, "goldcoin", 5 );

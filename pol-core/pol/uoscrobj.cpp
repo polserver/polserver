@@ -1462,12 +1462,14 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
     // Check first if the item is non-stackable and just force stacked with CreateItemInInventory
     if ( !this->stackable() && amt > 1 )
     {
-      unsigned short i;
-
-      for ( i = 1; i <= amt; i++ )
+      bool emptied = false;
+      for ( u16 i = 1; i <= amt; i++ )
       {
         if ( this->getamount() == 1 )
+        {
           new_stack = this->clone();
+          emptied = true;
+        }
         else
           new_stack = this->remove_part_of_stack( 1 );
         if ( Items::place_at( *new_stack, newpos ) )
@@ -1477,7 +1479,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
         }
       }
 
-      if ( this->getamount() == 1 )
+      if ( emptied )
         destroy_item( this );
       else
         update_item_to_inrange( this );
@@ -1510,7 +1512,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
   }
   case MTH_SPLITSTACK_INTO:
   {
-    unsigned short amt;
+    u16 amt;
     Item* cont_item;
 
     if ( !ex.hasParams( 2 ) )
@@ -1537,10 +1539,14 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( !this->stackable() && amt > 1 )
     {
-      for ( unsigned short i = 1; i <= amt; i++ )
+      bool emptied = false;
+      for ( u16 i = 1; i <= amt; i++ )
       {
         if ( this->getamount() == 1 )
+        {
           new_stack = this->clone();
+          emptied = true;
+        }
         else
           new_stack = this->remove_part_of_stack( 1 );
 
@@ -1567,7 +1573,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
         newcontainer->on_insert_add_item( nullptr, Core::UContainer::MT_CORE_MOVED, new_stack );
       }
 
-      if ( this->getamount() == 1 )
+      if ( emptied )
         destroy_item( this );
       else
         update_item_to_inrange( this );
@@ -1669,9 +1675,7 @@ BObjectImp* Item::script_method_id( const int id, Core::UOExecutor& ex )
 
     if ( existing_stack != nullptr )
       return new Module::EItemRefObjImp( existing_stack );
-    return nullptr;
-
-    break;
+    return UninitObject::create();
   }
   default:
     return nullptr;
