@@ -1,5 +1,6 @@
 -- POL100.3.0 --
 08-14-2026 Turley:
+    Fixed: leak when a character creation was refused
     Fixed: item.hasexistingstack returns now uninit when no item was found
     Fixed: splitting part of a force-stacked unstackable stack destroyed the remainder, item.splitstackat and item.splitstackinto now leave it behind
     Fixed: an intrinsic NPC weapon took its string members (hitscript, name), which changed them for every mobile armed with it

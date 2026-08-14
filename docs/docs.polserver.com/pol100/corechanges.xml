@@ -2,12 +2,13 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-14-2026</datemodified>
+		<datemodified>08-15-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
 			<date>08-14-2026</date>
 			<author>Turley:</author>
+			<change type="Fixed">leak when a character creation was refused</change>
 			<change type="Fixed">item.hasexistingstack returns now uninit when no item was found</change>
 			<change type="Fixed">splitting part of a force-stacked unstackable stack destroyed the remainder, item.splitstackat and item.splitstackinto now leave it behind</change>
 			<change type="Fixed">an intrinsic NPC weapon took its string members (hitscript, name), which changed them for every mobile armed with it</change>
