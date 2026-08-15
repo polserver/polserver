@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+08-15-2026 Turley:
+    Fixed: polcore.memory_usage was always 0 on macOS
 08-15-2026 Nando:
     Fixed: the server could hang on shutdown with a character still in combat. Clearing
            its list of attackers relied on each attacker removing its own entry, which is

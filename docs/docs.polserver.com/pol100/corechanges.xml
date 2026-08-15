@@ -7,6 +7,11 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>08-15-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">polcore.memory_usage was always 0 on macOS</change>
+		</entry>
+		<entry>
+			<date>08-15-2026</date>
 			<author>Nando:</author>
 			<change type="Fixed">the server could hang on shutdown with a character still in combat. Clearing<br/>
 its list of attackers relied on each attacker removing its own entry, which is<br/>
