@@ -269,3 +269,72 @@ function copy_file( source, destination )
   return 1;
 endfunction
 
+// The server's main log (clib/logfacility.cpp gives the sink the basename
+// "log/pol"). The "::" prefix is the shard root -- an unprefixed path would be
+// read relative to the package of whichever script called the helper.
+const POL_LOG := "::log/pol.log";
+
+// Block until everything logged so far has reached its file. The logger is
+// asynchronous, so reading the file without this is a race that passes on a
+// quiet machine and flakes under load.
+function flush_log()
+  return PolCore().internal( 8 );
+endfunction
+
+// Number of lines in `logfile` right now. Hand the result to log_since() to look
+// at only what was logged after this point -- the whole suite runs against one
+// long-lived server, so searching the entire file would happily match output
+// that some earlier test produced.
+function log_mark( logfile := POL_LOG )
+  flush_log();
+  var lines := ReadFile( logfile );
+  if ( lines == error )
+    return ret_error( $"Could not read {logfile}: {lines}" );
+  endif
+
+  return lines.size();
+endfunction
+
+// The lines added to `logfile` since `mark` was taken.
+function log_since( mark, logfile := POL_LOG )
+  flush_log();
+  var lines := ReadFile( logfile );
+  if ( lines == error )
+    return ret_error( $"Could not read {logfile}: {lines}" );
+  endif
+
+  var since := array;
+  var i;
+  for ( i := mark + 1; i <= lines.size(); ++i )
+    since.append( lines[i] );
+  endfor
+
+  return since;
+endfunction
+
+// Index of the first line in `lines` containing `needle`, or 0.
+function log_find( lines, needle )
+  var i;
+  for ( i := 1; i <= lines.size(); ++i )
+    if ( lines[i].find( needle ) )
+      return i;
+    endif
+  endfor
+
+  return 0;
+endfunction
+
+// Assert that each string in `substrings` appears somewhere in `lines`, naming
+// the first one that does not -- that name is most of what a log assertion is
+// worth. Match substrings, never whole lines: timestamps, pids, paths and
+// symbolized frames all differ between runs.
+function assert_log_contains( lines, substrings, message := "log" )
+  foreach wanted in substrings
+    if ( !log_find( lines, wanted ) )
+      return ret_error( $"{message}: expected \"{wanted}\" in the {lines.size()} log lines since the mark" );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+

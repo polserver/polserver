@@ -2104,6 +2104,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       {
         Core::objStorageManager.objecthash.Clear( false );
       }
+      else if ( type == 8 )
+      {
+        // Block until everything logged so far has reached its file, so that a
+        // test can read back what the server said. The sinks flush the stream on
+        // every message, so draining the queue is the whole of it.
+        Clib::Logging::global_logger->wait_for_empty_queue();
+      }
       return new BLong( 1 );
     }
     return new BError( "polcore.internal(value) requires 1 parameter." );
