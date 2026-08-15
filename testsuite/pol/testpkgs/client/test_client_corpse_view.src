@@ -58,8 +58,6 @@ exported function test_corpse_body_items( resources )
     return res;
   endif
 
-  return ret_error( "on purpose" );
-
   return ret_error_not_equal( res.type, EVT_REMOVED_OBJ,
                               $"Incorrect event after corpse death, expected {EVT_REMOVED_OBJ} got {res.type}" );
 endfunction
