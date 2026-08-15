@@ -22,16 +22,20 @@
 //    correct answer is OPEN. If the helper ever reported CLOSED unconditionally, every
 //    other assertion here would be worthless and that one would fail.
 //
-// Note what the undefined-type cases actually prove on this shard. testsuite/pol/pol.cfg
-// sets LoginServerDisconnectUnknownPkts=1, so an unknown or non-allowlisted type is
-// dropped at the type byte (clientthread.cpp:369-385) and never reaches a handler. Those
-// cases test the filter. The cases that reach real handler code are the allowlisted ones
-// in test_rawpkt_allowed_garbage -- 0x00 among them, which is the reported frame.
+// Note what the undefined-type cases actually prove. LoginServerDisconnectUnknownPkts
+// defaults to 1, so an unknown or non-allowlisted type is dropped at the type byte
+// (clientthread.cpp:369-385) and never reaches a handler. Those cases test that filter --
+// and testsuite/pol/pol.cfg deliberately does NOT set the option, so they pin the default
+// rather than an override. With it at 0 the parser resumes on the next byte instead, and
+// test_rawpkt_undefined_big fails with OPEN.
+//
+// The cases that reach real handler code are the allowlisted ones in
+// test_rawpkt_allowed_garbage -- 0x00 among them, which is the reported frame.
 use os;
 use polsys;
 include "testutil";
 
-const RAWPEER_PORT := 5012;
+const RAWPEER_PORT := 5013;  // must match CONTROL_PORT in testsuite/rawpeer/rawpeer.py
 
 // The crypt seed a fresh connection consumes before any message parsing begins
 // (RECV_STATE_CRYPTSEED_WAIT). Must not be 0xffffffff (UOKR probe) or start with 0xef

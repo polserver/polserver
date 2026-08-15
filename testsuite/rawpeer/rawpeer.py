@@ -38,7 +38,12 @@ import socket
 import threading
 import time
 
-CONTROL_PORT = 5012
+# Ports the test shard and its helpers already own, so a new one has to avoid all of
+# them: 5001 debugger, 5002 DAP, 5003 game, 5006 webserver, 5011 deafclient control,
+# 5012 the aux listener testpkgs/slowreader asks deafclient to open, 50000 testclient
+# control. Note 5012 is bound late (only while that test runs), so a clash with it does
+# not show up as a startup error -- it shows up as slowreader failing to get a listener.
+CONTROL_PORT = 5013
 GAME_PORT = 5003  # testsuite/pol/config/servers.cfg, and testclient.cfg
 HARD_DEADLINE_SECS = 540  # backstop if the shard never appears; ctest allows 600s
 
