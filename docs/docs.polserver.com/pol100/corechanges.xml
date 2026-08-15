@@ -6,6 +6,16 @@
 	</header>
 	<version name="POL100.3.0">
 		<entry>
+			<date>08-15-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">the server could hang on shutdown with a character still in combat. Clearing<br/>
+its list of attackers relied on each attacker removing its own entry, which is<br/>
+skipped once a character has left the world, so the loop never ended.</change>
+			<change type="Fixed">a destroyed character now leaves its opponent's list of attackers as it is<br/>
+destroyed, the way a destroyed item already did, instead of on its way out of<br/>
+memory when it can no longer be found in that list.</change>
+		</entry>
+		<entry>
 			<date>08-14-2026</date>
 			<author>Nando:</author>
 			<change type="Changed">pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).<br/>

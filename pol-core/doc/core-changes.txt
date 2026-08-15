@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+08-15-2026 Nando:
+    Fixed: the server could hang on shutdown with a character still in combat. Clearing
+           its list of attackers relied on each attacker removing its own entry, which is
+           skipped once a character has left the world, so the loop never ended.
+    Fixed: a destroyed character now leaves its opponent's list of attackers as it is
+           destroyed, the way a destroyed item already did, instead of on its way out of
+           memory when it can no longer be found in that list.
 08-14-2026 Nando:
     Changed: pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).
              During the login phase, a connection that sends an unknown or non-allowed
