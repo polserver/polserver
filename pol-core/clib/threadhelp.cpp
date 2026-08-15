@@ -50,6 +50,18 @@ ThreadMap& threadmap_instance()
 std::atomic<unsigned int> child_threads( 0 );
 static int threads = 0;
 
+// The registered name of the running thread, kept per-thread rather than looked
+// up in the ThreadMap: that map is spinlock-guarded and holds std::strings, so
+// reading it from a crash or terminate handler risks deadlocking against a
+// thread that faulted while holding the lock, and copying out of it allocates.
+// A fixed buffer read costs nothing and is safe from anywhere.
+static thread_local char tls_thread_name[32] = "unnamed";
+
+const char* current_thread_name()
+{
+  return tls_thread_name;
+}
+
 #ifdef _WIN32
 void init_threadhelp() {}
 
@@ -96,6 +108,23 @@ void SetThreadName( int threadid, std::string threadName )
   // which isn't compatible with __try
   _SetThreadName( threadid, threadName.c_str() );
 }
+
+// Name the calling thread for the OS itself. This is not what SetThreadName
+// above does: that raises MS_VC_EXCEPTION, which is only seen by a debugger
+// attached at that very moment. SetThreadDescription is stored with the thread,
+// so it reaches our own minidumps, WinDbg, Process Explorer and Task Manager
+// long after the fact. It needs Windows 10 1607, hence the dynamic lookup --
+// on anything older the thread simply stays unnamed, as it is today.
+static void set_os_thread_name( const std::string& name )
+{
+  using SetThreadDescription_t = HRESULT( WINAPI* )( HANDLE, PCWSTR );
+  static const auto set_description = reinterpret_cast<SetThreadDescription_t>(
+      GetProcAddress( GetModuleHandleW( L"kernel32.dll" ), "SetThreadDescription" ) );
+  if ( set_description == nullptr )
+    return;
+  const std::wstring wide( name.begin(), name.end() );  // thread names are ASCII
+  set_description( GetCurrentThread(), wide.c_str() );
+}
 #else
 static pthread_attr_t create_detached_attr;
 static Clib::SpinLock pthread_attr_lock;
@@ -121,6 +150,34 @@ size_t thread_pid()
   return pthread_self();
 #endif
 }
+
+// Name the calling thread for the OS itself, so gdb on a core dump, `top -H`,
+// `ps -L` and Instruments show what each thread is rather than a bare tid.
+// Must run on the thread being named: Apple's pthread_setname_np only takes a
+// name and always applies it to the caller.
+static void set_os_thread_name( const std::string& name )
+{
+#ifdef __APPLE__
+  pthread_setname_np( name.c_str() );
+#else
+  // Linux allows 16 bytes including the terminator and rejects a longer name
+  // outright, so it has to be cut down here rather than lost entirely. Cut from
+  // the front when the name ends in a worker index: that index is what tells
+  // two workers of one pool apart, and a plain truncation drops exactly it.
+  constexpr size_t LIMIT = 15;
+  std::string fitted = name;
+  if ( fitted.size() > LIMIT )
+  {
+    const auto sep = fitted.find_last_of( ' ' );
+    const bool indexed = sep != std::string::npos && sep + 1 < fitted.size() &&
+                         fitted.find_first_not_of( "0123456789", sep + 1 ) == std::string::npos &&
+                         fitted.size() - sep < LIMIT;
+    fitted = indexed ? fitted.substr( 0, LIMIT - ( fitted.size() - sep ) ) + fitted.substr( sep )
+                     : fitted.substr( 0, LIMIT );
+  }
+  pthread_setname_np( pthread_self(), fitted.c_str() );
+#endif
+}
 #endif
 
 void run_thread( void ( *threadf )() )
@@ -132,7 +189,7 @@ void run_thread( void ( *threadf )() )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+    ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
   }
 
   --child_threads;
@@ -148,7 +205,7 @@ void run_thread( void ( *threadf )( void* ), void* arg )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+    ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
   }
 
   --child_threads;
@@ -291,6 +348,15 @@ HANDLE ThreadMap::getThreadHandle( size_t pid ) const
 #endif
 void ThreadMap::Register( size_t pid, const std::string& name )
 {
+  // Every caller registers the thread it is running on -- the Windows branch
+  // below already relies on that, duplicating GetCurrentThread() rather than a
+  // handle derived from pid -- so these name the caller. Done before taking the
+  // lock: neither has anything to do with the map, and one is a syscall.
+  set_os_thread_name( name );
+  const size_t copied = std::min( name.size(), sizeof( tls_thread_name ) - 1 );
+  std::memcpy( tls_thread_name, name.data(), copied );
+  tls_thread_name[copied] = '\0';
+
   Clib::SpinLockGuard guard( _spinlock );
   _contents.insert( std::make_pair( pid, name ) );
 #ifdef _WIN32
@@ -361,7 +427,7 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
     _threads.emplace_back(
         [this, name]()
         {
-          ThreadRegister register_thread( "TaskPool " + name );
+          ThreadRegister register_thread( name );  // see DynTaskThreadPool on the missing prefix
           auto f = msg();
           try
           {
@@ -374,7 +440,7 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
               }
               catch ( std::exception& ex )
               {
-                ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+                ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
                 Clib::force_backtrace( true );
               }
             }
@@ -539,7 +605,7 @@ void DynTaskThreadPool::PoolWorker::run()
             }
             catch ( std::exception& ex )
             {
-              ERROR_PRINTLN( "Thread exception: {}", ex.what() );
+              ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
               Clib::force_backtrace( false );
             }
             f = nullptr;  // reset BusyGuard
@@ -560,7 +626,11 @@ void DynTaskThreadPool::PoolWorker::run()
 /// for (....)
 ///   workers.push([&](){dosomework();});
 DynTaskThreadPool::DynTaskThreadPool( const std::string& name )
-    : _done( false ), _msg_queue(), _pool_mutex(), _name( "DynTaskPool" + name )
+    // No "DynTaskPool" prefix: workers are named "<pool> <n>", and the prefix
+    // spent most of the 15 bytes Linux allows an OS thread name on a constant,
+    // pushing the worker index -- the only part that tells two workers apart --
+    // off the end. The log lines below already say "pool worker".
+    : _done( false ), _msg_queue(), _pool_mutex(), _name( name )
 {
 }
 

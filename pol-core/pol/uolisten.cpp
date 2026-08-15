@@ -258,7 +258,10 @@ void start_uo_client_listeners()
   for ( auto& uoclient_listener : networkManager.uoclient_listeners )
   {
     UoClientListener* ls = &uoclient_listener;
-    std::string threadname = "UO Client Listener Port " + Clib::tostring( ls->port );
+    // Kept within 15 characters, including a 5-digit port: Linux caps OS thread
+    // names there, and the port is the part worth keeping when several
+    // listeners are up.
+    std::string threadname = "UO Listen " + Clib::tostring( ls->port );
     threadhelp::start_thread( uo_client_listener_thread, threadname.c_str(), ls );
   }
 }

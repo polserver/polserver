@@ -994,7 +994,8 @@ void http_thread()
   }
 
   {
-    Pol::threadhelp::TaskThreadPool worker_threads( 4, "http" );
+    // Not "http": the listener thread started below is already named HTTP.
+    Pol::threadhelp::TaskThreadPool worker_threads( 4, "http worker" );
     while ( !Clib::exit_signalled )
     {
       if ( !listen_sck.has_incoming_data( 5s ) )
