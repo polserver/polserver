@@ -24,6 +24,7 @@ class Test:
         self.dur=""
         self.result = ":white_check_mark:"
         self.output=""
+        self.trace=""
         self.sub=[]
 
 curpkg=None
@@ -48,6 +49,13 @@ for line in content:
         curscript.sub.append(Test(m.group(1)))
         curfunc = curscript.sub[-1]
         lines=""
+        continue
+    # the client messages a failing test dumps come after its failed: line, so
+    # they are kept apart from the output the table cell shows
+    m=re.search(r"\s+trace: (.*)", line)
+    if m is not None:
+        if curfunc is not None:
+            curfunc.trace+=m.group(1).removesuffix('\x1b[0m')+"\n"
         continue
     m=re.search(r"\s+failed: (.*)", line)
     if m is not None:
@@ -79,6 +87,12 @@ for r in res:
     output+=f"|{r.name}| | |{r.result}|{r.dur}|{r.output}|\n"
     for s in r.sub:
         output+=f"| |{s.name}| |{s.result}|{s.dur}|{s.output}|\n"
+        # setup and cleanup carry their own result rather than a list of functions
+        if s.output:
+            msg=s.output.replace("<br/>","\n")
+            failed_output+=f"**{r.name}/{s.name}**\n```\n{msg}\n```\n\n"
+            if s.trace:
+                failed_output+=f"<details><summary>client trace</summary>\n\n```\n{s.trace}```\n</details>\n\n"
         for f in s.sub:
             if f.name=="cleanup":
                 continue
@@ -86,6 +100,8 @@ for r in res:
             if f.output:
                 msg=f.output.replace("<br/>","\n")
                 failed_output+=f"**{r.name}/{s.name} {f.name}**\n```\n{msg}\n```\n\n"
+                if f.trace:
+                    failed_output+=f"<details><summary>client trace</summary>\n\n```\n{f.trace}```\n</details>\n\n"
 print(f"<details><summary>{fails} tests failed out of {tests}</summary>")
 print("")
 print(output)

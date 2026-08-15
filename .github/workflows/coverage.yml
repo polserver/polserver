@@ -118,6 +118,9 @@ jobs:
         run: |
           cd bin-build
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
+          #env:
+          # log every client message in full, not just its type and client
+          #POLCORE_TRACE_FULL_MAX: 999999
       - name: Testsummary
         if: always()
         shell: bash
