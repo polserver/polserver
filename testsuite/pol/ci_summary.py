@@ -8,7 +8,9 @@ if (len(sys.argv)>1):
 if not os.path.exists(path):
     print("no testrun")
     sys.exit(0)
-with open(path, "r") as file:
+# errors="replace": the log carries whatever the shard printed, including packet hex dumps,
+# so a stray non-UTF-8 byte must not take the whole CI job red for a reporting step.
+with open(path, "r", encoding="utf-8", errors="replace") as file:
     content = file.readlines()
 lines=""
 tests=0
