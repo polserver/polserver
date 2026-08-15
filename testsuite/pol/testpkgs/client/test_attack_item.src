@@ -679,19 +679,24 @@ function wait_for_control_event( evtype, timeout := 10000 )
   return ret_error( $"No event {evtype} from the control script of the item" );
 endfunction
 
-// waits until the client got the expected hitpoint value for the given serial
+// Waits until the client got the expected hitpoint value for the given serial. A reading from
+// before the change can still be in flight when the queue is cleared -- the client reports the
+// hitpoints of an item the moment it discovers it, after the listing that found it has already
+// been answered -- so an earlier value is not a failure, only never seeing the expected one is.
+// Every value seen is named in the error, so a wrong update is still visible.
 function wait_for_client_hitpoints( serial, expected, timeout := 10 )
+  var seen := {};
   while ( 1 )
     var ev := waitForClient( 0, { EVT_HP_CHANGED }, timeout );
     if ( !ev )
-      return ret_error( $"Client received no hitpoints of 0x{serial:x}" );
+      return ret_error( $"Client received no hitpoints of {expected} for 0x{serial:x}, saw {seen}" );
     elseif ( ev.serial != serial )
       continue;
     endif
-    if ( ev.new != expected )
-      return ret_error( $"wrong hitpoints: {ev.new} != {expected}" );
+    if ( ev.new == expected )
+      return 1;
     endif
-    return 1;
+    seen.append( ev.new );
   endwhile
 endfunction
 

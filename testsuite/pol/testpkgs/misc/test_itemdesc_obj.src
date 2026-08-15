@@ -1,0 +1,225 @@
+use polsys;
+use uo;
+
+include "testutil";
+
+// GetItemDescriptor and the objtype parameter helper behind it.
+//
+// The descriptor struct names the class the itemdesc was declared as, and that switch had only
+// ever been walked as far as Armor: no test had asked for a boat, a house, a spellbook, a
+// spellscroll or a map. The refusals below belong to UOExecutor::getObjtypeParam, which every
+// function taking an objtype shares.
+
+program testitemdescobj()
+  return 1;
+endprogram
+
+// One objtype per itemdesc element type, all declared by other test packages -- itemdescs merge
+// shard wide, so they are all visible from here.
+exported function itemdesc_classes( unused resmngr )
+  var expected := {};
+  expected.append( { 0xe75, "Container" } );
+  expected.append( { 0x06a5, "Door" } );
+  expected.append( { 0x200004, "Weapon" } );
+  expected.append( { 0x301517, "Armor" } );
+  expected.append( { 0x11000, "Boat" } );
+  expected.append( { 0x12001, "House" } );
+  expected.append( { 0x200007, "Spellbook" } );
+  expected.append( { 0x1f2d, "Spellscroll" } );
+  expected.append( { 0x200015, "Map" } );
+  expected.append( { 0xeed, "Item" } );
+  var bad := {};
+
+  foreach entry in ( expected )
+    var [ objtype, objclass ] := entry;
+    var descriptor := GetItemDescriptor( objtype );
+    if ( !descriptor )
+      bad.append( $"0x{objtype:x} has no descriptor: {descriptor}" );
+      continue;
+    endif
+    if ( descriptor.ObjClass != objclass )
+      bad.append( $"0x{objtype:x} is a {descriptor.ObjClass}, expected {objclass}" );
+    endif
+    if ( descriptor.ObjType != objtype )
+      bad.append( $"0x{objtype:x} reports objtype {descriptor.ObjType}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The properties the ItemDesc constructor has to work on rather than copy across, read back off
+// one item declared for the purpose (:TestItems: 0x200032).
+exported function itemdesc_property_arms( unused resmngr )
+  var d := GetItemDescriptor( 0x200032 );
+  if ( !d )
+    return ret_error( $"the probe item has no descriptor: {d}" );
+  endif
+  var bad := {};
+
+  // A stack limit above the core's own ceiling is clamped down to it, not kept and not wrapped.
+  if ( d.StackLimit != 60000 )
+    bad.append( $"StackLimit 65000 was kept as {d.StackLimit}" );
+  endif
+
+  // A tooltip is cut to what one tooltip packet can carry.
+  if ( d.Tooltip.length() != 256 )
+    bad.append( $"a 270 character tooltip came back at {d.Tooltip.length()}" );
+  elseif ( d.Tooltip[251, 6] != "ZZZZZZ" )
+    bad.append( $"the tooltip was cut in the wrong place: '{d.Tooltip[251, 6]}'" );
+  endif
+
+  // Weight is stored as a fraction and only the divided form walks the '/' arm of its parser.
+  if ( d.Weight != 0.25 )
+    bad.append( $"a weight of 1/4 reads back as {d.Weight}" );
+  endif
+
+  // Resource is the one key that builds a resource component, and it is reported back as the
+  // name and the amount in one string.
+  if ( d.Resource != "testres 3" )
+    bad.append( $"Resource reads back as '{d.Resource}'" );
+  endif
+
+  // An itemdesc carries cprops of its own, which arrive unpacked into their real types.
+  if ( TypeOf( d.CProps ) != "Dictionary" )
+    bad.append( $"CProps is a {TypeOf( d.CProps )}" );
+  else
+    var number := d.CProps["ProbeNumber"];
+    if ( number != 5 || TypeOf( number ) != "Integer" )
+      bad.append( $"the numeric cprop is a {TypeOf( number )} of {number}" );
+    endif
+    // StrProp is the same store, reached by a key that packs the value as a string first.
+    var text := d.CProps["ProbeText"];
+    if ( text != "Hello" )
+      bad.append( $"the string cprop is '{text}'" );
+    endif
+  endif
+
+  // The itemdesc's own ignore list, which is a different set from the shard-wide one
+  // config/stacking.cfg fills. It is read as a space separated list and kept sorted, being a set.
+  var ignores := d.StackingIgnoresCProps;
+  if ( TypeOf( ignores ) != "Array" )
+    bad.append( $"StackingIgnoresCProps is a {TypeOf( ignores )}" );
+  elseif ( ignores.size() != 2 || ignores[1] != "ProbeIgnoreA" || ignores[2] != "ProbeIgnoreB" )
+    bad.append( $"StackingIgnoresCProps reads back as {ignores}" );
+  endif
+
+  // An itemdesc that declares none has the member all the same, and it is empty.
+  var plain := GetItemDescriptor( 0x200031 );
+  if ( plain.StackingIgnoresCProps.size() )
+    bad.append( $"an itemdesc with no ignore list has {plain.StackingIgnoresCProps}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The weapon descriptor, which adds its own half to the struct on top of the item's. The probe
+// weapon (:TestItems: 0x200033) sets every key so that these are real values rather than the
+// defaults every other weapon in the suite leaves in place.
+exported function itemdesc_weapon_arms( unused resmngr )
+  var d := GetItemDescriptor( 0x200033 );
+  if ( !d )
+    return ret_error( $"the probe weapon has no descriptor: {d}" );
+  endif
+  var bad := {};
+
+  // name, what the itemdesc set it to, what it read back as
+  var checks := { { "Speed", 40, d.Speed },
+                  { "HitSound", 0x23b, d.HitSound },
+                  { "MissSound", 0x239, d.MissSound },
+                  { "TwoHanded", 1, d.TwoHanded },
+                  { "Anim", 0x09, d.Anim },
+                  { "MountedAnim", 0x1b, d.MountedAnim },
+                  { "MinRange", 3, d.MinRange },
+                  { "MaxRange", 12, d.MaxRange },
+                  { "Projectile", 1, d.Projectile },
+                  { "ProjectileType", 0x1bfb, d.ProjectileType },
+                  { "ProjectileAnim", 0x1b, d.ProjectileAnim },
+                  { "ProjectileSound", 0x224, d.ProjectileSound },
+                  { "Attribute", "Archery", d.Attribute } };
+  foreach check in ( checks )
+    var [ name, want, got ] := check;
+    if ( got != want )
+      bad.append( $"{name} is {got}, expected {want}" );
+    endif
+  endforeach
+
+  // Delay was not set, so the speed came from the Speed key and the delay stayed at zero.
+  if ( d.Delay != 0 )
+    bad.append( $"Delay is {d.Delay}" );
+  endif
+
+  // The dice string is rebuilt from what was parsed, and the two bounds come off the same dice.
+  if ( d.Damage != "2d6+1" )
+    bad.append( $"Damage reads back as '{d.Damage}'" );
+  endif
+  if ( d.MinDamage != 3 || d.MaxDamage != 13 )
+    bad.append( $"the damage range is {d.MinDamage}..{d.MaxDamage}, expected 3..13" );
+  endif
+
+  // A weapon that names its attribute the deprecated way loads all the same.
+  var old := GetItemDescriptor( 0x200034 );
+  if ( !old )
+    bad.append( $"the SkillID weapon has no descriptor: {old}" );
+  elseif ( old.Attribute != "Swordsmanship" )
+    bad.append( $"the SkillID weapon reports attribute '{old.Attribute}'" );
+  endif
+
+  // A weapon that sets no ranges gets the non-projectile defaults, which are the arm the probe
+  // weapon does not take.
+  if ( old && ( old.MinRange != 0 || old.MaxRange != 1 ) )
+    bad.append( $"a melee weapon has range {old.MinRange}..{old.MaxRange}, expected 0..1" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// An objtype may be given as a number or as the name itemdesc knows it under, and each way of
+// getting it wrong has its own answer.
+exported function itemdesc_objtype_refusals( unused resmngr )
+  var bad := {};
+
+  var res := GetItemDescriptor( "zzz_not_an_objtype_name" );
+  if ( res.errortext != "Objtype not defined: zzz_not_an_objtype_name" )
+    bad.append( $"an unknown objtype name answered {res}" );
+  endif
+
+  // Above the tile id range, so it can only be an itemdesc objtype -- and no itemdesc declares it.
+  res := GetItemDescriptor( 0x999999 );
+  if ( res.errortext != "Objtype 0x999999 is not defined." )
+    bad.append( $"an undefined objtype answered {res}" );
+  endif
+
+  // Inside the tile id range every value is a legal objtype, so the helper accepts it and the
+  // function itself is what reports that there is no itemdesc for it.
+  res := GetItemDescriptor( 0x1234 );
+  if ( res.errortext != "Itemdesc.cfg entry for objtype 0x1234 not found." )
+    bad.append( $"an undeclared tile objtype answered {res}" );
+  endif
+
+  // Neither an integer nor a string.
+  res := GetItemDescriptor( 5.0 );
+  if ( res.errortext != "Invalid parameter type" )
+    bad.append( $"a real objtype answered {res}" );
+  endif
+
+  // A number in a string is read as a number.
+  var by_string := GetItemDescriptor( "0xe75" );
+  if ( !by_string || by_string.ObjType != 0xe75 )
+    bad.append( $"an objtype in string form answered {by_string}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

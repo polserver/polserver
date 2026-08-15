@@ -1,0 +1,266 @@
+use os;
+use uo;
+
+include "testutil";
+
+// The script object GetProcess() hands back, and the Package object hanging off it.
+//
+// Almost none of exscrobj.cpp's member switch has ever been read: test_stacktrace.src calls one
+// method on it and every other member and method is untouched, as is the whole
+// PackageObjImp::get_member chain in polsystemmod.cpp.
+//
+// A killed script is the other half of the file: every entry point checks that the executor it
+// weakly points at still exists first, and those refusals are only reachable through a reference
+// that outlives its script.
+
+// Waits and does nothing else, so that a reference to it can outlive it. Started through the
+// resource manager, which kills it again at the end of the case whether or not the test did.
+const HELPER := ":TestMisc:idlescript";
+
+program testscriptobj()
+  return 1;
+endprogram
+
+exported function script_members( unused resmngr )
+  var me := GetProcess();
+  if ( TypeOf( me ) != "ScriptExRef" )
+    return ret_error( $"expected a script object, got {TypeOf( me )}: {me}" );
+  endif
+  var bad := {};
+
+  if ( me.pid != GetPid() )
+    bad.append( $"pid {me.pid} is not GetPid() {GetPid()}" );
+  endif
+  if ( !me.name.find( "test_script_obj" ) )
+    bad.append( $"name is {me.name}" );
+  endif
+  // The script is the one asking, so it can only ever see itself running.
+  if ( me.state != "Running" )
+    bad.append( $"state is {me.state}" );
+  endif
+
+  // Cycle counters are Doubles because they are 64 bit in the core.
+  if ( TypeOf( me.instr_cycles ) != "Double" )
+    bad.append( $"instr_cycles is {TypeOf( me.instr_cycles )}" );
+  endif
+  if ( me.instr_cycles <= 0 )
+    bad.append( $"instr_cycles is {me.instr_cycles}" );
+  endif
+  if ( TypeOf( me.sleep_cycles ) != "Double" )
+    bad.append( $"sleep_cycles is {TypeOf( me.sleep_cycles )}" );
+  endif
+  if ( TypeOf( me.consec_cycles ) != "Double" )
+    bad.append( $"consec_cycles is {TypeOf( me.consec_cycles )}" );
+  endif
+
+  if ( me.pc <= 0 )
+    bad.append( $"pc is {me.pc}" );
+  endif
+  // Inside an exported function called from the test runner, so the control stack is not empty.
+  if ( me.call_depth <= 0 )
+    bad.append( $"call_depth is {me.call_depth}" );
+  endif
+  if ( me.var_size <= 0 )
+    bad.append( $"var_size is {me.var_size}" );
+  endif
+
+  // Nothing has been attached and nothing controls this script.
+  if ( me.attached_to != 0 )
+    bad.append( $"attached_to is {me.attached_to}" );
+  endif
+  if ( me.controller != 0 )
+    bad.append( $"controller is {me.controller}" );
+  endif
+
+  // A member the object does not know reads as uninit rather than an error.
+  if ( TypeOf( me.zzz_not_a_member ) != "Uninit" )
+    bad.append( $"an unknown member answered {me.zzz_not_a_member}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Globals come back as a dictionary keyed by the names the compiler recorded, and there is one
+// entry per global whether or not it was ever assigned.
+exported function script_globals( unused resmngr )
+  var me := GetProcess();
+  var globals := me.globals;
+  if ( TypeOf( globals ) != "Dictionary" )
+    return ret_error( $"expected a dictionary, got {TypeOf( globals )}: {globals}" );
+  endif
+  if ( globals.size() != me.num_globals )
+    return ret_error( $"{globals.size()} globals in the dictionary, num_globals says {me.num_globals}" );
+  endif
+  // This script declares none of its own.
+  if ( globals.size() )
+    return ret_error( $"expected no globals, got {globals}" );
+  endif
+  return 1;
+endfunction
+
+// package is the only route to the Package object, whose members answer from the package's
+// pkg.cfg and from what is on disk beside it.
+exported function script_package( unused resmngr )
+  var pkg := GetProcess().package;
+  if ( TypeOf( pkg ) != "Package" )
+    return ret_error( $"expected a package, got {TypeOf( pkg )}: {pkg}" );
+  endif
+  var bad := {};
+
+  // POL lowercases a package name as it loads it, so pkg.cfg's "TestMisc" reads back lowercased.
+  if ( pkg.name != "testmisc" )
+    bad.append( $"name is {pkg.name}" );
+  endif
+  // pkg.cfg declares no version, and an absent one reads as "0" rather than empty.
+  if ( pkg.version != "0" )
+    bad.append( $"version is {pkg.version}" );
+  endif
+  // The description is built from the name and the directory when the package does not give one.
+  if ( !pkg.desc.find( "testmisc" ) )
+    bad.append( $"desc is {pkg.desc}" );
+  endif
+  if ( !pkg.dir.find( "testpkgs/misc" ) )
+    bad.append( $"dir is {pkg.dir}" );
+  endif
+  // Both of these answer by looking for a file: this package has neither a www directory nor
+  // an npcdesc.cfg.
+  if ( pkg.supports_http != 0 )
+    bad.append( $"supports_http is {pkg.supports_http}" );
+  endif
+  if ( pkg.npcdesc != 0 )
+    bad.append( $"npcdesc is {pkg.npcdesc}" );
+  endif
+  if ( pkg.zzz_not_a_member.errortext != "Undefined member" )
+    bad.append( $"an unknown member answered {pkg.zzz_not_a_member}" );
+  endif
+  if ( pkg.zzz_not_a_method().errortext != "undefined method" )
+    bad.append( $"an unknown method answered {pkg.zzz_not_a_method()}" );
+  endif
+
+  // Copying an array copies each element, which is the only route to the copy handler.
+  var copied := ( array{ pkg } )[1];
+  if ( copied.name != pkg.name )
+    bad.append( $"the copy names a different package: {copied.name}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function script_methods( unused resmngr )
+  var me := GetProcess();
+  var bad := {};
+
+  // getmember() reaches the same switch by name instead of by compiled id.
+  if ( me.get_member( "pid" ) != GetPid() )
+    bad.append( $"get_member( pid ) answered {me.get_member( "pid" )}" );
+  endif
+  var res := me.get_member( "zzz_not_a_member" );
+  if ( res.errortext != "Member zzz_not_a_member not found on that object" )
+    bad.append( $"get_member of an unknown member answered {res}" );
+  endif
+  res := me.get_member();
+  if ( res.errortext != "Not enough parameters" )
+    bad.append( $"get_member with no parameter answered {res}" );
+  endif
+  res := me.get_member( 5 );
+  if ( res.errortext != "Invalid parameter type" )
+    bad.append( $"get_member of a number answered {res}" );
+  endif
+
+  // A script may post an event to itself. clear_event_queue then takes it back off, so the
+  // event does not leak into whatever this script waits for next.
+  if ( me.sendevent( struct{ probe := 1 } ) != 1 )
+    bad.append( "could not send an event to myself" );
+  endif
+  res := me.sendevent();
+  if ( res.errortext != "Not enough parameters" )
+    bad.append( $"sendevent with no parameter answered {res}" );
+  endif
+  if ( !me.clear_event_queue() )
+    bad.append( "clear_event_queue answered falsy" );
+  endif
+  if ( Wait_For_Event( 0 ) )
+    bad.append( "an event survived clear_event_queue" );
+  endif
+
+  // The .dbg file beside the .ecl is written by the fixture's ecompile run.
+  if ( me.loadsymbols() != 1 )
+    bad.append( "loadsymbols could not read the debug file" );
+  endif
+
+  if ( me.zzz_not_a_method().errortext != "undefined" )
+    bad.append( $"an unknown method answered {me.zzz_not_a_method()}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function script_type_and_copy( unused resmngr )
+  var me := GetProcess();
+  var bad := {};
+
+  if ( TypeOfInt( me ) == TypeOfInt( 1 ) )
+    bad.append( "a script and an integer share a type integer" );
+  endif
+
+  // Copying an array copies each element: the copy is a second reference to the same script.
+  var copied := ( array{ me } )[1];
+  if ( TypeOf( copied ) != "ScriptExRef" )
+    bad.append( $"the copy is a {TypeOf( copied )}" );
+  endif
+  if ( copied.pid != me.pid )
+    bad.append( $"the copy has pid {copied.pid}, not {me.pid}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Every entry point on the script object checks that its executor still exists. Killing a script
+// while holding a reference to it is the only way to see those refusals.
+exported function script_killed( resmngr )
+  var child := resmngr.Start_Script( HELPER );
+  if ( !child )
+    return ret_error( $"could not start the helper: {child}" );
+  endif
+  var bad := {};
+
+  if ( child.pid == GetPid() )
+    bad.append( "the helper reports this script's pid" );
+  endif
+
+  if ( child.kill() != 1 )
+    bad.append( "kill answered falsy" );
+  endif
+  // The executor is not reaped until it next runs, so give up our own timeslice first.
+  SleepMs( 100 );
+
+  var res := child.pid;
+  if ( res.errortext != "Script has been destroyed" )
+    bad.append( $"a member of a killed script answered {res}" );
+  endif
+  res := child.get_member( "pid" );
+  if ( res.errortext != "Script has been destroyed" )
+    bad.append( $"a method of a killed script answered {res}" );
+  endif
+  res := ( array{ child } )[1];
+  if ( res.errortext != "Script has been destroyed" )
+    bad.append( $"copying a killed script answered {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

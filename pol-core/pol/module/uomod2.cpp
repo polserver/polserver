@@ -2050,6 +2050,8 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
   }
   else if ( stricmp( methodname, "internal" ) == 0 )  // Just for internal Development...
   {
+    if ( ex.numParams() != 1 && ex.numParams() != 2 )
+      return new BError( "polcore.internal(value) requires 1 parameter." );
     int type;
     if ( ex.getParam( 0, type ) )
     {
@@ -2093,7 +2095,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       else if ( type == 6 )
       {
         const String* script;
-        if ( !ex.getStringParam( 1, script ) )
+        if ( ex.numParams() != 2 || !ex.getStringParam( 1, script ) )
           return new BLong( 0 );
         Core::scriptScheduler.logScriptVariables( script->data() );
         return new BLong( 1 );

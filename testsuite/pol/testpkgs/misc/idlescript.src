@@ -1,0 +1,9 @@
+use os;
+
+// Does nothing but stay alive, so that a test can hold a reference to a script and then kill it.
+// The wait is what makes the script observable at all; the timeout is only there so a failing
+// run cannot leave it behind.
+program idlescript()
+  Wait_For_Event( 30 );
+  return 1;
+endprogram

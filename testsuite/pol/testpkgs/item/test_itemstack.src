@@ -356,3 +356,56 @@ exported function stack_has_existing_stack( resmngr )
   endif
   return 1;
 endfunction
+
+// Two items that differ only in a cprop do not stack -- unless that cprop is named by a
+// stacking.cfg, which Item::can_add_to_self() subtracts from both property lists before
+// comparing them. Both sources of that set are exercised: config/stacking.cfg contributes
+// TestStackIgnore shard-wide, and this package's own stacking.cfg contributes
+// TestStackIgnorePkg.
+exported function stack_ignores_cprops( resmngr )
+  // Loose on the ground rather than in a container, so nothing merges them behind the test.
+  var one := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 5 );
+  var two := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 5 );
+  if ( !one || !two )
+    return ret_error( $"could not create gold: {one} {two}" );
+  endif
+  var bad := {};
+
+  if ( IsStackable( one, two ) != 1 )
+    bad.append( "two plain stacks did not stack" );
+  endif
+
+  SetObjProperty( one, "TestStackIgnore", 1 );
+  if ( IsStackable( one, two ) != 1 )
+    bad.append( "a cprop the core config ignores stopped the stack" );
+  endif
+
+  SetObjProperty( two, "TestStackIgnorePkg", "anything" );
+  if ( IsStackable( one, two ) != 1 )
+    bad.append( "a cprop the package config ignores stopped the stack" );
+  endif
+
+  // Anything not on the list still counts, whichever item carries it.
+  SetObjProperty( one, "TestStackCounts", 1 );
+  var res := IsStackable( one, two );
+  if ( res.errortext != "Failed to stack" )
+    bad.append( $"a cprop nothing ignores was itself ignored: {res}" );
+  endif
+
+  // The same value on both sides compares equal, so they stack again.
+  SetObjProperty( two, "TestStackCounts", 1 );
+  if ( IsStackable( one, two ) != 1 )
+    bad.append( "the same cprop on both items stopped the stack" );
+  endif
+
+  EraseObjProperty( two, "TestStackCounts" );
+  res := IsStackable( one, two );
+  if ( res.errortext != "Failed to stack" )
+    bad.append( $"erasing one side left them stackable: {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

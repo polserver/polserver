@@ -1,0 +1,254 @@
+// The container object itself: what walking its contents reaches, what its
+// limits answer at the edges, and what happens to it when it is copied.
+//
+// test_item_find.src covers the two search functions. This covers the container
+// as a thing in its own right -- the arms of containr.cpp nothing else enters.
+use uo;
+use os;
+
+include "testutil";
+
+// itemdesc.cfg entries in this package
+const CONTAINER := 0x200001; // loadtest, MaxItems 5000
+const EVENTS_CONTAINER := 0x200021; // container_events, with all four scripts
+
+// somewhere on the grass nothing else in the suite uses
+const CONT_X := 46;
+const CONT_Y := 46;
+
+program testitemcontainer()
+  return 1;
+endprogram
+
+function clear_ground()
+  foreach item in ( ListItemsAtLocation( CONT_X, CONT_Y, 0 ) )
+    DestroyItem( item );
+  endforeach
+endfunction
+
+// A container inside a container: both walkers descend into it, and both stop
+// at a locked one unless told otherwise.
+exported function container_walks_subcontainers( resmngr )
+  var outer := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !outer )
+    return ret_error( $"could not create the outer container: {outer}" );
+  endif
+  var inner := resmngr.CreateItemInContainer( outer, CONTAINER );
+  if ( !inner )
+    return ret_error( $"could not create the inner container: {inner}" );
+  endif
+  var top := resmngr.CreateItemInContainer( outer, "goldcoin", 3 );
+  var deep := resmngr.CreateItemInContainer( inner, "goldcoin", 4 );
+  if ( !top || !deep )
+    return ret_error( $"could not create the gold: {top} {deep}" );
+  endif
+  var bad := {};
+
+  // Everything, at any depth: the inner container counts as an item too.
+  var all := EnumerateItemsInContainer( outer );
+  if ( all.size() != 3 )
+    bad.append( $"a full walk listed {all.size()} items, expected 3" );
+  endif
+  if ( !list_holds_serial( all, deep.serial ) )
+    bad.append( "a full walk did not reach into the inner container" );
+  endif
+
+  // The flag that stops it at the top level still lists the inner container,
+  // just not what is in it.
+  var root := EnumerateItemsInContainer( outer, ENUMERATE_ROOT_ONLY );
+  if ( root.size() != 2 )
+    bad.append( $"a root-only walk listed {root.size()} items, expected 2" );
+  endif
+  if ( list_holds_serial( root, deep.serial ) )
+    bad.append( "a root-only walk still reached into the inner container" );
+  endif
+
+  // A locked sub-container is skipped, which is the same test the search
+  // functions make and a separate arm of the code.
+  inner.locked := 1;
+  if ( !inner.locked )
+    bad.append( "could not lock the inner container" );
+  endif
+
+  var locked_out := EnumerateItemsInContainer( outer );
+  if ( list_holds_serial( locked_out, deep.serial ) )
+    bad.append( "a locked inner container was walked into anyway" );
+  endif
+
+  var forced := EnumerateItemsInContainer( outer, ENUMERATE_IGNORE_LOCKED );
+  if ( !list_holds_serial( forced, deep.serial ) )
+    bad.append( "ENUMERATE_IGNORE_LOCKED did not get past the lock" );
+  endif
+
+  // FindSubstance adds up across the same tree, and answers with the items it
+  // would take from.
+  inner.locked := 0;
+  var found := FindSubstance( outer, "goldcoin", 7 );
+  if ( TypeOf( found ) != "Array" )
+    bad.append( $"FindSubstance over two levels answered {found}" );
+  elseif ( found.size() != 2 )
+    bad.append( $"FindSubstance returned {found.size()} stacks, expected 2" );
+  endif
+
+  // With the deep stack behind a lock there is not enough left to satisfy it.
+  inner.locked := 1;
+  var short := FindSubstance( outer, "goldcoin", 7 );
+  if ( short.errortext != "Not enough of that substance in container" )
+    bad.append( $"FindSubstance past a locked sub-container answered {short}" );
+  endif
+  found := FindSubstance( outer, "goldcoin", 7, 0, FINDSUBSTANCE_IGNORE_LOCKED );
+  if ( TypeOf( found ) != "Array" || found.size() != 2 )
+    bad.append( $"FINDSUBSTANCE_IGNORE_LOCKED answered {found}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+function list_holds_serial( items, serial )
+  foreach item in ( items )
+    if ( item.serial == serial )
+      return 1;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+// splitstackat on a container. A container is not stackable and holds an amount
+// of one, so the whole-stack arm is what runs, and that arm copies the item --
+// which for a container means copying its limits and leaving its contents
+// behind.
+exported function container_copy_via_split( resmngr )
+  clear_ground();
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"could not create the container: {cont}" );
+  endif
+  var inside := resmngr.CreateItemInContainer( cont, "goldcoin", 5 );
+  if ( !inside )
+    return ret_error( $"could not create the gold: {inside}" );
+  endif
+  var bad := {};
+
+  // Limits that differ from the itemdesc, so that a copy carrying them over is
+  // distinguishable from a fresh container.
+  cont.max_items_mod := 7;
+  cont.max_weight_mod := 9;
+  cont.max_slots_mod := 3;
+  cont.no_drop_exception := 0;
+
+  var copy := cont.splitstackat( CONT_X, CONT_Y, 0, _DEFAULT_REALM, 1 );
+  if ( !copy )
+    return ret_error( $"splitting the container off answered {copy}" );
+  endif
+  if ( copy.serial == cont.serial )
+    bad.append( "the split answered the same container" );
+  endif
+
+  // Every one of the container's own modifiers is carried across.
+  if ( copy.max_items_mod != 7 || copy.max_weight_mod != 9 || copy.max_slots_mod != 3 )
+    bad.append( $"the copy has mods {copy.max_items_mod}/{copy.max_weight_mod}/{copy.max_slots_mod}" );
+  endif
+  if ( copy.no_drop_exception != 0 )
+    bad.append( $"the copy has no_drop_exception {copy.no_drop_exception}" );
+  endif
+
+  // The contents are not part of the copy -- the clone starts empty and the
+  // gold stays where it was.
+  if ( EnumerateItemsInContainer( copy ).size() )
+    bad.append( "the copy came with contents" );
+  endif
+  if ( inside.container.serial != cont.serial )
+    bad.append( "the gold left the original container" );
+  endif
+
+  // The copy is a container in its own right and takes items.
+  var moved := resmngr.CreateItemInContainer( copy, "goldcoin", 2 );
+  if ( !moved )
+    bad.append( $"the copy would not take an item: {moved}" );
+  endif
+
+  clear_ground();
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The two limits that are stored as a modifier on top of the itemdesc value.
+// Driving the sum below one is what makes them answer with the ceiling instead.
+exported function container_limits_at_the_edges( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !cont )
+    return ret_error( $"could not create the container: {cont}" );
+  endif
+  var bad := {};
+
+  // A modifier is a signed value, and the sum is clamped rather than wrapped.
+  cont.max_weight_mod := -32000;
+  if ( cont.max_weight_mod != -32000 )
+    bad.append( $"max_weight_mod reads back as {cont.max_weight_mod}" );
+  endif
+
+  cont.max_slots_mod := -125;
+  if ( cont.max_slots_mod != -125 )
+    bad.append( $"max_slots_mod reads back as {cont.max_slots_mod}" );
+  endif
+
+  // With the limits driven under one the container still takes items: a
+  // non-positive limit means no limit rather than no room.
+  var item := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( !item )
+    bad.append( $"a container with limits below one refused an item: {item}" );
+  endif
+
+  // And putting them back leaves the container usable.
+  cont.max_weight_mod := 0;
+  cont.max_slots_mod := 0;
+  var second := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( !second )
+    bad.append( $"the container refused an item after the limits went back: {second}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The remove scripts are handed whoever moved the item. A container standing on
+// the ground belongs to nobody, so a script moving something out of one is the
+// only way that parameter is ever uninitialized.
+exported function container_remove_no_character( resmngr )
+  var cont := resmngr.CreateItemAtLocation( 0, 0, 0, EVENTS_CONTAINER );
+  if ( !cont )
+    return ret_error( $"could not create the container: {cont}" );
+  endif
+  var elsewhere := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  if ( !elsewhere )
+    return ret_error( $"could not create the target container: {elsewhere}" );
+  endif
+
+  var item := resmngr.CreateItemInContainer( cont, "goldcoin", 1 );
+  if ( !item )
+    return ret_error( $"could not create the gold: {item}" );
+  endif
+
+  // Nothing owns a container lying on the ground, so no character reaches the
+  // scripts. The move has to go through anyway.
+  if ( cont.container )
+    return ret_error( "the container is not standing on the ground" );
+  endif
+
+  var moved := MoveItemToContainer( item, elsewhere );
+  if ( !moved )
+    return ret_error( $"moving the item out answered {moved}" );
+  endif
+  if ( item.container.serial != elsewhere.serial )
+    return ret_error( $"the item ended up in {item.container.serial:#x}" );
+  endif
+
+  return 1;
+endfunction

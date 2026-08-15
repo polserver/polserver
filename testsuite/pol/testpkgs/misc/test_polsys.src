@@ -1,0 +1,244 @@
+use uo;
+use os;
+use polsys;
+
+include "testutil";
+
+// The polsys.em functions nothing else calls: the two command level lookups, the package
+// object, and the three small ones. test_cmds.src covers ListTextCommands and
+// testrestart/test_realm.src covers Realms() by name, so what is left here is everything
+// either of those walks past.
+//
+// The command levels are the bare distro's: Player is 0 and Test is 1, and neither declares
+// an alias.
+
+program testpolsys()
+  return 1;
+endprogram
+
+// A command level can be asked for by number or by alias, and the two live in one function
+// that tries them in that order.
+exported function cmdlevel_name( unused resmngr )
+  var bad := {};
+
+  // A command level keeps its name lowercased, whatever case cmds.cfg wrote it in.
+  foreach entry in ( { { 0, "player" }, { 1, "test" } } )
+    var [ number, expected ] := entry;
+    var name := GetCmdLevelName( number );
+    if ( name != expected )
+      bad.append( $"level {number} is '{name}', expected '{expected}'" );
+    endif
+  endforeach
+
+  // A number past the end is pulled back to the highest level rather than refused.
+  var beyond := GetCmdLevelName( 99 );
+  if ( beyond != "test" )
+    bad.append( $"level 99 is '{beyond}'" );
+  endif
+
+  // A string is read as an alias instead, and this shard declares none.
+  var res := GetCmdLevelName( "gm" );
+  if ( res.errortext != "Could not find a command level with that alias." )
+    bad.append( $"an unknown alias answered {res}" );
+  endif
+
+  // Neither a number nor a string.
+  res := GetCmdLevelName( struct{} );
+  if ( res.errortext != "Invalid parameter type." )
+    bad.append( $"a struct answered {res}" );
+  endif
+
+  // Its "Expected 1 parameter." has no test because it has no caller: polsys.em declares the
+  // parameter with no default, so a script that leaves it out does not compile.
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The other direction, which only accepts the name.
+exported function cmdlevel_number( unused resmngr )
+  var bad := {};
+
+  foreach entry in ( { { "Player", 0 }, { "Test", 1 } } )
+    var [ name, expected ] := entry;
+    var num := GetCmdLevelNumber( name );
+    if ( num != expected )
+      bad.append( $"{name} is {num}, expected {expected}" );
+    endif
+  endforeach
+
+  // The lookup is case insensitive, the same compare the config reader uses.
+  var lowered := GetCmdLevelNumber( "test" );
+  if ( lowered != 1 )
+    bad.append( $"a lowercased name answered {lowered}" );
+  endif
+
+  var res := GetCmdLevelNumber( "zzz_no_such_level" );
+  if ( res.errortext != "Could not find a command level with that name." )
+    bad.append( $"an unknown name answered {res}" );
+  endif
+
+  // A number is not accepted here, which is the opposite of the name lookup.
+  res := GetCmdLevelNumber( 0 );
+  if ( res.errortext != "Invalid parameter type." )
+    bad.append( $"a number answered {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The package object, which is the only application object polsys hands out.
+exported function package_object( unused resmngr )
+  var pkg := GetPackageByName( "testmisc" );
+  if ( !pkg )
+    return ret_error( $"this package was not found: {pkg}" );
+  endif
+  var bad := {};
+
+  if ( TypeOf( pkg ) != "Package" )
+    bad.append( $"TypeOf is {TypeOf( pkg )}" );
+  endif
+  if ( TypeOfInt( pkg ) == TypeOfInt( 1 ) )
+    bad.append( "a package and an integer share a type integer" );
+  endif
+
+  // Package names are lowercased as they load, so the name reads back that way whatever
+  // pkg.cfg says.
+  if ( pkg.name != "testmisc" )
+    bad.append( $"name is '{pkg.name}'" );
+  endif
+  if ( TypeOf( pkg.version ) != "String" || pkg.version == "" )
+    bad.append( $"version is '{pkg.version}'" );
+  endif
+  if ( TypeOf( pkg.desc ) != "String" )
+    bad.append( $"desc is a {TypeOf( pkg.desc )}" );
+  endif
+
+  // The directory is where the package was found, and it ends in a separator.
+  if ( !pkg.dir.find( "testpkgs" ) )
+    bad.append( $"dir is '{pkg.dir}'" );
+  endif
+
+  // Two members that answer whether a file is there rather than reading it. This package has
+  // neither a www directory nor an npcdesc.cfg; testnpc has the latter.
+  if ( pkg.supports_http != 0 )
+    bad.append( $"testmisc reports supports_http {pkg.supports_http}" );
+  endif
+  if ( pkg.npcdesc != 0 )
+    bad.append( $"testmisc reports npcdesc {pkg.npcdesc}" );
+  endif
+
+  var web := GetPackageByName( "wwwroot1" );
+  if ( web && web.supports_http != 1 )
+    bad.append( $"wwwroot1 reports supports_http {web.supports_http}" );
+  endif
+  var npcpkg := GetPackageByName( "testnpc" );
+  if ( npcpkg && npcpkg.npcdesc != 1 )
+    bad.append( $"testnpc reports npcdesc {npcpkg.npcdesc}" );
+  endif
+
+  // Copying an array copies each element, which is the only route to the copy handler.
+  var copied := ( array{ pkg } )[1];
+  if ( TypeOf( copied ) != "Package" || copied.name != pkg.name )
+    bad.append( $"the copy is a {TypeOf( copied )}" );
+  endif
+
+  // A package object has members but no methods at all.
+  if ( pkg.zzz_not_a_member.errortext != "Undefined member" )
+    bad.append( $"an unknown member answered {pkg.zzz_not_a_member}" );
+  endif
+  if ( pkg.zzz_not_a_method().errortext != "undefined method" )
+    bad.append( $"an unknown method answered {pkg.zzz_not_a_method()}" );
+  endif
+
+  var missing := GetPackageByName( "zzz_no_such_package" );
+  if ( missing.errortext != "No package found by that name." )
+    bad.append( $"an unknown package answered {missing}" );
+  endif
+  missing := GetPackageByName( 5 );
+  if ( missing.errortext != "Invalid parameter type." )
+    bad.append( $"a number answered {missing}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The three small ones, and the realm listing in the form the by-name test does not use.
+exported function polsys_misc( resmngr )
+  var bad := {};
+
+  // IncRevision bumps an object's revision, which is what makes clients refetch its tooltip.
+  var item := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 1 );
+  if ( !item )
+    return ret_error( $"could not create an item: {item}" );
+  endif
+  if ( IncRevision( item ) != 1 )
+    bad.append( "IncRevision refused an item" );
+  endif
+  var res := IncRevision( "not an object" );
+  if ( res.errortext != "Invalid parameter type" )
+    bad.append( $"IncRevision on a string answered {res}" );
+  endif
+
+  // Every listening point the shard has open, which on this shard is at least the one the
+  // test suite talks to.
+  var points := ListenPoints();
+  if ( TypeOf( points ) != "Array" )
+    bad.append( $"ListenPoints is a {TypeOf( points )}" );
+  endif
+
+  // With no name it answers a dictionary of every realm, keyed by name.
+  var realm_list := Realms();
+  if ( TypeOf( realm_list ) != "Dictionary" )
+    bad.append( $"Realms() is a {TypeOf( realm_list )}" );
+  elseif ( !realm_list.exists( "britannia" ) )
+    bad.append( $"Realms() does not list britannia: {realm_list.keys()}" );
+  endif
+
+  res := Realms( "zzz_no_such_realm" );
+  if ( res.errortext != "Realm not found." )
+    bad.append( $"an unknown realm answered {res}" );
+  endif
+  res := Realms( 5 );
+  if ( !res.errortext.find( "Parameter must be a String or empty" ) )
+    bad.append( $"a number answered {res}" );
+  endif
+
+  // A no-op away from Windows, and it answers the same either way.
+  if ( SetSysTrayPopupText( "polcore test" ) != 1 )
+    bad.append( "SetSysTrayPopupText answered falsy" );
+  endif
+
+  // The description formatter the core uses for item names, reachable on its own. An amount
+  // above one pluralizes the name and puts the count in front of it.
+  var many := FormatItemDescription( "gold coin", 5 );
+  if ( many != "5 gold coins" )
+    bad.append( $"five coins format as '{many}'" );
+  endif
+  var one := FormatItemDescription( "gold coin", 1 );
+  if ( one != "gold coin" )
+    bad.append( $"one coin formats as '{one}'" );
+  endif
+  // The suffix is put on with a separating space already, so it carries none of its own.
+  var suffixed := FormatItemDescription( "gold coin", 2, "[marked]" );
+  if ( suffixed != "2 gold coins [marked]" )
+    bad.append( $"a suffix formats as '{suffixed}'" );
+  endif
+  res := FormatItemDescription( 5, 1 );
+  if ( res.errortext != "Invalid parameter type" )
+    bad.append( $"a number for the description answered {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
