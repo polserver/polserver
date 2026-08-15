@@ -14,6 +14,10 @@ skipped once a character has left the world, so the loop never ended.</change>
 			<change type="Fixed">a destroyed character now leaves its opponent's list of attackers as it is<br/>
 destroyed, the way a destroyed item already did, instead of on its way out of<br/>
 memory when it can no longer be found in that list.</change>
+			<change type="Fixed">packet.GetString, packet.GetUnicodeString and packet.GetUnicodeStringFlipped<br/>
+refused a zero-length read at the end of a packet with &quot;Offset too high&quot;.<br/>
+Reading no characters touches no byte, so it now returns an empty string;<br/>
+only an offset past the end of the packet is still an error.</change>
 		</entry>
 		<entry>
 			<date>08-14-2026</date>

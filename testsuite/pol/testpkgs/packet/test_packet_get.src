@@ -219,6 +219,52 @@ exported function get_unicode_string()
   return 1;
 endfunction
 
+// a zero-length read touches no byte, so it stays legal up to and including the end
+// of the packet - where there is no byte left to start at
+exported function get_zero_length()
+  var pkt := probe_packet();
+  var text;
+
+  foreach offset in ( { 0, 1, 15, 16 } )
+    text := pkt.GetString( offset, 0 );
+    if ( text != "" )
+      return ret_error( $"GetString( {offset}, 0 ): {text}" );
+    endif
+    text := pkt.GetUnicodeString( offset, 0 );
+    if ( text != "" )
+      return ret_error( $"GetUnicodeString( {offset}, 0 ): {text}" );
+    endif
+    text := pkt.GetUnicodeStringFlipped( offset, 0 );
+    if ( text != "" )
+      return ret_error( $"GetUnicodeStringFlipped( {offset}, 0 ): {text}" );
+    endif
+  endforeach
+
+  // one past the end stays out of bounds, zero length or not
+  var res := pkt.GetString( 17, 0 );
+  if ( res != error )
+    return ret_error( $"GetString( 17, 0 ) was accepted: {res}" );
+  endif
+  res := pkt.GetUnicodeString( 17, 0 );
+  if ( res != error )
+    return ret_error( $"GetUnicodeString( 17, 0 ) was accepted: {res}" );
+  endif
+  res := pkt.GetUnicodeStringFlipped( 17, 0 );
+  if ( res != error )
+    return ret_error( $"GetUnicodeStringFlipped( 17, 0 ) was accepted: {res}" );
+  endif
+
+  // the reported case: a variable length packet read at its own end
+  var varpkt := CreatePacket( 0xB0, MSGLEN_VARIABLE );
+  varpkt.SetInt16( 1, 116 );
+  text := varpkt.GetUnicodeString( 3, 0 );
+  if ( text != "" )
+    return ret_error( $"zero-length read at the end of a variable packet: {text}" );
+  endif
+
+  return 1;
+endfunction
+
 // the readers check their argument count and their argument types
 exported function get_refuses_bad_arguments()
   var pkt := probe_packet();
