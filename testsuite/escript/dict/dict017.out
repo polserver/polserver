@@ -1,0 +1,6 @@
+dict{ "k" -> "string", 1 -> "int", 2.5 -> "real" }
+error{ errortext = "Dictionary keys must be integer, real, or string" }
+error{ errortext = "Dictionary keys must be integer, real, or string" }
+error{ errortext = "Dictionary keys must be integer, real, or string" }
+error{ errortext = "Dictionary keys must be integer, real, or string" }
+3

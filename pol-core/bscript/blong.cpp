@@ -3,7 +3,6 @@
  * @par History
  */
 
-
 #include "bscript/blong.h"
 
 #include <fmt/compile.h>
@@ -15,7 +14,6 @@
 #include "bscript/berror.h"
 #include "bscript/bobject.h"
 #include "bscript/bstring.h"
-
 
 namespace Pol::Bscript
 {
@@ -29,12 +27,10 @@ BLong::BLong( int lval ) : BObjectImp( OTLong ), lval_( static_cast<int>( lval )
 BLong::BLong( const BLong& L ) : BObjectImp( OTLong ), lval_( L.lval_ ) {}
 #endif
 
-
 std::string BLong::pack( int val )
 {
   return fmt::format( "i{}"_cf, val );
 }
-
 
 void BLong::packonto( std::string& str ) const
 {
@@ -264,7 +260,6 @@ void BLong::selfModulusObj( Double& objimp, BObject& obj )
   obj.setimp( selfModulusObj( objimp ) );
 }
 
-
 BObjectImp* BLong::selfBitShiftRightObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitShiftRightObj( *this );
@@ -273,15 +268,6 @@ BObjectImp* BLong::selfBitShiftRightObj( const BLong& objimp ) const
 {
   return new BLong( lval_ >> objimp.lval_ );
 }
-void BLong::selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitShiftRightObj( *this, obj );
-}
-void BLong::selfBitShiftRightObj( BLong& objimp, BObject& /*obj*/ )
-{
-  lval_ >>= objimp.lval_;
-}
-
 BObjectImp* BLong::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitShiftLeftObj( *this );
@@ -290,15 +276,6 @@ BObjectImp* BLong::selfBitShiftLeftObj( const BLong& objimp ) const
 {
   return new BLong( lval_ << objimp.lval_ );
 }
-void BLong::selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitShiftLeftObj( *this, obj );
-}
-void BLong::selfBitShiftLeftObj( BLong& objimp, BObject& /*obj*/ )
-{
-  lval_ <<= objimp.lval_;
-}
-
 BObjectImp* BLong::selfBitAndObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitAndObj( *this );
@@ -307,15 +284,6 @@ BObjectImp* BLong::selfBitAndObj( const BLong& objimp ) const
 {
   return new BLong( lval_ & objimp.lval_ );
 }
-void BLong::selfBitAndObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitAndObj( *this, obj );
-}
-void BLong::selfBitAndObj( BLong& objimp, BObject& /*obj*/ )
-{
-  lval_ &= objimp.lval_;
-}
-
 BObjectImp* BLong::selfBitOrObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitOrObj( *this );
@@ -324,15 +292,6 @@ BObjectImp* BLong::selfBitOrObj( const BLong& objimp ) const
 {
   return new BLong( lval_ | objimp.lval_ );
 }
-void BLong::selfBitOrObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitOrObj( *this, obj );
-}
-void BLong::selfBitOrObj( BLong& objimp, BObject& /*obj*/ )
-{
-  lval_ |= objimp.lval_;
-}
-
 BObjectImp* BLong::selfBitXorObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfBitXorObj( *this );
@@ -341,15 +300,6 @@ BObjectImp* BLong::selfBitXorObj( const BLong& objimp ) const
 {
   return new BLong( lval_ ^ objimp.lval_ );
 }
-void BLong::selfBitXorObjImp( BObjectImp& objimp, BObject& obj )
-{
-  objimp.selfBitXorObj( *this, obj );
-}
-void BLong::selfBitXorObj( BLong& objimp, BObject& /*obj*/ )
-{
-  lval_ ^= objimp.lval_;
-}
-
 BObjectImp* BLong::bitnot() const
 {
   return new BLong( ~lval_ );

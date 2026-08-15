@@ -1,0 +1,100 @@
+use uo;
+use os;
+
+include "testutil";
+
+// One object of each item subclass that carries its own by-name member and method handlers.
+const DOOR_OBJTYPE      := 0x06a5;
+const CONTAINER_OBJTYPE := 0x200001;
+const SPELLBOOK_OBJTYPE := 0x210001;
+const ARMOR_OBJTYPE     := 0x301517;
+const WEAPON_OBJTYPE    := 0x200004;
+
+program testbyname()
+  return 1;
+endprogram
+
+// A member name the compiler recognises is resolved to an integer id at compile time. A name
+// it does not recognise falls through every subclass' by-name handler in turn and ends up
+// answering uninit, which is the only way to reach those handlers at all.
+function check_unknown_member( item, label )
+  var v := item.no_such_member_at_all;
+  if ( TypeOf( v ) != "Uninit" )
+    return ret_error( $"{label}: expected uninit reading an unknown member, got {TypeOf( v )}" );
+  endif
+
+  item.no_such_member_at_all := 5;
+  if ( TypeOf( item.no_such_member_at_all ) != "Uninit" )
+    return ret_error( $"{label}: assigning an unknown member should not create it" );
+  endif
+
+  // A double-valued assignment takes a separate by-name path from an integer one.
+  item.no_such_member_at_all := 1.5;
+  if ( TypeOf( item.no_such_member_at_all ) != "Uninit" )
+    return ret_error( $"{label}: assigning an unknown member a real should not create it" );
+  endif
+
+  var res := item.no_such_method_at_all();
+  if ( res )
+    return ret_error( $"{label}: expected a falsy result from an unknown method, got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function byname_on_door( resources )
+  var door := resources.CreateItemAtLocation( 100, 100, 0, DOOR_OBJTYPE );
+  if ( !door )
+    return ret_error( $"failed to create door: {door}" );
+  endif
+  if ( !door.isA( POLCLASS_DOOR ) )
+    return ret_error( "created item is not a door" );
+  endif
+  return check_unknown_member( door, "door" );
+endfunction
+
+exported function byname_on_container( resources )
+  var cont := resources.CreateItemAtLocation( 100, 100, 0, CONTAINER_OBJTYPE );
+  if ( !cont )
+    return ret_error( $"failed to create container: {cont}" );
+  endif
+  if ( !cont.isA( POLCLASS_LOCKABLE ) )
+    return ret_error( "created container is not lockable" );
+  endif
+  return check_unknown_member( cont, "container" );
+endfunction
+
+exported function byname_on_spellbook( resources )
+  var book := resources.CreateItemAtLocation( 100, 100, 0, SPELLBOOK_OBJTYPE );
+  if ( !book )
+    return ret_error( $"failed to create spellbook: {book}" );
+  endif
+  if ( !book.isA( POLCLASS_SPELLBOOK ) )
+    return ret_error( "created item is not a spellbook" );
+  endif
+  return check_unknown_member( book, "spellbook" );
+endfunction
+
+exported function byname_on_equipment( resources )
+  var armor := resources.CreateItemAtLocation( 100, 100, 0, ARMOR_OBJTYPE );
+  if ( !armor )
+    return ret_error( $"failed to create armor: {armor}" );
+  endif
+  if ( !armor.isA( POLCLASS_ARMOR ) )
+    return ret_error( "created item is not armor" );
+  endif
+
+  var weapon := resources.CreateItemAtLocation( 100, 100, 0, WEAPON_OBJTYPE );
+  if ( !weapon )
+    return ret_error( $"failed to create weapon: {weapon}" );
+  endif
+  if ( !weapon.isA( POLCLASS_WEAPON ) )
+    return ret_error( "created item is not a weapon" );
+  endif
+
+  var res := check_unknown_member( armor, "armor" );
+  if ( !res )
+    return res;
+  endif
+  return check_unknown_member( weapon, "weapon" );
+endfunction

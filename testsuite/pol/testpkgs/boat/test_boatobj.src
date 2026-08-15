@@ -1,0 +1,391 @@
+use boat;
+use os;
+use uo;
+
+include "testutil";
+
+// The boat script object: its members, its methods, and the reference object it is handed to a
+// script as. A small boat has the named components; the square boat in itemdesc.cfg has none of
+// them, which is the only way to see what a boat says when a component is missing.
+
+const SMALL_BOAT := 0x11000;
+const SQUARE_BOAT := 0x11005;
+const BOAT_MOUNT := 0x1F01C;
+const CORPSE := 0x2006;
+const LAYER_MOUNT := 25;
+
+// open water, clear of the boats the other test file makes at y 50
+const BOAT_X := 10;
+const BOAT_Y := 70;
+const BOAT_Z := -4;
+
+program testboatobj()
+  return 1;
+endprogram
+
+function make_boat( resmngr, objtype )
+  return resmngr.CreateMultiAtLocation( BOAT_X, BOAT_Y, BOAT_Z, objtype, CRMULTI_FACING_EAST );
+endfunction
+
+// The four singular components, on a boat that has them and on one that does not.
+exported function boat_named_components( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+
+  foreach name in ( { "tillerman", "portplank", "starboardplank", "hold" } )
+    var component := boat.get_member( name );
+    if ( !component )
+      bad.append( $"{name} is missing: {component}" );
+    elseif ( TypeOf( component ) != "ItemRef" )
+      bad.append( $"{name} reads as {TypeOf( component )}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function boat_missing_components( resmngr )
+  var boat := make_boat( resmngr, SQUARE_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a square boat: {boat}" );
+  endif
+  var bad := {};
+
+  foreach name in ( { "tillerman", "portplank", "starboardplank", "hold" } )
+    var component := boat.get_member( name );
+    if ( component.errortext != "This ship doesn't have that component" )
+      bad.append( $"{name} gave {component}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The plural members are each a list of the components of one kind, and the test shard's boats
+// carry none of these kinds, so every one of them is an empty list rather than an error.
+exported function boat_component_lists( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+
+  foreach name in ( { "rope", "wheel", "hull", "tiller", "rudder",
+                      "sails", "storage", "weaponslot" } )
+    var list := boat.get_member( name );
+    if ( TypeOf( list ) != "Array" )
+      bad.append( $"{name} reads as {TypeOf( list )}" );
+    elseif ( list.size() != 0 )
+      bad.append( $"{name} holds {list.size()}" );
+    endif
+  endforeach
+
+  // components covers every kind at once and does find the named ones
+  if ( boat.components.size() < 4 )
+    bad.append( $"components holds {boat.components.size()}, expected at least the named four" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Dying at the wheel takes the boat mount away rather than leaving it on the corpse. Being the
+// actual pilot needs a client, so what is pinned here is the other arm: a character wearing a
+// mount that the boat it stands on does not know as its pilot.
+exported function boat_mount_destroyed_on_death( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BOAT_X, BOAT_Y, BOAT_Z, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var bad := {};
+
+  // the objtype extobj.cfg names as the Boatmount, whose graphic the core insists is 0x3E96
+  var mount := CreateItemAtLocation( BOAT_X, BOAT_Y, BOAT_Z, BOAT_MOUNT );
+  if ( !mount )
+    return ret_error( $"could not create a boat mount: {mount}" );
+  endif
+  var res := EquipItem( npc, mount );
+  if ( !res )
+    return ret_error( $"could not equip the boat mount: {res}" );
+  endif
+  if ( mount.layer != LAYER_MOUNT )
+    bad.append( $"the mount is worn on layer {mount.layer}, expected {LAYER_MOUNT}" );
+  endif
+  if ( boat.pilot != 0 )
+    bad.append( $"the boat took a pilot of its own: {boat.pilot}" );
+  endif
+
+  res := npc.kill();
+  if ( !res )
+    return ret_error( $"could not kill the npc: {res}" );
+  endif
+  // gone, not moved: a destroyed item answers uninit for every member
+  if ( TypeOf( mount.objtype ) != "Uninit" )
+    bad.append( $"the mount outlived its wearer as 0x{mount.objtype:x}" );
+  endif
+
+  // the npc is gone with its death, so its own cleanup cannot take the corpse away
+  foreach corpse in ( ListItemsNearLocationOfType( BOAT_X, BOAT_Y, BOAT_Z, 0, CORPSE ) )
+    DestroyItem( corpse );
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A plank is the one component that knows the boat it belongs to: multi on any other item is
+// whatever multi stands at its position, on a plank it is its own boat.
+exported function boat_plank_multi( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+  var plank := boat.portplank;
+
+  if ( !plank )
+    return ret_error( $"the boat has no port plank: {plank}" );
+  endif
+  if ( plank.multi.serial != boat.serial )
+    bad.append( $"the plank's multi is 0x{plank.multi.serial:x}, expected 0x{boat.serial:x}" );
+  endif
+  if ( plank.get_member( "multi" ).serial != boat.serial )
+    bad.append( $"multi by name is 0x{plank.get_member( "multi" ).serial:x}" );
+  endif
+  // a name the plank does not know is handed on to the item it is
+  if ( plank.get_member( "zzz_no_such" ).errortext != "Member zzz_no_such not found on that object" )
+    bad.append( $"an unknown member gave {plank.get_member( "zzz_no_such" )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A boat with nobody at the wheel answers 0 rather than an error, and set_pilot is how it is
+// given one and taken away again.
+exported function boat_pilot( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  // open water is not a valid spot for an npc, so it has to be forced onto the deck
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", BOAT_X, BOAT_Y, BOAT_Z, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var bad := {};
+
+  if ( boat.pilot != 0 )
+    bad.append( $"a new boat has a pilot: {boat.pilot}" );
+  endif
+  if ( boat.set_pilot().errortext != "Not enough parameters" )
+    bad.append( "set_pilot() was not refused" );
+  endif
+  if ( boat.set_pilot( 5 ).errortext != "Invalid parameters" )
+    bad.append( "a number other than zero was accepted as a pilot" );
+  endif
+  if ( boat.set_pilot( "x" ).errortext != "Invalid parameters" )
+    bad.append( "a string was accepted as a pilot" );
+  endif
+
+  // a pilot has to be at the wheel in person: the character needs a client, so putting one
+  // there at all belongs to the client tests
+  var res := boat.set_pilot( npc );
+  if ( res.errortext != "That character is not connected." )
+    bad.append( $"an offline character was made pilot: {res}" );
+  endif
+  if ( boat.pilot != 0 )
+    bad.append( $"the pilot is {boat.pilot} after a refused set" );
+  endif
+
+  // zero is the way to say "nobody", and it works whether or not there was one
+  res := boat.set_pilot( 0 );
+  if ( !res )
+    bad.append( $"clearing the pilot was refused: {res}" );
+  elseif ( boat.pilot != 0 )
+    bad.append( $"the pilot is still {boat.pilot}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// move_offline_mobiles takes a position with or without a realm. Nobody can log out on a boat
+// during a test run, so the list it walks is empty and it only has to answer.
+exported function boat_move_offline_mobiles( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+
+  if ( boat.has_offline_mobiles != 0 )
+    bad.append( $"a new boat has offline mobiles: {boat.has_offline_mobiles}" );
+  endif
+  if ( boat.move_offline_mobiles().errortext != "Not enough parameters" )
+    bad.append( "no parameters were accepted" );
+  endif
+  if ( boat.move_offline_mobiles( 100, 100 ).errortext != "Not enough parameters" )
+    bad.append( "two parameters were accepted" );
+  endif
+  if ( boat.move_offline_mobiles( 100, 100, 0 ) != 1 )
+    bad.append( "a position without a realm was refused" );
+  endif
+  if ( boat.move_offline_mobiles( 100, 100, 0, _DEFAULT_REALM ) != 1 )
+    bad.append( "a position with a realm was refused" );
+  endif
+  if ( !boat.move_offline_mobiles( "x", 100, 0 ).errortext.find( "Expected param 0" ) )
+    bad.append( "a non-numeric coordinate was accepted" );
+  endif
+  if ( !boat.move_offline_mobiles( "x", 100, 0, _DEFAULT_REALM ).errortext.find( "Expected param 0" ) )
+    bad.append( "a non-numeric coordinate with a realm was accepted" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A boat can be reshaped into any of the alternate multiids its itemdesc lists, by index.
+exported function boat_alternate_multiid( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+  var original := boat.multiid;
+
+  if ( boat.set_alternate_multiid().errortext != "Not enough parameters" )
+    bad.append( "no parameter was accepted" );
+  endif
+  if ( !boat.set_alternate_multiid( "x" ).errortext.find( "Expected param 0" ) )
+    bad.append( "a non-numeric index was accepted" );
+  endif
+  // the list starts with the boat's own multiid, so this itemdesc's two AlternateMultiID lines
+  // make three valid indexes and 3 is the first one past the end
+  if ( boat.set_alternate_multiid( 3 ).errortext != "Index out of range" )
+    bad.append( "an index past the end was accepted" );
+  endif
+
+  if ( boat.set_alternate_multiid( 0 ) != 1 )
+    bad.append( "switching to the boat's own multiid was refused" );
+  endif
+  if ( boat.multiid != original )
+    bad.append( $"multiid moved to {boat.multiid} for index 0, expected {original}" );
+  endif
+  // the facing offset is kept, so only the base of the multiid changes
+  if ( boat.set_alternate_multiid( 1 ) != 1 )
+    bad.append( "the first alternate was refused" );
+  endif
+  if ( boat.multiid != original + 4 )
+    bad.append( $"multiid is {boat.multiid} for index 1, expected {original + 4}" );
+  endif
+  if ( boat.set_alternate_multiid( 2 ) != 1 )
+    bad.append( "the second alternate was refused" );
+  endif
+  if ( boat.multiid != original + 8 )
+    bad.append( $"multiid is {boat.multiid} for index 2, expected {original + 8}" );
+  endif
+
+  // a boat with no AlternateMultiID lines still has its own, and nothing beyond it
+  var square := make_boat( resmngr, SQUARE_BOAT );
+  if ( !square )
+    bad.append( $"could not launch a square boat: {square}" );
+  else
+    if ( square.set_alternate_multiid( 0 ) != 1 )
+      bad.append( "a boat with no alternates refused its own multiid" );
+    endif
+    if ( square.set_alternate_multiid( 1 ).errortext != "Index out of range" )
+      bad.append( "a boat with no alternates accepted index 1" );
+    endif
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The reference a script holds a boat through: what it says it is, and how it answers a name
+// the compiler could not resolve.
+exported function boat_reference_object( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+
+  if ( TypeOf( boat ) != "BoatRef" )
+    bad.append( $"typeof {TypeOf( boat )}" );
+  endif
+  if ( TypeOfInt( boat ) == 0 )
+    bad.append( "typeofint answered 0" );
+  endif
+  // a boat that still exists is true
+  if ( !boat )
+    bad.append( "a live boat is not true" );
+  endif
+  if ( boat != boat )
+    bad.append( "a boat does not equal itself" );
+  endif
+
+  // by name: one the object model knows, and one nothing knows
+  if ( TypeOf( boat.get_member( "multiid" ) ) != "Integer" )
+    bad.append( $"multiid by name reads {TypeOf( boat.get_member( "multiid" ) )}" );
+  endif
+  if ( TypeOf( boat.no_such_member_at_all ) != "Uninit" )
+    bad.append( "an unknown member did not read uninit" );
+  endif
+  if ( boat.no_such_method_at_all() )
+    bad.append( "an unknown method answered something" );
+  endif
+
+  // set_member by name, once per value type the reference knows how to pass on
+  boat.set_member( "name", "testboat" );
+  if ( boat.name != "testboat" )
+    bad.append( $"name is {boat.name}" );
+  endif
+  boat.set_member( "color", 5 );
+  if ( boat.color != 5 )
+    bad.append( $"color is {boat.color}" );
+  endif
+  boat.set_member( "quality", 2.5 );
+  if ( boat.quality != 2.5 )
+    bad.append( $"quality is {boat.quality}" );
+  endif
+  // assigning a name nothing knows takes the by-name route on the reference and is refused
+  // rather than creating the member
+  boat.no_such_member_at_all := 5;
+  if ( TypeOf( boat.no_such_member_at_all ) != "Uninit" )
+    bad.append( "assigning an unknown member created it" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

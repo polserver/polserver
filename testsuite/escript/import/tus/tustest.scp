@@ -1,0 +1,12 @@
+// A TUS .scp import, read by cfgfile::LoadTusScpFile. Properties before the first section
+// header land in element 0; every "[...]" line starts another one.
+VERSION=1
+
+[ITEMDEF 04001]
+NAME=Test Item
+VALUE=25
+// a comment inside a section
+WEIGHT 3
+
+[ ITEMDEF 04002 ]
+NAME=Second

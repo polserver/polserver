@@ -1,0 +1,325 @@
+use os;
+use uo;
+
+include "testutil";
+
+// The equipment family: what an Equipment, a UArmor and a UWeapon add to an item. Each class only
+// answers for its own members, so most of the file is one class being asked for the other's --
+// that is what reaches the default arm of every switch, and it is where the by-name routes differ
+// between the three.
+
+const ARMOR := 0x301517; // Ar 50
+const WEAPON := 0x200004; // Attribute Tactics
+
+program testequipment()
+  return 1;
+endprogram
+
+function make_armor( resmngr )
+  return resmngr.CreateItemAtLocation( 0, 0, 0, ARMOR );
+endfunction
+
+function make_weapon( resmngr )
+  return resmngr.CreateItemAtLocation( 0, 0, 0, WEAPON );
+endfunction
+
+function make_npc( resmngr )
+  return resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", 100, 100, 0 );
+endfunction
+
+// ar is what the armor is worth now, ar_base what its itemdesc says, ar_mod the difference.
+exported function equip_armor_members( resmngr )
+  var armor := make_armor( resmngr );
+  if ( !armor )
+    return ret_error( $"could not create armor: {armor}" );
+  endif
+  var bad := {};
+
+  if ( armor.ar_base != 50 )
+    bad.append( $"ar_base is {armor.ar_base}, expected the itemdesc's 50" );
+  endif
+  if ( armor.ar_mod != 0 )
+    bad.append( $"a fresh piece of armor has ar_mod {armor.ar_mod}" );
+  endif
+  if ( armor.ar != armor.ar_base + armor.ar_mod )
+    bad.append( $"ar {armor.ar} is not ar_base {armor.ar_base} plus ar_mod {armor.ar_mod}" );
+  endif
+
+  armor.ar_mod := 5;
+  if ( armor.ar_mod != 5 )
+    bad.append( $"after setting it ar_mod is {armor.ar_mod}" );
+  endif
+  if ( armor.ar != 55 )
+    bad.append( $"ar is {armor.ar} with an ar_mod of 5" );
+  endif
+  if ( armor.ar_base != 50 )
+    bad.append( $"ar_base moved to {armor.ar_base}" );
+  endif
+
+  // intrinsic is an Equipment member, so the armor answers it too
+  if ( armor.intrinsic != 0 )
+    bad.append( $"a created piece of armor reports intrinsic {armor.intrinsic}" );
+  endif
+
+  // an item member set through the equipment classes still reaches Item
+  armor.color := 0x123;
+  if ( armor.color != 0x123 )
+    bad.append( $"the armor's color is {armor.color}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Changing the ar_mod of armor somebody is wearing has to reach the wearer.
+exported function equip_armor_on_wearer( resmngr )
+  var npc := make_npc( resmngr );
+  var armor := make_armor( resmngr );
+  if ( !npc || !armor )
+    return ret_error( $"could not set up: {npc} {armor}" );
+  endif
+  var bad := {};
+
+  var res := EquipItem( npc, armor );
+  if ( !res )
+    return ret_error( $"could not equip the armor: {res}" );
+  endif
+
+  // the wearer's ar is not the sum of what it wears: each piece counts only for the zones it
+  // covers, weighted by that zone's Chance in armrzone.cfg, so the direction is what is pinned
+  var before := npc.ar;
+  armor.ar_mod := 7;
+  if ( npc.ar <= before )
+    bad.append( $"the wearer's ar is {npc.ar}, was {before} before an ar_mod of 7" );
+  endif
+  armor.ar_mod := 0;
+  if ( npc.ar != before )
+    bad.append( $"the wearer's ar stayed at {npc.ar} after the ar_mod was taken away, was {before}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A weapon's own members, and the attribute its itemdesc names.
+exported function equip_weapon_members( resmngr )
+  var weapon := make_weapon( resmngr );
+  if ( !weapon )
+    return ret_error( $"could not create a weapon: {weapon}" );
+  endif
+  var bad := {};
+
+  if ( weapon.attribute != "Tactics" )
+    bad.append( $"attribute is {weapon.attribute}" );
+  endif
+  if ( weapon.intrinsic != 0 )
+    bad.append( $"a created weapon reports intrinsic {weapon.intrinsic}" );
+  endif
+
+  weapon.dmg_mod := 3;
+  if ( weapon.dmg_mod != 3 )
+    bad.append( $"dmg_mod is {weapon.dmg_mod}" );
+  endif
+  weapon.speed_mod := 4;
+  if ( weapon.speed_mod != 4 )
+    bad.append( $"speed_mod is {weapon.speed_mod}" );
+  endif
+
+  weapon.color := 0x123;
+  if ( weapon.color != 0x123 )
+    bad.append( $"the weapon's color is {weapon.color}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A mobile that carries no weapon is given an intrinsic one, which is shared and must not be
+// changed -- so every setter on it is refused. Only refused calls are made here for that reason.
+exported function equip_intrinsic_weapon( resmngr )
+  var npc := make_npc( resmngr );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var bad := {};
+  var weapon := npc.weapon;
+  var refusal := "Cannot alter an intrinsic NPC weapon member values";
+
+  if ( !weapon )
+    return ret_error( $"an npc with no weapon has none: {weapon}" );
+  endif
+  if ( weapon.intrinsic != 1 )
+    bad.append( $"an npc's own weapon reports intrinsic {weapon.intrinsic}" );
+  endif
+
+  if ( weapon.set_member( "dmg_mod", 5 ).errortext != refusal )
+    bad.append( $"an integer member was taken: {weapon.set_member( "dmg_mod", 5 )}" );
+  endif
+  if ( weapon.set_member( "weight_multiplier_mod", 2.0 ).errortext != refusal )
+    bad.append( $"a real member was taken: {weapon.set_member( "weight_multiplier_mod", 2.0 )}" );
+  endif
+
+  // the string members are refused as well, and the weapon is left alone: a hit script written
+  // here would be the hit script of every unarmed mobile on the shard
+  var hitscript := weapon.hitscript;
+  var name := weapon.name;
+  if ( weapon.set_member( "hitscript", ":testitems:noscript" ).errortext != refusal )
+    bad.append( $"the hit script was taken: {weapon.set_member( "hitscript", ":x:y" )}" );
+  endif
+  if ( weapon.set_member( "name", "renamed" ).errortext != refusal )
+    bad.append( $"the name was taken: {weapon.set_member( "name", "renamed" )}" );
+  endif
+  if ( weapon.hitscript != hitscript )
+    bad.append( $"the hit script is now {weapon.hitscript}, was {hitscript}" );
+  endif
+  if ( weapon.name != name )
+    bad.append( $"the weapon is now called {weapon.name}, was {name}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A template may name an intrinsic shield, which is shared the same way the weapon is and is
+// refused the same way. load_npc is the template that has one.
+exported function equip_intrinsic_shield( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var bad := {};
+  var shield := npc.shield;
+  var refusal := "Cannot alter an intrinsic NPC shield member values";
+
+  if ( !shield )
+    return ret_error( $"the template's shield is missing: {shield}" );
+  endif
+  if ( shield.intrinsic != 1 )
+    bad.append( $"an npc's own shield reports intrinsic {shield.intrinsic}" );
+  endif
+
+  var ar_mod := shield.ar_mod;
+  var onhitscript := shield.onhitscript;
+  var name := shield.name;
+
+  foreach entry in ( { array{ "ar_mod", 5 },
+                       array{ "onhitscript", ":testitems:noscript" },
+                       array{ "name", "renamed" },
+                       array{ "weight_multiplier_mod", 2.0 }
+                     } )
+    if ( shield.set_member( entry[1], entry[2] ).errortext != refusal )
+      bad.append( $"{entry[1]} was taken: {shield.set_member( entry[1], entry[2] )}" );
+    endif
+  endforeach
+
+  if ( shield.ar_mod != ar_mod )
+    bad.append( $"ar_mod is now {shield.ar_mod}, was {ar_mod}" );
+  endif
+  if ( shield.onhitscript != onhitscript )
+    bad.append( $"onhitscript is now {shield.onhitscript}, was {onhitscript}" );
+  endif
+  if ( shield.name != name )
+    bad.append( $"the shield is now called {shield.name}, was {name}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Armor asked for a weapon's members, and for a name nothing knows.
+exported function equip_armor_foreign_members( resmngr )
+  var armor := make_armor( resmngr );
+  if ( !armor )
+    return ret_error( $"could not create armor: {armor}" );
+  endif
+  var bad := {};
+
+  foreach name in ( { "dmg_mod", "zzz_no_such" } )
+    if ( armor.get_member( name ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"reading {name} gave {armor.get_member( name )}" );
+    endif
+    if ( armor.set_member( name, "x" ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"writing {name} as a string gave {armor.set_member( name, "x" )}" );
+    endif
+    if ( armor.set_member( name, 5 ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"writing {name} as an integer gave {armor.set_member( name, 5 )}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The same for a weapon asked for armor's members.
+exported function equip_weapon_foreign_members( resmngr )
+  var weapon := make_weapon( resmngr );
+  if ( !weapon )
+    return ret_error( $"could not create a weapon: {weapon}" );
+  endif
+  var bad := {};
+
+  foreach name in ( { "ar_base", "zzz_no_such" } )
+    if ( weapon.get_member( name ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"reading {name} gave {weapon.get_member( name )}" );
+    endif
+    if ( weapon.set_member( name, "x" ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"writing {name} as a string gave {weapon.set_member( name, "x" )}" );
+    endif
+    if ( weapon.set_member( name, 5 ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"writing {name} as an integer gave {weapon.set_member( name, 5 )}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The real-valued route. Armor has none of its own and uses Equipment's; a weapon has one, which
+// hands an unknown name back to Equipment's.
+exported function equip_double_setters( resmngr )
+  var armor := make_armor( resmngr );
+  var weapon := make_weapon( resmngr );
+  if ( !armor || !weapon )
+    return ret_error( $"could not set up: {armor} {weapon}" );
+  endif
+  var bad := {};
+
+  if ( armor.set_member( "weight_multiplier_mod", 2.0 ) != 2.0 )
+    bad.append( $"armor refused a real: {armor.set_member( "weight_multiplier_mod", 2.0 )}" );
+  endif
+  if ( weapon.set_member( "weight_multiplier_mod", 2.0 ) != 2.0 )
+    bad.append( $"a weapon refused a real: {weapon.set_member( "weight_multiplier_mod", 2.0 )}" );
+  endif
+
+  // a member that exists but takes no real, and a name that does not exist at all
+  foreach entry in ( { array{ armor, "ar_mod" },
+                       array{ weapon, "dmg_mod" },
+                       array{ armor, "zzz_no_such" },
+                       array{ weapon, "zzz_no_such" }
+                     } )
+    var item := entry[1];
+    var name := entry[2];
+    if ( item.set_member( name, 2.5 ).errortext != $"Member {name} not found on that object" )
+      bad.append( $"{name} as a real gave {item.set_member( name, 2.5 )}" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

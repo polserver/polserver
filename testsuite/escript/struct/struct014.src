@@ -1,0 +1,28 @@
+// Every method a struct has, and what each one says when it is called wrongly. A struct key
+// is always a string, so a key of any other type is refused rather than converted.
+
+program struct014()
+
+  var s := struct{ a := 1, b := 2 };
+
+  print( "keys:        " + s.keys() );
+  print( "keys param:  " + s.keys( 1 ) );
+  print( "size:        " + s.size() );
+  print( "size param:  " + s.size( 1 ) );
+
+  print( "exists:      " + s.exists( "b" ) );
+  print( "exists miss: " + s.exists( "zz" ) );
+  print( "exists int:  " + s.exists( 1 ) );
+  print( "exists none: " + s.exists() );
+
+  // erase answers how many members it removed, so erasing a member that is not there is 0
+  print( "erase:       " + s.erase( "a" ) );
+  print( "erase miss:  " + s.erase( "a" ) );
+  print( "erase int:   " + s.erase( 1 ) );
+  print( "erase none:  " + s.erase() );
+
+  // a method name the compiler does not know is looked up on the struct by name
+  print( "unknown:     " + s.zzz_not_a_method() );
+  print( "left:        " + s );
+
+endprogram

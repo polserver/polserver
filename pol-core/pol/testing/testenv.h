@@ -13,14 +13,6 @@
 
 namespace Pol
 {
-namespace Mobile
-{
-class NPC;
-}
-namespace Items
-{
-class Item;
-}
 namespace Testing
 {
 class UnitTest
@@ -60,35 +52,12 @@ private:
   static unsigned int successes;
 };
 
-extern Mobile::NPC* test_banker;
-extern Mobile::NPC* test_banker2;
-extern Mobile::NPC* test_banker3;
-extern Items::Item* test_guard_door;
-extern Mobile::NPC* test_water_elemental;
-extern Mobile::NPC* test_seaserpent;
-extern Items::Item* test_chest1;
-extern Items::Item* test_chest2;
-extern Mobile::NPC* test_orclord;
-
-Items::Item* add_item( unsigned int objtype, unsigned short x, unsigned short y, short z );
-void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z );
-void add_multi( unsigned int objtype, unsigned short x, unsigned short y, short z, int flags );
-Mobile::NPC* add_npc( const char* npctype, unsigned short x, unsigned short y, short z );
-
-
-void create_test_environment();
-
 void test_splitnamevalue();
 void test_convertquotedstring();
 void test_sanitizeUnicodeWithIso();
 void test_encodingconversions();
 
-void map_test();
 void skilladv_test();
-void walk_test();
-void multiwalk_test();
-void drop_test();
-void los_test();
 void dynprops_test();
 void dummy();
 void packet_test();
@@ -109,6 +78,8 @@ void zone_bookkeeping_test();
 void place_at_test();
 void container_slot_test();
 void clamp_test();
+void crypt_test();
+void webscript_test();
 void maptile_geometry_test();
 void mapsize_validation_test();
 void uoextension_test();

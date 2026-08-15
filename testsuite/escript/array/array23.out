@@ -1,0 +1,27 @@
+{ 1, 2 }
+{ 2, 3 }
+error{ errortext = "Array end index out of bounds" }
+error{ errortext = "Array start index out of bounds" }
+error{ errortext = "Array start index out of bounds" }
+{ { 1, 2 }, { 3, 4 } }
+error{ errortext = "Multiple subscript assignment not supported for this type" }
+{ 1, 2, 3 }
+error{ errortext = "Multiple subscript assignment not supported for this type" }
+{ { 1, 2 }, { 3, 4 } }
+error{ errortext = "Multiple subscript assignment not supported for this type" }
+dict{ "k" -> { 7, 8 } }
+error{ errortext = "Multiple subscript assignment not supported for this type" }
+struct{ x = { 1, 2 } }
+error{ errortext = "Multiple subscript assignment not supported for this type" }
+{ 1, 2, 3 }
+azyxef
+{ 1, 42, 3 }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+error{ errortext = "Multiple subscript not supported for this type" }
+3
+7

@@ -284,7 +284,6 @@ public:
   Bscript::BObjectImp* set_script_member_double( const char* membername, double value ) override;
   Bscript::BObjectImp* set_script_member_id_double( const int id,
                                                     double value ) override;  // id test
-  Bscript::BObjectImp* script_method( const char* methodname, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
 
   bool script_isa( unsigned isatype ) const override;

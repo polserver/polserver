@@ -16,9 +16,9 @@
 #include "clib/rawtypes.h"
 #include "plib/udatfile.h"
 #include "pol/item/item.h"
-#include "pol/reftypes.h"
 #include "pol/multi/customhouses.h"
 #include "pol/multi/multi.h"
+#include "pol/reftypes.h"
 
 namespace Pol
 {
@@ -128,7 +128,6 @@ protected:
   explicit UHouse( const Items::ItemDesc& itemdesc );
   void create_components();
 
-  Bscript::BObjectImp* script_method( const char* membername, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test

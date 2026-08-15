@@ -1,0 +1,47 @@
+use cfgfile;
+
+// Every method a dictionary has, called wrongly, plus the one key type that is accepted and
+// then never works: an application object.
+
+program dict018()
+
+  var d := dictionary{ "a" -> 1, 2 -> "two", 3.5 -> "real" };
+
+  print( "size:        " + d.size() );
+  print( "size param:  " + d.size( 1 ) );
+  print( "keys param:  " + d.keys( 1 ) );
+
+  print( "exists:      " + d.exists( 2 ) );
+  print( "exists bad:  " + d.exists( struct{} ) );
+  print( "exists none: " + d.exists() );
+
+  print( "insert:      " + d.insert( "k", 9 ) );
+  print( "insert bad:  " + d.insert( struct{}, 1 ) );
+  print( "insert one:  " + d.insert( "k" ) );
+
+  print( "erase:       " + d.erase( "a" ) );
+  print( "erase bad:   " + d.erase( struct{} ) );
+  print( "erase none:  " + d.erase() );
+
+  print( "unknown:     " + d.zzz_not_a_method() );
+
+  // .+ adds a member, and says so when it is already there
+  print( "dotplus:     " + ( d.+added ) );
+  print( "dotplus 2:   " + ( d.+added ) );
+  print( "size now:    " + d.size() );
+
+  print( "--- an application object as a key" );
+  // the key checks accept one, but a lookup can never match it again: the dictionary stores a
+  // copy of the key and application objects compare by identity, so the copy is a third thing
+  var elem := ReadConfigFile( ":cfgtests:cfg2" )[1];
+  var objdict := dictionary{};
+  print( "insert:      " + objdict.insert( elem, "value" ) );
+  print( "size:        " + objdict.size() );
+  print( "exists:      " + objdict.exists( elem ) );
+  print( "read:        " + objdict[elem] );
+  print( "erase:       " + objdict.erase( elem ) );
+  // assigning through the subscript does not overwrite it either, it adds another entry
+  objdict[elem] := "assigned";
+  print( "size after:  " + objdict.size() );
+
+endprogram

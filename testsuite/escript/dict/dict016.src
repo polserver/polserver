@@ -1,0 +1,33 @@
+var dict := dictionary{ "k" -> 1, "j" -> 2 };
+
+print( TypeOf( dict ) );
+print( TypeOfInt( dict ) );
+print( dict.size() );
+print( dict.keys() );
+print( dict.exists( "k" ) );
+print( dict.exists( "nope" ) );
+
+// A member added with .+ becomes an ordinary string key.
+dict.+m := 7;
+print( dict );
+print( dict["m"] );
+print( dict.size() );
+
+// .- is a struct operator; on a dictionary it is accepted and does nothing.
+dict.-m;
+print( dict );
+print( dict.size() );
+
+// A method the compiler does not know is looked up by name at runtime.
+var unknown := dict.no_such_method();
+print( unknown );
+
+// Keys of mixed types sort by type first.
+var mixed := dictionary{};
+mixed[3] := "three";
+mixed["a"] := "letter";
+mixed[1] := "one";
+print( mixed );
+print( mixed.size() );
+mixed.erase( 3 );
+print( mixed );

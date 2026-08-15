@@ -14,8 +14,8 @@
 #include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 #include "pol/dynproperties.h"
-#include "pol/scrdef.h"
 #include "pol/item/equipmnt.h"
+#include "pol/scrdef.h"
 
 namespace Pol
 {
@@ -79,6 +79,7 @@ protected:
                                              const std::string& value ) override;  // id test
   Bscript::BObjectImp* set_script_member_id( const int id,
                                              int value ) override;  // id test
+  Bscript::BObjectImp* set_script_member_id_double( const int id, double value ) override;
   bool script_isa( unsigned isatype ) const override;
 
   UArmor( const ArmorDesc& descriptor, const ArmorDesc* permanent_descriptor );

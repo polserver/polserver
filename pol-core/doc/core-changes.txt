@@ -1,4 +1,12 @@
 -- POL100.3.0 --
+08-14-2026 Turley:
+    Fixed: leak when a character creation was refused
+    Fixed: item.hasexistingstack returns now uninit when no item was found
+    Fixed: splitting part of a force-stacked unstackable stack destroyed the remainder, item.splitstackat and item.splitstackinto now leave it behind
+    Fixed: an intrinsic NPC weapon took its string members (hitscript, name), which changed them for every mobile armed with it
+    Fixed: an intrinsic NPC shield took every member it was given, which changed it for every mobile carrying it
+    Fixed: multiple subscript assignment (a[x,y] := v) crashed on arrays and dicts and was silently ignored on other types, now returns an error
+    Fixed: uo::AssignRectToWeatherRegion was wrongly defined in the em file thus never usable.
 08-10-2026 Nando:
     Changed: item.x, item.y and item.z on an equipped item now report where its wearer is
              standing, and follow that character as they move. They used to report the

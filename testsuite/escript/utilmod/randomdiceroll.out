@@ -2,3 +2,14 @@
 1
 1
 1
+1
+1
+error{ errortext = "Error reading die string '0d6': Got a die count of 0?  strtoul failed?" }
+error{ errortext = "Error reading die string '1x6d': Didn't expect 'x' before the 'D'" }
+error{ errortext = "Error reading die string '1dx': expected a number after the 'D', got 'x'" }
+error{ errortext = "Error reading die string '1d0': Die type of '0' doesn't make sense!" }
+error{ errortext = "Error reading die string '1d6*2': Expected '+' or '-' after xDy, got '*'" }
+error{ errortext = "Error reading die string 'nonsense': Expected digit at beginning, got 'n'" }
+error{ errortext = "Error reading die string '': Expected digit at beginning, got '" }
+error{ errortext = "RandomDiceRoll() expects a String as parameter" }
+error{ errortext = "RandomDiceRoll() expects a String as parameter" }

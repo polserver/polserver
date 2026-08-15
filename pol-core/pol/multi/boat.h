@@ -16,12 +16,12 @@
 #include <string>
 #include <vector>
 
-#include "pol/base/position.h"
 #include "bscript/bobject.h"
 #include "clib/rawtypes.h"
-#include "pol/multi/multi.h"
 #include "plib/poltype.h"
 #include "plib/uconst.h"
+#include "pol/base/position.h"
+#include "pol/multi/multi.h"
 #include "pol/reftypes.h"
 
 namespace Pol
@@ -99,7 +99,7 @@ class UBoat final : public UMulti
     const MultiDef& mdef;
     Core::Pos4d oldpos;
 
-    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ){};
+    explicit BoatContext( const UBoat& ub ) : mdef( ub.multidef() ), oldpos( ub.pos() ) {};
     friend class UBoat;
     BoatContext& operator=( const BoatContext& ) { return *this; }
   };
@@ -205,7 +205,6 @@ protected:
 
   Bscript::BObjectImp* get_script_member( const char* membername ) const override;
   Bscript::BObjectImp* get_script_member_id( const int id ) const override;  /// id test
-  Bscript::BObjectImp* script_method( const char* methodname, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
   bool script_isa( unsigned isatype ) const override;
   Bscript::BObjectImp* items_list() const;

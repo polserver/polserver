@@ -14,11 +14,8 @@
 #include "clib/logfacility.h"
 #include "clib/maputil.h"
 #include "clib/rawtypes.h"
-#include "plib/maptile.h"
 #include "pol/dynproperties.h"
-#include "pol/globals/uvars.h"
 #include "pol/network/packethelper.h"
-#include "pol/realms/realm.h"
 #include "pol/testing/testenv.h"
 
 #include <curl/curl.h>
@@ -28,12 +25,6 @@
 namespace Pol::Testing
 {
 void dummy() {}
-
-void map_test()
-{
-  Plib::MAPTILE_CELL cell = Core::gamestate.main_realm->getmaptile( Core::Pos2d( 1453, 1794 ) );
-  INFO_PRINTLN( "{} {}", cell.landtile, cell.z );
-}
 
 void dynprops_test()
 {

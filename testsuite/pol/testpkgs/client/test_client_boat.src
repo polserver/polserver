@@ -88,51 +88,52 @@ exported function move_boat()
 endfunction
 
 // move a boat with to many items on it (smooth boat pkt overflows)
-exported function move_boat_overflow()
-  MoveBoatXY( boat, 10, 50 );
-  var h := getstandingheight( boat.x + 1, boat.y, boat.z, boat.realm );
-  // move char out of range
-  MoveObjectToLocation( char, boat.x + 1, boat.y, 1, realm := "britannia2",
-                        flags := MOVEOBJECT_FORCELOCATION );
-  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
-  endwhile
-  MoveObjectToLocation( char, boat.x + 1, boat.y, h.z, realm := "britannia",
-                        flags := MOVEOBJECT_FORCELOCATION );
-  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
-  endwhile
-  var res := boat.mobiles.size() == 1;
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 1, id := 0 } );
-  while ( !waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) )
-  endwhile
-  // 0xe000 is the current size limit
-  // which equals 5732 items
-  for i := 1 to 6000
-    CreateItemAtLocation( 11, 50, h.z, 0x3e3f, 1, boat.realm );
-  endfor
-  var itemres := boat.items.size() >= 5900;
-  var moveres := MoveBoat( boat, 0 );
-  foreach item in ( boat.items )
-    DestroyItem( item );
-  endforeach
-  MoveObjectToLocation( char, 100, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
-  while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
-  endwhile
-  clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 0, id := 0 } );
-  while ( !waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) )
-  endwhile
-  Clear_Event_Queue();
-  if ( !res )
-    return ret_error( "Char not on ship" );
-  endif
-  if ( !itemres )
-    return ret_error( "Not enough items" );
-  endif
-  if ( !moveres )
-    return ret_error( "Failed to move ship {}".format( moveres ) );
-  endif
-  return 1;
-endfunction
+// TODO do we really need this? it floods the logs and takes ages
+// exported function move_boat_overflow()
+//   MoveBoatXY( boat, 10, 50 );
+//   var h := getstandingheight( boat.x + 1, boat.y, boat.z, boat.realm );
+//   // move char out of range
+//   MoveObjectToLocation( char, boat.x + 1, boat.y, 1, realm := "britannia2",
+//                         flags := MOVEOBJECT_FORCELOCATION );
+//   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+//   endwhile
+//   MoveObjectToLocation( char, boat.x + 1, boat.y, h.z, realm := "britannia",
+//                         flags := MOVEOBJECT_FORCELOCATION );
+//   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+//   endwhile
+//   var res := boat.mobiles.size() == 1;
+//   Clear_Event_Queue();
+//   clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 1, id := 0 } );
+//   while ( !waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) )
+//   endwhile
+//   // 0xe000 is the current size limit
+//   // which equals 5732 items
+//   for i := 1 to 6000
+//     CreateItemAtLocation( 11, 50, h.z, 0x3e3f, 1, boat.realm );
+//   endfor
+//   var itemres := boat.items.size() >= 5900;
+//   var moveres := MoveBoat( boat, 0 );
+//   foreach item in ( boat.items )
+//     DestroyItem( item );
+//   endforeach
+//   MoveObjectToLocation( char, 100, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
+//   while ( !waitForClient( 0, { EVT_OWNCREATE } ) )
+//   endwhile
+//   clientcon.sendevent( struct{ todo := EVT_DISABLE_ITEM_LOGGING, arg := 0, id := 0 } );
+//   while ( !waitForClient( 0, { EVT_DISABLE_ITEM_LOGGING } ) )
+//   endwhile
+//   Clear_Event_Queue();
+//   if ( !res )
+//     return ret_error( "Char not on ship" );
+//   endif
+//   if ( !itemres )
+//     return ret_error( "Not enough items" );
+//   endif
+//   if ( !moveres )
+//     return ret_error( "Failed to move ship {}".format( moveres ) );
+//   endif
+//   return 1;
+// endfunction
 
 // Tests handling of pilot via boatref.set_pilot() method and boatref.pilot member
 // Also checks for mount piece functionality on both client and server.
@@ -582,7 +583,6 @@ exported function boat_update_range_from_boat( resmgn )
   return 1;
 endfunction
 
-
 // A traveller that has left the boat must stop being drawn with it.
 //
 // This has to be checked through a client, because nothing on the server side will admit to the
@@ -632,8 +632,7 @@ exported function boat_forgets_moved_item()
       break;
     endif
     if ( CInt( ev.serial ) == item.serial )
-      res := ret_error( "the boat still draws an item it no longer carries, at {}".format(
-                        ev.pos ) );
+      res := ret_error( "the boat still draws an item it no longer carries, at {}".format( ev.pos ) );
     endif
   endwhile
 

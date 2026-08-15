@@ -110,13 +110,11 @@ public:
   BObjectImp* selfMinusObj( const BLong& objimp ) const override;
   BObjectImp* selfMinusObj( const Double& objimp ) const override;
   BObjectImp* selfMinusObj( const String& objimp ) const override;
-  BObjectImp* selfMinusObj( const ObjArray& objimp ) const override;
   void selfMinusObjImp( BObjectImp& objimp, BObject& obj ) override;
   void selfMinusObj( BObjectImp& objimp, BObject& obj ) override;
   void selfMinusObj( BLong& objimp, BObject& obj ) override;
   void selfMinusObj( Double& objimp, BObject& obj ) override;
   void selfMinusObj( String& objimp, BObject& obj ) override;
-  void selfMinusObj( ObjArray& objimp, BObject& obj ) override;
 
   BObjectRef OperSubscript( const BObject& obj ) override;
   BObjectRef OperMultiSubscript( std::stack<BObjectRef>& indices ) override;

@@ -1,0 +1,25 @@
+// Both operands are variables, so the optimizer cannot fold these at compile time and the
+// runtime implementations are the ones that produce the result.
+var a := 0xF0;
+var b := 0x3C;
+var shift := 2;
+
+print( a & b );
+print( a | b );
+print( a ^ b );
+print( a << shift );
+print( a >> shift );
+
+// Shifting by a variable width, including the edges.
+var zero := 0;
+var wide := 31;
+print( a << zero );
+print( a >> zero );
+print( 1 << wide );
+
+// A negative left operand keeps its sign through the shifts.
+var negative := -16;
+print( negative >> shift );
+print( negative & b );
+print( negative | b );
+print( negative ^ b );

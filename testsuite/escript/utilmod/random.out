@@ -1,0 +1,12 @@
+0
+1
+error{ errortext = "Parameter 0 value 0 out of expected range of [1..2147483647]" }
+error{ errortext = "Parameter 0 value -1 out of expected range of [1..2147483647]" }
+error{ errortext = "Invalid parameter type.  Expected param 0 as Integer, got String" }
+5
+1
+error{ errortext = "Invalid parameter type.  Expected param 0 as Integer, got String" }
+error{ errortext = "Invalid parameter type.  Expected param 1 as Integer, got String" }
+0
+1
+error{ errortext = "RandomFloat() expects a Real parameter" }

@@ -1,0 +1,42 @@
+--- descriptors
+plain:        DataFileRef
+core:         DataFileRef
+package:      DataFileRef
+malformed:    error{ errortext = "Error in descriptor" }
+create type:  error{ errortext = "Invalid parameter type" }
+listed:       3
+--- opening
+open:         DataFileRef
+open missing: error{ errortext = "Datafile does not exist" }
+open desc:    error{ errortext = "Error in descriptor" }
+open type:    error{ errortext = "Invalid parameter type" }
+unload:       1
+unload miss:  error{ errortext = "Unable to find data store file" }
+unload type:  error{ errortext = "Invalid parameter type" }
+--- integer keys
+element:      DataElemRef
+setprop:      1
+propnames:    { one }
+getprop:      1
+keys:         { 5 }
+find:         DataElemRef
+find missing: error{ errortext = "Element not found" }
+delete:       1
+delete again: error{ errortext = "Element not found" }
+keys after:   {  }
+--- key type is enforced both ways
+create none:  error{ errortext = "not enough parameters to datafile.createelement(key)" }
+create type:  error{ errortext = "datafile.createelement(key): key must be an Integer" }
+find none:    error{ errortext = "not enough parameters to datafile.findelement(key)" }
+find type:    error{ errortext = "datafile.findelement(key): key must be an Integer" }
+delete none:  error{ errortext = "not enough parameters to datafile.deleteelement(key)" }
+delete type:  error{ errortext = "datafile.deleteelement(key): key must be an Integer" }
+screate type: error{ errortext = "datafile.createelement(key): key must be a String" }
+sfind type:   error{ errortext = "datafile.findelement(key): key must be a String" }
+sdelete type: error{ errortext = "datafile.deleteelement(key): key must be a String" }
+sdelete:      error{ errortext = "Element not found" }
+--- by name and by value
+file method:  <uninitialized object>
+elem method:  <uninitialized object>
+copies:       DataFileRef DataElemRef
+copied prop:  7

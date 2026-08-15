@@ -1,0 +1,28 @@
+// Division and modulus by zero are checked by the runtime and answer an error object
+// instead of trapping. Both operands are variables so the optimizer cannot fold these at
+// compile time, which keeps the check in the runtime where it belongs.
+var n := 10;
+var zero := 0;
+var zerof := 0.0;
+
+print( n / zero );
+print( n % zero );
+print( n / zerof );
+
+// The compound forms take the same route and leave the target holding the error.
+var a := 10;
+a /= zero;
+print( a );
+
+var b := 10;
+b %= zero;
+print( b );
+
+// A real divided by zero is checked the same way.
+var d := 2.5;
+print( d / zero );
+print( d / zerof );
+
+// Dividing zero by a non-zero value is ordinary arithmetic.
+print( zero / n );
+print( zero % n );

@@ -112,7 +112,6 @@ public:
                                              int value ) override;  // id test
   Bscript::BObjectImp* set_script_member_id( const int id,
                                              const std::string& ) override;  // id test
-  Bscript::BObjectImp* script_method( const char* methodname, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, Core::UOExecutor& ex ) override;
   Bscript::BObjectImp* custom_script_method( const char* methodname,
                                              Core::UOExecutor& ex ) override;

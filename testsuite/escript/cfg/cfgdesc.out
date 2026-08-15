@@ -1,0 +1,16 @@
+plain:        ConfigFileRef
+core:         ConfigFileRef
+regions:      error{ errortext = "Config file not found" }
+all packages: ConfigFileRef
+unknown pkg:  error{ errortext = "Unable to find package nosuchpkg" }
+no 2nd colon: error{ errortext = "Poorly formed config file descriptor: :cfgtests" }
+append all:   error{ errortext = "" }
+append type:  error{ errortext = "Invalid parameter type" }
+unload cold:  -1
+read:         ConfigFileRef
+unload warm:  0
+unload pkg:   error{ errortext = "Unable to find package nosuchpkg" }
+unload type:  error{ errortext = "Invalid parameter" }
+tus type:     error{ errortext = "Invalid parameter type" }
+tus path:     error{ errortext = "Filename cannot include path information or special characters" }
+tus missing:  error{ errortext = "File not found" }

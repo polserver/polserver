@@ -288,18 +288,6 @@ Bscript::BObjectImp* Map::script_method_id( const int id, UOExecutor& ex )
 }
 
 
-Bscript::BObjectImp* Map::script_method( const char* methodname, UOExecutor& ex )
-{
-  Bscript::BObjectImp* imp = base::script_method( methodname, ex );
-  if ( imp != nullptr )
-    return imp;
-
-  Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
-
 Range2d Map::getrange() const
 {
   return Range2d( Pos2d( xwest, ynorth ), Pos2d( xeast, ysouth ), nullptr );

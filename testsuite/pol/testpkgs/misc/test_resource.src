@@ -1,0 +1,104 @@
+use uo;
+use os;
+
+include "testutil";
+
+// The shard defines one resource type, testres, over the whole 192x192 map with
+// UnitsPerArea 50 (testsuite/pol/regions/resource.cfg and testres.cfg).
+const RES := "testres";
+
+// Coordinates used only by this file, so the depletion it causes cannot disturb other tests.
+const FRESH_X := 180;
+const FRESH_Y := 180;
+const DRAIN_X := 182;
+const DRAIN_Y := 182;
+
+program testresource()
+  return 1;
+endprogram
+
+// Every resource entry point looks the type up by name first.
+exported function resource_unknown_name( unused resmngr )
+  var res := HarvestResource( "no_such_resource", FRESH_X, FRESH_Y, 1, 1 );
+  if ( res || res.errortext != "No resource by that name" )
+    return ret_error( $"HarvestResource: expected No resource by that name, got {res}" );
+  endif
+
+  res := GetHarvestDifficulty( "no_such_resource", FRESH_X, FRESH_Y, 0 );
+  if ( res || res.errortext != "No resource by that name" )
+    return ret_error( $"GetHarvestDifficulty: expected No resource by that name, got {res}" );
+  endif
+
+  res := GetRegionString( "no_such_resource", FRESH_X, FRESH_Y, "UnitsPerArea" );
+  if ( res || res.errortext != "No resource by that name" )
+    return ret_error( $"GetRegionString: expected No resource by that name, got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// A harvest of b units, at most n times, answers b*a. With b=1 and n=1 that is a single unit.
+exported function harvest_takes_one_unit( unused resmngr )
+  var res := HarvestResource( RES, FRESH_X, FRESH_Y, 1, 1 );
+  if ( res != 1 )
+    return ret_error( $"expected one unit harvested, got {res}" );
+  endif
+
+  res := HarvestResource( RES, FRESH_X, FRESH_Y, -1, 1 );
+  if ( res || res.errortext != "b must be >= 0" )
+    return ret_error( $"expected b must be >= 0, got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// An area holds UnitsPerArea units. Draining it answers everything that was left, and a
+// further harvest answers nothing.
+exported function harvest_drains_the_area( unused resmngr )
+  var first := HarvestResource( RES, DRAIN_X, DRAIN_Y, 1, 1000 );
+  if ( first < 1 )
+    return ret_error( $"expected the area to yield its units, got {first}" );
+  endif
+
+  var second := HarvestResource( RES, DRAIN_X, DRAIN_Y, 1, 1000 );
+  if ( second != 0 )
+    return ret_error( $"a drained area should yield nothing, got {second}" );
+  endif
+
+  return 1;
+endfunction
+
+// GetHarvestDifficulty additionally needs a resource-bearing landmark of the given tile type at
+// the location. Grass is not one, so the middle of the map has none.
+exported function difficulty_needs_a_landmark( unused resmngr )
+  var res := GetHarvestDifficulty( RES, FRESH_X, FRESH_Y, 0 );
+  if ( res || res.errortext != "No resource-bearing landmark there" )
+    return ret_error( $"expected No resource-bearing landmark there, got {res}" );
+  endif
+
+  // A tile type the resource does not list at all is refused the same way, before the map is
+  // ever consulted.
+  res := GetHarvestDifficulty( RES, SAND_X, SAND_Y, 0x3 );
+  if ( res || res.errortext != "No resource-bearing landmark there" )
+    return ret_error( $"expected No resource-bearing landmark there for grass, got {res}" );
+  endif
+  return 1;
+endfunction
+
+// testres lists LandTile 0x17, and the generated map lays a sand transition column of exactly
+// that tile down the inside of its water border, so the landmark lookup succeeds there. It
+// first asks the static server for a static of that type and only then falls back to the
+// landtile, which is what makes this the one case that reaches findstatic.
+const SAND_X := 29;
+const SAND_Y := 100;
+
+exported function difficulty_on_a_landmark( unused resmngr )
+  var res := GetHarvestDifficulty( RES, SAND_X, SAND_Y, 0x17 );
+  if ( res.errortext )
+    return ret_error( $"expected a difficulty on the sand column, got {res}" );
+  endif
+  if ( TypeOf( res ) != "Integer" )
+    return ret_error( $"expected an integer difficulty, got {TypeOf( res )} {res}" );
+  endif
+  return 1;
+endfunction

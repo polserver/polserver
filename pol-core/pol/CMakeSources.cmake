@@ -399,8 +399,8 @@ set (pol_sources  # sorted !
   testing/poltest.cpp
   testing/poltest.h
   testing/testclamp.cpp
+  testing/testcrypt.cpp
   testing/testdecay.cpp
-  testing/testdrop.cpp
   testing/testenv.cpp
   testing/testenv.h
   testing/testexpansion.cpp
@@ -417,7 +417,7 @@ set (pol_sources  # sorted !
   testing/testslots.cpp
   testing/testthreadpool.cpp
   testing/testvector.cpp
-  testing/testwalk.cpp
+  testing/testwebscript.cpp
   testing/testwww.cpp
   testing/testzones.cpp
   textcmd.cpp

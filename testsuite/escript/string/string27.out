@@ -1,0 +1,31 @@
+11111111
+0b11111111
+0
+1
+11111111111111111111111111110000
+-0b11111111111111111111111111110000
+10
+0o10
+37777777770
+0o37777777770
+beef
+0xbeef
+ffffffff
+42
+-5
+3
+-3
+<needs Int>
+<needs Int>
+<needs Int>
+<needs Int, Double>
+<bad format: "q">
+11111111
+0b11111111
+10
+0o10
+3
+<bad format: z>
+0xbeef
+<invalid index: #0>
+<invalid index: #2>

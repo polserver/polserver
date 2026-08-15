@@ -266,6 +266,9 @@ BObjectRef ObjArray::OperMultiSubscript( std::stack<BObjectRef>& indices )
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
+
+  // At least two indices always arrive: the compiler emits this instruction only for a
+  // subscript with more than one index (InstructionGenerator::visit_element_access).
   BObjectRef length_ref = indices.top();
   indices.pop();
 

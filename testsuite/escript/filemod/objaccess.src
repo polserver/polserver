@@ -1,0 +1,44 @@
+use file;
+
+// Dynamic access to the objects file.em hands back. The compiler resolves a member or method
+// it knows to an integer id, so the by-name entry points on these classes are only reached by
+// naming something it does not know - which is what every case below does.
+
+const TARGET := ":filetest:scratch/objaccess.dat";
+
+program objaccesstest()
+
+  print( "--- binary file" );
+  var f := OpenBinaryFile( TARGET, OPENMODE_OUT + OPENMODE_TRUNC );
+  // "name" is a member of other script objects, so the lookup finds it and asks this one by id
+  print( "known member: " + f.name );
+  // nothing knows this one, so the name never resolves
+  print( "unknown:      " + f.zzz_not_a_member );
+  print( "unknown mth:  " + f.zzz_not_a_method() );
+  // an open file compares as true, and against another object by identity
+  print( "as boolean:   " + ( f == true ) );
+  print( "vs itself:    " + ( f == f ) );
+  // copying an array copies each element, the only route to the copy handler
+  var holder := { f };
+  var copied := holder;
+  print( "copy:         " + TypeOf( copied[1] ) );
+  f.close();
+
+  print( "--- xml document" );
+  var xml := OpenXMLFile( "filemod/xmltest.xml" );
+  print( "known member: " + xml.name );
+  print( "unknown:      " + xml.zzz_not_a_member );
+  print( "unknown mth:  " + xml.zzz_not_a_method() );
+
+  print( "--- xml node" );
+  var root := xml[2];
+  print( "known member: " + root.name );
+  print( "unknown:      " + root.zzz_not_a_member );
+  print( "unknown mth:  " + root.zzz_not_a_method() );
+
+  print( "--- xml attributes" );
+  var attributes := root.firstxmlchild( "nodetwo" ).attributes;
+  print( "typeof:       " + TypeOf( attributes ) );
+  print( "unknown mth:  " + attributes.zzz_not_a_method() );
+
+endprogram

@@ -1,0 +1,95 @@
+use os;
+use uo;
+
+include "testutil";
+
+var char;
+
+program refobjtests()
+  char := createAccountWithChar( "test", "pass" );
+  if ( !char )
+    return char;
+  endif
+  return 1;
+endprogram
+
+// Members the compiler knows are resolved to an id at compile time. A name it does not know
+// is resolved by name at runtime instead, and an object with no such member answers uninit
+// rather than raising an error.
+exported function unknown_member_reads_uninit( unused resmngr )
+  var v := char.no_such_member_at_all;
+  if ( TypeOf( v ) != "Uninit" )
+    return ret_error( "expected uninit reading unknown member, got " + TypeOf( v ) );
+  endif
+  return 1;
+endfunction
+
+// Assigning to an unknown member takes the same by-name route and is refused rather than
+// creating the member.
+exported function unknown_member_assign_is_refused( unused resmngr )
+  char.no_such_member_at_all := 5;
+  if ( TypeOf( char.no_such_member_at_all ) != "Uninit" )
+    return ret_error( "assigning an unknown member should not create it" );
+  endif
+  return 1;
+endfunction
+
+// A method the compiler does not know is looked up by name, first as a custom method script
+// for the object, then as a built-in.
+exported function unknown_method_is_looked_up( unused resmngr )
+  var v := char.no_such_method_at_all();
+  if ( v )
+    return ret_error( "expected a falsy result from an unknown method, got " + v );
+  endif
+  return 1;
+endfunction
+
+// Each reference type reports its own type integer.
+exported function ref_type_integers( unused resmngr )
+  var item := CreateItemAtLocation( char.x, char.y, char.z, 0x3e3f, 1, char.realm );
+  if ( !item )
+    return ret_error( "failed to create item: " + item );
+  endif
+
+  var chr_type := TypeOfInt( char );
+  var item_type := TypeOfInt( item );
+  var res := 1;
+
+  // A character created by a script is never logged in, so it is the offline reference
+  // class rather than the online one.
+  if ( chr_type == item_type )
+    res := ret_error( "character and item share a type integer: " + chr_type );
+  elseif ( TypeOf( char ) != "OfflineMobileRef" )
+    res := ret_error( "unexpected character type name: " + TypeOf( char ) );
+  endif
+
+  DestroyItem( item );
+  return res;
+endfunction
+
+// References order against each other so they can be sorted. A character sorts before an
+// item, and two references to the same object are equal.
+exported function refs_compare_and_sort( unused resmngr )
+  var item := CreateItemAtLocation( char.x, char.y, char.z, 0x3e3f, 1, char.realm );
+  if ( !item )
+    return ret_error( "failed to create item: " + item );
+  endif
+
+  var res := 1;
+  var same := char;
+
+  if ( !( char == same ) )
+    res := ret_error( "two references to the same character are not equal" );
+  elseif ( char == item )
+    res := ret_error( "a character reference equals an item reference" );
+  else
+    var sorted := { item, char };
+    sorted.sort();
+    if ( TypeOf( sorted[1] ) != "OfflineMobileRef" )
+      res := ret_error( "a character should sort before an item, got " + TypeOf( sorted[1] ) );
+    endif
+  endif
+
+  DestroyItem( item );
+  return res;
+endfunction

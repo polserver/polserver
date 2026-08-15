@@ -1,0 +1,237 @@
+use uo;
+use os;
+use vitals;
+
+include "testutil";
+
+// The generated test map is the whole terrain the shard has: grass at z 0
+// everywhere inside 28..163, water at z -5 outside it. Grass is MoveLand only
+// and water is MoveSea only, so a movemode decides which of the two a query can
+// stand on. See FileGenerator::modifyMap in pol-core/poltool/testfiles.cpp.
+const LAND_X := 140;
+const LAND_Y := 140;
+const LAND_Z := 0;
+
+const SEA_X := 10;
+const SEA_Y := 100;
+const SEA_Z := -5;
+
+// uo.em declares no names for the eight facings, so these are spelled out here.
+// An odd one is diagonal, which CanWalk treats differently.
+const DIR_NORTH := 0;
+const DIR_NORTHEAST := 1;
+
+// Off the edge of the 192x192 realm.
+const OFF_X := 500;
+const OFF_Y := 500;
+
+program testuowalk()
+  return 1;
+endprogram
+
+// A direction is a single step from the starting point, and the answer is the z
+// the walker would end up at rather than a plain yes. That z is 0 on this map,
+// which is falsy, so the result has to be told apart from an error by its type.
+exported function can_walk_on_land( unused resmngr )
+  var north := CanWalk( "L", LAND_X, LAND_Y, LAND_Z, DIR_NORTH );
+  if ( TypeOf( north ) != "Integer" )
+    return ret_error( $"walking north: expected an integer z, got {north}" );
+  endif
+  if ( north != LAND_Z )
+    return ret_error( $"walking north: expected z {LAND_Z}, got {north}" );
+  endif
+
+  // An odd facing is diagonal, which is only allowed if at least one of the two
+  // orthogonals beside it is walkable too.
+  var northeast := CanWalk( "L", LAND_X, LAND_Y, LAND_Z, DIR_NORTHEAST );
+  if ( TypeOf( northeast ) != "Integer" )
+    return ret_error( $"walking northeast: expected an integer z, got {northeast}" );
+  endif
+
+  return 1;
+endfunction
+
+// Given a second pair of coordinates instead of a facing, the direction is
+// worked out from the two positions -- and that pair has to be on the map.
+exported function can_walk_to_coordinates( unused resmngr )
+  var east := CanWalk( "L", LAND_X, LAND_Y, LAND_Z, LAND_X + 1, LAND_Y );
+  if ( TypeOf( east ) != "Integer" )
+    return ret_error( $"walking east: expected an integer z, got {east}" );
+  endif
+  if ( east != LAND_Z )
+    return ret_error( $"walking east: expected z {LAND_Z}, got {east}" );
+  endif
+
+  var off_map := CanWalk( "L", LAND_X, LAND_Y, LAND_Z, OFF_X, OFF_Y );
+  if ( off_map )
+    return ret_error( $"expected an error for a target off the map, got {off_map}" );
+  endif
+
+  return 1;
+endfunction
+
+// Land and sea are exclusive on this map, so each movemode walks on exactly one
+// of the two.
+exported function can_walk_movemode_matters( unused resmngr )
+  var sea_on_land := CanWalk( "S", LAND_X, LAND_Y, LAND_Z, DIR_NORTH );
+  if ( sea_on_land )
+    return ret_error( $"sea movemode should not walk on grass, got {sea_on_land}" );
+  endif
+
+  var sea_on_water := CanWalk( "S", SEA_X, SEA_Y, SEA_Z, DIR_NORTH );
+  if ( TypeOf( sea_on_water ) != "Integer" )
+    return ret_error( $"sea movemode on water: expected an integer z, got {sea_on_water}" );
+  endif
+  if ( sea_on_water != SEA_Z )
+    return ret_error( $"sea movemode on water: expected z {SEA_Z}, got {sea_on_water}" );
+  endif
+
+  var land_on_water := CanWalk( "L", SEA_X, SEA_Y, SEA_Z, DIR_NORTH );
+  if ( land_on_water )
+    return ret_error( $"land movemode should not walk on water, got {land_on_water}" );
+  endif
+
+  var bad := CanWalk( 5, LAND_X, LAND_Y, LAND_Z, DIR_NORTH );
+  if ( bad )
+    return ret_error( $"expected an error for a non-string movemode, got {bad}" );
+  endif
+
+  return 1;
+endfunction
+
+// A path is the steps after the starting point, so it ends on the goal.
+exported function find_path_across_land( unused resmngr )
+  var path := FindPath( LAND_X, LAND_Y, LAND_Z, LAND_X + 4, LAND_Y + 4, LAND_Z );
+  if ( TypeOf( path ) != "Array" )
+    return ret_error( $"expected an array of steps, got {path}" );
+  endif
+  if ( !path.size() )
+    return ret_error( "the path across open grass is empty" );
+  endif
+
+  var last := path[path.size()];
+  if ( last.x != LAND_X + 4 || last.y != LAND_Y + 4 )
+    return ret_error( $"the path ends at {last.x},{last.y}, not at the goal" );
+  endif
+
+  // A negative search skirt is clamped to nothing rather than refused, and
+  // ignoring doors takes the other branch of the blocker setup.
+  var skirtless := FindPath( LAND_X, LAND_Y, LAND_Z, LAND_X + 2, LAND_Y + 2, LAND_Z, _DEFAULT_REALM,
+                             FP_IGNORE_DOORS, -1 );
+  if ( TypeOf( skirtless ) != "Array" )
+    return ret_error( $"expected an array with a negative skirt, got {skirtless}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function find_path_errors( unused resmngr )
+  // The range limit is checked before the coordinates are, so it wins even for
+  // two perfectly good locations.
+  var too_far := FindPath( 40, 40, 0, 120, 120, 0 );
+  if ( too_far )
+    return ret_error( $"expected a range error, got {too_far}" );
+  endif
+
+  var no_movemode := FindPath( LAND_X, LAND_Y, LAND_Z, LAND_X + 2, LAND_Y, LAND_Z, _DEFAULT_REALM,
+                               FP_IGNORE_MOBILES, 5, "" );
+  if ( no_movemode )
+    return ret_error( $"expected a movemode error, got {no_movemode}" );
+  endif
+
+  var bad_start := FindPath( OFF_X, 40, 0, OFF_X + 5, 45, 0 );
+  if ( bad_start )
+    return ret_error( $"expected a start coordinate error, got {bad_start}" );
+  endif
+
+  var bad_end := FindPath( 188, 188, 0, 193, 191, 0 );
+  if ( bad_end )
+    return ret_error( $"expected an end coordinate error, got {bad_end}" );
+  endif
+
+  // Grass and water are not connected for a land walker, so this one gets past
+  // every precondition and the search itself runs to exhaustion. The two ends
+  // are close enough together to stay inside the range limit.
+  var unreachable := FindPath( SEA_X + 20, SEA_Y, 0, SEA_X + 10, SEA_Y, SEA_Z );
+  if ( unreachable )
+    return ret_error( $"expected no path from grass to water, got {unreachable}" );
+  endif
+
+  var bad_param := FindPath( "here", 40, 0, 45, 45, 0 );
+  if ( bad_param )
+    return ret_error( $"expected an error for a non-numeric coordinate, got {bad_param}" );
+  endif
+
+  return 1;
+endfunction
+
+function ghost_listed( list, serial )
+  foreach entry in list
+    if ( entry.serial == serial )
+      return 1;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+// A ghost is a dead player character, and this listing walks the world zones to
+// find one. A player character is only ever filed in a zone when it logs in --
+// create.cpp and pol.cpp register one on PlayerEnter, and loading it from
+// pcs.txt only bumps a counter (uimport.cpp) -- so an offline character is in no
+// zone at all and no location query can reach it, alive or dead. That is why
+// ListOfflineMobilesInRealm exists as a separate scan of the object hash.
+//
+// The listing therefore cannot be shown finding anybody without a logged-in
+// client, which belongs to the client tests. What is checked here is the shape
+// of the answer and that an offline character stays out of it even once it is
+// dead: this shard works a hit point maximum out through a hook that only runs
+// for a mobile that is online, so an offline one has a maximum of zero and a
+// single point of raw damage takes it all the way to dead.
+exported function list_ghosts_near_location( unused resmngr )
+  var pc := createAccountWithChar( "testuowalk", "pass" );
+  if ( !pc )
+    return pc;
+  endif
+
+  var alive := ListGhostsNearLocation( pc.x, pc.y, pc.z, 2 );
+  if ( TypeOf( alive ) != "Array" )
+    return ret_error( $"expected an array, got {alive}" );
+  endif
+  if ( ghost_listed( alive, pc.serial ) )
+    return ret_error( "a living character was listed as a ghost" );
+  endif
+
+  var damaged := ApplyRawDamage( pc, 1, DAMAGE_NO_REPSYS, DAMAGE_NO_SHOW );
+  if ( damaged == error )
+    return ret_error( $"could not damage the ghost pc: {damaged}" );
+  endif
+  if ( !pc.dead )
+    return ret_error( "one point of raw damage did not kill an offline character" );
+  endif
+
+  var res := 1;
+  var ghosts := ListGhostsNearLocation( pc.x, pc.y, pc.z, 2 );
+  if ( TypeOf( ghosts ) != "Array" )
+    res := ret_error( $"expected an array, got {ghosts}" );
+  elseif ( ghost_listed( ghosts, pc.serial ) )
+    res := ret_error( "an offline character is in no zone and cannot be listed" );
+  endif
+
+  if ( res )
+    var bad := ListGhostsNearLocation( "not a number", pc.y, pc.z, 2 );
+    if ( bad )
+      res := ret_error( $"expected an error for a non-numeric x, got {bad}" );
+    endif
+  endif
+
+  var revived := Resurrect( pc, RESURRECT_FORCELOCATION );
+  if ( !revived )
+    return ret_error( $"could not resurrect the ghost pc: {revived}" );
+  endif
+  var corpse := pc.getcorpse();
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+
+  return res;
+endfunction

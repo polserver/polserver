@@ -14,6 +14,8 @@ named:       nodetwo
 sibling:     Comment [XMLComment]
 named sibl.: nodetwo
 text child:  World
+--- a node tinyxml cannot classify
+index 2:     !DOCTYPE root SYSTEM "root.dtd" [XMLUnknown]
 --- iterating a node
   1: Hello [XMLElement]
   2: nodetwo [XMLElement]

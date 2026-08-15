@@ -1,0 +1,52 @@
+// Format specifiers reach the same code from two directions: interpolated strings ($"{x:fmt}")
+// and the format() method, whose parameter indexes are 1-based. Only x and #x were exercised
+// before, so everything below covers b, o and d plus the three refusal strings.
+
+// Binary, with and without the # prefix.
+print( $"{255:b}" );
+print( $"{255:#b}" );
+print( $"{0:b}" );
+print( $"{1:b}" );
+
+// A negative value formats as its 32-bit two's complement. Note the sign is emitted for #b
+// only, so the b and #b forms of the same number do not agree.
+print( $"{-16:b}" );
+print( $"{-16:#b}" );
+
+// Octal, which prefixes but never signs.
+print( $"{8:o}" );
+print( $"{8:#o}" );
+print( $"{-8:o}" );
+print( $"{-8:#o}" );
+
+// Hex, for comparison with the two above.
+print( $"{48879:x}" );
+print( $"{48879:#x}" );
+print( $"{-1:x}" );
+
+// d takes an Integer or a Real, truncating the Real toward zero.
+print( $"{42:d}" );
+print( $"{-5:d}" );
+print( $"{3.7:d}" );
+print( $"{-3.7:d}" );
+
+// The three refusals: a non-Integer where one is required, a non-number for d, and an
+// unrecognised specifier.
+print( $"{1.5:b}" );
+print( $"{1.5:x}" );
+print( $"{1.5:o}" );
+print( $"{"abc":d}" );
+print( $"{5:q}" );
+
+// The same specifiers through format(), including a member of a struct parameter.
+print( "{1:b}".format( 255 ) );
+print( "{1:#b}".format( 255 ) );
+print( "{1:o}".format( 8 ) );
+print( "{1:#o}".format( 8 ) );
+print( "{1:d}".format( 3.9 ) );
+print( "{1:z}".format( 1 ) );
+print( "{1.n:#x}".format( struct{ n := 48879 } ) );
+
+// An index format() has no parameter for.
+print( "{0:b}".format( 255 ) );
+print( "{2:b}".format( 255 ) );

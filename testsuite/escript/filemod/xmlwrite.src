@@ -27,6 +27,13 @@ program XMLWriteTest()
   print( "removeattr:  " + child.removexmlattribute( "a" ) );
   print( "attributes:  " + child.attributes.propnames() );
   root.appendxmlnode( "second" );
+  // a node appended below a node converts its attributes by type, same as one appended to
+  // the document does
+  var typed := root.appendxmlnode( "typed", struct{ text := "x", number := 5, decimal := 2.5 } );
+  print( "typed:       " + typed.attributes.propnames() + " " + typed.attributes["decimal"] );
+  // and the document itself only removes its own children, never one further down
+  print( "too deep:    " + xml.removexmlnode( typed ) );
+  print( "removed:     " + root.removexmlnode( typed ) );
   print( "declaration replaced, comment on file level:" );
   print( "set:         " + xml.setxmldeclaration( "1.1", "iso-8859-1", "yes" ) );
   print( "comment:     " + xml.appendxmlcomment( "file comment" ) );

@@ -15,6 +15,9 @@ setattr:     child
 attributes:  { a, b }
 removeattr:  child
 attributes:  { b }
+typed:       { decimal, number, text } 2.5
+too deep:    error{ errortext = "Failed to find node" }
+removed:     1
 declaration replaced, comment on file level:
 set:         1
 comment:     1

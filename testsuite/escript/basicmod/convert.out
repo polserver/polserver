@@ -1,0 +1,11 @@
+1.5
+0
+65
+error{ errortext = "Cannot be represented by a single number" }
+{ 97, 98 }
+{ 97, 98, 0 }
+0xFF
+0x1
+0xFF
+error{ errortext = "Hex() expects an Integer, Real, or String" }
+error{ errortext = "Bin() expects an Integer" }

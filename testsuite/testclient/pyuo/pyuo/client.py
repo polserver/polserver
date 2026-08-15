@@ -41,10 +41,10 @@ class status:
     self.status = status
 
   def __call__(self, f):
-    def wrapper(*args):
+    def wrapper(*args, **kwargs):
       if args[0].status != self.status:
         raise StatusError("Status {} not valid, need {}".format(args[0].status, self.status))
-      return f(*args)
+      return f(*args, **kwargs)
     return wrapper
 
 
@@ -743,6 +743,17 @@ class Client(threading.Thread):
     return pkt.chars
 
   @status('loggedin')
+  def createCharacter(self, name, idx, **kwargs):
+    ''' Creates a character in the given slot and enters the game with it '''
+    self.log.info('creating character #%d %s', idx, name)
+    po = packets.CreateCharacterPacket()
+    po.fill(name, idx, **kwargs)
+    self.queue(po)
+    self.send()
+
+    self.status = 'game'
+
+  @status('loggedin')
   def selectCharacter(self, name, idx):
     ''' Login the character with the given name '''
     self.log.info('selecting character #%d %s', idx, name)
@@ -771,6 +782,15 @@ class Client(threading.Thread):
       msg = ''.join(traceback.format_exception(type, value, tb))
       self.log.critical(msg)
       self.brain.event(brain.Event(brain.Event.EVT_CLIENT_CRASH, exception=e))
+    finally:
+      # Leaving the loop is not enough to end the session: the socket would stay open and the
+      # server would go on counting the character as online, which matters as soon as one client
+      # goes while the rest of the run continues.
+      self.log.info('closing connection')
+      try:
+        self.net.close()
+      except Exception:
+        pass
 
   @status('game')
   @clientthread
@@ -1292,9 +1312,11 @@ class Client(threading.Thread):
 
   @status('game')
   @clientthread
-  @logincomplete
   def handleStatusBar(self, pkt):
-    if self.player.serial == pkt.serial:
+    # Creating a character brings a status bar in before the login is complete - the new character
+    # is given its vitals while it is still being dressed - so this one is not gated on the login
+    # having finished, and takes a status bar for somebody it has not been told about yet.
+    if self.player is not None and self.player.serial == pkt.serial:
       mob = self.player
     else:
       mob = self.objects.get(pkt.serial)

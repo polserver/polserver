@@ -1,0 +1,4 @@
+2
+error{ errortext = "struct.size() doesn't take parameters." }
+error{ errortext = "struct.size() doesn't take parameters." }
+<uninitialized object>
