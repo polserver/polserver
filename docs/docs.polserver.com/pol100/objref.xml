@@ -73,7 +73,7 @@
 <member mname="usescript" type="String" access="r/w">double-click action script. set to empty string for itemdesc.cfg default script.</member>
 <member mname="equipscript" type="String" access="r/w">script run when item equipped on a character</member>
 <member mname="unequipscript" type="String" access="r/w">script run when item unequipped</member>
-<member mname="desc" type="String" access="r/o">single click description string (formatted name and suffix added to it without formatting if it exists)</member>
+<member mname="desc" type="String" access="r/o">single click description string (formatted name and suffix added to it without formatting if it exists). See itemdesc.cfg in the config files documentation for the amount prefix and the '%' singular/plural syntax applied to the name.</member>
 <member mname="movable" type="Boolean" access="r/w">true if player may move the item</member>
 <member mname="invisible" type="Boolean" access="r/w">true if the item is invisible</member>
 <member mname="decayat" type="Integer" access="r/w">game clock value after which this item might decay. 0=do not decay</member>
