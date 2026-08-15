@@ -1,10 +1,29 @@
 use os;
 use uo;
 
+// The client says far more than a passing test needs to show. The log gets a
+// digest of every message and the full text is kept in a ring buffer here,
+// written out only when a test fails - tests.src marks the start of each test
+// and asks for the dump.
+
+// How many messages the ring buffer holds, so how many a dump can show. 0 turns
+// the buffer off and leaves only the digests.
+const TRACE_CAPACITY_DEFAULT := 200;
+// Messages up to this long are logged as they are. The default of 0 digests
+// every one of them down to which message it was and who sent it, which is what
+// a passing test needs the log to say; raise it to read the bodies of the
+// shorter messages too, or set it past the longest to log them all in full.
+const TRACE_FULL_MAX_DEFAULT := 0;
+
+var trace_capacity := trace_setting( "POLCORE_TRACE_CAPACITY", TRACE_CAPACITY_DEFAULT );
+var trace_full_max := trace_setting( "POLCORE_TRACE_FULL_MAX", TRACE_FULL_MAX_DEFAULT );
+
 program clientconn( con, testscript )
   // increase queue size to be sure we receive all events
   Set_Event_Queue_Size( 1000 );
   SetGlobalProperty( "#clientcon", getpid() );
+  var trace := {};
+  var trace_next := 1;
   while ( 1 )
     var ev := Wait_For_Event( 10 );
     if ( !ev )
@@ -13,16 +32,95 @@ program clientconn( con, testscript )
     if ( ev.?todo )
       var json := PackJson( ev );
       syslog( "      to client: " + json, 0 );
+      trace_add( trace, trace_next, "to client: " + json );
       con.transmit( json );
       if ( ev.todo == "exit" )
         break;
       endif
     elseif ( ev.?ownership )
       testscript := ev.ownership;
+    elseif ( ev.?trace )
+      if ( ev.trace == "dump" )
+        trace_dump( trace, trace_next );
+      endif
+      trace := {};
+      trace_next := 1;
+      if ( ev.?ack )
+        ev.ack.sendevent( struct{ trace_done := 1 } );
+      endif
     else
-      syslog( "      from client: " + ev, 0 );
       var e := UnpackJson( ev.value );
+      syslog( "      from client: " + recv_digest( ev.value, e ), 0 );
+      trace_add( trace, trace_next, "from client: " + ev.value );
       testscript.sendevent( e );
     endif
   endwhile
 endprogram
+
+// An unset variable and one denied by pol.cfg both come back as an error, and
+// either way the compiled default is what to use.
+function trace_setting( name, fallback )
+  var val := GetEnvironmentVariable( name );
+  if ( !val )
+    return fallback;
+  endif
+  return CInt( val );
+endfunction
+
+// A digested message says which message it was and which client sent it, and
+// nothing else - the body of it is in the trace buffer. Membership is asked
+// rather than read, so client 0 still names itself.
+function recv_digest( raw, e )
+  if ( Len( raw ) <= trace_full_max )
+    return raw;
+  endif
+  var digest := "";
+  if ( e.?type )
+    digest := "type=" + e.type;
+  else
+    digest := "type=?";
+  endif
+  if ( e.?id )
+    digest += " id=" + e.id;
+  endif
+  return digest;
+endfunction
+
+// Appends to the ring buffer, overwriting the oldest entry once it is full.
+function trace_add( byref trace, byref trace_next, entry )
+  if ( trace_capacity < 1 )
+    return;
+  endif
+  if ( trace.size() < trace_capacity )
+    trace.append( entry );
+  else
+    trace[trace_next] := entry;
+  endif
+  ++trace_next;
+  if ( trace_next > trace_capacity )
+    trace_next := 1;
+  endif
+endfunction
+
+// Writes the buffered messages oldest first. Once the buffer has wrapped, the
+// oldest entry is the one that was about to be overwritten.
+function trace_dump( trace, trace_next )
+  var count := trace.size();
+  if ( !count )
+    syslog( "      trace: no client messages buffered", 0 );
+    return;
+  endif
+  var start := 1;
+  if ( count >= trace_capacity )
+    start := trace_next;
+  endif
+  syslog( "      trace: " + count + " client messages before the failure", 0 );
+  var i;
+  for ( i := 1; i <= count; ++i )
+    var idx := start + i - 1;
+    if ( idx > count )
+      idx -= count;
+    endif
+    syslog( "      trace: " + trace[idx], 0 );
+  endfor
+endfunction

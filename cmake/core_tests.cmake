@@ -230,7 +230,21 @@ else()
 endif()
 set_tests_properties( shard_test_1 PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
 # needed for test_env
-set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${HAS_AIOSMTPD};POLCORE_TESTSLOWREADER=${Python3_FOUND};POLCORE_TESTRAWPEER=${Python3_FOUND}")
+set(SHARD_TEST_1_ENV "POLCORE_TEST=1;POLCORE_TEST_RUN=1;POLCORE_TEST_NOACCESS=foo;POLCORE_TESTCLIENT=${Python3_FOUND};POLCORE_TESTEMAIL=${HAS_AIOSMTPD};POLCORE_TESTSLOWREADER=${Python3_FOUND};POLCORE_TESTRAWPEER=${Python3_FOUND}")
+
+# How much the client test log says. Both are empty by default so the values
+# compiled into clientconnection.src apply; listing one here overrides the
+# environment ctest was started with, so leave them alone to keep
+# `POLCORE_TRACE_FULL_MAX=0 ctest ...` working for a one-off run.
+set(POLCORE_TRACE_CAPACITY "" CACHE STRING "client test log: client messages kept for the dump a failing test triggers (0 disables)")
+set(POLCORE_TRACE_FULL_MAX "" CACHE STRING "client test log: client messages longer than this are logged as a digest (0 digests every message)")
+if (NOT POLCORE_TRACE_CAPACITY STREQUAL "")
+  list(APPEND SHARD_TEST_1_ENV "POLCORE_TRACE_CAPACITY=${POLCORE_TRACE_CAPACITY}")
+endif()
+if (NOT POLCORE_TRACE_FULL_MAX STREQUAL "")
+  list(APPEND SHARD_TEST_1_ENV "POLCORE_TRACE_FULL_MAX=${POLCORE_TRACE_FULL_MAX}")
+endif()
+set_tests_properties( shard_test_1 PROPERTIES ENVIRONMENT "${SHARD_TEST_1_ENV}")
 set_tests_properties(shard_test_1 PROPERTIES FIXTURES_SETUP shard_test)
 
 # second test run

@@ -57,11 +57,13 @@ program tests()
     if ( "setup.ecl" in scripts )
       syslog( "  Calling setup.ecl..", 0, CONSOLE_COLOR_GREEN );
       var startms := ReadMillisecondClock();
+      trace_mark();
       var res := run_script( ":{}:setup.ecl".format( pkg[1] ) );
       if ( res == IGNORE_TEST )
         continue;
       elseif ( res != 1 )
         syslog( "    failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
+        trace_dump();
         exitcode := 1;
         continue;
       endif
@@ -92,10 +94,12 @@ program tests()
         endif
         var startms := ReadMillisecondClock();
         syslog( "    Calling {}..".format( func ), 0, CONSOLE_COLOR_GREEN );
+        trace_mark();
         var res := script[1].call( func, { resources } );
         resources.cleanup();
         if ( res != 1 )
           syslog( "      failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
+          trace_dump();
           exitcode := 1;
           continue;
         endif
@@ -136,3 +140,38 @@ program tests()
   // format-on
   shutdown( exitcode );
 endprogram
+
+// The client connection script logs only a digest of each client message and
+// keeps the full text of the last few in memory. These tell it when a test
+// starts, so a dump covers that test alone, and when one failed and the
+// messages are worth reading. Both do nothing when no client package is loaded.
+function trace_mark()
+  trace_signal( struct{ trace := "mark" } );
+endfunction
+
+function trace_dump()
+  if ( trace_signal( struct{ trace := "dump", ack := GetProcess() } ) )
+    // wait for the dump to reach the log, so it does not land in the middle of
+    // whatever the next test logs
+    Wait_For_Event( 5 );
+  endif
+endfunction
+
+function trace_signal( ev )
+  var pid := GetGlobalProperty( "#clientcon" );
+  if ( !pid )
+    return 0;
+  endif
+  var proc := GetProcess( pid );
+  if ( !proc )
+    return 0;
+  endif
+  // the property outlives the process it names - it is written to the world file
+  // - so a run without the client package can find a pid that has since been
+  // handed to something else entirely
+  if ( !proc.name.find( "clientconnection" ) )
+    return 0;
+  endif
+  proc.sendevent( ev );
+  return 1;
+endfunction

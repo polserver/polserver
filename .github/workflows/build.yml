@@ -211,6 +211,8 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_pol_only
           #env:
           #POLCORE_TEST_FILTER: testitems
+          # log every client message in full, not just its type and client
+          #POLCORE_TRACE_FULL_MAX: 999999
       - name: Testsummary
         if: matrix.config.tests && always()
         shell: bash
