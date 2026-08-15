@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>08/03/2026</datemodified>
+<datemodified>08/15/2026</datemodified>
 </fileheader>
 
 
@@ -857,6 +857,7 @@ Pre-intialize with: var s := struct { a := 1, b := 2 };</explain>
 <explain>Object representing a binary packet. Print(Packet) returns string of Packet contents.</explain>
 <explain>Packets that are pre-character selection will now report a struct to a packethook with the member "ip"</explain>
 <explain>A packet carries its length in two bytes, so no Set method can grow one past 0xFFFF bytes; one that would returns the error "Offset value out of range".</explain>
+<explain>GetString, GetUnicodeString and GetUnicodeStringFlipped accept a length of zero at any offset up to and including the size of the packet, returning an empty string without reading a byte. Any other read that would reach past the end returns the error "Offset too high".</explain>
 <method proto="SendPacket(Character)" returns="true/error">Sends this packet to character. Returns 0 if the character has no client attached, and the error "Packet is empty" for a packet with no contents.</method>
 <method proto="SendAreaPacket(int x, int y, int range, string realm)" returns="integer/error">Sends this packet to all the players in range of x,y. Returns integer number of clients this packet was successfully sent to.</method>
 <method proto="GetSize()" returns="integer">Returns size of packet data in bytes.</method>

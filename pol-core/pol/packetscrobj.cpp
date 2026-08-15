@@ -232,9 +232,12 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     unsigned short offset, len;
     if ( ex.getParam( 0, offset ) && ex.getParam( 1, len ) )
     {
-      if ( ( offset >= buffer.size() ) ||
-           !has_space( offset + len ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + len ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
+      // Reading nothing touches no byte, so it stays legal at the very end of the packet - where
+      // there is no byte to take the address of either.
+      if ( !len )
+        return new String();
 
       const char* str_offset = reinterpret_cast<const char*>( &buffer[offset] );
       size_t real_len = 0;
@@ -256,9 +259,10 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     if ( ex.getParam( 0, offset ) &&
          ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
     {
-      if ( ( offset >= buffer.size() ) ||
-           !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
+      if ( !len )  // see GetString
+        return new String();
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len, true );
       return new Bscript::String( str );
@@ -274,9 +278,10 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     if ( ex.getParam( 0, offset ) &&
          ex.getParam( 1, len ) )  // len is in unicode characters, not bytes
     {
-      if ( ( offset >= buffer.size() ) ||
-           !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
+      if ( !has_space( offset + len * 2 ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
+      if ( !len )  // see GetString
+        return new String();
       std::string str =
           Bscript::String::fromUTF16( reinterpret_cast<u16*>( &buffer[offset] ), len );
       return new Bscript::String( str );

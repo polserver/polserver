@@ -6,6 +6,10 @@
     Fixed: a destroyed character now leaves its opponent's list of attackers as it is
            destroyed, the way a destroyed item already did, instead of on its way out of
            memory when it can no longer be found in that list.
+    Fixed: packet.GetString, packet.GetUnicodeString and packet.GetUnicodeStringFlipped
+           refused a zero-length read at the end of a packet with "Offset too high".
+           Reading no characters touches no byte, so it now returns an empty string;
+           only an offset past the end of the packet is still an error.
 08-14-2026 Nando:
     Changed: pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).
              During the login phase, a connection that sends an unknown or non-allowed
