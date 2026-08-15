@@ -2,6 +2,15 @@
 # Please consult core-changes.txt for more information.
 
 -- POL100.3.0 [work-in-progress] --
+08-14-2026 Nando:
+    pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 instead of 0, so during
+    login a connection sending an unknown or non-allowed message type is dropped rather
+    than logged and resumed.
+
+    This only affects shards that never set the option. If a client, proxy or tool of
+    yours sends message types the core does not know before a character is attached, it
+    will now be disconnected during login; set LoginServerDisconnectUnknownPkts=0 to keep
+    the old behaviour.
 05-25-2026 Turley:
     When sending classes/functionobjects to another script its no longer valid to access global variables when the sending script is destroyed before the call.
     The calling script will stop with an error.

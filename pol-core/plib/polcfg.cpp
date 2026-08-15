@@ -148,7 +148,7 @@ void PolConfig::read( bool initial_load )
   logfile_timestamp_everyline = elem.remove_bool( "TimestampEveryLine", false );
   use_single_thread_login = elem.remove_bool( "UseSingleThreadLogin", true );
   loginserver_disconnect_unknown_pkts =
-      elem.remove_bool( "LoginServerDisconnectUnknownPkts", false );
+      elem.remove_bool( "LoginServerDisconnectUnknownPkts", true );
   disable_nagle = elem.remove_bool( "DisableNagle", false );
   show_realm_info = elem.remove_bool( "ShowRealmInfo", false );
 

@@ -1,0 +1,28 @@
+// Control channel to testsuite/rawpeer/rawpeer.py (not a test file itself).
+//
+// Started through os::OpenConnection( ..., assume_string := 1, keep_connection := 1,
+// ignore_line_breaks := 0 ), so transmit() writes whole lines and each reply arrives as
+// one event. Sends params.command, forwards the helper's RESULT line to
+// params.test_script_pid as struct{ verdict, ms, read_back }.
+use os;
+
+program auxservice( conn, params )
+  conn.transmit( params.command );
+
+  var ev;
+  while ( ( ev := wait_for_event( 60 ) ) )
+    if ( !ev.value )
+      continue;
+    endif
+
+    var words := SplitWords( ev.value, " " );
+    if ( words[1] == "RESULT" )
+      GetProcess( params.test_script_pid ).SendEvent(
+          struct{ verdict := words[2], ms := CInt( words[3] ),
+                  read_back := CInt( words[4] ) } );
+      break;
+    endif
+  endwhile
+
+  conn := uninit;
+endprogram

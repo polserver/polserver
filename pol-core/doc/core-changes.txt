@@ -1,4 +1,15 @@
 -- POL100.3.0 --
+08-14-2026 Nando:
+    Changed: pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).
+             During the login phase, a connection that sends an unknown or non-allowed
+             message type is dropped. With the old default the core logged the type and
+             went back to reading the next byte as a fresh message type, so a peer sending
+             a block of arbitrary bytes had every one of them treated as a new message -
+             and any byte landing on an allowed type entered its handler with whatever
+             followed as the packet body.
+             Set it to 0 to restore the old behaviour, which is only needed if a client or
+             tool of yours legitimately sends message types the core does not know before
+             a character is attached.
 08-14-2026 Turley:
     Fixed: leak when a character creation was refused
     Fixed: item.hasexistingstack returns now uninit when no item was found
