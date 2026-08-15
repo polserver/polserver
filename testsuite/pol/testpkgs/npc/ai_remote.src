@@ -16,6 +16,13 @@ use npc;
 //
 // A bounding box cannot travel through an event, so "makeboundingbox" parks it
 // here and the commands that need one pick it up from there.
+//
+// System events are not commands, and one of them is worth passing on: an NPC
+// that hears another NPC speak is the only observer of Say()'s and SayUC()'s
+// do_event arm, so a speech event is forwarded to the test as
+// struct{ type := "heard", ... }.
+
+const SYSEVENT_SPEECH := 0x00000001;
 
 program ai_remote()
   var me := Self();
@@ -23,8 +30,24 @@ program ai_remote()
 
   while ( me )
     var ev := wait_for_event( 5 );
-    // a test may switch system events on, and those are not commands
-    if ( !ev || !ev.cmd )
+    if ( !ev )
+      continue;
+    endif
+
+    if ( !ev.cmd )
+      if ( ev.type == SYSEVENT_SPEECH )
+        // langcode is only present when the speech carried one, which is what
+        // tells a Say() apart from a SayUC() on this side
+        var langcode := "";
+        if ( ev.?langcode )
+          langcode := ev.langcode;
+        endif
+        report( me, struct{ type := "heard",
+                            source := ev.source.serial,
+                            text := ev.text,
+                            texttype := ev.texttype,
+                            langcode := langcode } );
+      endif
       continue;
     endif
 
@@ -38,20 +61,33 @@ program ai_remote()
       errortext := res.errortext;
     endif
 
-    var parent := GetProcess( CInt( GetObjProperty( me, "#TestPid" ) ) );
-    if ( parent )
-      parent.SendEvent( struct{ type := "result",
-                                cmd := ev.cmd,
-                                result := CInt( res ),
-                                text := CStr( res ),
-                                errortext := errortext,
-                                x := me.x,
-                                y := me.y,
-                                z := me.z,
-                                facing := me.facing } );
+    // position() answers a struct, and a struct is the one kind of answer that
+    // survives the trip home intact. Everything else keeps to the number and
+    // text pair, so that a bounding box or an error still travels.
+    var value := 0;
+    if ( TypeOf( res ) == "Struct" )
+      value := res;
     endif
+
+    report( me, struct{ type := "result",
+                        cmd := ev.cmd,
+                        result := CInt( res ),
+                        text := CStr( res ),
+                        value := value,
+                        errortext := errortext,
+                        x := me.x,
+                        y := me.y,
+                        z := me.z,
+                        facing := me.facing } );
   endwhile
 endprogram
+
+function report( me, answer )
+  var parent := GetProcess( CInt( GetObjProperty( me, "#TestPid" ) ) );
+  if ( parent )
+    parent.SendEvent( answer );
+  endif
+endfunction
 
 function dispatch( ev, byref bbox )
   var args := ev.args;
@@ -88,6 +124,8 @@ function dispatch( ev, byref bbox )
     "say":
       return Say( args[1], args[2], args[3] );
     "sayuc":                return SayUC( args[1], args[2], args[3], args[4] );
+    "position":             return position();
+    "setwarmode":           return SetWarMode( args[1] );
 
     // an opponent can only be set from inside an AI script, which is what makes
     // the de-escalation of the reputation system reachable at all

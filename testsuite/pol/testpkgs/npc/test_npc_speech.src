@@ -1,0 +1,435 @@
+// Say() and SayUC() from inside an AI script: what they refuse, which packet
+// they build, and who else hears them.
+//
+// What reaches a client is the client package's business. What is checked here
+// is the half that needs no client at all: the refusals, and the do_event arm,
+// whose only observer is another NPC standing close enough to hear.
+use uo;
+use os;
+
+include "testutil";
+include "sysevent";
+
+const REMOTE_SCRIPT := "ai_remote";
+
+// open flat land at z 0
+const BASE_X := 120;
+const BASE_Y := 120;
+
+const RESULT_TIMEOUT_SEC := 5;
+
+// npc.em, repeated rather than included: an AI script is the only place those
+// constants are in scope
+const SAY_TEXTTYPE_DEFAULT := "default";
+const SAY_TEXTTYPE_WHISPER := "whisper";
+const SAY_TEXTTYPE_YELL := "yell";
+const SAY_LANG := "ENU";
+const SAY_DOEVENT_DISABLE := 0x0;
+const SAY_DOEVENT_ENABLE := 0x1;
+
+// the core clips speech at 200 characters and refuses SayUC above it
+const SPEECH_MAX_LEN := 200;
+
+program testnpcspeech()
+  return 1;
+endprogram
+
+function make_remote_npc( resmngr, x := BASE_X, y := BASE_Y )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", x, y, 0, struct{ script := REMOTE_SCRIPT } );
+  if ( !npc )
+    return ret_error( $"Could not create NPC: {npc}" );
+  endif
+
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  clear_event_queue();
+  return npc;
+endfunction
+
+function remote( npc, cmd, args := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == cmd )
+      return ev;
+    endif
+  endwhile
+
+  return ret_error( $"no result from '{cmd}'" );
+endfunction
+
+// how long to keep listening after the speaker has answered
+const TAIL_MS := 500;
+
+// Speaks, and gathers everything that comes back: the speaker's own result and
+// whatever a listener forwarded.
+//
+// Both cannot be waited for in sequence. The listeners are signalled from
+// inside the module call, before the speaker's script resumes, so a forwarded
+// speech event can arrive before the answer to the command that caused it --
+// and a plain remote() would throw it away while waiting for the result.
+function speak( npc, cmd, args, expect_heard := 0 )
+  var sent := npc.process.sendevent( struct{ cmd := cmd, args := args } );
+  if ( !sent )
+    return ret_error( $"could not send '{cmd}' to the NPC: {sent}" );
+  endif
+
+  var spoke := struct{ result := 0, heard := {} };
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( !ev )
+      continue;
+    endif
+    if ( ev.type == "heard" )
+      spoke.heard.append( ev );
+    elseif ( ev.type == "result" && ev.cmd == cmd )
+      spoke.result := ev;
+      break;
+    endif
+  endwhile
+
+  // The listener is a script of its own, so its report can still be on the way
+  // when the speaker has already answered. Sitting out the whole window is only
+  // necessary to prove that nothing is coming.
+  var tail_deadline := ReadMillisecondClock() + TAIL_MS;
+  while ( ReadMillisecondClock() < tail_deadline )
+    if ( expect_heard && spoke.heard.size() >= expect_heard )
+      break;
+    endif
+    var ev := wait_for_event( 0 );
+    if ( ev && ev.type == "heard" )
+      spoke.heard.append( ev );
+    endif
+  endwhile
+
+  return spoke;
+endfunction
+
+// the arguments Say and SayUC take differ only by the language code
+function say_args( cmd, text, texttype, doevent )
+  if ( cmd == "sayuc" )
+    return { text, texttype, SAY_LANG, doevent };
+  endif
+  return { text, texttype, doevent };
+endfunction
+
+// Every way of calling Say() and SayUC() wrongly, and what each one answers.
+exported function speech_refusals( resmngr )
+  var npc := make_remote_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+  var bad := {};
+
+  // The texttype is compared against three literal words, whichever function
+  // is asking.
+  var res := remote( npc, "say", { "hello", "shout", SAY_DOEVENT_DISABLE } );
+  if ( res.errortext != "texttype string param must be either 'default', 'whisper', or 'yell'" )
+    bad.append( $"say with an unknown texttype answered {res.errortext}" );
+  endif
+  res := remote( npc, "sayuc", { "hello", "shout", SAY_LANG, SAY_DOEVENT_DISABLE } );
+  if ( res.errortext != "texttype string param must be either 'default', 'whisper', or 'yell'" )
+    bad.append( $"sayuc with an unknown texttype answered {res.errortext}" );
+  endif
+
+  // SayUC checks the length itself, where Say clips instead.
+  var toolong := "";
+  while ( toolong.length() <= SPEECH_MAX_LEN )
+    toolong := toolong + "x";
+  endwhile
+  res := remote( npc, "sayuc", { toolong, SAY_TEXTTYPE_DEFAULT, SAY_LANG, SAY_DOEVENT_DISABLE } );
+  if ( res.errortext != "Text exceeds maximum size." )
+    bad.append( $"sayuc with {toolong.length()} characters answered {res.errortext}" );
+  endif
+
+  // The language is a three letter code, and nothing else.
+  foreach code in ( { "EN", "ENUS", "" } )
+    res := remote( npc, "sayuc", { "hello", SAY_TEXTTYPE_DEFAULT, code, SAY_DOEVENT_DISABLE } );
+    if ( res.errortext != "langcode must be a 3-character code." )
+      bad.append( $"sayuc with langcode '{code}' answered {res.errortext}" );
+    endif
+  endforeach
+
+  // A parameter of the wrong type never reaches the checks above, and which
+  // complaint comes back depends on which parameter it was. The text is read
+  // with a helper that stores its own message on the executor, and that one
+  // wins over anything the function itself would say.
+  res := remote( npc, "sayuc", { 5, SAY_TEXTTYPE_DEFAULT, SAY_LANG, SAY_DOEVENT_DISABLE } );
+  if ( !res.errortext.find( "Expected param 0 as String or Array, got Integer" ) )
+    bad.append( $"sayuc with a number for text answered {res.errortext}" );
+  endif
+
+  // The langcode is read with one that does not, so here the function's own
+  // catch-all is what the caller sees.
+  res := remote( npc, "sayuc", { "hello", SAY_TEXTTYPE_DEFAULT, 5, SAY_DOEVENT_DISABLE } );
+  if ( res.errortext != "A parameter was invalid" )
+    bad.append( $"sayuc with a number for langcode answered {res.errortext}" );
+  endif
+
+  // A squelched NPC is refused before anything else is looked at. squelched is
+  // a read-only member, so the squelch() method is what puts it there, and -1
+  // means it stays until something lifts it.
+  npc.squelch( -1 );
+  if ( !npc.squelched )
+    bad.append( "could not squelch the npc" );
+  endif
+  foreach cmd in ( { "say", "sayuc" } )
+    var args := { "hello", SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_DISABLE };
+    if ( cmd == "sayuc" )
+      args := { "hello", SAY_TEXTTYPE_DEFAULT, SAY_LANG, SAY_DOEVENT_DISABLE };
+    endif
+    res := remote( npc, cmd, args );
+    if ( res.errortext != "NPC is squelched" )
+      bad.append( $"a squelched npc answered {res.errortext} to {cmd}" );
+    endif
+  endforeach
+  npc.squelch( 0 );
+  if ( npc.squelched )
+    bad.append( "could not lift the squelch" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Speaking unhides the speaker, whichever function did it.
+exported function speech_unhides( resmngr )
+  var npc := make_remote_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+  var bad := {};
+
+  foreach cmd in ( { "say", "sayuc" } )
+    npc.hidden := 1;
+    if ( !npc.hidden )
+      bad.append( $"could not hide the npc before {cmd}" );
+      continue;
+    endif
+
+    var args := { "hello", SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_DISABLE };
+    if ( cmd == "sayuc" )
+      args := { "hello", SAY_TEXTTYPE_DEFAULT, SAY_LANG, SAY_DOEVENT_DISABLE };
+    endif
+    remote( npc, cmd, args );
+
+    if ( npc.hidden )
+      bad.append( $"{cmd} left the npc hidden" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Text outside ASCII sends a different packet than plain text does. Nothing
+// script-side can read the bytes, but the two paths are separate code and this
+// is what walks the unicode one.
+exported function speech_utf8_path( resmngr )
+  var npc := make_remote_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+
+  // Say() answers nothing at all when it accepts the text, so the check is that
+  // it did not answer an error.
+  var res := remote( npc, "say", { "grüße vom npc", SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_DISABLE } );
+  if ( res.errortext )
+    return ret_error( $"say with non-ascii text answered {res.errortext}" );
+  endif
+
+  // Long enough to be clipped, and non-ascii so that the clipping happens on
+  // the utf16 side.
+  var long_text := "";
+  while ( long_text.length() < SPEECH_MAX_LEN + 20 )
+    long_text := long_text + "ü";
+  endwhile
+  res := remote( npc, "say", { long_text, SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_DISABLE } );
+  if ( res.errortext )
+    return ret_error( $"say with clipped non-ascii text answered {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+// The do_event arm. A second NPC listening for speech is the only observer of
+// it, and it hears the speaker only from inside the range the texttype picks.
+exported function speech_reaches_another_npc( resmngr )
+  var speaker := make_remote_npc( resmngr );
+  if ( !speaker )
+    return speaker;
+  endif
+  var listener := make_remote_npc( resmngr, BASE_X + 1, BASE_Y );
+  if ( !listener )
+    return listener;
+  endif
+  var bad := {};
+
+  // Both NPCs answer to this pid, so the listener's forwarded event lands on
+  // the same queue as the speaker's own result.
+  var res := remote( listener, "enableevents", { SYSEVENT_SPEECH, 10, EVMASK_ALL } );
+  if ( !res.result )
+    return ret_error( $"could not switch speech events on: {res.errortext}" );
+  endif
+
+  // do_event off: the speech happens, nobody is told about it.
+  var spoke := speak( speaker, "say",
+                      say_args( "say", "quiet", SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_DISABLE ) );
+  if ( spoke.heard.size() )
+    bad.append( $"a say with do_event off was still heard: {spoke.heard[1].text}" );
+  endif
+
+  // do_event on: the listener hears it, and knows who said it.
+  spoke := speak( speaker, "say",
+                  say_args( "say", "hello there", SAY_TEXTTYPE_DEFAULT, SAY_DOEVENT_ENABLE ), 1 );
+  if ( !spoke.heard.size() )
+    bad.append( "the listener did not hear a say with do_event on" );
+  else
+    var ev := spoke.heard[1];
+    if ( ev.text != "hello there" )
+      bad.append( $"the listener heard '{ev.text}'" );
+    endif
+    if ( ev.source != speaker.serial )
+      bad.append( $"the speech came from {ev.source}, expected {speaker.serial}" );
+    endif
+    if ( ev.texttype != SAY_TEXTTYPE_DEFAULT )
+      bad.append( $"the texttype was '{ev.texttype}'" );
+    endif
+    // Say() carries no language, so the listener gets no langcode member.
+    if ( ev.langcode != "" )
+      bad.append( $"a say carried the langcode '{ev.langcode}'" );
+    endif
+  endif
+
+  // SayUC takes the same arm, and this one does carry a language. A lowercase
+  // code arrives uppercased.
+  foreach code in ( { "DEU", "deu" } )
+    spoke := speak( speaker, "sayuc", { "hallo dort", SAY_TEXTTYPE_DEFAULT,
+                                        code, SAY_DOEVENT_ENABLE }, 1 );
+    if ( !spoke.heard.size() )
+      bad.append( $"the listener did not hear a sayuc with langcode '{code}'" );
+      continue;
+    endif
+    var ev := spoke.heard[1];
+    if ( ev.text != "hallo dort" )
+      bad.append( $"the listener heard '{ev.text}' from sayuc" );
+    endif
+    if ( ev.langcode != "DEU" )
+      bad.append( $"sayuc with langcode '{code}' arrived as '{ev.langcode}'" );
+    endif
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Whisper and yell pick a different range to look for listeners in. The two
+// NPCs are placed so that only the yell range reaches.
+exported function speech_texttype_range( resmngr )
+  var speaker := make_remote_npc( resmngr );
+  if ( !speaker )
+    return speaker;
+  endif
+
+  // This shard has no servspecopt.cfg, so the compiled defaults apply: whisper
+  // 2, speech 12, yell 25. Eighteen tiles away is outside the first two and
+  // inside the last.
+  var listener := make_remote_npc( resmngr, BASE_X + 18, BASE_Y );
+  if ( !listener )
+    return listener;
+  endif
+  var bad := {};
+
+  // The listening range is the NPC's own, and it has to cover the distance too
+  // or nothing gets through whatever the speaker does.
+  var res := remote( listener, "enableevents", { SYSEVENT_SPEECH, 25, EVMASK_ALL } );
+  if ( !res.result )
+    return ret_error( $"could not switch speech events on: {res.errortext}" );
+  endif
+
+  foreach cmd in ( { "say", "sayuc" } )
+    foreach texttype in ( { SAY_TEXTTYPE_WHISPER, SAY_TEXTTYPE_DEFAULT, SAY_TEXTTYPE_YELL } )
+      var reached := texttype == SAY_TEXTTYPE_YELL;
+      var spoke := speak( speaker, cmd,
+                          say_args( cmd, $"{cmd} {texttype}", texttype, SAY_DOEVENT_ENABLE ),
+                          reached );
+
+      if ( reached && !spoke.heard.size() )
+        bad.append( $"a {cmd} {texttype} did not reach 18 tiles" );
+      elseif ( !reached && spoke.heard.size() )
+        bad.append( $"a {cmd} {texttype} reached 18 tiles: {spoke.heard[1].text}" );
+      endif
+    endforeach
+  endforeach
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// position() and SetWarMode(), the two npc.em functions nothing had called.
+exported function npc_position_and_warmode( resmngr )
+  var npc := make_remote_npc( resmngr );
+  if ( !npc )
+    return npc;
+  endif
+  var bad := {};
+
+  // The struct position() builds is the same place the NPC reports through its
+  // own members, which the harness sends back alongside it.
+  var res := remote( npc, "position" );
+  var pos := res.value;
+  if ( TypeOf( pos ) != "Struct" )
+    bad.append( $"position answered a {TypeOf( pos )}: {res.text}" );
+  elseif ( pos.x != res.x || pos.y != res.y || pos.z != res.z )
+    bad.append( $"position says {pos.x},{pos.y},{pos.z}, the npc says {res.x},{res.y},{res.z}" );
+  elseif ( pos.x != BASE_X || pos.y != BASE_Y )
+    bad.append( $"position says {pos.x},{pos.y}, expected {BASE_X},{BASE_Y}" );
+  endif
+
+  // Warmode is a plain flag, and the call answers whether it read a parameter
+  // rather than whether anything changed.
+  foreach mode in ( { 1, 0 } )
+    res := remote( npc, "setwarmode", { mode } );
+    if ( res.result != 1 )
+      bad.append( $"setwarmode({mode}) answered {res.result}" );
+    endif
+    if ( npc.warmode != mode )
+      bad.append( $"after setwarmode({mode}) the npc reports {npc.warmode}" );
+    endif
+  endforeach
+
+  // Any non-zero value means war, not just 1.
+  res := remote( npc, "setwarmode", { 7 } );
+  if ( res.result != 1 || npc.warmode != 1 )
+    bad.append( $"setwarmode(7) answered {res.result}, warmode {npc.warmode}" );
+  endif
+
+  // A parameter it cannot read as a number answers 0 instead of erroring, and
+  // leaves the flag where it was.
+  res := remote( npc, "setwarmode", { "not a number" } );
+  if ( res.result != 0 )
+    bad.append( $"setwarmode with an unreadable parameter answered {res.result}" );
+  endif
+  if ( npc.warmode != 1 )
+    bad.append( $"a refused setwarmode changed the flag to {npc.warmode}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

@@ -36,3 +36,239 @@ exported function polcore_save()
   endif
   return 1;
 endfunction
+
+// The core variables that answer with a list or a struct rather than a number. Every one of
+// them builds its answer from live server state, and none had ever been read.
+exported function polcore_lists( resmngr )
+  var core := PolCore();
+  var bad := {};
+
+  // One name per loaded package, and this script's own package is among them. POL lowercases
+  // a package name as it loads it, so TestMisc is listed as testmisc.
+  var pkg_names := core.packages;
+  if ( TypeOf( pkg_names ) != "Array" )
+    bad.append( $"packages is {TypeOf( pkg_names )}" );
+  elseif ( !pkg_names.size() )
+    bad.append( "no packages are loaded" );
+  else
+    var found := 0;
+    foreach name in ( pkg_names )
+      if ( name == "testmisc" )
+        found := 1;
+      endif
+    endforeach
+    if ( !found )
+      bad.append( $"this package is not listed: {pkg_names}" );
+    endif
+  endif
+
+  // A script waiting for an event is on the hold list, which only the all list walks.
+  var child := resmngr.Start_Script( ":TestMisc:idlescript" );
+  if ( !child )
+    return ret_error( $"could not start the helper: {child}" );
+  endif
+  SleepMs( 100 );
+
+  // The running list is the run and ran lists, and a script is on neither while it is the one
+  // asking -- so it can legitimately be empty, and often is.
+  var running := core.running_scripts;
+  if ( TypeOf( running ) != "Array" )
+    bad.append( $"running_scripts is {TypeOf( running )}" );
+  endif
+
+  // The all list adds the sleeping ones, so the helper is in it and it can never be the shorter
+  // of the two.
+  var all := core.all_scripts;
+  if ( TypeOf( all ) != "Array" || all.size() < running.size() )
+    bad.append( $"all_scripts ({all.size()}) is shorter than running_scripts ({running.size()})" );
+  else
+    var found_child := 0;
+    foreach script in ( all )
+      if ( TypeOf( script ) != "ScriptExRef" )
+        bad.append( $"all_scripts holds a {TypeOf( script )}" );
+        break;
+      endif
+      if ( script.pid == child.pid )
+        found_child := 1;
+      endif
+    endforeach
+    if ( !found_child )
+      bad.append( $"the sleeping helper is not listed: {all}" );
+    endif
+  endif
+
+  // One struct per compiled script in the store, with the shape the profiler reports.
+  var profiles := core.script_profiles;
+  if ( TypeOf( profiles ) != "Array" || !profiles.size() )
+    bad.append( $"script_profiles is {profiles}" );
+  else
+    var first := profiles[1];
+    foreach member in ( { "name", "instr", "invocations", "instr_per_invoc", "instr_percent" } )
+      if ( !first.exists( member ) )
+        bad.append( $"a profile entry has no {member}: {first}" );
+      endif
+    endforeach
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The counters and the strings. iostats and queued_iostats share one builder, and pkt_status
+// walks the outgoing packet queues.
+exported function polcore_stats( unused resmngr )
+  var core := PolCore();
+  var bad := {};
+
+  // polcore has no getmember(), so every member has to be named literally. Both of these are
+  // built by the same function, one from the live counters and one from the queued-mode ones.
+  var stat_pairs := { { "iostats", core.iostats }, { "queued_iostats", core.queued_iostats } };
+  foreach pair in ( stat_pairs )
+    var [ name, stats ] := pair;
+    if ( TypeOf( stats ) != "Struct" )
+      bad.append( $"{name} is {TypeOf( stats )}" );
+      continue;
+    endif
+    if ( TypeOf( stats.sent ) != "Array" || TypeOf( stats.received ) != "Array" )
+      bad.append( $"{name} has no sent/received arrays: {stats}" );
+      continue;
+    endif
+    // One entry per packet id, each carrying a count and a byte total.
+    if ( stats.sent.size() )
+      var first := stats.sent[1];
+      if ( !first.exists( "count" ) || !first.exists( "bytes" ) )
+        bad.append( $"{name} sent entry is {first}" );
+      endif
+    endif
+  endforeach
+
+  var pkts := core.pkt_status;
+  if ( TypeOf( pkts ) != "Array" )
+    bad.append( $"pkt_status is {TypeOf( pkts )}" );
+  elseif ( pkts.size() )
+    var first := pkts[1];
+    if ( !first.exists( "pkt" ) || !first.exists( "count" ) )
+      bad.append( $"a pkt_status entry is {first}" );
+    endif
+  endif
+
+  if ( core.memory_usage <= 0 )
+    bad.append( $"memory_usage is {core.memory_usage}" );
+  endif
+  if ( TypeOf( core.poldir ) != "String" || core.poldir == "" )
+    bad.append( $"poldir is {core.poldir}" );
+  endif
+  var strings := { { "version", core.version },
+                   { "verstr", core.verstr },
+                   { "compiledatetime", core.compiledatetime } };
+  foreach pair in ( strings )
+    var [ name, value ] := pair;
+    if ( TypeOf( value ) != "String" || value == "" )
+      bad.append( $"{name} is {value}" );
+    endif
+  endforeach
+
+  var unknown := core.zzz_not_a_core_variable;
+  if ( unknown.errortext != "Unknown core variable zzz_not_a_core_variable" )
+    bad.append( $"an unknown core variable answered {unknown}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function polcore_object( unused resmngr )
+  var core := PolCore();
+  var bad := {};
+
+  if ( TypeOf( core ) != "PolCoreRef" )
+    bad.append( $"TypeOf is {TypeOf( core )}" );
+  endif
+  if ( TypeOfInt( core ) == TypeOfInt( 1 ) )
+    bad.append( "polcore and an integer share a type integer" );
+  endif
+  if ( $"{core}" == "" )
+    bad.append( "polcore has no string representation" );
+  endif
+
+  // Copying an array copies each element, which is the only route to the copy handler.
+  var copied := ( array{ core } )[1];
+  if ( TypeOf( copied ) != TypeOf( core ) )
+    bad.append( $"the copy is a {TypeOf( copied )}" );
+  endif
+  if ( copied.poldir != core.poldir )
+    bad.append( "the copy answers a different poldir" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// polcore's methods, and what each of them says when called wrongly. log_profile is only
+// called wrongly on purpose: the successful call dumps the whole script profile table into
+// pol.log, which is not worth three lines of coverage.
+exported function polcore_methods( unused resmngr )
+  var core := PolCore();
+  var bad := {};
+
+  var original := core.priority_divide;
+  if ( core.set_priority_divide( original + 1 ) != 1 )
+    bad.append( "set_priority_divide answered falsy" );
+  endif
+  if ( core.priority_divide != original + 1 )
+    bad.append( $"priority_divide is {core.priority_divide}, expected {original + 1}" );
+  endif
+  if ( core.set_priority_divide( original ) != 1 )
+    bad.append( "could not put priority_divide back" );
+  endif
+
+  // The value is range checked by the executor, whose complaint beats the module's own.
+  var res := core.set_priority_divide( 0 );
+  if ( !res.errortext.find( "out of expected range" ) )
+    bad.append( $"a zero divide answered {res}" );
+  endif
+  res := core.set_priority_divide();
+  if ( res.errortext != "polcore.set_priority_divide(value) requires 1 parameter." )
+    bad.append( $"set_priority_divide with no parameter answered {res}" );
+  endif
+
+  if ( core.clear_script_profile_counters() != 1 )
+    bad.append( "clear_script_profile_counters answered falsy" );
+  endif
+  res := core.clear_script_profile_counters( 1 );
+  if ( res.errortext != "polcore.clear_script_profile_counters() doesn't take parameters." )
+    bad.append( $"clear_script_profile_counters with a parameter answered {res}" );
+  endif
+
+  res := core.log_profile();
+  if ( res.errortext != "polcore.log_profile(clear) requires 1 parameter." )
+    bad.append( $"log_profile with no parameter answered {res}" );
+  endif
+
+  // internal() used to read parameter 0 without checking that there was one, which is an
+  // assertion failure inside the executor and takes the shard down rather than erroring.
+  res := core.internal();
+  if ( res.errortext != "polcore.internal(value) requires 1 parameter." )
+    bad.append( $"internal with no parameter answered {res}" );
+  endif
+  // Selector 6 is the only one that reads a second parameter, with the same hazard.
+  if ( core.internal( 6 ) != 0 )
+    bad.append( "internal( 6 ) with no script name should answer 0" );
+  endif
+
+  // A method nothing knows falls off the end of the dispatch and reads as uninit.
+  if ( TypeOf( core.zzz_not_a_method() ) != "Uninit" )
+    bad.append( $"an unknown method answered {core.zzz_not_a_method()}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

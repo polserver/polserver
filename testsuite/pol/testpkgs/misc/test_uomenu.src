@@ -59,6 +59,43 @@ exported function dynamic_menu_objtypes( unused resmngr )
   return 1;
 endfunction
 
+// The menus config/menus.cfg declares are looked up by name instead of by handle.
+// A menu entry that names a submenu contributes that submenu's objtypes rather
+// than its own, so reading the main menu back walks into the sub menu.
+exported function static_menu_objtypes( unused resmngr )
+  var sub := GetMenuObjTypes( "TestMenuSub" );
+  if ( TypeOf( sub ) != "Array" )
+    return ret_error( $"expected an array of objtypes, got {sub}" );
+  endif
+  if ( sub.size() != 2 || sub[1] != 0xf3f || sub[2] != 0x06a5 )
+    return ret_error( $"the sub menu holds the wrong objtypes: {sub}" );
+  endif
+
+  // The submenu entry's own objtype (0x200001) is replaced by what the submenu holds.
+  //
+  // The order is not the order the cfg lists them in: a config element keeps its properties
+  // in a case insensitive multimap, so read_menus() reads every Entry before any SubMenu no
+  // matter how the file is written. Only same-named properties keep their file order.
+  var main := GetMenuObjTypes( "TestMenuMain" );
+  if ( main.size() != 3 )
+    return ret_error( $"expected three objtypes, got {main}" );
+  endif
+  if ( main[1] != 0xeed || main[2] != 0xf3f || main[3] != 0x06a5 )
+    return ret_error( $"the main menu holds the wrong objtypes: {main}" );
+  endif
+  if ( list_holds( main, 0x200001 ) )
+    return ret_error( $"the submenu's own objtype should not be listed: {main}" );
+  endif
+
+  // Menus are found with a case insensitive compare.
+  var lowercase := GetMenuObjTypes( "testmenumain" );
+  if ( lowercase.size() != main.size() )
+    return ret_error( $"a lowercased menu name found a different menu: {lowercase}" );
+  endif
+
+  return 1;
+endfunction
+
 exported function menu_rejects_bad_params( unused resmngr )
   var no_title := CreateMenu( 0 );
   if ( no_title )
@@ -70,8 +107,8 @@ exported function menu_rejects_bad_params( unused resmngr )
     return ret_error( $"expected a falsy result adding to a non-menu, got {not_a_menu}" );
   endif
 
-  // The read-back form also accepts the name of a static menu, and no static
-  // menus are configured on this shard.
+  // The read-back form also accepts the name of a static menu, but only one
+  // config/menus.cfg declares.
   var unknown := GetMenuObjTypes( "nosuchmenu" );
   if ( unknown )
     return ret_error( $"expected a falsy result for an unknown menu, got {unknown}" );

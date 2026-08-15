@@ -389,3 +389,60 @@ exported function boat_reference_object( resmngr )
   endif
   return 1;
 endfunction
+
+// Every boat function reaches the boat it is given through one parameter helper, and that helper
+// accepts four different things: a boat reference, an item reference that happens to be a boat,
+// a serial, or nothing it understands. Only the first has ever been used.
+exported function boat_param_forms( resmngr )
+  var boat := make_boat( resmngr, SMALL_BOAT );
+  if ( !boat )
+    return ret_error( $"could not launch a boat: {boat}" );
+  endif
+  var bad := {};
+
+  // A boat is an item in the world, so the same boat can be handed over as an item reference.
+  var as_item := boat.tillerman.multi;
+  if ( TypeOf( as_item ) != "BoatRef" )
+    bad.append( $"a component's multi reads as {TypeOf( as_item )}" );
+  endif
+
+  // A serial resolves through the multi lookup.
+  if ( !MoveBoatRelative( boat.serial, 0 ) )
+    bad.append( "a boat serial was not accepted" );
+  endif
+  if ( !MoveBoatRelative( boat, 4 ) )
+    bad.append( "moving the boat back failed" );
+  endif
+
+  // A serial that belongs to no multi at all.
+  var res := MoveBoatRelative( 0x40ffffff, 0 );
+  if ( res )
+    bad.append( $"an unknown serial was accepted: {res}" );
+  endif
+
+  // An item reference that is not a multi, and a mobile reference, take two different arms of
+  // the same helper.
+  var loose := resmngr.CreateItemAtLocation( BOAT_X, BOAT_Y, BOAT_Z, "goldcoin", 1 );
+  res := MoveBoatRelative( loose, 0 );
+  if ( res )
+    bad.append( $"a loose item was accepted as a boat: {res}" );
+  endif
+
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", BOAT_X, BOAT_Y, BOAT_Z, 0,
+                                            _DEFAULT_REALM, 1 );
+  res := MoveBoatRelative( npc, 0 );
+  if ( res )
+    bad.append( $"an npc was accepted as a boat: {res}" );
+  endif
+
+  // Neither an application object nor a number.
+  res := MoveBoatRelative( "not a boat", 0 );
+  if ( res )
+    bad.append( $"a string was accepted as a boat: {res}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
