@@ -1,0 +1,59 @@
+// Subscripting a string, slicing it, and what each string method says when it is called with
+// the wrong number or type of parameters.
+
+program string28()
+
+  var s := "hello world";
+
+  print( "--- subscripting" );
+  print( "integer:     " + s[2] );
+  // a real index is truncated to a position, it is not a slice
+  print( "real:        " + s[2.0] );
+  print( "past end:    " + s[99] );
+
+  print( "--- slicing" );
+  print( "from, len:   " + s[2, 3] );
+  // a string start means "from where this is found", and the length still counts characters
+  print( "find:        " + s["world"] );
+  print( "find, len:   " + s["world", 3] );
+  print( "not found:   " + s["zz"] );
+  print( "real length: " + s[2, 3.0] );
+  print( "start zero:  " + s[0, 3] );
+  print( "start past:  " + s[99, 3] );
+
+  print( "--- assigning through a slice" );
+  var t := "hello world";
+  t[1, 5] := "howdy";
+  print( "replaced:    " + t );
+  t["world"] := "there";
+  print( "by find:     " + t );
+  print( "out of rng:  " + ( t[99, 2] := "x" ) );
+
+  print( "--- method parameters" );
+  print( "length:      " + s.length( 1 ) );
+  print( "find none:   " + s.find() );
+  print( "find three:  " + s.find( "world", 1, 1 ) );
+  print( "find type:   " + s.find( 1 ) );
+  print( "split none:  " + s.split() );
+  print( "split three: " + s.split( " ", 1, 1 ) );
+  print( "split type:  " + s.split( 1 ) );
+  print( "upper:       " + s.upper( 1 ) );
+  print( "lower:       " + s.lower( 1 ) );
+  print( "format none: " + "{}".format() );
+  print( "join none:   " + ",".join() );
+  print( "join type:   " + ",".join( 1 ) );
+  print( "unknown mth: " + s.zzz_not_a_method() );
+
+  print( "--- format tags" );
+  // a tag naming a property has to say which parameter the property belongs to
+  print( "no index:    " + "{x.prop}".format( struct{ prop := 5 } ) );
+  print( "with index:  " + "{1.prop}".format( struct{ prop := 5 } ) );
+  print( "padded:      " + "{ 1 }".format( 7 ) );
+  print( "unclosed:    " + "{".format( 7 ) );
+  print( "missing arg: " + "{1}{2}".format( 7 ) );
+  // join skips the holes of an array rather than joining empty strings for them
+  var holes := array{};
+  holes[3] := "x";
+  print( "join holes:  " + ",".join( holes ) );
+
+endprogram

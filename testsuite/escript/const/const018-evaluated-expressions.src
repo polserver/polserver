@@ -1,0 +1,18 @@
+// A const holding a bare literal is stored as-is; a const holding an expression has to be
+// folded at compile time, and the folding has to handle each value kind. A const array or
+// struct must be empty, so only scalars can take part.
+const S := "a" + "b";
+const B := !false;
+const U := uninit;
+const I := 6 / 2;
+const F := 1.5 * 2;
+const CMP := ( 3 > 2 );
+const CAT := S + "c";
+
+print( S );
+print( B );
+print( U );
+print( I );
+print( F );
+print( CMP );
+print( CAT );

@@ -1,0 +1,14 @@
+// basic.em PackJSON / UnpackJSON: the dictionary arm, a sparse array and the refusals
+
+print( PackJSON( dictionary{ "b" -> 2, "a" -> 1 } ) );
+print( PackJSON( struct{ a := 1, b := "two" } ) );
+
+// a subscript past the end grows the array with holes, which the serializer skips
+var sparse := array{};
+sparse[3] := 1;
+print( len( sparse ) );
+print( PackJSON( sparse ) );
+
+print( UnpackJSON( "{ \"a\": 1 }" ).a );
+print( UnpackJSON( "{ not json" ) );
+print( UnpackJSON( 5 ) );

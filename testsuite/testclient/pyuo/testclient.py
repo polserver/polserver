@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import atexit
 import configparser
 import logging
 import json
@@ -300,16 +301,45 @@ class PolServer:
       if todo=="connect":
         self.threads.append(
           threading.Thread(target=self.startclient,
-              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]))
+              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
+              daemon=True)
+          )
+        self.threads[-1].start()
+      elif todo=="createchar":
+        # everything past the account is handed to the create packet, so a test can pin any of
+        # the values the server validates without another todo per field
+        opts = {k:v for k,v in res.items()
+                if k not in ("todo","account","psw","name","chrindex","id")}
+        self.threads.append(
+          threading.Thread(target=self.startclient,
+              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
+              kwargs={"create":opts}, daemon=True)
           )
         self.threads[-1].start()
       elif todo=="exit":
+        # Logged per step: this process is one stage of cmake's execute_process pipeline, so if a
+        # client thread never ends, the join below holds up the whole job and the only symptom is
+        # a 600s timeout with nothing said. The lines below name which thread that was.
+        self.log.info("LIFECYCLE exit requested, telling %d brains to disconnect",
+                      len(self.brains))
         with self.clientLock:
           for b in self.brains:
             b.addTodo({"todo":"disconnect"})
-        for t in self.threads:
-          t.join()
+        for i, t in enumerate(self.threads):
+          self.log.info("LIFECYCLE joining client thread %d/%d (%s)",
+                        i + 1, len(self.threads), t.name)
+          t.join(timeout=30)
+          if t.is_alive():
+            # Bounded on purpose: a client that cannot finish is worth a loud line in the job
+            # output, not a silent timeout on the whole pipeline. The threads are daemons, so
+            # leaving this one behind does not stop the process from exiting.
+            self.log.error("LIFECYCLE client thread %d/%d (%s) did not end within 30s, "
+                           "leaving it behind", i + 1, len(self.threads), t.name)
+          else:
+            self.log.info("LIFECYCLE joined client thread %d/%d", i + 1, len(self.threads))
+        self.log.info("LIFECYCLE all client threads joined")
         self.sendEvent(brain.Event(brain.Event.EVT_EXIT,clientid=0))
+        self.log.info("LIFECYCLE run() returning")
         return
       else:
         with self.clientLock:
@@ -320,13 +350,16 @@ class PolServer:
           else:
             self.log.error("invalid clientid")
 
-  def startclient(self,user,psw,charname,charidx,id):
+  def startclient(self,user,psw,charname,charidx,id,create=None):
     with self.clientLock:
       c = client.Client(id)
       self.clients.append(c)
     servers = c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
     chars = c.selectServer(self.lconf.getint('serveridx'))
-    c.selectCharacter(charname, charidx)
+    if create is None:
+      c.selectCharacter(charname, charidx)
+    else:
+      c.createCharacter(charname, charidx, **create)
     TestBrain(c,self)
 
   def addBrain(self, brain):
@@ -616,12 +649,20 @@ class PolServer:
 if __name__ == '__main__':
   logging.basicConfig(level=logging.INFO, stream=sys.stderr,
           format="      %(name)s:%(message)s")
-  
+
+  # Whatever else happens, say when this process actually goes. It is one stage of a pipeline that
+  # cmake waits on in full, so a stage that never exits looks exactly like a hung shard.
+  lifecycle = logging.getLogger('testclient')
+  atexit.register(lambda: lifecycle.info("LIFECYCLE process exiting"))
+  lifecycle.info("LIFECYCLE process starting (pid %d)", os.getpid())
+
   serv = PolServer()
   try:
     serv.run()
   finally: # wake up the server and let it close first
+    lifecycle.info("LIFECYCLE run() left, releasing the control connection")
     serv.send("{}")
     time.sleep(1)
     serv.conn.close()
+    lifecycle.info("LIFECYCLE control connection closed")
 

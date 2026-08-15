@@ -55,9 +55,18 @@ class Brain:
   def run(self):
     ''' This is the main Brain thread entry point, contains the main loop, internal '''
 
-    # Wait for client to start us, then initialize
+    # Wait for client to start us, then initialize.
+    #
+    # The event behind this is only set when the login completes, and a login does not always
+    # complete: a character creation the server refuses drops the connection instead. Waiting
+    # forever for that would park this thread - which is the caller's, since __init__ runs the
+    # brain inline - and testclient.py joins every one of those before it exits, so one refused
+    # login used to hang the whole cmake pipeline on a 600s timeout with nothing said.
     self.log.info('Waiting for client to start')
-    self.started.wait()
+    while not self.started.wait(timeout=1.0):
+      if not self.client.is_alive():
+        self.log.error('client stopped before its login completed; brain is giving up')
+        return
     self.log.info('Client started')
     self.player = self.client.player
     self.objects = self.client.objects

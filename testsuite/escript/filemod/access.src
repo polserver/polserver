@@ -1,0 +1,34 @@
+use file;
+
+// config/fileaccess.cfg grants two things and nothing else: read of ".xml" under the
+// filemod directory, and everything inside the filetest package. Every other path is
+// refused, which is what this file pins - one case per function that checks access.
+
+program access()
+
+  // read is granted where the rule matches on directory and extension
+  print( "xml allowed:  " + ( ReadFile( "filemod/xmltest.xml" )[1] != error ) );
+  print( "pkg allowed:  " + ReadFile( ":filetest:normal.file" ) );
+
+  // outside the directory the rule names
+  print( "other dir:    " + ReadFile( "config/fileaccess.cfg" ) );
+  // inside it, but an extension the rule does not name
+  print( "other ext:    " + ReadFile( "filemod/normal.file" ) );
+  // a path the rules would allow, refused before they are even consulted: every entry point
+  // rejects ".." itself, which is why FileAccess::AppliesToPath's own check never runs
+  print( "traversal:    " + ReadFile( "filemod/../filemod/xmltest.xml" ) );
+
+  // the rule that grants the read grants nothing else
+  print( "write:        " + WriteFile( "filemod/refused.xml", array{ "x" } ) );
+  print( "append:       " + AppendToFile( "filemod/refused.xml", array{ "x" } ) );
+  print( "log:          " + LogToFile( "filemod/refused.xml", "x" ) );
+  // ".dat" is outside the read rule as well, so both halves of the mode check refuse it
+  print( "binary read:  " + OpenBinaryFile( "filemod/refused.dat", OPENMODE_IN ) );
+  print( "binary write: " + OpenBinaryFile( "filemod/refused.dat", OPENMODE_OUT ) );
+  print( "xml read:     " + OpenXMLFile( "config/fileaccess.cfg" ) );
+
+  // nothing above may have created the file it was refused
+  print( "not created:  " + FileExists( "filemod/refused.xml" ) );
+  print( "not created:  " + FileExists( "filemod/refused.dat" ) );
+
+endprogram

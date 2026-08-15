@@ -627,14 +627,6 @@ Bscript::BObjectImp* UHouse::script_method_id( const int id, Core::UOExecutor& e
   return new BError( "Invalid parameter type" );
 }
 
-Bscript::BObjectImp* UHouse::script_method( const char* methodname, Core::UOExecutor& ex )
-{
-  Bscript::ObjMethod* objmethod = Bscript::getKnownObjMethod( methodname );
-  if ( objmethod != nullptr )
-    return this->script_method_id( objmethod->id, ex );
-  return nullptr;
-}
-
 void UHouse::readProperties( Clib::ConfigElem& elem )
 {
   base::readProperties( elem );

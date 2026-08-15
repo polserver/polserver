@@ -256,7 +256,6 @@ public:
   virtual Bscript::BObjectImp* set_script_member_id( const int id, int value );
   virtual Bscript::BObjectImp* set_script_member_id_double( const int id, double value );
 
-  virtual Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex );
   virtual Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex );
 
   virtual Bscript::BObjectImp* custom_script_method( const char* methodname, UOExecutor& ex );

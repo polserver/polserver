@@ -1,0 +1,16 @@
+// A dictionary key has to be an integer, a real or a string. Everything else is refused
+// rather than stringified.
+var d := dictionary{};
+
+d[1] := "int";
+d[2.5] := "real";
+d["k"] := "string";
+print( d );
+
+print( d[ { 1, 2 } ] );
+print( d[ struct{ x := 1 } ] );
+print( d[ dictionary{} ] );
+print( d[ error{ errortext := "nope" } ] );
+
+// The refused keys left the dictionary alone.
+print( d.size() );

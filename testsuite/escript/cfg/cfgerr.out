@@ -1,0 +1,25 @@
+by name:      5
+by number:    one
+by real:      error{ errortext = "Element not found" }
+unknown prop: 1
+elem property:hello
+prop missing: error{ errortext = "Property not found" }
+int missing:  error{ errortext = "Property not found" }
+real missing: error{ errortext = "Property not found" }
+dict:         dict{ "key" -> "value", "key2" -> "value2" }
+array:        { key value, key2 value2 }
+copied:       ConfigElemRef hello
+maxintkey:    error{ errortext = "Parameter 0 must be a Config File" }
+stringkeys:   error{ errortext = "GetConfigStringKeys param 0 must be a Config File" }
+intkeys:      error{ errortext = "GetConfigIntKeys param 0 must be a Config File" }
+findelem key: error{ errortext = "Param 1 must be an Integer or a String" }
+findelem miss:error{ errortext = "Element not found" }
+findelem cfg: error{ errortext = "Parameter 0 must be a Config File" }
+getstring:    error{ errortext = "Invalid parameter type" }
+getstrarray:  error{ errortext = "Invalid parameter type" }
+getstrdict:   error{ errortext = "Invalid parameter type" }
+getint:       error{ errortext = "Invalid parameter type" }
+getintarray:  error{ errortext = "Invalid parameter type" }
+getreal:      error{ errortext = "Invalid parameter type" }
+listprops:    error{ errortext = "Invalid parameter type" }
+propname:     error{ errortext = "Invalid parameter type" }

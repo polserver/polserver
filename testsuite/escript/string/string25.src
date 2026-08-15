@@ -1,0 +1,16 @@
+// Subtracting a string removes its first occurrence.
+var s := "hello world";
+print( s - "l" );
+print( s - "o w" );
+print( s - "not there" );
+print( s - "" );
+
+// Subtracting anything else hands back the string unchanged.
+print( s - 1 );
+print( s - 1.5 );
+print( s - { 1, 2 } );
+
+// A method the compiler does not know is looked up by name at runtime, and a string has
+// no such method to offer.
+var unknown := s.no_such_method();
+print( unknown );

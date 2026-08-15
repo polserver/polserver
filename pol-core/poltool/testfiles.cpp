@@ -86,6 +86,18 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   additem( &item[0xefa], 0x00600002, 3, 1, 1, "spellbook" );
   additem( &item[0xf5e], 0x00400002, 6, 1, 1, "broadsword" );
   additem( &item[0x203b], 0x00400002, 0, 11, 0, "short hair" );
+  // The two the core equips by itself, on the robe layer it expects them on: Character::on_death
+  // puts the shroud on, Character::resurrect() replaces it with the robe.
+  additem( &item[0x1f03], 0x08400000, 2, 22, 1, "death robe" );
+  additem( &item[0x204e], 0x08400000, 2, 22, 1, "death shroud" );
+  // What a boat's pilot wears while at the wheel. Character::die() recognises it by the mount
+  // layer, so without one here it would be worn on no layer at all.
+  additem( &item[0x3e96], 0x00400000, 1, 25, 1, "boat mount" );
+  // The rest of what a newly created character is dressed in. ClientCreateChar equips these
+  // without asking whether it can, so a missing layer here aborts the shard on every creation.
+  additem( &item[0x170f], 0x00400000, 1, 3, 1, "shoes" );
+  additem( &item[0xf51], 0x00400002, 1, 1, 1, "dagger" );
+  additem( &item[0x1516], 0x08400000, 2, 4, 1, "skirt" );
 
   // house 0x6b
   additem( &item[0x6], 0x00002050, 255, 0, 20, "wooden wall" );

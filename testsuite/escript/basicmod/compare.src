@@ -1,0 +1,26 @@
+// basic.em Compare: the three comparison branches and every bounds refusal
+// Compare( str1, str2, pos1_start := 0, pos1_len := 0, pos2_start := 0, pos2_len := 0 )
+
+// whole string against whole string
+print( Compare( "abc", "abc" ) );
+print( Compare( "abc", "abd" ) );
+
+// a range of str1 against the whole of str2
+print( Compare( "abc", "b", 2, 1 ) );
+print( Compare( "abc", "zzz", 2, 1 ) );
+
+// a range of each
+print( Compare( "abc", "xbz", 2, 1, 2, 1 ) );
+print( Compare( "abc", "xyz", 2, 1, 2, 1 ) );
+
+// the start refusals
+print( Compare( "abc", "abc", -1 ) );
+print( Compare( "abc", "abc", 99 ) );
+print( Compare( "abc", "abc", 1, 1, -1 ) );
+print( Compare( "abc", "abc", 1, 1, 99 ) );
+
+// the length refusals
+print( Compare( "abc", "abc", 1, -1 ) );
+print( Compare( "abc", "abc", 1, 99 ) );
+print( Compare( "abc", "abc", 1, 1, 1, -1 ) );
+print( Compare( "abc", "abc", 1, 1, 1, 99 ) );

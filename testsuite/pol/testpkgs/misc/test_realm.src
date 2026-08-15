@@ -1,0 +1,132 @@
+use uo;
+use os;
+use polsys;
+
+include "testutil";
+
+const BASE_REALM := "britannia";
+
+program testrealm()
+  return 1;
+endprogram
+
+// AddRealm needs two strings, an existing base realm, and a name nobody is using yet.
+exported function add_realm_rejects_bad_arguments( resources )
+  var res := AddRealm( 1, BASE_REALM );
+  if ( res || res.errortext != "Invalid parameter" )
+    return ret_error( $"expected Invalid parameter for a non-string name, got {res}" );
+  endif
+
+  res := AddRealm( "shadow-bad-base", "no_such_realm" );
+  if ( res || res.errortext != "BaseRealm not found." )
+    return ret_error( $"expected BaseRealm not found., got {res}" );
+  endif
+
+  res := AddRealm( BASE_REALM, BASE_REALM );
+  if ( res || res.errortext != "Realmname already defined." )
+    return ret_error( $"expected Realmname already defined., got {res}" );
+  endif
+
+  // A shadow realm cannot itself be used as a base.
+  res := resources.AddRealm( "shadow-as-base", BASE_REALM );
+  if ( !res )
+    return ret_error( $"failed to create shadow realm: {res}" );
+  endif
+
+  res := AddRealm( "shadow-of-shadow", "shadow-as-base" );
+  if ( res || res.errortext != "BaseRealm is a ShadowRealm." )
+    return ret_error( $"expected BaseRealm is a ShadowRealm., got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// DeleteRealm only removes an empty shadow realm.
+exported function delete_realm_rejects_bad_args( unused resources )
+  var res := DeleteRealm( 1 );
+  if ( res || res.errortext != "Invalid parameter" )
+    return ret_error( $"expected Invalid parameter for a non-string name, got {res}" );
+  endif
+
+  res := DeleteRealm( "no_such_realm" );
+  if ( res || res.errortext != "Realm not found." )
+    return ret_error( $"expected Realm not found., got {res}" );
+  endif
+
+  res := DeleteRealm( BASE_REALM );
+  if ( res || res.errortext != "Realm is not a ShadowRealm." )
+    return ret_error( $"expected Realm is not a ShadowRealm., got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// A shadow realm holding a top-level item refuses to be deleted until the item is gone.
+exported function delete_realm_refuses_occupied( unused resources )
+  var realm_name := "shadow-occupied";
+  var res := AddRealm( realm_name, BASE_REALM );
+  if ( !res )
+    return ret_error( $"failed to create shadow realm: {res}" );
+  endif
+
+  var item := CreateItemAtLocation( 100, 100, 0, 0x3e3f, 1, realm_name );
+  if ( !item )
+    DeleteRealm( realm_name );
+    return ret_error( $"failed to create item in shadow realm: {item}" );
+  endif
+
+  res := DeleteRealm( realm_name );
+  var failure;
+  if ( res || res.errortext != "Items in Realm." )
+    failure := ret_error( $"expected Items in Realm., got {res}" );
+  endif
+
+  DestroyItem( item );
+
+  res := DeleteRealm( realm_name );
+  if ( !failure && !res )
+    failure := ret_error( $"an emptied shadow realm should delete, got {res}" );
+  endif
+
+  if ( failure )
+    return failure;
+  endif
+  return 1;
+endfunction
+
+// GetRealmDecay and SetRealmDecay share the same name lookup.
+exported function realm_decay_round_trip( resources )
+  var res := GetRealmDecay( 1 );
+  if ( res || res.errortext != "Invalid parameter" )
+    return ret_error( $"expected Invalid parameter, got {res}" );
+  endif
+
+  res := GetRealmDecay( "no_such_realm" );
+  if ( res || res.errortext != "Realm not found." )
+    return ret_error( $"expected Realm not found., got {res}" );
+  endif
+
+  var realm_name := "shadow-decay";
+  res := resources.AddRealm( realm_name, BASE_REALM );
+  if ( !res )
+    return ret_error( $"failed to create shadow realm: {res}" );
+  endif
+
+  res := SetRealmDecay( realm_name, 0 );
+  if ( !res )
+    return ret_error( $"failed to turn decay off: {res}" );
+  endif
+  if ( GetRealmDecay( realm_name ) )
+    return ret_error( "decay should be off" );
+  endif
+
+  res := SetRealmDecay( realm_name, 1 );
+  if ( !res )
+    return ret_error( $"failed to turn decay on: {res}" );
+  endif
+  if ( !GetRealmDecay( realm_name ) )
+    return ret_error( "decay should be on" );
+  endif
+
+  return 1;
+endfunction

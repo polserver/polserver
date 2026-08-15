@@ -1,0 +1,13 @@
+xml allowed:  1
+pkg allowed:  { plain text, æ }
+other dir:    error{ errortext = "Access denied" }
+other ext:    error{ errortext = "Access denied" }
+traversal:    error{ errortext = "No parent path traversal please." }
+write:        error{ errortext = "Access denied" }
+append:       error{ errortext = "Access denied" }
+log:          error{ errortext = "Access denied" }
+binary read:  error{ errortext = "Access denied" }
+binary write: error{ errortext = "Access denied" }
+xml read:     error{ errortext = "Access denied" }
+not created:  0
+not created:  0

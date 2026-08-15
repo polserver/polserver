@@ -1,0 +1,270 @@
+use os;
+use uo;
+
+include "testutil";
+
+// The members and methods every object has because it is a UObject, rather than because it is an
+// item or a mobile. They are reached through whichever class the object really is, so each case
+// runs against both an item and an npc where the two behave differently.
+
+const UO_X := 156;
+const UO_Y := 156;
+
+const CONTAINER := 0xE75;
+
+program testuobject()
+  return 1;
+endprogram
+
+function make_item( resmngr )
+  return resmngr.CreateItemAtLocation( UO_X, UO_Y, 0, CONTAINER );
+endfunction
+
+function make_npc( resmngr )
+  return resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", UO_X + 1, UO_Y, 0 );
+endfunction
+
+// dirty says whether the object has changed since the last world save; specific_name says whether
+// it carries a name of its own rather than the one its itemdesc or template gives it.
+exported function uobj_dirty_and_specific_name( resmngr )
+  var item := make_item( resmngr );
+  if ( !item )
+    return ret_error( $"could not create an item: {item}" );
+  endif
+  var bad := {};
+
+  // writing any member marks the object dirty
+  item.color := 1;
+  if ( item.dirty != 1 )
+    bad.append( $"a just-changed item reports dirty {item.dirty}" );
+  endif
+
+  if ( item.specific_name != 0 )
+    bad.append( $"a fresh item reports specific_name {item.specific_name}" );
+  endif
+  item.name := "a box of its own";
+  if ( item.specific_name != 1 )
+    bad.append( $"a renamed item reports specific_name {item.specific_name}" );
+  endif
+  // clearing the name gives the itemdesc's back, so it stops being specific
+  item.name := "";
+  if ( item.specific_name != 0 )
+    bad.append( $"an item with its name cleared reports specific_name {item.specific_name}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A mobile may not be left nameless, an item may.
+exported function uobj_name_setter( resmngr )
+  var item := make_item( resmngr );
+  var npc := make_npc( resmngr );
+  if ( !item || !npc )
+    return ret_error( $"could not set up: {item} {npc}" );
+  endif
+  var bad := {};
+  var refusal := "mobile.name must not be empty, and must not begin with a space";
+
+  if ( npc.set_member( "name", "" ).errortext != refusal )
+    bad.append( $"an empty mobile name gave {npc.set_member( "name", "" )}" );
+  endif
+  if ( npc.set_member( "name", " leading" ).errortext != refusal )
+    bad.append( $"a leading space gave {npc.set_member( "name", " leading" )}" );
+  endif
+  if ( npc.set_member( "name", "renamed" ) != "renamed" )
+    bad.append( $"renaming answered {npc.set_member( "name", "renamed" )}" );
+  endif
+  if ( npc.name != "renamed" )
+    bad.append( $"the npc is called {npc.name}" );
+  endif
+
+  // an item is not a mobile, so the same two names are taken
+  if ( item.set_member( "name", " leading" ) != " leading" )
+    bad.append( $"an item refused a leading space: {item.set_member( "name", " leading" )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// An item's color is masked by ItemColorMask, which the test shard sets to 0x4FFF; a mobile's is
+// not masked at all.
+exported function uobj_color_setter( resmngr )
+  var item := make_item( resmngr );
+  var npc := make_npc( resmngr );
+  if ( !item || !npc )
+    return ret_error( $"could not set up: {item} {npc}" );
+  endif
+  var bad := {};
+
+  if ( item.set_member( "color", 0x123 ) != 0x123 )
+    bad.append( $"a color inside the mask answered {item.set_member( "color", 0x123 )}" );
+  endif
+  if ( item.color != 0x123 )
+    bad.append( $"the item's color is {item.color}" );
+  endif
+
+  var res := item.set_member( "color", 0x8000 );
+  if ( !res.errortext.find( "Invalid color value" ) )
+    bad.append( $"a color outside the mask gave {res}" );
+  endif
+  // the error does not undo it: the color is masked and kept
+  if ( item.color != ( 0x8000 & 0x4FFF ) )
+    bad.append( $"after the refusal the item's color is {item.color}" );
+  endif
+
+  if ( npc.set_member( "color", 0x8000 ) != 0x8000 )
+    bad.append( $"a mobile refused an unmasked color: {npc.set_member( "color", 0x8000 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// A destroyed object is refused a method call by the reference that holds it, but an assignment
+// reaches the object itself, which ignores it.
+exported function uobj_destroyed_setters( resmngr )
+  var item := make_item( resmngr );
+  if ( !item )
+    return ret_error( $"could not create an item: {item}" );
+  endif
+  var bad := {};
+
+  DestroyItem( item );
+
+  if ( item.set_member( "name", "gone" ).errortext != "That object no longer exists" )
+    bad.append( $"set_member on a destroyed item gave {item.set_member( "name", "gone" )}" );
+  endif
+
+  // neither of these is refused, and neither does anything
+  item.name := "gone";
+  item.color := 5;
+  if ( TypeOf( item.name ) != "Uninit" )
+    bad.append( $"the name of a destroyed item reads {TypeOf( item.name )}" );
+  endif
+  if ( TypeOf( item.color ) != "Uninit" )
+    bad.append( $"the color of a destroyed item reads {TypeOf( item.color )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// get_member reads a member whose name is only known at runtime.
+exported function uobj_get_member_by_name( resmngr )
+  var item := make_item( resmngr );
+  if ( !item )
+    return ret_error( $"could not create an item: {item}" );
+  endif
+  var bad := {};
+
+  if ( item.get_member( "objtype" ) != CONTAINER )
+    bad.append( $"objtype by name reads {item.get_member( "objtype" )}" );
+  endif
+  if ( item.get_member().errortext != "Not enough parameters" )
+    bad.append( "get_member with no name was accepted" );
+  endif
+  if ( item.get_member( "no_such_member" ).errortext != "Member no_such_member not found on that object" )
+    bad.append( $"an unknown member gave {item.get_member( "no_such_member" )}" );
+  endif
+  // a name that is not a string is the object's own complaint, not the executor's: getStringParam
+  // does not set an error of its own the way getParam does
+  if ( item.get_member( 5 ).errortext != "Invalid parameter type" )
+    bad.append( $"a non-string member name gave {item.get_member( 5 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// set_member is the writing half, and it takes one route per value type.
+exported function uobj_set_member_by_name( resmngr )
+  var item := make_item( resmngr );
+  var npc := make_npc( resmngr );
+  if ( !item || !npc )
+    return ret_error( $"could not set up: {item} {npc}" );
+  endif
+  var bad := {};
+  var missing := "Member no_such_member not found on that object";
+
+  if ( item.set_member( "no_such_member", 5 ).errortext != missing )
+    bad.append( $"an unknown member took an integer: {item.set_member( "no_such_member", 5 )}" );
+  endif
+  if ( item.set_member( "no_such_member", "x" ).errortext != missing )
+    bad.append( $"an unknown member took a string: {item.set_member( "no_such_member", "x" )}" );
+  endif
+  // the real route lives on the mobile: an item has its own double setter, a mobile has not
+  if ( npc.set_member( "no_such_member", 2.5 ).errortext != missing )
+    bad.append( $"an unknown member took a real: {npc.set_member( "no_such_member", 2.5 )}" );
+  endif
+  // a member that exists but has no setter for that type reads as missing too
+  if ( item.set_member( "objtype", 2.5 ).errortext != "Member objtype not found on that object" )
+    bad.append( $"objtype took a real: {item.set_member( "objtype", 2.5 )}" );
+  endif
+
+  if ( item.set_member( "name", array{ 1 } ).errortext != "Invalid value type" )
+    bad.append( $"an array was accepted as a value: {item.set_member( "name", array{ 1 } )}" );
+  endif
+  if ( item.set_member( "name" ).errortext != "Not enough parameters" )
+    bad.append( "set_member with no value was accepted" );
+  endif
+  if ( item.set_member( 5, 1 ).errortext != "Invalid parameter type" )
+    bad.append( $"a non-string member name gave {item.set_member( 5, 1 )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// isa walks the class chain: every object is a UObject, and each class adds its own.
+exported function uobj_isa( resmngr )
+  var item := make_item( resmngr );
+  var npc := make_npc( resmngr );
+  if ( !item || !npc )
+    return ret_error( $"could not set up: {item} {npc}" );
+  endif
+  var bad := {};
+
+  foreach polclass in ( { POLCLASS_UOBJECT, POLCLASS_ITEM, POLCLASS_LOCKABLE, POLCLASS_CONTAINER } )
+    if ( !item.isa( polclass ) )
+      bad.append( $"a container is not polclass {polclass}" );
+    endif
+  endforeach
+  if ( item.isa( POLCLASS_MOBILE ) )
+    bad.append( "a container claims to be a mobile" );
+  endif
+
+  foreach polclass in ( { POLCLASS_UOBJECT, POLCLASS_MOBILE, POLCLASS_NPC } )
+    if ( !npc.isa( polclass ) )
+      bad.append( $"an npc is not polclass {polclass}" );
+    endif
+  endforeach
+  if ( npc.isa( POLCLASS_ITEM ) )
+    bad.append( "an npc claims to be an item" );
+  endif
+
+  if ( item.isa().errortext != "Not enough parameters" )
+    bad.append( "isa with no class was accepted" );
+  endif
+  if ( !item.isa( "x" ).errortext.find( "Expected param 0" ) )
+    bad.append( $"a non-numeric class gave {item.isa( "x" )}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

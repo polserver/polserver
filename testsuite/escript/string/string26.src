@@ -1,0 +1,28 @@
+// Trim() takes a type selecting which end to cut: 1 leading, 2 trailing, 3 both.
+var s := "  ab  ";
+print( "[" + Trim( s, TRIM_LEFT ) + "]" );
+print( "[" + Trim( s, TRIM_RIGHT ) + "]" );
+print( "[" + Trim( s, TRIM_BOTH ) + "]" );
+
+// A string of nothing but trimmed characters comes back empty for every type.
+var blank := "    ";
+print( "[" + Trim( blank, TRIM_LEFT ) + "]" );
+print( "[" + Trim( blank, TRIM_RIGHT ) + "]" );
+print( "[" + Trim( blank, TRIM_BOTH ) + "]" );
+
+// The set of characters to trim is the third parameter, and it is a set rather than a
+// substring, so any of its members is cut.
+var padded := "xyxabxyx";
+print( "[" + Trim( padded, TRIM_LEFT, "xy" ) + "]" );
+print( "[" + Trim( padded, TRIM_RIGHT, "xy" ) + "]" );
+print( "[" + Trim( padded, TRIM_BOTH, "xy" ) + "]" );
+
+// A type outside 1-3 is clamped into range rather than rejected, so it always trims
+// something: anything below 1 becomes leading, anything above 3 becomes both.
+print( "[" + Trim( s, 0 ) + "]" );
+print( "[" + Trim( s, 9 ) + "]" );
+
+// Subscripting a string with a real truncates it to an index.
+var h := "hello";
+print( h[2.0] );
+print( h[2.9] );

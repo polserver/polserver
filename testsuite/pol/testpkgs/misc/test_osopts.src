@@ -1,0 +1,144 @@
+use uo;
+use os;
+
+include "testutil";
+
+program testosopts()
+  return 1;
+endprogram
+
+// Set_Script_Option answers the previous value of the option it changed, so each option can
+// be set and put back. SCRIPTOPT_NO_INTERRUPT is the same flag Is_Critical() reports.
+exported function script_option_round_trip( unused resmngr )
+  if ( Is_Critical() )
+    return ret_error( "the script should not start out critical" );
+  endif
+
+  var old := Set_Script_Option( SCRIPTOPT_NO_INTERRUPT, 1 );
+  if ( old != 0 )
+    return ret_error( $"expected the previous option value 0, got {old}" );
+  endif
+  if ( !Is_Critical() )
+    Set_Script_Option( SCRIPTOPT_NO_INTERRUPT, 0 );
+    return ret_error( "the script should be critical after setting NO_INTERRUPT" );
+  endif
+
+  old := Set_Script_Option( SCRIPTOPT_NO_INTERRUPT, 0 );
+  if ( old != 1 )
+    return ret_error( $"expected the previous option value 1, got {old}" );
+  endif
+  if ( Is_Critical() )
+    return ret_error( "the script should no longer be critical" );
+  endif
+
+  return 1;
+endfunction
+
+// These options each store the value given and report the one they replaced.
+exported function script_options_each( unused resmngr )
+  var options := { SCRIPTOPT_CAN_ACCESS_OFFLINE_MOBILES, SCRIPTOPT_AUXSVC_ASSUME_STRING,
+                   SCRIPTOPT_SURVIVE_ATTACHED_DISCONNECT };
+
+  foreach opt in options
+    var first := Set_Script_Option( opt, 1 );
+    if ( first.errortext )
+      return ret_error( $"option {opt} was refused: {first}" );
+    endif
+
+    var second := Set_Script_Option( opt, 0 );
+    if ( second != 1 )
+      return ret_error( $"option {opt} did not report the value just set, got {second}" );
+    endif
+
+    // Put the option back where it started.
+    Set_Script_Option( opt, first );
+  endforeach
+
+  return 1;
+endfunction
+
+// SCRIPTOPT_NO_RUNAWAY is the odd one out. The value it stores is the negation of the value
+// passed, but the value it reports is the stored flag rather than the option, so setting it
+// to 1 and reading it back answers 0 instead of 1.
+exported function script_option_no_runaway( unused resmngr )
+  var original := Set_Script_Option( SCRIPTOPT_NO_RUNAWAY, 1 );
+  if ( original.errortext )
+    return ret_error( $"NO_RUNAWAY was refused: {original}" );
+  endif
+
+  var readback := Set_Script_Option( SCRIPTOPT_NO_RUNAWAY, 0 );
+  if ( readback != 0 )
+    Set_Script_Option( SCRIPTOPT_NO_RUNAWAY, 0 );
+    return ret_error( $"expected the inverted read-back 0, got {readback}" );
+  endif
+
+  // After passing 0 the flag is set, so the next read-back answers 1.
+  var second := Set_Script_Option( SCRIPTOPT_NO_RUNAWAY, 0 );
+  if ( second != 1 )
+    return ret_error( $"expected the flag to read back as 1, got {second}" );
+  endif
+
+  return 1;
+endfunction
+
+// An option number outside the known set is refused.
+exported function script_option_unknown( unused resmngr )
+  var res := Set_Script_Option( 9999, 1 );
+  if ( res || res.errortext != "Unknown Script Option" )
+    return ret_error( $"expected Unknown Script Option, got {res}" );
+  endif
+
+  res := Set_Script_Option( "not_a_number", 1 );
+  if ( res )
+    return ret_error( $"expected a non-integer option number to be refused, got {res}" );
+  endif
+
+  return 1;
+endfunction
+
+// Set_Priority answers the previous priority and holds the range 1..255.
+exported function set_priority_round_trip( unused resmngr )
+  var original := Set_Priority( 100 );
+  if ( original.errortext )
+    return ret_error( $"failed to set priority: {original}" );
+  endif
+
+  var previous := Set_Priority( 50 );
+  if ( previous != 100 )
+    return ret_error( $"expected the previous priority 100, got {previous}" );
+  endif
+
+  var res := Set_Priority( 0 );
+  if ( res )
+    return ret_error( $"a priority below 1 should be refused, got {res}" );
+  endif
+
+  res := Set_Priority( 256 );
+  if ( res )
+    return ret_error( $"a priority above 255 should be refused, got {res}" );
+  endif
+
+  res := Set_Priority( "high" );
+  if ( res )
+    return ret_error( $"a non-integer priority should be refused, got {res}" );
+  endif
+
+  Set_Priority( original );
+  return 1;
+endfunction
+
+// Unload_Scripts reports how many it unloaded. A name nobody has loaded unloads nothing.
+// It is never called with an empty string here: that would unload every script on the shard.
+exported function unload_scripts_by_name( unused resmngr )
+  var res := Unload_Scripts( ":TestMisc:no_such_script_at_all" );
+  if ( res != 0 )
+    return ret_error( $"expected nothing to unload, got {res}" );
+  endif
+
+  res := Unload_Scripts( 1 );
+  if ( res )
+    return ret_error( $"a non-string script name should be refused, got {res}" );
+  endif
+
+  return 1;
+endfunction

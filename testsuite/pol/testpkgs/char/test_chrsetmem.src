@@ -1,0 +1,197 @@
+use os;
+use uo;
+
+include "testutil";
+
+// Writing the character members that no other test writes. Everything here restores what it
+// changed: the character belongs to the package and the later test files share it.
+
+var chr;
+
+program chrmemberwrites()
+  var a := FindAccount( "test" );
+  chr := a.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// gender takes anything, but only as a flag: everything true is female.
+exported function chr_gender( unused resmngr )
+  var original := chr.gender;
+  var bad := {};
+  chr.gender := 1;
+  if ( chr.gender != 1 )
+    bad.append( $"1 gave {chr.gender}" );
+  endif
+  chr.gender := 0;
+  if ( chr.gender != 0 )
+    bad.append( $"0 gave {chr.gender}" );
+  endif
+  chr.gender := 5;
+  if ( chr.gender != 1 )
+    bad.append( $"5 gave {chr.gender}, expected 1" );
+  endif
+  chr.gender := original;
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// race only accepts the three it knows and silently keeps the old one otherwise.
+exported function chr_race( unused resmngr )
+  var original := chr.race;
+  var bad := {};
+
+  chr.race := RACE_ELF;
+  if ( chr.race != RACE_ELF )
+    bad.append( $"elf gave {chr.race}" );
+  endif
+  chr.race := 99;
+  if ( chr.race != RACE_ELF )
+    bad.append( $"an unknown race changed it to {chr.race}" );
+  endif
+  chr.race := RACE_HUMAN;
+  if ( chr.race != RACE_HUMAN )
+    bad.append( $"human gave {chr.race}" );
+  endif
+
+  chr.race := original;
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Leaving gargoyle takes the flying away, since that is what the wings were for. movemode has
+// no setter in script, so the only character this can be shown on is one whose template already
+// flies.
+exported function chr_race_takes_wings( resmngr )
+  var flyer := resmngr.CreateNPCFromTemplate( ":testchar:test_flyer", 41, 41, 0 );
+  if ( !flyer )
+    return ret_error( $"could not make a flyer: {flyer}" );
+  endif
+  if ( flyer.movemode != "LF" )
+    return ret_error( $"the template did not fly: {flyer.movemode}" );
+  endif
+
+  flyer.race := RACE_GARGOYLE;
+  if ( flyer.movemode != "LF" )
+    return ret_error( $"a gargoyle stopped flying: {flyer.movemode}" );
+  endif
+  flyer.race := RACE_HUMAN;
+  if ( flyer.movemode != "L" )
+    return ret_error( $"a human kept flying: {flyer.movemode}" );
+  endif
+  return 1;
+endfunction
+
+// cmdlevel clamps to the highest level the shard defines rather than refusing.
+exported function chr_cmdlevel( unused resmngr )
+  var original := chr.cmdlevel;
+  var bad := {};
+  chr.cmdlevel := 1;
+  if ( chr.cmdlevel != 1 )
+    bad.append( $"1 gave {chr.cmdlevel}" );
+  endif
+  chr.cmdlevel := 99;
+  if ( chr.cmdlevel != 1 )
+    bad.append( $"99 gave {chr.cmdlevel}, expected the highest level" );
+  endif
+  chr.cmdlevel := original;
+  if ( chr.cmdlevel != original )
+    bad.append( $"did not restore to {original}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+exported function chr_poisoned_and_stealth( unused resmngr )
+  var bad := {};
+  chr.poisoned := 1;
+  if ( chr.poisoned != 1 )
+    bad.append( $"poisoned {chr.poisoned}" );
+  endif
+  chr.poisoned := 0;
+  if ( chr.poisoned != 0 )
+    bad.append( $"unpoisoned {chr.poisoned}" );
+  endif
+
+  chr.stealthsteps := 4;
+  if ( chr.stealthsteps != 4 )
+    bad.append( $"stealthsteps {chr.stealthsteps}" );
+  endif
+  chr.stealthsteps := 0;
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Turning goes through the same check as walking, and the shard sets MovementUsesStamina, so a
+// character nobody is logged in as cannot turn at all: its stamina is zero because RecalcVitals
+// refuses an offline mobile. Granting freemove is what lets the assignment through.
+exported function chr_facing( unused resmngr )
+  var original := chr.facing;
+  var bad := {};
+
+  var wanted := original + 1;
+  chr.facing := wanted;
+  if ( chr.facing != original )
+    bad.append( $"an offline character turned to {chr.facing} without freemove" );
+  endif
+
+  GrantPrivilege( chr, "freemove" );
+  chr.enable( "freemove" );
+  chr.facing := 3;
+  if ( chr.facing != 3 )
+    bad.append( $"3 gave {chr.facing}" );
+  endif
+  // the value is masked to the eight directions rather than refused
+  chr.facing := 8;
+  if ( chr.facing != 0 )
+    bad.append( $"8 gave {chr.facing}, expected it masked to 0" );
+  endif
+  chr.facing := original;
+  chr.disable( "freemove" );
+  RevokePrivilege( chr, "freemove" );
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The four movement costs are reals, and each accepts an integer as well as a real.
+exported function chr_movecosts( unused resmngr )
+  var names := { "movecost_walk_mod", "movecost_run_mod", "movecost_walk_mounted_mod",
+                 "movecost_run_mounted_mod" };
+  var bad := {};
+  foreach name in names
+    var original := chr.get_member( name );
+    if ( TypeOf( original ) != "Double" )
+      bad.append( $"{name} reads as {TypeOf( original )}" );
+      continue;
+    endif
+    chr.set_member( name, 3 );
+    if ( chr.get_member( name ) != 3.0 )
+      bad.append( $"{name} took an integer as {chr.get_member( name )}" );
+    endif
+    chr.set_member( name, 2.5 );
+    if ( chr.get_member( name ) != 2.5 )
+      bad.append( $"{name} took a real as {chr.get_member( name )}" );
+    endif
+    chr.set_member( name, original );
+    if ( chr.get_member( name ) != original )
+      bad.append( $"{name} did not restore to {original}" );
+    endif
+  endforeach
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

@@ -1,0 +1,21 @@
+use util;
+
+// The generators are only deterministic where the range holds a single value:
+// RandomInt( 1 ) rolls [0,0] and RandomIntMinMax( 5, 6 ) rolls [5,5].
+print( RandomInt( 1 ) );
+var i := RandomInt( 10 );
+print( i >= 0 && i <= 9 );
+print( RandomInt( 0 ) );
+print( RandomInt( -1 ) );
+print( RandomInt( "10" ) );
+
+print( RandomIntMinMax( 5, 6 ) );
+var m := RandomIntMinMax( -4, 4 );
+print( m >= -4 && m <= 3 );
+print( RandomIntMinMax( "5", 6 ) );
+print( RandomIntMinMax( 5, "6" ) );
+
+print( RandomFloat( 0.0 ) );
+var f := RandomFloat( 2.0 );
+print( f >= 0.0 && f <= 2.0 );
+print( RandomFloat( "2.0" ) );

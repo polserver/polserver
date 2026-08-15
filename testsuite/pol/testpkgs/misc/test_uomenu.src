@@ -1,0 +1,250 @@
+use uo;
+use os;
+use cfgfile;
+
+include "testutil";
+
+// The fixture read by the constraint cases. Its element keys are integers, which
+// is what ApplyConstraint matches the objtypes it is handed against.
+const CONSTRAINT_CFG := "uoconstraint";
+const CHEAP := 0x900001; // Amount 5
+const DEAR := 0x900002; // Amount 20
+const NO_AMOUNT := 0x900003; // has no Amount property at all
+const AMOUNT_IS_TEXT := 0x900004; // Amount is a string, not a number
+
+const ATTACH_SCRIPT := ":testmisc:uoattach";
+const ATTACH_X := 148;
+const ATTACH_Y := 148;
+
+program testuomenu()
+  return 1;
+endprogram
+
+function list_holds( list, value )
+  foreach entry in list
+    if ( entry == value )
+      return 1;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+// A dynamic menu is built up item by item and then read back. Its objtypes come
+// out in the order they went in, and a submenu-free menu contributes them all.
+exported function dynamic_menu_objtypes( unused resmngr )
+  var menu := CreateMenu( "test menu" );
+  if ( TypeOf( menu ) != "MenuRef" )
+    return ret_error( $"expected a menu, got {TypeOf( menu )}: {menu}" );
+  endif
+
+  if ( !AddMenuItem( menu, 0x0eed, "a gold coin", 0 ) )
+    return ret_error( "could not add an item by objtype" );
+  endif
+  // An objtype may also be given by the name itemdesc knows it under.
+  if ( !AddMenuItem( menu, "loadtest", "a container", 0x10 ) )
+    return ret_error( "could not add an item by objtype name" );
+  endif
+
+  var objtypes := GetMenuObjTypes( menu );
+  if ( TypeOf( objtypes ) != "Array" )
+    return ret_error( $"expected an array of objtypes, got {objtypes}" );
+  endif
+  if ( objtypes.size() != 2 )
+    return ret_error( $"expected two objtypes, got {objtypes.size()}" );
+  endif
+  if ( !list_holds( objtypes, 0x0eed ) || !list_holds( objtypes, 0x200001 ) )
+    return ret_error( $"the menu holds the wrong objtypes: {objtypes}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function menu_rejects_bad_params( unused resmngr )
+  var no_title := CreateMenu( 0 );
+  if ( no_title )
+    return ret_error( $"expected a falsy result for a non-string title, got {no_title}" );
+  endif
+
+  var not_a_menu := AddMenuItem( 0, 0x0eed, "a gold coin", 0 );
+  if ( not_a_menu )
+    return ret_error( $"expected a falsy result adding to a non-menu, got {not_a_menu}" );
+  endif
+
+  // The read-back form also accepts the name of a static menu, and no static
+  // menus are configured on this shard.
+  var unknown := GetMenuObjTypes( "nosuchmenu" );
+  if ( unknown )
+    return ret_error( $"expected a falsy result for an unknown menu, got {unknown}" );
+  endif
+
+  return 1;
+endfunction
+
+// Copying an array copies each element, which is the only route to the menu
+// object's own copy handler. The copy carries the menu's items with it.
+exported function menu_copies_by_value( unused resmngr )
+  var menu := CreateMenu( "copy me" );
+  if ( !AddMenuItem( menu, 0x0eed, "a gold coin", 0 ) )
+    return ret_error( "could not add an item" );
+  endif
+
+  var holder := { menu };
+  var copied := holder;
+
+  if ( TypeOf( copied[1] ) != "MenuRef" )
+    return ret_error( $"copied element is not a menu: {TypeOf( copied[1] )}" );
+  endif
+  if ( TypeOfInt( copied[1] ) != TypeOfInt( menu ) )
+    return ret_error( "the copy has a different type integer" );
+  endif
+  if ( TypeOfInt( menu ) == TypeOfInt( holder ) )
+    return ret_error( "a menu and an array share a type integer" );
+  endif
+
+  var objtypes := GetMenuObjTypes( copied[1] );
+  if ( objtypes.size() != 1 || objtypes[1] != 0x0eed )
+    return ret_error( $"the copied menu lost its items: {objtypes}" );
+  endif
+
+  return 1;
+endfunction
+
+// ApplyConstraint keeps the objtypes a config file says are affordable. An
+// entry is dropped for any of four reasons: it is not an integer, the file has
+// no element for it, that element has no such property, or the property is not
+// a number.
+exported function apply_constraint_filters( unused resmngr )
+  var cfg := ReadConfigFile( CONSTRAINT_CFG );
+  if ( !cfg )
+    return ret_error( $"could not read {CONSTRAINT_CFG}.cfg: {cfg}" );
+  endif
+
+  var candidates := { CHEAP, DEAR, NO_AMOUNT, AMOUNT_IS_TEXT, 0x900099, "not an objtype" };
+
+  var affordable := ApplyConstraint( candidates, cfg, "Amount", 10 );
+  if ( TypeOf( affordable ) != "Array" )
+    return ret_error( $"expected an array, got {affordable}" );
+  endif
+  if ( affordable.size() != 1 || affordable[1] != CHEAP )
+    return ret_error( $"expected only the cheap objtype, got {affordable}" );
+  endif
+
+  var everything := ApplyConstraint( candidates, cfg, "Amount", 100 );
+  if ( everything.size() != 2 )
+    return ret_error( $"expected both priced objtypes, got {everything}" );
+  endif
+  if ( !list_holds( everything, CHEAP ) || !list_holds( everything, DEAR ) )
+    return ret_error( $"the wrong objtypes were affordable: {everything}" );
+  endif
+
+  var nothing := ApplyConstraint( candidates, cfg, "Amount", 4 );
+  if ( nothing.size() )
+    return ret_error( $"nothing should be affordable, got {nothing}" );
+  endif
+
+  // A property no element carries as a number matches nobody.
+  var by_name := ApplyConstraint( candidates, cfg, "Name", 100 );
+  if ( by_name.size() )
+    return ret_error( $"a non-numeric property should match nobody, got {by_name}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function apply_constraint_bad_params( unused resmngr )
+  var cfg := ReadConfigFile( CONSTRAINT_CFG );
+  if ( !cfg )
+    return ret_error( $"could not read {CONSTRAINT_CFG}.cfg: {cfg}" );
+  endif
+
+  var not_a_list := ApplyConstraint( CHEAP, cfg, "Amount", 10 );
+  if ( not_a_list )
+    return ret_error( $"expected a falsy result for a non-array, got {not_a_list}" );
+  endif
+
+  var not_a_cfg := ApplyConstraint( { CHEAP }, 0, "Amount", 10 );
+  if ( not_a_cfg )
+    return ret_error( $"expected a falsy result for a non-config-file, got {not_a_cfg}" );
+  endif
+
+  var no_property := ApplyConstraint( { CHEAP }, cfg, 0, 10 );
+  if ( no_property )
+    return ret_error( $"expected a falsy result for a non-string property, got {no_property}" );
+  endif
+
+  return 1;
+endfunction
+
+// A character can be attached to one script at a time, and a script can hold
+// one character at a time. Both halves of that are refusals rather than
+// silent replacements.
+exported function attach_and_detach( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", ATTACH_X, ATTACH_Y, 0, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+  var other := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", ATTACH_X + 1, ATTACH_Y, 0, 0,
+                                              _DEFAULT_REALM, 1 );
+  if ( !other )
+    return ret_error( $"failed to create second npc: {other}" );
+  endif
+
+  if ( Detach() )
+    return ret_error( "detaching with nothing attached should answer 0" );
+  endif
+
+  var attached := Attach( npc );
+  if ( !attached )
+    return ret_error( $"could not attach the npc: {attached}" );
+  endif
+
+  var res := 1;
+  var second := Attach( other );
+  if ( second )
+    res := ret_error( $"attaching a second character should be refused, got {second}" );
+  endif
+
+  if ( res )
+    var bad := Attach( 0 );
+    if ( bad )
+      res := ret_error( $"expected an error for a non-character, got {bad}" );
+    endif
+  endif
+
+  if ( !Detach() )
+    res := ret_error( "detaching an attached character should answer 1" );
+  endif
+
+  return res;
+endfunction
+
+// The other refusal needs a second script, because the character remembers
+// which script holds it rather than merely that it is held.
+exported function attach_refuses_other_script( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", ATTACH_X + 2, ATTACH_Y, 0, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var helper := resmngr.Start_Script( ATTACH_SCRIPT, struct{ script := GetProcess(), chr := npc } );
+  if ( !helper )
+    return ret_error( $"could not start {ATTACH_SCRIPT}: {helper}" );
+  endif
+
+  var ready := Wait_For_Event( 5 );
+  if ( !ready )
+    return ret_error( "the helper script never reported back" );
+  endif
+  if ( !ready.attached )
+    return ret_error( $"the helper script could not attach: {ready.attached}" );
+  endif
+
+  var refused := Attach( npc );
+  if ( refused )
+    return ret_error( $"attaching a held character should be refused, got {refused}" );
+  endif
+
+  return 1;
+endfunction

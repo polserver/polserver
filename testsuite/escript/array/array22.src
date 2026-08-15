@@ -1,0 +1,37 @@
+// The array methods hand back an error object for a wrong parameter count or type rather
+// than raising one, so each call below is a value that can be printed.
+var a := { 1, 2, 3 };
+
+print( a.size( 1 ) );
+print( a.erase() );
+print( a.insert( 1 ) );
+print( a.shrink() );
+print( a.append() );
+print( a.reverse( 1 ) );
+print( a.randomentry( 1 ) );
+
+// exists() takes one non-negative index and compares it against the size inclusively, so
+// both 0 and the size itself answer true.
+print( a.exists() );
+print( a.exists( "x" ) );
+print( a.exists( -1 ) );
+print( a.exists( 0 ) );
+print( a.exists( 3 ) );
+print( a.exists( 4 ) );
+
+// cycle() rotates in place and answers whether it moved anything.
+var c := { 1, 2, 3, 4 };
+print( c.cycle( "x" ) );
+print( c.cycle( 0 ) );
+print( c );
+print( c.cycle( 99 ) );
+print( c );
+print( c.cycle() );
+print( c );
+print( c.cycle( -2 ) );
+print( c );
+
+// An empty array has nothing to rotate.
+var e array;
+print( e.cycle( 1 ) );
+print( e );

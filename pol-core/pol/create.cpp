@@ -11,7 +11,12 @@
 
 
 #include <stdlib.h>
+
+#include <algorithm>
+#include <cstring>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include "bscript/barray.h"
 #include "bscript/blong.h"
@@ -194,6 +199,92 @@ bool validface( u16 FaceStyle )
   return false;
 }
 
+struct CreateCharacterRequest
+{
+  std::string name;
+  u8 strength = 0;
+  u8 dexterity = 0;
+  u8 intelligence = 0;
+  u8 profession = 0;
+  u32 skill_total = 0;                    ///< what the skill values must add up to
+  std::vector<std::pair<u8, u8>> skills;  ///< skill number and its starting value
+};
+
+std::string packet_name( const char* field, size_t width )
+{
+  return std::string( field, strnlen( field, width ) );
+}
+
+/**
+ * Check a request before anything is built from it, logging and disconnecting on the first fault.
+ * @param noskills answers whether the request asked for a profession's skills rather than its own
+ */
+bool create_request_is_valid( Network::Client* client, const CreateCharacterRequest& req,
+                              bool* noskills )
+{
+  const auto unprintable = []( char ch ) { return ch < ' ' || ch > '~' || ch == '{' || ch == '}'; };
+  if ( const auto bad = std::ranges::find_if( req.name, unprintable ); bad != req.name.end() )
+  {
+    ERROR_PRINTLN(
+        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
+        "IP: {} Client Name: {}",
+        *bad, std::distance( req.name.begin(), bad ), req.name, client->ipaddrAsString(),
+        client->acct->name() );
+    client->forceDisconnect();
+    return false;
+  }
+
+  const unsigned stat_total = req.strength + req.intelligence + req.dexterity;
+  const auto in_range = [stat_total]( const std::string& spec )
+  {
+    // "65" is a value, "65-80" a range. Base 0, so a shard may write either in hex.
+    char* after = nullptr;
+    const unsigned long low = strtoul( spec.c_str(), &after, 0 );
+    const unsigned long high = ( *after == '-' ) ? strtoul( after + 1, nullptr, 0 ) : low;
+    return stat_total >= low && stat_total <= high;
+  };
+  if ( !std::ranges::any_of( settingsManager.ssopt.total_stats_at_creation, in_range ) )
+  {
+    ERROR_PRINTLN( "Create Character: Stats sum to {}.\nValid values/ranges are: {}", stat_total,
+                   settingsManager.ssopt.total_stats_at_creation );
+    client->forceDisconnect();
+    return false;
+  }
+  if ( req.strength < 10 || req.intelligence < 10 || req.dexterity < 10 )
+  {
+    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", req.strength,
+                   req.intelligence, req.dexterity );
+    client->forceDisconnect();
+    return false;
+  }
+
+  const auto out_of_range = []( const auto& skill )
+  { return skill.first > networkManager.uoclient_general.maxskills; };
+  if ( std::ranges::any_of( req.skills, out_of_range ) )
+  {
+    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
+    client->forceDisconnect();
+    return false;
+  }
+
+  u32 value_total = 0;
+  for ( const auto& [number, value] : req.skills )
+    value_total += value;
+
+  // A profession picks the skills instead, and then the values arrive empty.
+  *noskills = ( value_total == 0 ) && req.profession;
+  const auto too_generous = []( const auto& skill ) { return skill.second > 50; };
+  if ( !*noskills &&
+       ( value_total != req.skill_total || std::ranges::any_of( req.skills, too_generous ) ) )
+  {
+    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
+    client->forceDisconnect();
+    return false;
+  }
+
+  return true;
+}
+
 void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 {
   if ( client->acct == nullptr )
@@ -273,6 +364,19 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
     }
   }
 
+  CreateCharacterRequest req{ .name = packet_name( msg->Name, sizeof msg->Name ),
+                              .strength = msg->Strength,
+                              .dexterity = msg->Dexterity,
+                              .intelligence = msg->Intelligence,
+                              .profession = msg->profession,
+                              .skill_total = 100,
+                              .skills = { { msg->SkillNumber1, msg->SkillValue1 },
+                                          { msg->SkillNumber2, msg->SkillValue2 },
+                                          { msg->SkillNumber3, msg->SkillValue3 } } };
+  bool noskills = false;
+  if ( !create_request_is_valid( client, req, &noskills ) )
+    return;
+
   Mobile::Character* chr = new Mobile::Character( graphic );
 
   chr->acct.set( client->acct );
@@ -282,25 +386,7 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
 
   client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
 
-  std::string tmpstr( msg->Name, sizeof msg->Name );
-  const char* tstr = tmpstr.c_str();
-  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
-  {
-    char tmpchr = tstr[i];
-    if ( tmpchr >= ' ' && tmpchr <= '~' )
-    {
-      if ( tmpchr != '{' && tmpchr != '}' )
-        continue;
-    }
-
-    ERROR_PRINTLN(
-        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
-        "IP: {} Client Name: {}",
-        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
-    client->forceDisconnect();
-    return;
-  }
-  chr->name_ = tstr;
+  chr->name_ = req.name;
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
@@ -318,61 +404,12 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg )
   chr->facing = Core::FACING_W;
   chr->position_changed();
 
-  bool valid_stats = false;
-  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
-  unsigned int stat_min, stat_max;
-  char* maxpos;
-  std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
-  {
-    const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
-    stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
-    if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, nullptr, 0 );
-    if ( stat_total >= stat_min && stat_total <= stat_max )
-      valid_stats = true;
-  }
-  if ( !valid_stats )
-  {
-    ERROR_PRINTLN( "Create Character: Stats sum to {}.\nValid values/ranges are: {}", stat_total,
-                   settingsManager.ssopt.total_stats_at_creation );
-    client->forceDisconnect();
-    return;
-  }
-  if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
-  {
-    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->Strength,
-                   msg->Intelligence, msg->Dexterity );
-
-    client->forceDisconnect();
-    return;
-  }
   if ( gamestate.pAttrStrength )
     chr->attribute( gamestate.pAttrStrength->attrid ).base( msg->Strength * 10 );
   if ( gamestate.pAttrIntelligence )
     chr->attribute( gamestate.pAttrIntelligence->attrid ).base( msg->Intelligence * 10 );
   if ( gamestate.pAttrDexterity )
     chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->Dexterity * 10 );
-
-  if ( msg->SkillNumber1 > networkManager.uoclient_general.maxskills ||
-       msg->SkillNumber2 > networkManager.uoclient_general.maxskills ||
-       msg->SkillNumber3 > networkManager.uoclient_general.maxskills )
-  {
-    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
-    client->forceDisconnect();
-    return;
-  }
-  bool noskills =
-      ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 == 0 ) && msg->profession;
-  if ( ( !noskills ) &&
-       ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 != 100 ) ||
-         msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ) )
-  {
-    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
-    client->forceDisconnect();
-    return;
-  }
 
   ////HASH
   // moved down here, after all error checking passes, else we get a half-created PC in the save.
@@ -597,6 +634,20 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
     graphic = ( gender == Plib::GENDER_FEMALE ) ? UOBJ_GARGOYLE_FEMALE : UOBJ_GARGOYLE_MALE;
 
 
+  CreateCharacterRequest req{ .name = packet_name( msg->name, sizeof msg->name ),
+                              .strength = msg->strength,
+                              .dexterity = msg->dexterity,
+                              .intelligence = msg->intelligence,
+                              .profession = msg->profession,
+                              .skill_total = 120,
+                              .skills = { { msg->skillnumber1, msg->skillvalue1 },
+                                          { msg->skillnumber2, msg->skillvalue2 },
+                                          { msg->skillnumber3, msg->skillvalue3 },
+                                          { msg->skillnumber4, msg->skillvalue4 } } };
+  bool noskills = false;
+  if ( !create_request_is_valid( client, req, &noskills ) )
+    return;
+
   Mobile::Character* chr = new Mobile::Character( graphic );
 
   chr->acct.set( client->acct );
@@ -606,25 +657,7 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
 
   client->UOExpansionFlagClient = msg->flags;
 
-  std::string tmpstr( msg->name, sizeof msg->name );
-  const char* tstr = tmpstr.c_str();
-  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
-  {
-    char tmpchr = tstr[i];
-    if ( tmpchr >= ' ' && tmpchr <= '~' )
-    {
-      if ( tmpchr != '{' && tmpchr != '}' )
-        continue;
-    }
-
-    ERROR_PRINTLN(
-        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
-        "IP: {} Client Name: {}",
-        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
-    client->forceDisconnect();
-    return;
-  }
-  chr->name_ = tstr;
+  chr->name_ = req.name;
 
   chr->serial = GetNextSerialNumber();
   chr->serial_ext = ctBEu32( chr->serial );
@@ -642,68 +675,12 @@ void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg )
   chr->position_changed();
   chr->facing = Core::FACING_W;
 
-  bool valid_stats = false;
-  unsigned int stat_total = msg->strength + msg->intelligence + msg->dexterity;
-  unsigned int stat_min, stat_max;
-  char* maxpos;
-  std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
-  {
-    const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
-    stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
-    if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, nullptr, 0 );
-    if ( stat_total >= stat_min && stat_total <= stat_max )
-      valid_stats = true;
-  }
-  if ( !valid_stats )
-  {
-    ERROR_PRINTLN(
-        "Create Character: Stats sum to {}. "
-        "Valid values/ranges are: {}",
-        stat_total, settingsManager.ssopt.total_stats_at_creation );
-    client->forceDisconnect();
-    return;
-  }
-  if ( msg->strength < 10 || msg->intelligence < 10 || msg->dexterity < 10 )
-  {
-    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->strength,
-                   msg->intelligence, msg->dexterity );
-
-    client->forceDisconnect();
-    return;
-  }
   if ( gamestate.pAttrStrength )
     chr->attribute( gamestate.pAttrStrength->attrid ).base( msg->strength * 10 );
   if ( gamestate.pAttrIntelligence )
     chr->attribute( gamestate.pAttrIntelligence->attrid ).base( msg->intelligence * 10 );
   if ( gamestate.pAttrDexterity )
     chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->dexterity * 10 );
-
-
-  if ( msg->skillnumber1 > networkManager.uoclient_general.maxskills ||
-       msg->skillnumber2 > networkManager.uoclient_general.maxskills ||
-       msg->skillnumber3 > networkManager.uoclient_general.maxskills ||
-       msg->skillnumber4 > networkManager.uoclient_general.maxskills )
-  {
-    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
-    client->forceDisconnect();
-    return;
-  }
-
-  bool noskills =
-      ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 == 0 ) &&
-      msg->profession;
-  if ( ( !noskills ) &&
-       ( ( msg->skillvalue1 + msg->skillvalue2 + msg->skillvalue3 + msg->skillvalue4 != 120 ) ||
-         msg->skillvalue1 > 50 || msg->skillvalue2 > 50 || msg->skillvalue3 > 50 ||
-         msg->skillvalue4 > 50 ) )
-  {
-    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
-    client->forceDisconnect();
-    return;
-  }
 
   ////HASH
   // moved down here, after all error checking passes, else we get a half-created PC in the save.
@@ -955,88 +932,6 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     }
   }
 
-  Mobile::Character* chr = new Mobile::Character( graphic );
-
-  chr->acct.set( client->acct );
-  chr->client = client;
-  chr->set_privs( client->acct->default_privlist() );
-  chr->cmdlevel( client->acct->default_cmdlevel(), false );
-
-  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
-
-  std::string tmpstr( msg->Name, sizeof msg->Name );
-  const char* tstr = tmpstr.c_str();
-  for ( unsigned int i = 0; i < strlen( tstr ); i++ )
-  {
-    char tmpchr = tstr[i];
-    if ( tmpchr >= ' ' && tmpchr <= '~' )
-    {
-      if ( tmpchr != '{' && tmpchr != '}' )
-        continue;
-    }
-
-    ERROR_PRINTLN(
-        "Create Character: Attempted to use invalid character '{}' pos '{}' in name '{}'. Client "
-        "IP: {} Client Name: {}",
-        tmpchr, i, tstr, client->ipaddrAsString(), client->acct->name() );
-    client->Disconnect();
-    return;
-  }
-  chr->name_ = tstr;
-
-  chr->serial = GetNextSerialNumber();
-  chr->serial_ext = ctBEu32( chr->serial );
-  chr->wornitems->adopt( *chr );
-
-  chr->graphic = graphic;
-  chr->race = race;
-  chr->gender = gender;
-
-  chr->trueobjtype = chr->objtype_;
-  chr->color = cfBEu16( msg->SkinColor );
-  chr->truecolor = chr->color;
-
-  chr->setposition( gamestate.startlocations[msg->StartIndex]->select_coordinate() );
-  chr->position_changed();
-  chr->facing = Core::FACING_W;
-
-  bool valid_stats = false;
-  unsigned int stat_total = msg->Strength + msg->Intelligence + msg->Dexterity;
-  unsigned int stat_min, stat_max;
-  char* maxpos;
-  std::vector<std::string>::size_type sidx;
-  for ( sidx = 0; !valid_stats && sidx < settingsManager.ssopt.total_stats_at_creation.size();
-        ++sidx )
-  {
-    const char* statstr = settingsManager.ssopt.total_stats_at_creation[sidx].c_str();
-    stat_max = ( stat_min = strtoul( statstr, &maxpos, 0 ) );
-    if ( *( maxpos++ ) == '-' )
-      stat_max = strtoul( maxpos, nullptr, 0 );
-    if ( stat_total >= stat_min && stat_total <= stat_max )
-      valid_stats = true;
-  }
-  if ( !valid_stats )
-  {
-    ERROR_PRINTLN( "Create Character: Stats sum to {}.\nValid values/ranges are: {}", stat_total,
-                   settingsManager.ssopt.total_stats_at_creation );
-    client->forceDisconnect();
-    return;
-  }
-  if ( msg->Strength < 10 || msg->Intelligence < 10 || msg->Dexterity < 10 )
-  {
-    ERROR_PRINTLN( "Create Character: A stat was too small. Str={} Int={} Dex={}", msg->Strength,
-                   msg->Intelligence, msg->Dexterity );
-
-    client->forceDisconnect();
-    return;
-  }
-  if ( gamestate.pAttrStrength )
-    chr->attribute( gamestate.pAttrStrength->attrid ).base( msg->Strength * 10 );
-  if ( gamestate.pAttrIntelligence )
-    chr->attribute( gamestate.pAttrIntelligence->attrid ).base( msg->Intelligence * 10 );
-  if ( gamestate.pAttrDexterity )
-    chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->Dexterity * 10 );
-
   // With latest clients EA broke the prof.txt, added Evaluating Intelligence and Spirit Speak which
   // returns SkillNumber 0xFF
   // Check for it here to not crash the client during char creation
@@ -1076,30 +971,53 @@ void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg )
     }
   }
 
-
-  if ( msg->SkillNumber1 > networkManager.uoclient_general.maxskills ||
-       msg->SkillNumber2 > networkManager.uoclient_general.maxskills ||
-       msg->SkillNumber3 > networkManager.uoclient_general.maxskills ||
-       msg->SkillNumber4 > networkManager.uoclient_general.maxskills )
-  {
-    ERROR_PRINTLN( "Create Character: A skill number was out of range" );
-    client->forceDisconnect();
+  CreateCharacterRequest req{ .name = packet_name( msg->Name, sizeof msg->Name ),
+                              .strength = msg->Strength,
+                              .dexterity = msg->Dexterity,
+                              .intelligence = msg->Intelligence,
+                              .profession = msg->profession,
+                              .skill_total = 120,
+                              .skills = { { msg->SkillNumber1, msg->SkillValue1 },
+                                          { msg->SkillNumber2, msg->SkillValue2 },
+                                          { msg->SkillNumber3, msg->SkillValue3 },
+                                          { msg->SkillNumber4, msg->SkillValue4 } } };
+  bool noskills = false;
+  if ( !create_request_is_valid( client, req, &noskills ) )
     return;
-  }
 
-  bool noskills =
-      ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 == 0 ) &&
-      msg->profession;
+  Mobile::Character* chr = new Mobile::Character( graphic );
 
-  if ( ( !noskills ) &&
-       ( ( msg->SkillValue1 + msg->SkillValue2 + msg->SkillValue3 + msg->SkillValue4 != 120 ) ||
-         msg->SkillValue1 > 50 || msg->SkillValue2 > 50 || msg->SkillValue3 > 50 ||
-         msg->SkillValue4 > 50 ) )
-  {
-    ERROR_PRINTLN( "Create Character: Starting skill values incorrect" );
-    client->forceDisconnect();
-    return;
-  }
+  chr->acct.set( client->acct );
+  chr->client = client;
+  chr->set_privs( client->acct->default_privlist() );
+  chr->cmdlevel( client->acct->default_cmdlevel(), false );
+
+  client->UOExpansionFlagClient = ctBEu32( msg->clientflag );
+
+  chr->name_ = req.name;
+
+  chr->serial = GetNextSerialNumber();
+  chr->serial_ext = ctBEu32( chr->serial );
+  chr->wornitems->adopt( *chr );
+
+  chr->graphic = graphic;
+  chr->race = race;
+  chr->gender = gender;
+
+  chr->trueobjtype = chr->objtype_;
+  chr->color = cfBEu16( msg->SkinColor );
+  chr->truecolor = chr->color;
+
+  chr->setposition( gamestate.startlocations[msg->StartIndex]->select_coordinate() );
+  chr->position_changed();
+  chr->facing = Core::FACING_W;
+
+  if ( gamestate.pAttrStrength )
+    chr->attribute( gamestate.pAttrStrength->attrid ).base( msg->Strength * 10 );
+  if ( gamestate.pAttrIntelligence )
+    chr->attribute( gamestate.pAttrIntelligence->attrid ).base( msg->Intelligence * 10 );
+  if ( gamestate.pAttrDexterity )
+    chr->attribute( gamestate.pAttrDexterity->attrid ).base( msg->Dexterity * 10 );
 
   ////HASH
   // moved down here, after all error checking passes, else we get a half-created PC in the save.

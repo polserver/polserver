@@ -352,12 +352,6 @@ BObjectImp* String::selfMinusObj( const String& objimp ) const
   tmp->remove( objimp.value_ );
   return tmp;
 }
-BObjectImp* String::selfMinusObj( const ObjArray& objimp ) const
-{
-  String* tmp = (String*)copy();
-  tmp->remove( objimp.getStringRep() );
-  return tmp;
-}
 void String::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfMinusObj( *this, obj );
@@ -377,10 +371,6 @@ void String::selfMinusObj( Double& objimp, BObject& /*obj*/ )
 void String::selfMinusObj( String& objimp, BObject& /*obj*/ )
 {
   remove( objimp.value_ );
-}
-void String::selfMinusObj( ObjArray& objimp, BObject& /*obj*/ )
-{
-  remove( objimp.getStringRep() );
 }
 
 bool String::operator==( const BObjectImp& objimp ) const
@@ -637,6 +627,9 @@ BObjectRef String::OperMultiSubscript( std::stack<BObjectRef>& indices )
 {
   BObjectRef start_ref = indices.top();
   indices.pop();
+
+  // At least two indices always arrive: the compiler emits this instruction only for a
+  // subscript with more than one index (InstructionGenerator::visit_element_access).
   BObjectRef length_ref = indices.top();
   indices.pop();
 

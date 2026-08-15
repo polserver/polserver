@@ -1,0 +1,22 @@
+// basic.em Trim / StrReplace / SubStrReplace, the refusals and the index defaults
+
+print( Trim( "  padded  " ) );
+print( Trim( 5 ) );
+
+print( StrReplace( "banana", "an", "-" ) );
+print( StrReplace( "banana", 5, "-" ) );
+print( StrReplace( "banana", "an", 5 ) );
+print( StrReplace( "", "an", "-" ) );
+print( StrReplace( "banana", "", "-" ) );
+
+// a length of 0 is worked out from the replacement
+print( SubStrReplace( "abcdef", "XY", 2 ) );
+// a start of 0 never reaches the code that reads it as 1 - it is out of range first
+print( SubStrReplace( "abcdef", "XY", 0 ) );
+print( SubStrReplace( "abcdef", "XY", 3, 2 ) );
+print( SubStrReplace( "abcdef", 5, 1 ) );
+print( SubStrReplace( "abcdef", "X", -1 ) );
+print( SubStrReplace( "abcdef", "X", 99 ) );
+print( SubStrReplace( "abcdef", "X", 1, 99 ) );
+// a negative length is out of range before it is negative, so it answers the range error
+print( SubStrReplace( "abcdef", "X", 1, -1 ) );

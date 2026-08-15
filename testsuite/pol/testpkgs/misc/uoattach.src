@@ -1,0 +1,17 @@
+use os;
+use uo;
+
+// Holds a character attached on behalf of test_uomenu.src, so that the caller
+// can watch Attach refuse a character another script already owns. Attach is
+// per script, so that refusal can only be reached from a second one.
+//
+// The caller's resource manager kills this script at the end of the case; the
+// timeout is only there so a failing run cannot leave it behind.
+program uoattach( args )
+  var { script, chr } := args;
+
+  script.sendevent( struct{ attached := Attach( chr ) } );
+
+  Wait_For_Event( 30 );
+  return 1;
+endprogram

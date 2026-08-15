@@ -1,0 +1,15 @@
+Dictionary
+9
+2
+{ j, k }
+1
+0
+dict{ "j" -> 2, "k" -> 1, "m" -> 7 }
+7
+3
+dict{ "j" -> 2, "k" -> 1, "m" -> 7 }
+3
+<uninitialized object>
+dict{ "a" -> "letter", 1 -> "one", 3 -> "three" }
+3
+dict{ "a" -> "letter", 1 -> "one" }

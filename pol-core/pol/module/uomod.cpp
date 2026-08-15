@@ -2679,21 +2679,6 @@ BObjectImp* UOExecutorModule::mf_SetName()
   return new BLong( 0 );
 }
 
-BObjectImp* UOExecutorModule::mf_GetPosition()
-{
-  UObject* obj;
-  if ( getUObjectParam( 0, obj ) )
-  {
-    std::unique_ptr<BStruct> arr( new BStruct );
-    arr->addMember( "x", new BLong( obj->x() ) );
-    arr->addMember( "y", new BLong( obj->y() ) );
-    arr->addMember( "z", new BLong( obj->z() ) );
-    return arr.release();
-  }
-
-  return new BLong( 0 );
-}
-
 BObjectImp* UOExecutorModule::mf_EnumerateItemsInContainer()
 {
   Item* item;

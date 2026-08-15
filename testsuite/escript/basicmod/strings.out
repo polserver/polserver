@@ -1,0 +1,15 @@
+padded
+error{ errortext = "Param 1 must be a string." }
+b--a
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Cannot use empty string for string haystack." }
+error{ errortext = "Cannot use empty string for string needle." }
+aXYbcdef
+error{ errortext = "Index out of range" }
+abXYef
+error{ errortext = "Invalid parameter type" }
+error{ errortext = "Index must not be negative" }
+error{ errortext = "Index out of range" }
+error{ errortext = "Length out of range" }
+error{ errortext = "Length out of range" }

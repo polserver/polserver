@@ -30,10 +30,10 @@
 #ifndef H_UOMOD_H
 #define H_UOMOD_H
 
-#include "pol/base/range.h"
 #include "clib/rawtypes.h"
-#include "pol/network/packethelper.h"
 #include "plib/poltype.h"
+#include "pol/base/range.h"
+#include "pol/network/packethelper.h"
 #include "pol/polmodl.h"
 #include "pol/reftypes.h"
 
@@ -233,9 +233,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_GetMenuObjTypes();  // MenuName
   [[nodiscard]] Bscript::BObjectImp* mf_GetObjProperty();
   [[nodiscard]] Bscript::BObjectImp* mf_GetObjType();  // Item
-  [[nodiscard]] Bscript::BObjectImp* mf_GetPosition();
-  [[nodiscard]] Bscript::BObjectImp* mf_GetStats();
-  [[nodiscard]] Bscript::BObjectImp* mf_GetStatus();
 
   [[nodiscard]] Bscript::BObjectImp* mf_ListItemsAtLocation();  // x,y,z
   [[nodiscard]] Bscript::BObjectImp* mf_ListMobilesNearLocation( /* x, y, z, range, realm */ );
@@ -245,13 +242,11 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_ListStaticsNearLocation( /* x, y, range, flags, realm */ );
   [[nodiscard]] Bscript::BObjectImp* mf_ListOfflineMobilesInRealm( /*realm*/ );
 
-  [[nodiscard]] Bscript::BObjectImp* mf_PerformAction();  // character, action
-  [[nodiscard]] Bscript::BObjectImp* mf_PlayAnimation();
+  [[nodiscard]] Bscript::BObjectImp* mf_PerformAction();            // character, action
   [[nodiscard]] Bscript::BObjectImp* mf_PlayLightningBoltEffect();  // center
   [[nodiscard]] Bscript::BObjectImp* mf_PlayMovingEffect();  // src dst effect speed loop explode
   [[nodiscard]] Bscript::BObjectImp* mf_PlayObjectCenteredEffect();
   [[nodiscard]] Bscript::BObjectImp* mf_PlaySoundEffect();
-  [[nodiscard]] Bscript::BObjectImp* mf_Range();  // Object, Object
   [[nodiscard]] Bscript::BObjectImp* mf_SetName();
   [[nodiscard]] Bscript::BObjectImp* mf_SetObjProperty();
 

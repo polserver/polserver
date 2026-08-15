@@ -6,3 +6,10 @@ print( strformattime( "ancient %S time", 1 ) );
 var v := strformattime( "reserve buffer %T%T%T%T%T%T", 1 );
 print( len( v ) );
 print( v[len( v ) - 4, 5] );
+
+// a format that is not a string is refused outright
+print( strformattime( 1 ) );
+// a timestamp that is not an integer, or one out of range, is a parameter error - the
+// function's own fallback to "now" runs but the parameter error is what the script sees
+print( strformattime( "%Y", "1" ) );
+print( strformattime( "%Y", -1 ) );

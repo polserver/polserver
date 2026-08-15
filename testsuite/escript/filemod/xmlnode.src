@@ -28,6 +28,11 @@ program XMLNodeTest()
   print( "named sibl.: " + root.firstxmlchild().nextxmlsibling( "nodetwo" ) );
   print( "text child:  " + root.firstxmlchild().firstxmlchild() );
 
+  print( "--- a node tinyxml cannot classify" );
+  // filemod/xmlunknown.xml carries a doctype, which is neither an element nor a declaration
+  var unknown := OpenXMLFile( "filemod/xmlunknown.xml" );
+  print( "index 2:     " + unknown[2] + " [" + unknown[2].type + "]" );
+
   print( "--- iterating a node" );
   // iteration returns the first child and then only the following *elements*, the comment
   // between Hello and nodetwo is skipped although nextxmlsibling() reaches it

@@ -4,3 +4,6 @@ String
 ancient 01 time
 63
 00:01
+error{ errortext = "No time string passed." }
+error{ errortext = "Invalid parameter type.  Expected param 1 as Integer, got String" }
+error{ errortext = "Parameter 1 value -1 out of expected range of [0..2147483647]" }

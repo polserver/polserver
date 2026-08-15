@@ -1,0 +1,14 @@
+1
+0
+1
+0
+1
+0
+error{ errortext = "Index must not be negative for param 1" }
+error{ errortext = "Index out of range for param 1" }
+error{ errortext = "Index must not be negative for param 2" }
+error{ errortext = "Index out of range for param 2" }
+error{ errortext = "Length must not be negative for param 1" }
+error{ errortext = "Length out of range for param 1" }
+error{ errortext = "Length must not be negative for param 2" }
+error{ errortext = "Length out of range for param 2" }

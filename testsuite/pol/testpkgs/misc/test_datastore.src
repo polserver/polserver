@@ -1,0 +1,111 @@
+use uo;
+use os;
+use datafile;
+
+include "testutil";
+
+const DF_NAME := ":TestMisc:dstest";
+
+program testdatastore()
+  return 1;
+endprogram
+
+// The datafile and element handles are reference objects of their own, each with its own
+// type name and integer.
+exported function datafile_refs_report_types( unused resmngr )
+  var df := CreateDataFile( DF_NAME, DF_KEYTYPE_STRING );
+  if ( !df )
+    return ret_error( $"failed to create datafile: {df}" );
+  endif
+
+  var elem := df.CreateElement( "a" );
+  if ( !elem )
+    return ret_error( $"failed to create element: {elem}" );
+  endif
+
+  var res := 1;
+  if ( TypeOf( df ) != "DataFileRef" )
+    res := ret_error( $"unexpected datafile type name: {TypeOf( df )}" );
+  elseif ( TypeOf( elem ) != "DataElemRef" )
+    res := ret_error( $"unexpected element type name: {TypeOf( elem )}" );
+  elseif ( TypeOfInt( df ) == TypeOfInt( elem ) )
+    res := ret_error( "datafile and element share a type integer" );
+  endif
+
+  UnloadDataFile( DF_NAME );
+  return res;
+endfunction
+
+// A method neither handle recognises is looked up by name and answers falsy.
+exported function datafile_unknown_methods( unused resmngr )
+  var df := CreateDataFile( DF_NAME, DF_KEYTYPE_STRING );
+  if ( !df )
+    return ret_error( $"failed to create datafile: {df}" );
+  endif
+  var elem := df.CreateElement( "a" );
+  if ( !elem )
+    return ret_error( $"failed to create element: {elem}" );
+  endif
+
+  var res := 1;
+  if ( df.no_such_method_at_all() )
+    res := ret_error( "datafile answered an unknown method" );
+  elseif ( elem.no_such_method_at_all() )
+    res := ret_error( "element answered an unknown method" );
+  endif
+
+  UnloadDataFile( DF_NAME );
+  return res;
+endfunction
+
+// DeleteElement removes a key, and deleting one that was never there is harmless.
+exported function datafile_delete_element( unused resmngr )
+  var df := CreateDataFile( DF_NAME, DF_KEYTYPE_STRING );
+  if ( !df )
+    return ret_error( $"failed to create datafile: {df}" );
+  endif
+
+  df.CreateElement( "a" );
+  df.CreateElement( "b" );
+
+  var res := 1;
+  if ( df.Keys().size() != 2 )
+    res := ret_error( $"expected two keys, got {df.Keys()}" );
+  else
+    df.DeleteElement( "a" );
+    if ( df.Keys().size() != 1 )
+      res := ret_error( $"expected one key after delete, got {df.Keys()}" );
+    elseif ( df.FindElement( "a" ) )
+      res := ret_error( "the deleted element is still findable" );
+    else
+      df.DeleteElement( "no_such_key" );
+      if ( df.Keys().size() != 1 )
+        res := ret_error( "deleting a missing key changed the key set" );
+      endif
+    endif
+  endif
+
+  UnloadDataFile( DF_NAME );
+  return res;
+endfunction
+
+// ListDataFiles reports what is loaded, and UnloadDataFile takes it back out.
+exported function datafile_list_and_unload( unused resmngr )
+  var df := CreateDataFile( DF_NAME, DF_KEYTYPE_STRING );
+  if ( !df )
+    return ret_error( $"failed to create datafile: {df}" );
+  endif
+
+  var listed := ListDataFiles();
+  if ( TypeOf( listed ) != "Array" )
+    UnloadDataFile( DF_NAME );
+    return ret_error( $"ListDataFiles did not answer an array: {TypeOf( listed )}" );
+  endif
+
+  var res := UnloadDataFile( DF_NAME );
+  if ( !res )
+    return ret_error( $"failed to unload datafile: {res}" );
+  endif
+
+  return 1;
+endfunction

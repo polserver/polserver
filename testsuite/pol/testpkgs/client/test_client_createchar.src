@@ -1,0 +1,290 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+use attributes;
+
+// Making a character is the one thing only a client can do: the whole of create.cpp runs off the
+// 0x00 packet and no script stands in for it. A third client connects to an account with a free
+// slot and creates one there.
+
+const ACCOUNT := "testclient2";
+const CLIENT_ID := 2;
+
+const ELF_ACCOUNT := "testclient3";
+const ELF_CLIENT_ID := 3;
+
+const REFUSE_ACCOUNT := "testclient4";
+const REFUSE_CLIENT_ID := 4;
+
+const HUMAN_FEMALE := 0x191;
+const ELF_MALE := 0x25D;
+const GARGOYLE_MALE := 0x29A;
+
+const GARG_ACCOUNT := "testclient5";
+const GARG_CLIENT_ID := 5;
+
+// what create.cpp dresses each race in
+const DEATH_ROBE := 0x1F03;
+const SHIRT := 0x1517;
+
+var clientcon := getClientConnection();
+
+program test_createchar()
+  return 1;
+endprogram
+
+// A created character is left logged in, and a later package asserts that nobody on the shard is
+// online - so each case takes its own back out again.
+//
+// The delete is what gets retried, rather than waiting on something that stands in for it:
+// chr.client reads false the moment the connection drops, but the core holds the character in use
+// until Client::PreDelete has taken the client apart a cycle or two later, and deleting inside
+// that window is refused with "That character is in use".
+function log_out_and_remove( acct, id )
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  var deadline := ReadMillisecondClock() + 10000;
+  var res;
+  while ( ReadMillisecondClock() < deadline )
+    res := acct.deletecharacter( 1 );
+    if ( res )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( $"could not delete the character it made: {res}" );
+endfunction
+
+// The second shard run starts on the world the first one left, so the slot may already hold the
+// character the first run made - and the server refuses a slot that is taken. Each case takes its
+// own account: a creation leaves its client connected, and an account that already has somebody
+// playing is refused a second one.
+function account_with_a_free_slot( name )
+  var acct := FindAccount( name );
+  if ( !acct )
+    acct := CreateAccount( name, "pass", 1 );
+    if ( !acct )
+      return ret_error( $"could not create the account: {acct}" );
+    endif
+    acct.set_uo_expansion( "AOS" );
+    return acct;
+  endif
+  if ( acct.getcharacter( 1 ) )
+    var res := acct.deletecharacter( 1 );
+    if ( !res )
+      return ret_error( $"could not empty slot 1: {res}" );
+    endif
+  endif
+  return acct;
+endfunction
+
+exported function createchar_new_character( unused resources )
+  var acct := account_with_a_free_slot( ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+
+  // slot 0 of the packet is the account's first character, which script counts as 1
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Newborn",
+                               sex := 1,
+                               strength := 25,
+                               dexterity := 20,
+                               intelligence := 20,
+                               id := CLIENT_ID } );
+
+  var res := waitForClient( CLIENT_ID, { EVT_INIT }, 20 );
+  if ( !res )
+    return res;
+  endif
+
+  var bad := {};
+  var chr := acct.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "the account has no character in slot 1 after creating one" );
+  endif
+
+  if ( chr.name != "Newborn" )
+    bad.append( $"the character is called {chr.name}" );
+  endif
+  if ( chr.gender != 1 )
+    bad.append( $"gender is {chr.gender}, expected female" );
+  endif
+  if ( chr.race != RACE_HUMAN )
+    bad.append( $"race is {chr.race}, expected human" );
+  endif
+  if ( chr.graphic != HUMAN_FEMALE )
+    bad.append( $"the body is 0x{chr.graphic:x}, expected 0x{HUMAN_FEMALE:x}" );
+  endif
+  // the packet counts whole points and the core stores tenths, so the base is ten times what was
+  // asked for
+  foreach entry in ( { array{ "Strength", 25 },
+                       array{ "Dexterity", 20 },
+                       array{ "Intelligence", 20 }
+                     } )
+    var base := GetAttributeBaseValue( chr, entry[1] );
+    if ( base != entry[2] * 10 )
+      bad.append( $"{entry[1]} base is {base}, expected {entry[2] * 10}" );
+    endif
+  endforeach
+  if ( !chr.client )
+    bad.append( "the new character is not the one its client is playing" );
+  endif
+
+  var gone := log_out_and_remove( acct, CLIENT_ID );
+  if ( !gone )
+    bad.append( $"{gone}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// The body a new character gets is decided by the sex byte, and the test client is treated as a
+// 7.0 one - so the mapping is 0/1 and 2/3 human, 4/5 elf, 6/7 gargoyle. On an older client 2/3
+// would be the elves instead, which is the other arm of the same switch.
+exported function createchar_elf_body( unused resources )
+  var acct := account_with_a_free_slot( ELF_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := ELF_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Elfling",
+                               sex := 4,
+                               strength := 30,
+                               dexterity := 25,
+                               intelligence := 25,
+                               id := ELF_CLIENT_ID } );
+
+  var res := waitForClient( ELF_CLIENT_ID, { EVT_INIT }, 20 );
+  if ( !res )
+    return res;
+  endif
+
+  var bad := {};
+  var chr := acct.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "the elf account has no character in slot 1" );
+  endif
+  if ( chr.race != RACE_ELF )
+    bad.append( $"race is {chr.race}, expected elf" );
+  endif
+  if ( chr.graphic != ELF_MALE )
+    bad.append( $"the body is 0x{chr.graphic:x}, expected 0x{ELF_MALE:x}" );
+  endif
+  if ( chr.gender != 0 )
+    bad.append( $"gender is {chr.gender}, expected male" );
+  endif
+
+  var gone := log_out_and_remove( acct, ELF_CLIENT_ID );
+  if ( !gone )
+    bad.append( $"{gone}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Every one of the server's checks ends the same way - the connection is dropped and no character
+// is made - so what a refusal looks like from here is an account whose slot stayed empty. A stat
+// below 10 is the cheapest of them to ask for.
+exported function createchar_refuses_a_tiny_stat( unused resources )
+  var acct := account_with_a_free_slot( REFUSE_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := REFUSE_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Weakling",
+                               sex := 0,
+                               strength := 5,
+                               dexterity := 30,
+                               intelligence := 30,
+                               id := REFUSE_CLIENT_ID } );
+
+  // no EVT_INIT is coming: the whole window is paid, so it is kept to what a creation that was
+  // going to happen would need
+  var res := waitForClient( REFUSE_CLIENT_ID, { EVT_INIT }, 3 );
+  if ( res )
+    return ret_error( "a character with a stat below 10 was created" );
+  endif
+  if ( acct.getcharacter( 1 ) )
+    return ret_error( "the refused creation left a character in the slot" );
+  endif
+
+  return 1;
+endfunction
+
+// A gargoyle is dressed differently: the shirt, pants, shoes and dagger the other races are given
+// are skipped for a robe, which is the second arm of the starting-equipment branch.
+exported function createchar_gargoyle_body( unused resources )
+  var acct := account_with_a_free_slot( GARG_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := GARG_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "Stoneling",
+                               sex := 6,
+                               strength := 30,
+                               dexterity := 25,
+                               intelligence := 25,
+                               id := GARG_CLIENT_ID } );
+
+  var res := waitForClient( GARG_CLIENT_ID, { EVT_INIT }, 20 );
+  if ( !res )
+    return res;
+  endif
+
+  var bad := {};
+  var chr := acct.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "the gargoyle account has no character in slot 1" );
+  endif
+  if ( chr.race != RACE_GARGOYLE )
+    bad.append( $"race is {chr.race}, expected gargoyle" );
+  endif
+  if ( chr.graphic != GARGOYLE_MALE )
+    bad.append( $"the body is 0x{chr.graphic:x}, expected 0x{GARGOYLE_MALE:x}" );
+  endif
+
+  // a robe instead of the shirt and pants the others start in
+  var worn := {};
+  foreach item in ( ListEquippedItems( chr ) )
+    worn.append( item.objtype );
+  endforeach
+  if ( !( DEATH_ROBE in worn ) )
+    bad.append( $"a gargoyle started without a robe, wearing {worn}" );
+  endif
+  if ( SHIRT in worn )
+    bad.append( "a gargoyle started in a shirt" );
+  endif
+
+  var gone := log_out_and_remove( acct, GARG_CLIENT_ID );
+  if ( !gone )
+    bad.append( $"{gone}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

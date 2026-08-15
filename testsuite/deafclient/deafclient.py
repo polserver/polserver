@@ -23,8 +23,10 @@ To notice the shard is gone it binds the webserver port instead of connecting to
 connection resets the listener's idle timer, which stops config/www.cfg from being
 hot-reloaded and breaks test_www_config.
 """
+import atexit
 import os
 import socket
+import sys
 import threading
 import time
 
@@ -40,7 +42,13 @@ START = time.monotonic()
 
 
 def log(message):
-    logfile.write(f"[{time.monotonic() - START:7.2f}s] {message}\n")
+    line = f"[{time.monotonic() - START:7.2f}s] {message}\n"
+    logfile.write(line)
+    # Also to stderr: deafclient.log stays in the working directory, which a CI job does not
+    # collect, and this process is a stage of the pipeline cmake waits on -- when it is the one
+    # that will not exit, the reason has to be visible in the job output.
+    sys.stderr.write("      deafclient:" + line)
+    sys.stderr.flush()
 
 
 def release_stdout():
@@ -187,6 +195,14 @@ def main():
             elif shard_seen and threading.active_count() == 1:  # no stall in progress
                 log("shard gone, exiting")
                 return
+            # Which of the three conditions is holding this process open, once a minute. Without
+            # it a stuck deafclient is indistinguishable from a stuck shard: both end as one
+            # timeout with no explanation.
+            waited = time.monotonic() - started
+            if int(waited) % 60 < 2:
+                log(f"still waiting: shard_seen={shard_seen} "
+                    f"webserver_port_free={webserver_port_free()} "
+                    f"threads={threading.active_count()}")
             continue
         threading.Thread(target=handle, args=(control,), daemon=True).start()
 
@@ -194,4 +210,6 @@ def main():
 
 
 if __name__ == "__main__":
+    atexit.register(lambda: log("process exiting"))
+    log(f"process starting (pid {os.getpid()})")
     main()

@@ -1,0 +1,189 @@
+use os;
+use uo;
+
+include "testutil";
+
+// Death and resurrection: the ghost body a character takes for its race and gender, and where
+// what it was wearing and carrying ends up. Everything runs on this file's own account character
+// so that no other test sees a corpse or a ghost.
+
+const CORPSE := 0x2006;
+const DEATH_ROBE := 0x1F03;
+
+const BACKPACK := 0xE75; // layer 21
+const SHIELD := 0x301518; // layer 1
+const PANTS := 0x30152e; // layer 4
+const SHIRT := 0x20151a; // layer 5
+
+program testchrdeath()
+  return 1;
+endprogram
+
+function prepare_char()
+  var chr := createAccountWithChar( "chrdeath", "pass" );
+  if ( !chr )
+    return chr;
+  endif
+  // the start location is not walkable, so the location check has to be skipped
+  if ( chr.dead )
+    var res := Resurrect( chr, RESURRECT_FORCELOCATION );
+    if ( !res )
+      return ret_error( $"could not resurrect the test char: {res}" );
+    endif
+  endif
+  return chr;
+endfunction
+
+// Everything the character leaves behind. A corpse and a death robe pile up once per death, and
+// nothing else in the suite would ever take them away.
+function clear_remains( chr )
+  foreach corpse in ( ListItemsNearLocationOfType( chr.x, chr.y, chr.z, 0, CORPSE ) )
+    if ( corpse.ownerserial == chr.serial )
+      DestroyItem( corpse );
+    endif
+  endforeach
+  foreach worn in ( ListEquippedItems( chr ) )
+    if ( worn.objtype == DEATH_ROBE )
+      DestroyItem( worn );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// A character that dies takes the ghost body of its race and gender, and gets its own back when
+// it is resurrected.
+exported function death_ghost_graphic_by_race( unused resmngr )
+  var chr := prepare_char();
+  if ( !chr )
+    return chr;
+  endif
+  var bad := {};
+  // race, gender, living body, ghost body -- gender is 0 for male, 1 for female
+  var bodies := { { RACE_HUMAN, 0, 0x190, 0x192 },
+                  { RACE_HUMAN, 1, 0x191, 0x193 },
+                  { RACE_ELF, 0, 0x25D, 0x25F },
+                  { RACE_ELF, 1, 0x25E, 0x260 },
+                  { RACE_GARGOYLE, 0, 0x29A, 0x2B6 },
+                  { RACE_GARGOYLE, 1, 0x29B, 0x2B7 } };
+
+  foreach body in ( bodies )
+    chr.race := body[1];
+    chr.gender := body[2];
+    chr.graphic := body[3];
+
+    var res := chr.kill();
+    if ( !res )
+      bad.append( $"could not kill the {body[1]}/{body[2]} character: {res}" );
+      break;
+    endif
+    if ( chr.graphic != body[4] )
+      bad.append( $"race {body[1]} gender {body[2]} died as 0x{chr.graphic:x}, expected 0x{body[4]:x}" );
+    endif
+
+    res := Resurrect( chr, RESURRECT_FORCELOCATION );
+    if ( !res )
+      bad.append( $"could not resurrect the {body[1]}/{body[2]} character: {res}" );
+      break;
+    endif
+    if ( chr.graphic != body[3] )
+      bad.append( $"race {body[1]} gender {body[2]} rose as 0x{chr.graphic:x}, expected 0x{body[3]:x}" );
+    endif
+    clear_remains( chr );
+  endforeach
+
+  // whatever happened above, put the character back the way the other cases expect it
+  chr.race := RACE_HUMAN;
+  chr.gender := 0;
+  chr.graphic := 0x190;
+  clear_remains( chr );
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// What a character wears is sorted by what the item is: an item it may not lose stays with it, an
+// item it may not move is copied, and anything else goes onto the corpse.
+exported function death_worn_items( unused resmngr )
+  var chr := prepare_char();
+  if ( !chr )
+    return chr;
+  endif
+  var bad := {};
+
+  // The layer each of these lands on matters: an item that stays worn must not be on the layer the
+  // death robe wants, or the unguarded equip in resurrect() asserts and takes the shard down. The
+  // robe is layer 22, and these are layers 21, 5, 1 and 4.
+  var bag := CreateItemAtLocation( 0, 0, 0, BACKPACK );
+  var newbie := CreateItemAtLocation( 0, 0, 0, SHIRT );
+  var stuck := CreateItemAtLocation( 0, 0, 0, SHIELD );
+  var plain := CreateItemAtLocation( 0, 0, 0, PANTS );
+  if ( !bag || !newbie || !stuck || !plain )
+    return ret_error( $"could not create the items: {bag} {newbie} {stuck} {plain}" );
+  endif
+  foreach item in ( { bag, newbie, stuck, plain } )
+    var res := EquipItem( chr, item );
+    if ( !res )
+      return ret_error( $"could not equip 0x{item.objtype:x} on layer {item.tile_layer}: {res}" );
+    endif
+  endforeach
+  // after equipping, not before: EquipItem refuses an item that cannot be moved
+  newbie.newbie := 1;
+  stuck.movable := 0;
+
+  var res := chr.kill();
+  if ( !res )
+    return ret_error( $"could not kill the character: {res}" );
+  endif
+  var corpse := find_corpse( chr );
+  if ( !corpse )
+    return ret_error( "the character left no corpse" );
+  endif
+
+  // the newbie item is never given up: it stays with the character, in its backpack
+  if ( !newbie.container )
+    bad.append( "the newbie item was left worn rather than put in the backpack" );
+  elseif ( newbie.container.serial != bag.serial )
+    bad.append( $"the newbie item is in 0x{newbie.container.serial:x}, not the backpack" );
+  endif
+
+  // an item that cannot be moved stays where it is and the corpse gets a copy
+  if ( stuck.character_owner.serial != chr.serial )
+    bad.append( "the unmovable item left the character" );
+  endif
+  var copies := 0;
+  foreach item in ( EnumerateItemsInContainer( corpse ) )
+    if ( item.objtype == SHIELD )
+      copies := copies + 1;
+    endif
+  endforeach
+  if ( copies != 1 )
+    bad.append( $"the corpse holds {copies} copies of the unmovable item" );
+  endif
+
+  // anything else is simply moved onto the corpse
+  if ( !plain.container )
+    bad.append( "the plain item was left worn" );
+  elseif ( plain.container.serial != corpse.serial )
+    bad.append( $"the plain item is in 0x{plain.container.serial:x}, not the corpse" );
+  endif
+
+  Resurrect( chr, RESURRECT_FORCELOCATION );
+  clear_remains( chr );
+  DestroyItem( bag );
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+function find_corpse( chr )
+  foreach corpse in ( ListItemsNearLocationOfType( chr.x, chr.y, chr.z, 0, CORPSE ) )
+    if ( corpse.ownerserial == chr.serial )
+      return corpse;
+    endif
+  endforeach
+  return 0;
+endfunction

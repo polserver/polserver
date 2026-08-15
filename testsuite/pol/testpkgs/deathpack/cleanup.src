@@ -1,7 +1,11 @@
 use uo;
 
-var a := FindAccount( "testdeathpack" );
-if ( a )
-  a.deletecharacter( 1 );
-  a.delete();
-endif
+// test_death.src and test_chrdeath.src each take their own account: one of them mutates the body
+// it kills, and neither should be inheriting the other's corpses.
+foreach name in ( { "testdeathpack", "chrdeath" } )
+  var a := FindAccount( name );
+  if ( a )
+    a.deletecharacter( 1 );
+    a.delete();
+  endif
+endforeach

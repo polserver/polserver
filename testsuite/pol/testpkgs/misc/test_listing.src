@@ -1,0 +1,161 @@
+use uo;
+use os;
+
+include "testutil";
+
+// A patch of map reserved for this file so the mobiles it spawns cannot be picked up by
+// another package's listing test.
+const LX := 150;
+const LY := 150;
+const LZ := 0;
+
+program testlisting()
+  return 1;
+endprogram
+
+function find_serial( list, serial )
+  foreach entry in list
+    if ( entry.serial == serial )
+      return 1;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+// ListMobilesNearLocation finds what is standing inside the range and nothing outside it.
+exported function list_mobiles_near_location( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", LX, LY, LZ, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var near := ListMobilesNearLocation( LX, LY, LZ, 2 );
+  if ( !find_serial( near, npc.serial ) )
+    return ret_error( $"the npc was not listed within range: {near.size()} found" );
+  endif
+
+  // A location well away from the npc does not list it.
+  var far := ListMobilesNearLocation( LX + 40, LY + 40, LZ, 2 );
+  if ( find_serial( far, npc.serial ) )
+    return ret_error( "the npc was listed from a location out of range" );
+  endif
+
+  return 1;
+endfunction
+
+// The Ex form takes two kinds of flag and needs one of each. The state flags -- NORMAL,
+// HIDDEN, GHOST, CONCEALED -- decide which mobiles qualify at all, and the ONLY flags then
+// narrow by kind. A mobile that matches no state flag is never listed, whatever else is asked
+// for, so an ONLY flag on its own selects nothing at all.
+exported function list_mobiles_near_ex( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", LX, LY, LZ, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var npcs := ListMobilesNearLocationEx( LX, LY, LZ, 2,
+                                         LISTEX_FLAG_NORMAL + LISTEX_FLAG_NPC_ONLY );
+  if ( !find_serial( npcs, npc.serial ) )
+    return ret_error( "the npc was not listed with NORMAL and NPC_ONLY" );
+  endif
+
+  var players := ListMobilesNearLocationEx( LX, LY, LZ, 2,
+                                            LISTEX_FLAG_NORMAL + LISTEX_FLAG_PLAYERS_ONLY );
+  if ( find_serial( players, npc.serial ) )
+    return ret_error( "the npc was listed with PLAYERS_ONLY" );
+  endif
+
+  // NPC_ONLY without a state flag qualifies nobody.
+  var neither := ListMobilesNearLocationEx( LX, LY, LZ, 2, LISTEX_FLAG_NPC_ONLY );
+  if ( find_serial( neither, npc.serial ) )
+    return ret_error( "an ONLY flag without a state flag should list nothing" );
+  endif
+
+  return 1;
+endfunction
+
+// Line of sight is taken from an object rather than a bare location.
+exported function list_mobiles_in_line_of_sight( resmngr )
+  var seer := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", LX, LY, LZ, 0,
+                                             _DEFAULT_REALM, 1 );
+  if ( !seer )
+    return ret_error( $"failed to create npc: {seer}" );
+  endif
+  var other := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", LX + 1, LY, LZ, 0,
+                                              _DEFAULT_REALM, 1 );
+  if ( !other )
+    return ret_error( $"failed to create second npc: {other}" );
+  endif
+
+  var seen := ListMobilesInLineOfSight( seer, 5 );
+  if ( !find_serial( seen, other.serial ) )
+    return ret_error( "the adjacent npc was not in line of sight" );
+  endif
+
+  return 1;
+endfunction
+
+// A box query filters by POL class rather than by object type.
+exported function list_objects_in_box_of_class( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", LX, LY, LZ, 0,
+                                            _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create npc: {npc}" );
+  endif
+
+  var mobiles := ListObjectsInBoxOfClass( POLCLASS_NPC, LX - 2, LY - 2, -128,
+                                          LX + 2, LY + 2, 127 );
+  if ( !find_serial( mobiles, npc.serial ) )
+    return ret_error( "the npc was not found in the box query" );
+  endif
+
+  var items := ListObjectsInBoxOfClass( POLCLASS_ITEM, LX - 2, LY - 2, -128,
+                                        LX + 2, LY + 2, 127 );
+  if ( find_serial( items, npc.serial ) )
+    return ret_error( "the npc was listed as an item" );
+  endif
+
+  return 1;
+endfunction
+
+// Nobody is logged in during the test run, so the online list is empty while the offline
+// list is not.
+exported function online_and_offline_lists( unused resmngr )
+  var online := EnumerateOnlineCharacters();
+  if ( TypeOf( online ) != "Array" )
+    return ret_error( $"EnumerateOnlineCharacters did not answer an array: {TypeOf( online )}" );
+  endif
+  if ( online.size() != 0 )
+    return ret_error( $"expected nobody online, got {online.size()}" );
+  endif
+
+  var offline := ListOfflineMobilesInRealm( _DEFAULT_REALM );
+  if ( TypeOf( offline ) != "Array" )
+    return ret_error( $"ListOfflineMobilesInRealm did not answer an array: {TypeOf( offline )}" );
+  endif
+
+  return 1;
+endfunction
+
+// A circle of radius 0 is a single point, and a larger one is symmetric about its centre.
+exported function midpoint_circle_coords( unused resmngr )
+  var single := GetMidpointCircleCoords( 100, 100, 0 );
+  if ( TypeOf( single ) != "Array" )
+    return ret_error( $"expected an array, got {TypeOf( single )}" );
+  endif
+
+  var ring := GetMidpointCircleCoords( 100, 100, 3 );
+  if ( ring.size() < 1 )
+    return ret_error( "a radius of 3 produced no coordinates" );
+  endif
+
+  foreach coord in ring
+    if ( coord.x < 97 || coord.x > 103 || coord.y < 97 || coord.y > 103 )
+      return ret_error( $"coordinate outside the circle bounds: {coord.x},{coord.y}" );
+    endif
+  endforeach
+
+  return 1;
+endfunction

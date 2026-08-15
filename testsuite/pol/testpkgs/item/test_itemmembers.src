@@ -1,0 +1,202 @@
+use uo;
+use os;
+
+include "testutil";
+
+// The item members no other test reads or writes: what an item says about its stack, its
+// itemdesc, and what is holding it.
+
+const CONTAINER := 0xE75;
+const UNSTACKABLE := 0x200030;
+const ARMOR := 0x301517;
+
+program testitemmembers()
+  return 1;
+endprogram
+
+// item_count counts what a container holds, counting a stack as one; stackable comes from the
+// tiledata rather than from the itemdesc; doubleclickrange comes from the itemdesc.
+exported function item_stack_members( resmngr )
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 10 );
+  var plain := resmngr.CreateItemAtLocation( 0, 0, 0, UNSTACKABLE );
+  var bad := {};
+
+  if ( gold.stackable != 1 )
+    bad.append( $"gold reports stackable {gold.stackable}" );
+  endif
+  if ( plain.stackable != 0 )
+    bad.append( $"the plain item reports stackable {plain.stackable}" );
+  endif
+
+  if ( gold.item_count != 1 )
+    bad.append( $"a stack of ten counts {gold.item_count}" );
+  endif
+  if ( box.item_count != 1 )
+    bad.append( $"an empty container counts {box.item_count}" );
+  endif
+  resmngr.CreateItemInContainer( box, "goldcoin", 5 );
+  resmngr.CreateItemInContainer( box, UNSTACKABLE );
+  if ( box.item_count != 3 )
+    bad.append( $"a container holding two things counts {box.item_count}" );
+  endif
+
+  if ( gold.doubleclickrange != 2 )
+    bad.append( $"doubleclickrange {gold.doubleclickrange}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// saveonexit says whether the item survives a world save, and it is writable.
+exported function item_saveonexit( resmngr )
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 1 );
+  var bad := {};
+
+  if ( gold.saveonexit != 1 )
+    bad.append( $"a plain item reports saveonexit {gold.saveonexit}" );
+  endif
+  gold.saveonexit := 0;
+  if ( gold.saveonexit != 0 )
+    bad.append( $"clearing it left {gold.saveonexit}" );
+  endif
+  gold.saveonexit := 1;
+  if ( gold.saveonexit != 1 )
+    bad.append( $"setting it left {gold.saveonexit}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Three members that name whatever is holding the item, and all three have an answer for an
+// item that is simply lying on the ground.
+exported function item_holder_members( resmngr )
+  var gold := resmngr.CreateItemAtLocation( 0, 0, 0, "goldcoin", 1 );
+  var bad := {};
+
+  if ( gold.house.errortext != "This is a not component of any house" )
+    bad.append( $"house {gold.house}" );
+  endif
+  if ( gold.character_owner.errortext != "This item is not owned by any character" )
+    bad.append( $"character_owner {gold.character_owner}" );
+  endif
+  // nobody is dragging anything with no client attached
+  if ( gold.getgottenby.errortext != "Gotten By nullptr" )
+    bad.append( $"getgottenby {gold.getgottenby}" );
+  endif
+
+  // a component knows the house it belongs to
+  var multi := resmngr.CreateMultiAtLocation( 46, 46, 0, "SmallHouse" );
+  if ( !multi )
+    bad.append( $"could not build a house: {multi}" );
+  else
+    var component := multi.components[1];
+    if ( !component.house )
+      bad.append( $"a component does not know its house: {component.house}" );
+    elseif ( component.house.serial != multi.serial )
+      bad.append( "a component named a different house" );
+    endif
+  endif
+
+  // an equipped item is owned by whoever wears it
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 47, 47, 0 );
+  if ( !npc )
+    bad.append( $"could not make an npc: {npc}" );
+  else
+    var armor := resmngr.CreateItemAtLocation( 0, 0, 0, ARMOR );
+    var res := EquipItem( npc, armor );
+    if ( !res )
+      bad.append( $"could not equip the armor: {res}" );
+    elseif ( !armor.character_owner )
+      bad.append( $"an equipped item has no owner: {armor.character_owner}" );
+    elseif ( armor.character_owner.serial != npc.serial )
+      bad.append( "an equipped item named a different owner" );
+    endif
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// quality is a real, and takes an integer as well; hp and maxhp_mod recalculate the wearer's
+// armour rating when the item is armour, so they are written on a worn piece.
+exported function item_quality_and_hp( resmngr )
+  var npc := resmngr.CreateNPCFromTemplate( ":testnpc:probe_npc", 48, 48, 0 );
+  if ( !npc )
+    return ret_error( $"could not make an npc: {npc}" );
+  endif
+  var armor := resmngr.CreateItemAtLocation( 0, 0, 0, ARMOR );
+  var res := EquipItem( npc, armor );
+  if ( !res )
+    return ret_error( $"could not equip the armor: {res}" );
+  endif
+  var bad := {};
+
+  if ( TypeOf( armor.quality ) != "Double" )
+    bad.append( $"quality reads as {TypeOf( armor.quality )}" );
+  endif
+  armor.quality := 2;
+  if ( armor.quality != 2.0 )
+    bad.append( $"quality took an integer as {armor.quality}" );
+  endif
+  armor.quality := 1.5;
+  if ( armor.quality != 1.5 )
+    bad.append( $"quality took a real as {armor.quality}" );
+  endif
+
+  armor.hp := 7;
+  if ( armor.hp != 7 )
+    bad.append( $"hp {armor.hp}" );
+  endif
+  armor.maxhp_mod := 3;
+  if ( armor.maxhp_mod != 3 )
+    bad.append( $"maxhp_mod {armor.maxhp_mod}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// weight_multiplier_mod scales what the item weighs inside a container, and refuses to go
+// negative rather than making things weigh less than nothing.
+exported function item_weight_multiplier( resmngr )
+  var box := resmngr.CreateItemAtLocation( 0, 0, 0, CONTAINER );
+  var gold := resmngr.CreateItemInContainer( box, "goldcoin", 500 );
+  var bad := {};
+
+  var before := box.weight;
+  gold.weight_multiplier_mod := 2.0;
+  if ( gold.weight_multiplier_mod != 2.0 )
+    bad.append( $"the multiplier reads {gold.weight_multiplier_mod}" );
+  endif
+  if ( box.weight <= before )
+    bad.append( $"the container still weighs {box.weight}, was {before}" );
+  endif
+
+  // an assignment answers the item rather than what the setter returned, so the refusal is only
+  // visible through set_member
+  var res := gold.set_member( "weight_multiplier_mod", -1.0 );
+  if ( res.errortext != "weight_multiplier_mod cannot be less than 0.0" )
+    bad.append( $"a negative multiplier gave {res}" );
+  endif
+
+  gold.weight_multiplier_mod := 1.0;
+  if ( box.weight != before )
+    bad.append( $"the container weighs {box.weight} after the reset, was {before}" );
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction

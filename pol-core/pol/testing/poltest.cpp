@@ -22,8 +22,6 @@ namespace Pol::Testing
 
 bool run_pol_tests()
 {
-  // create_test_environment();
-
 #ifdef ENABLE_BENCHMARK
   benchmark::RunSpecifiedBenchmarks();
   return true;
@@ -33,12 +31,7 @@ bool run_pol_tests()
   RUNTEST( test_sanitizeUnicodeWithIso )
   RUNTEST( test_encodingconversions )
 
-  //  skilladv_test();
-
-  //  drop_test();
-  //  walk_test();
-  //  multiwalk_test();
-  //  map_test();
+  RUNTEST( skilladv_test )
   RUNTEST( dynprops_test )
   RUNTEST( packet_test )
   RUNTEST( vector2d_test )
@@ -57,6 +50,8 @@ bool run_pol_tests()
   RUNTEST( place_at_test )
   RUNTEST( container_slot_test )
   RUNTEST( clamp_test )
+  RUNTEST( crypt_test )
+  RUNTEST( webscript_test )
   RUNTEST( maptile_geometry_test )
   RUNTEST( mapsize_validation_test )
   RUNTEST( uoextension_test )

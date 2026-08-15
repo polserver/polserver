@@ -1,0 +1,33 @@
+use cfgfile;
+
+// The TUS .scp importer. It is not the config file parser: sections are introduced by a
+// "[...]" header rather than braces, elements are numbered and have no names, and every
+// value is read in base 16. import/tus/tustest.scp is the file being read.
+
+program tusscp()
+
+  var cfg := LoadTusScpFile( "tustest" );
+  print( "type:     " + TypeOf( cfg ) );
+  // properties seen before the first header belong to element 0
+  print( "elements: " + GetConfigIntKeys( cfg ) );
+  print( "highest:  " + GetConfigMaxIntKey( cfg ) );
+  print( "" );
+
+  foreach key in ( GetConfigIntKeys( cfg ) )
+    var elem := cfg[key];
+    print( $"elem {key}: {ListConfigElemProps( elem )}" );
+    foreach prop in ( ListConfigElemProps( elem ) )
+      print( $"   {prop} = {GetConfigString( elem, prop )}" );
+    endforeach
+  endforeach
+  print( "" );
+
+  // a header line is stored twice: whole under _key, and split as a property of its own
+  print( "key:      " + GetConfigString( cfg[1], "_key" ) );
+  print( "header:   " + GetConfigInt( cfg[1], "ITEMDEF" ) );
+  // ... and 0x4001 is what the header says, so the values really are base 16
+  print( "base 16:  " + GetConfigInt( cfg[1], "VALUE" ) );
+  // a header with spaces inside its brackets keeps them, one per leading space skipped
+  print( "spaced:   \"" + GetConfigString( cfg[2], "_key" ) + "\"" );
+
+endprogram

@@ -1,15 +1,23 @@
 -- POL100.3.0 --
 08-14-2026 Nando:
-   Changed: pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).
-            During the login phase, a connection that sends an unknown or non-allowed
-            message type is dropped. With the old default the core logged the type and
-            went back to reading the next byte as a fresh message type, so a peer sending
-            a block of arbitrary bytes had every one of them treated as a new message -
-            and any byte landing on an allowed type entered its handler with whatever
-            followed as the packet body.
-            Set it to 0 to restore the old behaviour, which is only needed if a client or
-            tool of yours legitimately sends message types the core does not know before
-            a character is attached.
+    Changed: pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 (was 0).
+             During the login phase, a connection that sends an unknown or non-allowed
+             message type is dropped. With the old default the core logged the type and
+             went back to reading the next byte as a fresh message type, so a peer sending
+             a block of arbitrary bytes had every one of them treated as a new message -
+             and any byte landing on an allowed type entered its handler with whatever
+             followed as the packet body.
+             Set it to 0 to restore the old behaviour, which is only needed if a client or
+             tool of yours legitimately sends message types the core does not know before
+             a character is attached.
+08-14-2026 Turley:
+    Fixed: leak when a character creation was refused
+    Fixed: item.hasexistingstack returns now uninit when no item was found
+    Fixed: splitting part of a force-stacked unstackable stack destroyed the remainder, item.splitstackat and item.splitstackinto now leave it behind
+    Fixed: an intrinsic NPC weapon took its string members (hitscript, name), which changed them for every mobile armed with it
+    Fixed: an intrinsic NPC shield took every member it was given, which changed it for every mobile carrying it
+    Fixed: multiple subscript assignment (a[x,y] := v) crashed on arrays and dicts and was silently ignored on other types, now returns an error
+    Fixed: uo::AssignRectToWeatherRegion was wrongly defined in the em file thus never usable.
 08-10-2026 Nando:
     Changed: item.x, item.y and item.z on an equipped item now report where its wearer is
              standing, and follow that character as they move. They used to report the

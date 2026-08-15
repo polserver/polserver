@@ -1,0 +1,69 @@
+// A two-index subscript is a slice: start position and length. Reading one is supported on
+// arrays and strings; assigning to one is supported on strings only, and every other type
+// hands back an error object rather than raising one.
+
+// Reading a slice of an array.
+var a := array{ 1, 2, 3, 4 };
+print( a[1, 2] );
+print( a[2, 3] );
+print( a[3, 99] );
+print( a[0, 2] );
+print( a[9, 1] );
+
+// A slice of a nested array keeps the elements themselves.
+var nested := array{ array{ 1, 2 }, array{ 3, 4 } };
+print( nested[1, 2] );
+
+// Assigning to a slice of an array is not supported. The array is left alone, and the value
+// of the assignment is the error.
+var flat := array{ 1, 2, 3 };
+var res := ( flat[1, 2] := 99 );
+print( res );
+print( flat );
+
+// The same when the element the slice starts at is itself an array.
+res := ( nested[1, 2] := 99 );
+print( res );
+print( nested );
+
+// The same for a dictionary, whose value is an array.
+var d := dictionary{ "k" -> array{ 7, 8 } };
+res := ( d["k", 1] := 55 );
+print( res );
+print( d );
+
+// The same for a struct.
+var st := struct{ x := array{ 1, 2 } };
+res := ( st["x", 1] := 5 );
+print( res );
+print( st );
+
+// Three indexes are refused the same way.
+res := ( flat[1, 2, 3] := 1 );
+print( res );
+print( flat );
+
+// A string is the one type that does assign through a slice.
+var s := "abcdef";
+s[2, 3] := "zyx";
+print( s );
+
+// A single subscript assignment is unaffected.
+flat[2] := 42;
+print( flat );
+
+// Several indexes mean a slice -- a start and a length -- and only an array or a string has one
+// to give. Anything else is refused rather than quietly meaning something different: a dictionary
+// and a struct used to read this as chained access, so the same syntax did two unrelated things.
+var deep := dictionary{ "a" -> dictionary{ "b" -> dictionary{ "c" -> 3 } } };
+print( deep["a", "b"] );
+print( deep["a", "b", "c"] );
+print( struct{ x := struct{ y := 7 } }["x", "y"] );
+print( dictionary{ "k" -> array{ 7, 8 } }["k", 1] );
+print( struct{ x := array{ 7, 8 } }["x", 1] );
+print( dictionary{ "k" -> "abcdef" }["k", 2] );
+print( dictionary{ "k" -> 1 }["k", 1] );
+
+// Reaching a member of a member is what a repeated subscript is for, and it still works.
+print( deep["a"]["b"]["c"] );
+print( struct{ x := array{ 7, 8 } }["x"][1] );

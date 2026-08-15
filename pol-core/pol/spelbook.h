@@ -68,7 +68,6 @@ public:
   void double_click( Network::Client* client ) override;
   void send_book_old( Network::Client* client );
   bool script_isa( unsigned isatype ) const override;
-  Bscript::BObjectImp* script_method( const char* methodname, UOExecutor& ex ) override;
   Bscript::BObjectImp* script_method_id( const int id, UOExecutor& ex ) override;
   bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,
                         unsigned int* PC ) const override;

@@ -1,0 +1,64 @@
+use uo;
+use os;
+
+include "testutil";
+
+var acct;
+
+program testaccount()
+  var char := createAccountWithChar( "test", "pass" );
+  if ( !char )
+    return char;
+  endif
+  acct := FindAccount( "test" );
+  if ( !acct )
+    return ret_error( "could not find the test account" );
+  endif
+  return 1;
+endprogram
+
+// An account object reports its own type name and integer, distinct from the objects it
+// hands out.
+exported function account_reports_its_type( unused resmngr )
+  if ( TypeOf( acct ) != "AccountRef" )
+    return ret_error( $"unexpected account type name: {TypeOf( acct )}" );
+  endif
+
+  var char := acct.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "could not get character at slot 1" );
+  endif
+  if ( TypeOfInt( acct ) == TypeOfInt( char ) )
+    return ret_error( "account and character share a type integer" );
+  endif
+
+  return 1;
+endfunction
+
+// A method the compiler does not know is looked up on the account by name.
+exported function account_unknown_method( unused resmngr )
+  var res := acct.no_such_method_at_all();
+  if ( res )
+    return ret_error( $"expected a falsy result from an unknown method, got {res}" );
+  endif
+  return 1;
+endfunction
+
+// Copying an array copies each element, which is the only route to the account object's own
+// copy handler.
+exported function account_copies_by_value( unused resmngr )
+  var holder := { acct };
+  var copied := holder;
+
+  if ( copied.size() != 1 )
+    return ret_error( $"expected one element after copy, got {copied.size()}" );
+  endif
+  if ( TypeOf( copied[1] ) != "AccountRef" )
+    return ret_error( $"copied element is not an account: {TypeOf( copied[1] )}" );
+  endif
+  if ( copied[1].name != acct.name )
+    return ret_error( $"copied account has a different name: {copied[1].name}" );
+  endif
+
+  return 1;
+endfunction

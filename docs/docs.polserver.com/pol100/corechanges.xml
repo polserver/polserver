@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-14-2026</datemodified>
+		<datemodified>08-15-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -18,6 +18,17 @@ followed as the packet body.<br/>
 Set it to 0 to restore the old behaviour, which is only needed if a client or<br/>
 tool of yours legitimately sends message types the core does not know before<br/>
 a character is attached.</change>
+		</entry>
+		<entry>
+			<date>08-14-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">leak when a character creation was refused</change>
+			<change type="Fixed">item.hasexistingstack returns now uninit when no item was found</change>
+			<change type="Fixed">splitting part of a force-stacked unstackable stack destroyed the remainder, item.splitstackat and item.splitstackinto now leave it behind</change>
+			<change type="Fixed">an intrinsic NPC weapon took its string members (hitscript, name), which changed them for every mobile armed with it</change>
+			<change type="Fixed">an intrinsic NPC shield took every member it was given, which changed it for every mobile carrying it</change>
+			<change type="Fixed">multiple subscript assignment (a[x,y] := v) crashed on arrays and dicts and was silently ignored on other types, now returns an error</change>
+			<change type="Fixed">uo::AssignRectToWeatherRegion was wrongly defined in the em file thus never usable.</change>
 		</entry>
 		<entry>
 			<date>08-10-2026</date>

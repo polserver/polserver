@@ -72,7 +72,6 @@ public:
   [[nodiscard]] Bscript::BObjectImp* mf_Say();
   [[nodiscard]] Bscript::BObjectImp* mf_SayUC();
   [[nodiscard]] Bscript::BObjectImp* mf_position();
-  [[nodiscard]] Bscript::BObjectImp* mf_Facing();
   [[nodiscard]] Bscript::BObjectImp* mf_GetProperty( /* propertyname */ );
   [[nodiscard]] Bscript::BObjectImp* mf_SetProperty( /* propertyname propertyvalue */ );
   [[nodiscard]] Bscript::BObjectImp* mf_MakeBoundingBox( /* areastring */ );

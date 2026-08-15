@@ -1,0 +1,23 @@
+size:        3
+size param:  error{ errortext = "dictionary.size() doesn't take parameters." }
+keys param:  error{ errortext = "dictionary.keys() doesn't take parameters." }
+exists:      1
+exists bad:  error{ errortext = "Dictionary keys must be integer, real, or string" }
+exists none: error{ errortext = "dictionary.exists(key) requires a parameter." }
+insert:      4
+insert bad:  error{ errortext = "Dictionary keys must be integer, real, or string" }
+insert one:  error{ errortext = "dictionary.insert(key,value) requires two parameters." }
+erase:       1
+erase bad:   error{ errortext = "Dictionary keys must be integer, real, or string" }
+erase none:  error{ errortext = "dictionary.erase(key) requires a parameter." }
+unknown:     <uninitialized object>
+dotplus:     <uninitialized object>
+dotplus 2:   error{ errortext = "Member already exists" }
+size now:    4
+--- an application object as a key
+insert:      1
+size:        1
+exists:      0
+read:        <uninitialized object>
+erase:       0
+size after:  2

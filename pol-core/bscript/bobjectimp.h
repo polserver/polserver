@@ -134,7 +134,6 @@ public:
   virtual ~BObjectImp();
 #endif
 
-
   // Class Machinery:
   static BObjectImp* unpack( const char* pstr );
   static BObjectImp* unpack( std::istream& is );
@@ -152,7 +151,6 @@ public:
   virtual size_t sizeEstimate() const = 0;
   virtual const char* typeOf() const;
   virtual u8 typeOfInt() const;
-
 
   virtual std::string pack() const;
   virtual void packonto( std::string& os ) const;
@@ -185,117 +183,58 @@ public:
   virtual BObjectImp* selfMinusObj( const BLong& objimp ) const;
   virtual BObjectImp* selfMinusObj( const Double& objimp ) const;
   virtual BObjectImp* selfMinusObj( const String& objimp ) const;
-  virtual BObjectImp* selfMinusObj( const ObjArray& objimp ) const;
   virtual void selfMinusObjImp( BObjectImp& objimp, BObject& obj );
   virtual void selfMinusObj( BObjectImp& objimp, BObject& obj );
   virtual void selfMinusObj( BLong& objimp, BObject& obj );
   virtual void selfMinusObj( Double& objimp, BObject& obj );
   virtual void selfMinusObj( String& objimp, BObject& obj );
-  virtual void selfMinusObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfTimesObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfTimesObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfTimesObj( const BLong& objimp ) const;
   virtual BObjectImp* selfTimesObj( const Double& objimp ) const;
-  virtual BObjectImp* selfTimesObj( const String& objimp ) const;
-  virtual BObjectImp* selfTimesObj( const ObjArray& objimp ) const;
   virtual void selfTimesObjImp( BObjectImp& objimp, BObject& obj );
   virtual void selfTimesObj( BObjectImp& objimp, BObject& obj );
   virtual void selfTimesObj( BLong& objimp, BObject& obj );
   virtual void selfTimesObj( Double& objimp, BObject& obj );
-  virtual void selfTimesObj( String& objimp, BObject& obj );
-  virtual void selfTimesObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfDividedByObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfDividedByObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfDividedByObj( const BLong& objimp ) const;
   virtual BObjectImp* selfDividedByObj( const Double& objimp ) const;
-  virtual BObjectImp* selfDividedByObj( const String& objimp ) const;
-  virtual BObjectImp* selfDividedByObj( const ObjArray& objimp ) const;
   virtual void selfDividedByObjImp( BObjectImp& objimp, BObject& obj );
   virtual void selfDividedByObj( BObjectImp& objimp, BObject& obj );
   virtual void selfDividedByObj( BLong& objimp, BObject& obj );
   virtual void selfDividedByObj( Double& objimp, BObject& obj );
-  virtual void selfDividedByObj( String& objimp, BObject& obj );
-  virtual void selfDividedByObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfModulusObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfModulusObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfModulusObj( const BLong& objimp ) const;
   virtual BObjectImp* selfModulusObj( const Double& objimp ) const;
-  virtual BObjectImp* selfModulusObj( const String& objimp ) const;
-  virtual BObjectImp* selfModulusObj( const ObjArray& objimp ) const;
   virtual void selfModulusObjImp( BObjectImp& objimp, BObject& obj );
   virtual void selfModulusObj( BObjectImp& objimp, BObject& obj );
   virtual void selfModulusObj( BLong& objimp, BObject& obj );
   virtual void selfModulusObj( Double& objimp, BObject& obj );
-  virtual void selfModulusObj( String& objimp, BObject& obj );
-  virtual void selfModulusObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfBitShiftRightObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitShiftRightObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitShiftRightObj( const BLong& objimp ) const;
-  virtual BObjectImp* selfBitShiftRightObj( const Double& objimp ) const;
-  virtual BObjectImp* selfBitShiftRightObj( const String& objimp ) const;
-  virtual BObjectImp* selfBitShiftRightObj( const ObjArray& objimp ) const;
-  virtual void selfBitShiftRightObjImp( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitShiftRightObj( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitShiftRightObj( BLong& objimp, BObject& obj );
-  virtual void selfBitShiftRightObj( Double& objimp, BObject& obj );
-  virtual void selfBitShiftRightObj( String& objimp, BObject& obj );
-  virtual void selfBitShiftRightObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfBitShiftLeftObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitShiftLeftObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitShiftLeftObj( const BLong& objimp ) const;
-  virtual BObjectImp* selfBitShiftLeftObj( const Double& objimp ) const;
-  virtual BObjectImp* selfBitShiftLeftObj( const String& objimp ) const;
-  virtual BObjectImp* selfBitShiftLeftObj( const ObjArray& objimp ) const;
-  virtual void selfBitShiftLeftObjImp( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitShiftLeftObj( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitShiftLeftObj( BLong& objimp, BObject& obj );
-  virtual void selfBitShiftLeftObj( Double& objimp, BObject& obj );
-  virtual void selfBitShiftLeftObj( String& objimp, BObject& obj );
-  virtual void selfBitShiftLeftObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfBitAndObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitAndObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitAndObj( const BLong& objimp ) const;
-  virtual BObjectImp* selfBitAndObj( const Double& objimp ) const;
-  virtual BObjectImp* selfBitAndObj( const String& objimp ) const;
-  virtual BObjectImp* selfBitAndObj( const ObjArray& objimp ) const;
-  virtual void selfBitAndObjImp( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitAndObj( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitAndObj( BLong& objimp, BObject& obj );
-  virtual void selfBitAndObj( Double& objimp, BObject& obj );
-  virtual void selfBitAndObj( String& objimp, BObject& obj );
-  virtual void selfBitAndObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfBitXorObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitXorObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitXorObj( const BLong& objimp ) const;
-  virtual BObjectImp* selfBitXorObj( const Double& objimp ) const;
-  virtual BObjectImp* selfBitXorObj( const String& objimp ) const;
-  virtual BObjectImp* selfBitXorObj( const ObjArray& objimp ) const;
-  virtual void selfBitXorObjImp( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitXorObj( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitXorObj( BLong& objimp, BObject& obj );
-  virtual void selfBitXorObj( Double& objimp, BObject& obj );
-  virtual void selfBitXorObj( String& objimp, BObject& obj );
-  virtual void selfBitXorObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* selfBitOrObjImp( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitOrObj( const BObjectImp& objimp ) const;
   virtual BObjectImp* selfBitOrObj( const BLong& objimp ) const;
-  virtual BObjectImp* selfBitOrObj( const Double& objimp ) const;
-  virtual BObjectImp* selfBitOrObj( const String& objimp ) const;
-  virtual BObjectImp* selfBitOrObj( const ObjArray& objimp ) const;
-  virtual void selfBitOrObjImp( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitOrObj( BObjectImp& objimp, BObject& obj );
-  virtual void selfBitOrObj( BLong& objimp, BObject& obj );
-  virtual void selfBitOrObj( Double& objimp, BObject& obj );
-  virtual void selfBitOrObj( String& objimp, BObject& obj );
-  virtual void selfBitOrObj( ObjArray& objimp, BObject& obj );
 
   virtual BObjectImp* bitnot() const;
 
@@ -357,7 +296,6 @@ inline char /*BObjectImp* */ BObjectImp::str_member( const std::string& ) const
 {
   return 0;
 }
-
 
 inline bool BObjectImp::isa( BObjectType type ) const
 {
