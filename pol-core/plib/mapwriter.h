@@ -26,7 +26,8 @@ namespace Pol::Plib
 // next appended element will land at). The dirty flag lives with the buffer:
 // any non-const elems() handout marks the file dirty, store() writes only dirty
 // files and marks them clean again, so untouched files are never rewritten and
-// a destructor flush after an explicit one writes nothing twice.
+// a repeated flush writes nothing twice. A store() that throws leaves its file
+// dirty, so a failed write is never recorded as done.
 template <typename T>
 class OutputFile
 {
@@ -46,6 +47,8 @@ public:
     return elems_;
   }
   const std::vector<T>& elems() const { return elems_; }
+
+  bool dirty() const { return dirty_; }
 
   // Read dir+name into the buffer, verifying and stripping the filler prefix;
   // leaves the file clean. Throws with the filename on any failure, including a
@@ -68,6 +71,13 @@ private:
 // memory and writes each one out a single time in Flush(). The conversion path
 // touches map blocks in a scattered order, so buffering avoids the seek+read /
 // seek+write round-trip the old one-block cache paid on every block switch.
+//
+// Flush() must be called explicitly; destroying a MapWriter writes nothing. The
+// destructor cannot do it: it is noexcept, so a write error would terminate the
+// process instead of being reported, and flushing while unwinding would commit
+// a half-converted realm that looks complete. Instead it warns about buffers
+// left unwritten on a non-exceptional path -- the modes that patch existing
+// files would otherwise report success having changed nothing.
 class MapWriter
 {
 public:
@@ -103,6 +113,8 @@ private:
   unsigned int total_solid_blocks() const;
   unsigned int total_blocks() const;
   unsigned int total_maptile_blocks() const;
+  // Any buffer holding changes that Flush() has not written out.
+  bool dirty() const;
 
 private:
   std::string _directory;  // "realm/<name>/", where Flush() writes the .dat files
