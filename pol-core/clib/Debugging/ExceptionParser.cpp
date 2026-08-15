@@ -392,7 +392,12 @@ void ExceptionParser::handleExceptionSignal( int signal )
           "POL will exit now. Please, post the following to the forum: "
           "http://forums.polserver.com/.\n" );
     string tStackTrace = ExceptionParser::getTrace();
-    printf( "%s", tStackTrace.c_str() );
+    // Which thread died is the first thing anyone reading this needs, and the
+    // trace alone rarely says: the top frames are usually library code shared by
+    // every thread. Name comes from the per-thread buffer, so no lock is taken
+    // here. SIGSEGV and SIGABRT are both delivered to the thread that caused
+    // them, so this is the faulting thread and not a bystander.
+    printf( "Thread: %s (%zu)\n", threadhelp::current_thread_name(), threadhelp::thread_pid() );
     printf( "Admin contact: %s\n", m_programAbortReportingReporter.c_str() );
     printf( "Executable: %s\n", PROG_CONFIG::programName().c_str() );
     printf( "Start time: %s\n", m_programStart.c_str() );
@@ -423,7 +428,8 @@ void ExceptionParser::handleExceptionSignal( int signal )
 
       getSignalDescription( signal, signalName, signalDescription );
       ExceptionParser::reportProgramAbort(
-          tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription + ")" );
+          tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription +
+                           ") in thread \"" + threadhelp::current_thread_name() + "\"" );
     }
 
     // finally, go to hell
@@ -472,11 +478,12 @@ static void handleStackTraceRequestLinux( int signal, siginfo_t* signalInfo, voi
   (void)signal;
   (void)signalInfo;
   (void)arg;
-  threadhelp::ThreadMap::Contents threadDesc;
-  threadhelp::threadmap_instance().CopyContents( threadDesc );
-
+  // Name from the per-thread buffer rather than the ThreadMap: this runs in a
+  // signal handler, and logAllStackTraces() below raises SIGUSR1 on every thread
+  // at once, so each of them would be contending for the map's spinlock -- and
+  // deadlocking outright against a thread stopped while holding it.
   std::string output = fmt::format( "STACK TRACE for thread \"{}\"({}):\n",
-                                    threadDesc[pthread_self()], pthread_self() );
+                                    threadhelp::current_thread_name(), threadhelp::thread_pid() );
   output += ExceptionParser::getTrace() + '\n';
 
   // print to stdout

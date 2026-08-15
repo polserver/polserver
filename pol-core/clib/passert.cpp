@@ -14,6 +14,7 @@
 #include "clib/logfacility.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
+#include "clib/threadhelp.h"
 
 #ifdef WINDOWS
 #include "clib/Header_Windows.h"
@@ -51,7 +52,8 @@ void force_backtrace( bool /*complete*/ )
 void force_backtrace( bool complete )
 {
   std::string stack_trace = Clib::ExceptionParser::getTrace();
-  POLLOG_ERRORLN( "=== Stack Backtrace ===\n{}", stack_trace );
+  POLLOG_ERRORLN( "=== Stack Backtrace ({}) ===\n{}", threadhelp::current_thread_name(),
+                  stack_trace );
   if ( complete )
     ExceptionParser::logAllStackTraces();
 }
@@ -64,10 +66,15 @@ void passert_failed( const char* expr, const char* file, unsigned line )
 
 void passert_failed( const char* expr, const std::string& reason, const char* file, unsigned line )
 {
+  // This line is the one that ends up quoted in bug reports, so it carries the
+  // thread itself rather than leaving it to the backtrace below -- which is not
+  // always printed, and on Windows goes to a separate minidump.
   if ( !reason.empty() )
-    POLLOG_ERRORLN( "Assertion Failed: {} ({}), {}, line {}", expr, reason, file, line );
+    POLLOG_ERRORLN( "Assertion Failed in {}: {} ({}), {}, line {}",
+                    threadhelp::current_thread_name(), expr, reason, file, line );
   else
-    POLLOG_ERRORLN( "Assertion Failed: {}, {}, line {}", expr, file, line );
+    POLLOG_ERRORLN( "Assertion Failed in {}: {}, {}, line {}", threadhelp::current_thread_name(),
+                    expr, file, line );
 
   if ( passert_dump_stack )
   {

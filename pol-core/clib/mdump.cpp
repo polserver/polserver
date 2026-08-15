@@ -159,6 +159,22 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       ExInfo.ExceptionPointers = pExceptionInfo;
       ExInfo.ClientPointers = 0;
 
+      // A comment stream is the only way to get anything of ours into the dump.
+      // The dump identifies the faulting thread by id on its own, and names it
+      // too now that threads are named for the OS, but nothing in it can say
+      // which script was running -- so a .dmp mailed in without the matching
+      // log lines is otherwise unreadable on that point.
+      std::string comment = fmt::format(
+          "Thread: {} ({})\nLast Script: {} PC: {}\n", threadhelp::current_thread_name(),
+          threadhelp::thread_pid(), scripts_thread_script, scripts_thread_scriptPC );
+      MINIDUMP_USER_STREAM commentStream;
+      commentStream.Type = CommentStreamA;
+      commentStream.BufferSize = static_cast<ULONG>( comment.size() + 1 );
+      commentStream.Buffer = comment.data();
+      MINIDUMP_USER_STREAM_INFORMATION userStreams;
+      userStreams.UserStreamCount = 1;
+      userStreams.UserStreamArray = &commentStream;
+
       // write the dump
       MINIDUMP_TYPE dumptype;
       if ( _MiniDumpType == "large" )
@@ -170,7 +186,7 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
       ERROR_PRINTLN( "Unhandled Exception! Minidump started..." );
       BOOL bOK = pDump( GetCurrentProcess(), GetCurrentProcessId(), hFile, dumptype, &ExInfo,
-                        nullptr, nullptr );
+                        &userStreams, nullptr );
       if ( bOK )
       {
         result = fmt::format(
@@ -202,9 +218,11 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
     POLLOG_ERRORLN(
         "##########################################################\n"
         "{}\n"
+        "Thread: {} ({})\n"
         "Last Script: {} PC: {}\n"
         "##########################################################",
-        result, scripts_thread_script, scripts_thread_scriptPC );
+        result, threadhelp::current_thread_name(), threadhelp::thread_pid(), scripts_thread_script,
+        scripts_thread_scriptPC );
   }
   if ( Clib::Logging::global_logger )
     Clib::Logging::global_logger->wait_for_empty_queue();  // wait here for logging facility to make
