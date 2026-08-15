@@ -6,6 +6,7 @@
 
 #include "plib/mapwriter.h"
 
+#include <exception>
 #include <fstream>
 #include <stdexcept>
 
@@ -13,6 +14,7 @@
 #include "clib/cfgfile.h"
 #include "clib/fileutil.h"
 #include "clib/iohelp.h"
+#include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "plib/mapcell.h"
 #include "plib/realmdescriptor.h"
@@ -105,7 +107,30 @@ MapWriter::MapWriter()
 
 MapWriter::~MapWriter()
 {
-  Flush();
+  // Unwritten buffers are correct while an exception is propagating: the
+  // conversion failed and its half-built output must not be committed. Reaching
+  // here dirty on a normal path means a mode never called Flush(), which for
+  // OpenExistingFiles() modes leaves the realm files at their old contents and
+  // reports success -- so say so rather than exit quietly.
+  if ( std::uncaught_exceptions() == 0 && dirty() )
+  {
+    try
+    {
+      ERROR_PRINTLN(
+          "MapWriter for realm '{}' was destroyed with unwritten changes: Flush() was never "
+          "called, so no realm file was updated.",
+          _realm_name );
+    }
+    catch ( ... )  // a destructor is noexcept; never let logging escape
+    {
+    }
+  }
+}
+
+bool MapWriter::dirty() const
+{
+  return _base.dirty() || _solidx1.dirty() || _solidx2.dirty() || _solids.dirty() ||
+         _maptile.dirty();
 }
 
 void MapWriter::WriteConfigFile( int uo_mapid, int uo_usedif, unsigned int num_static_patches,
@@ -183,8 +208,8 @@ void MapWriter::OpenExistingFiles( const std::string& realm_name )
 
 void MapWriter::Flush()
 {
-  // Only dirtied buffers are written; store() clears each flag so the
-  // destructor's Flush() after an explicit one writes nothing.
+  // Only dirtied buffers are written; store() clears each flag, so a second
+  // Flush() after a successful one writes nothing.
   _base.store( _directory );
   _solidx1.store( _directory );
   _solidx2.store( _directory );

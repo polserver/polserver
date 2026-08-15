@@ -234,6 +234,7 @@ void UoConvertMain::update_map( const std::string& realm, unsigned short x, unsi
   BlockResult result;
   ComputeSolidBlock( x_base, y_base, plane, result, uof );
   StitchBlock( mapwriter, x_base, y_base, result );
+  mapwriter.Flush();  // surface any write errors before reporting success
   INFO_PRINTLN( "empty={}, nonempty={}\nwith more_solids: {}\ntotal statics={}", empty, nonempty,
                 with_more_solids, total_statics );
 }
