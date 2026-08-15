@@ -395,18 +395,7 @@ Character::~Character()
 
 void Character::removal_cleanup()
 {
-  clear_opponent_of();
-
-  /* This used to be a call to set_opponent(nullptr),
-     which was slick,
-     but that was sending disengage events, which were
-     trying to resurrect this object. (C++)
-     */
-  if ( opponent_ )
-  {
-    opponent_.remove_opponent_of( Attackable{ this } );
-    opponent_.clear();
-  }
+  clear_opponents();
 
   if ( swing_task != nullptr )
     swing_task->cancel();
@@ -489,6 +478,11 @@ void Character::clear_gotten_item()
 
 void Character::destroy()
 {
+  // Before the character leaves the world, so that the opponents it is disengaging from can still
+  // be found through it: once mark_orphan() has run, Attackable{ this } is empty and every removal
+  // that goes through it silently does nothing, leaving this character listed as an attacker of
+  // someone who outlives it.
+  clear_opponents();
   stop_skill_script();
   if ( registered_multi > 0 )
   {
@@ -2126,20 +2120,38 @@ void Character::on_death( Items::Item* corpse )
 
 void Character::clear_opponent_of()
 {
-  while ( !opponent_of.empty() )
+  // Drop the entries first, then inform. chr->set_opponent removes its entry from our collection
+  // as a side effect, but only when Attackable{ chr } is non-empty - and it is empty for an
+  // orphan (see the Attackable constructor). Relying on that side effect to end the loop hangs
+  // during shutdown, where every character has already been orphaned.
+  auto opponents = std::move( opponent_of );
+  opponent_of.clear();
+
+  for ( const auto& opp : opponents )
   {
-    auto attitr = opponent_of.begin();
-    // note that chr->set_opponent is going to remove
-    // its entry from our opponent_of collection,
-    // so eventually this loop will exit.
-    if ( auto* mob = attitr->mobile() )
-    {
+    if ( auto* mob = opp.mobile() )
       mob->set_opponent( {}, false );
-      continue;
-    }
-    if ( auto* item = attitr->item() )
+    else if ( auto* item = opp.item() )
       item->remove_opponent_of( Attackable{ this } );
-    opponent_of.erase( attitr );
+  }
+}
+
+// Drop both directions of the combat bookkeeping: the attackers listed here, and this character's
+// entry in the list of whoever it is attacking. Must run before the character is orphaned - see
+// clear_opponent_of() and destroy().
+void Character::clear_opponents()
+{
+  clear_opponent_of();
+
+  /* This used to be a call to set_opponent(nullptr),
+     which was slick,
+     but that was sending disengage events, which were
+     trying to resurrect this object. (C++)
+     */
+  if ( opponent_ )
+  {
+    opponent_.remove_opponent_of( Attackable{ this } );
+    opponent_.clear();
   }
 }
 

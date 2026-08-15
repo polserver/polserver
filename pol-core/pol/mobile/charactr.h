@@ -454,6 +454,7 @@ public:
   void set_opponent( Attackable opponent, bool inform_old_opponent = true );
 
   void clear_opponent_of();
+  void clear_opponents();
 
   void send_warmode();
   unsigned short get_weapon_skill() const;
