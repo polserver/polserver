@@ -2959,69 +2959,82 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
 }
 
 
+namespace
+{
+// Runs `handler` for every frame of `ex`'s call stack with the frame's PC
+// resolved against the program's debug symbols. Only meaningful once
+// read_dbg_file() has succeeded; callers pick the symbol-less walk otherwise.
+void walk_call_stack_with_symbols(
+    Executor& ex,
+    const std::function<void( unsigned int /*pc*/, const std::string& /*file*/,
+                              unsigned int /*line*/, const std::string& /*functionName*/ )>&
+        handler )
+{
+  ex.walkCallStack(
+      [&]( unsigned int pc )
+      {
+        auto filename = ex.prog()->dbg_filenames[ex.prog()->dbg_filenum[pc]];
+        auto line = ex.prog()->dbg_linenum[pc];
+        auto dbgFunction =
+            std::find_if( ex.prog()->dbg_functions.begin(), ex.prog()->dbg_functions.end(),
+                          [&]( auto& i ) { return i.firstPC <= pc && pc <= i.lastPC; } );
+
+        std::string functionName =
+            dbgFunction != ex.prog()->dbg_functions.end() ? dbgFunction->name : "<program>";
+
+        handler( pc, filename, line, functionName );
+      } );
+}
+}  // namespace
+
 BObjectImp* Executor::get_stacktrace( bool as_array )
 {
+  if ( !as_array )
+    return new String( stacktrace_string() );
+
   bool has_symbols = prog_->read_dbg_file( true ) == 0;
 
-  auto with_dbginfo =
-      [&]( const std::function<void( unsigned int /*pc*/, const std::string& /*file*/,
-                                     unsigned int /*line*/, const std::string& /*functionName*/ )>&
-               handler )
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  if ( has_symbols )
+  {
+    walk_call_stack_with_symbols( *this,
+                                  [&]( unsigned int pc, const std::string& filename,
+                                       unsigned int line, const std::string& functionName )
+                                  {
+                                    std::unique_ptr<BStruct> entry( new BStruct );
+                                    entry->addMember( "file", new String( filename ) );
+                                    entry->addMember( "line", new BLong( line ) );
+                                    entry->addMember( "name", new String( functionName ) );
+                                    entry->addMember( "pc", new BLong( pc ) );
+                                    result->addElement( entry.release() );
+                                  } );
+  }
+  else
   {
     walkCallStack(
         [&]( unsigned int pc )
         {
-          auto filename = prog()->dbg_filenames[prog()->dbg_filenum[pc]];
-          auto line = prog()->dbg_linenum[pc];
-          auto dbgFunction =
-              std::find_if( prog()->dbg_functions.begin(), prog()->dbg_functions.end(),
-                            [&]( auto& i ) { return i.firstPC <= pc && pc <= i.lastPC; } );
-
-          std::string functionName =
-              dbgFunction != prog()->dbg_functions.end() ? dbgFunction->name : "<program>";
-
-          handler( pc, filename, line, functionName );
+          std::unique_ptr<BStruct> entry( new BStruct );
+          entry->addMember( "file", new String( scriptname() ) );
+          entry->addMember( "pc", new BLong( pc ) );
+          result->addElement( entry.release() );
         } );
-  };
-
-  if ( as_array )
-  {
-    std::unique_ptr<ObjArray> result( new ObjArray );
-
-    if ( has_symbols )
-    {
-      with_dbginfo(
-          [&]( unsigned int pc, const std::string& filename, unsigned int line,
-               const std::string& functionName )
-          {
-            std::unique_ptr<BStruct> entry( new BStruct );
-            entry->addMember( "file", new String( filename ) );
-            entry->addMember( "line", new BLong( line ) );
-            entry->addMember( "name", new String( functionName ) );
-            entry->addMember( "pc", new BLong( pc ) );
-            result->addElement( entry.release() );
-          } );
-    }
-    else
-    {
-      walkCallStack(
-          [&]( unsigned int pc )
-          {
-            std::unique_ptr<BStruct> entry( new BStruct );
-            entry->addMember( "file", new String( scriptname() ) );
-            entry->addMember( "pc", new BLong( pc ) );
-            result->addElement( entry.release() );
-          } );
-    }
-
-    return result.release();
   }
-  // as string
+
+  return result.release();
+}
+
+std::string Executor::stacktrace_string()
+{
+  bool has_symbols = prog_->read_dbg_file( true ) == 0;
+
   std::string result;
 
   if ( has_symbols )
   {
-    with_dbginfo(
+    walk_call_stack_with_symbols(
+        *this,
         [&]( unsigned int /*pc*/, const std::string& filename, unsigned int line,
              const std::string& functionName )
         {
@@ -3039,7 +3052,7 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
         } );
   }
 
-  return new String( std::move( result ) );
+  return result;
 }
 
 void Executor::ins_pop_param( const Instruction& ins )

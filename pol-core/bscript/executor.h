@@ -477,6 +477,11 @@ public:
   // filename+line+function name will be empty.
   BObjectImp* get_stacktrace( bool as_array );
 
+  // The same stack as get_stacktrace( false ), as one string with a line per
+  // frame, innermost first. Callable from C++ without going through a
+  // BObjectImp, which is what the error paths want.
+  std::string stacktrace_string();
+
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );
   void detach_debugger();
