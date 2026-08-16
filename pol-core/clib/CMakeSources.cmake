@@ -67,6 +67,8 @@ set (clib_sources
   random.h
   rawtypes.h
   refptr.h
+  scriptstatus.cpp
+  scriptstatus.h
   spinlock.h
   stlutil.h
   stracpy.cpp

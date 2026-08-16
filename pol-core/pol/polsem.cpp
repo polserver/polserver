@@ -23,21 +23,44 @@
 
 namespace Pol::Core
 {
-size_t locker;
+std::atomic<size_t> locker;
+
+namespace
+{
+size_t read_locker()
+{
+  return locker.load( std::memory_order_relaxed );
+}
+void set_locker( size_t tid )
+{
+  locker.store( tid, std::memory_order_relaxed );
+}
+}  // namespace
+
 #ifdef _WIN32
 void polsem_lock()
 {
   size_t tid = threadhelp::thread_pid();
   EnterCriticalSection( &cs );
-  passert_always( locker == 0 );
-  locker = tid;
+  passert_always( read_locker() == 0 );
+  set_locker( tid );
+}
+
+bool polsem_trylock()
+{
+  size_t tid = threadhelp::thread_pid();
+  if ( !TryEnterCriticalSection( &cs ) )
+    return false;
+  passert_always( read_locker() == 0 );
+  set_locker( tid );
+  return true;
 }
 
 void polsem_unlock()
 {
   size_t tid = GetCurrentThreadId();
-  passert_always( locker == tid );
-  locker = 0;
+  passert_always( read_locker() == tid );
+  set_locker( 0 );
   LeaveCriticalSection( &cs );
 }
 #else
@@ -45,19 +68,30 @@ void polsem_lock()
 {
   size_t tid = threadhelp::thread_pid();
   int res = pthread_mutex_lock( &polsem );
-  if ( res != 0 || locker != 0 )
+  if ( res != 0 || read_locker() != 0 )
   {
-    POLLOGLN( "pthread_mutex_lock: res={}, tid={}, locker={}", res, tid, locker );
+    POLLOGLN( "pthread_mutex_lock: res={}, tid={}, locker={}", res, tid, read_locker() );
   }
   passert_always( res == 0 );
-  passert_always( locker == 0 );
-  locker = tid;
+  passert_always( read_locker() == 0 );
+  set_locker( tid );
 }
+
+bool polsem_trylock()
+{
+  size_t tid = threadhelp::thread_pid();
+  if ( pthread_mutex_trylock( &polsem ) != 0 )
+    return false;
+  passert_always( read_locker() == 0 );
+  set_locker( tid );
+  return true;
+}
+
 void polsem_unlock()
 {
   size_t tid = threadhelp::thread_pid();
-  passert_always( locker == tid );
-  locker = 0;
+  passert_always( read_locker() == tid );
+  set_locker( 0 );
   int res = pthread_mutex_unlock( &polsem );
   if ( res != 0 )
   {
@@ -68,6 +102,18 @@ void polsem_unlock()
 
 #endif
 
+
+PolLockTry::PolLockTry( unsigned max_wait_ms ) : locked_( polsem_trylock() )
+{
+  // Poll rather than wait on the lock itself: the point of this class is that it has an
+  // upper bound even when the holder never lets go.
+  const unsigned interval_ms = 10;
+  for ( unsigned waited = 0; !locked_ && waited < max_wait_ms; waited += interval_ms )
+  {
+    threadhelp::thread_sleep_ms( interval_ms );
+    locked_ = polsem_trylock();
+  }
+}
 
 #ifdef _WIN32
 CRITICAL_SECTION cs;

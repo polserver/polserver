@@ -40,17 +40,21 @@
 #include "bscript/str.h"
 #include "bscript/token.h"
 #include "bscript/tokens.h"
+#include "clib/Debugging/ExceptionParser.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
+#include "clib/threadhelp.h"
 #include <iterator>
 #include <limits>
 #ifdef MEMORYLEAK
 #include "clib/mlog.h"
 #endif
 
+#include <boost/core/demangle.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
@@ -60,6 +64,8 @@
 #include <exception>
 #include <numeric>
 #include <ranges>
+#include <string_view>
+#include <typeinfo>
 
 
 namespace Pol::Bscript
@@ -2959,69 +2965,82 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
 }
 
 
+namespace
+{
+// Runs `handler` for every frame of `ex`'s call stack with the frame's PC
+// resolved against the program's debug symbols. Only meaningful once
+// read_dbg_file() has succeeded; callers pick the symbol-less walk otherwise.
+void walk_call_stack_with_symbols(
+    Executor& ex,
+    const std::function<void( unsigned int /*pc*/, const std::string& /*file*/,
+                              unsigned int /*line*/, const std::string& /*functionName*/ )>&
+        handler )
+{
+  ex.walkCallStack(
+      [&]( unsigned int pc )
+      {
+        auto filename = ex.prog()->dbg_filenames[ex.prog()->dbg_filenum[pc]];
+        auto line = ex.prog()->dbg_linenum[pc];
+        auto dbgFunction =
+            std::find_if( ex.prog()->dbg_functions.begin(), ex.prog()->dbg_functions.end(),
+                          [&]( auto& i ) { return i.firstPC <= pc && pc <= i.lastPC; } );
+
+        std::string functionName =
+            dbgFunction != ex.prog()->dbg_functions.end() ? dbgFunction->name : "<program>";
+
+        handler( pc, filename, line, functionName );
+      } );
+}
+}  // namespace
+
 BObjectImp* Executor::get_stacktrace( bool as_array )
 {
+  if ( !as_array )
+    return new String( stacktrace_string() );
+
   bool has_symbols = prog_->read_dbg_file( true ) == 0;
 
-  auto with_dbginfo =
-      [&]( const std::function<void( unsigned int /*pc*/, const std::string& /*file*/,
-                                     unsigned int /*line*/, const std::string& /*functionName*/ )>&
-               handler )
+  std::unique_ptr<ObjArray> result( new ObjArray );
+
+  if ( has_symbols )
+  {
+    walk_call_stack_with_symbols( *this,
+                                  [&]( unsigned int pc, const std::string& filename,
+                                       unsigned int line, const std::string& functionName )
+                                  {
+                                    std::unique_ptr<BStruct> entry( new BStruct );
+                                    entry->addMember( "file", new String( filename ) );
+                                    entry->addMember( "line", new BLong( line ) );
+                                    entry->addMember( "name", new String( functionName ) );
+                                    entry->addMember( "pc", new BLong( pc ) );
+                                    result->addElement( entry.release() );
+                                  } );
+  }
+  else
   {
     walkCallStack(
         [&]( unsigned int pc )
         {
-          auto filename = prog()->dbg_filenames[prog()->dbg_filenum[pc]];
-          auto line = prog()->dbg_linenum[pc];
-          auto dbgFunction =
-              std::find_if( prog()->dbg_functions.begin(), prog()->dbg_functions.end(),
-                            [&]( auto& i ) { return i.firstPC <= pc && pc <= i.lastPC; } );
-
-          std::string functionName =
-              dbgFunction != prog()->dbg_functions.end() ? dbgFunction->name : "<program>";
-
-          handler( pc, filename, line, functionName );
+          std::unique_ptr<BStruct> entry( new BStruct );
+          entry->addMember( "file", new String( scriptname() ) );
+          entry->addMember( "pc", new BLong( pc ) );
+          result->addElement( entry.release() );
         } );
-  };
-
-  if ( as_array )
-  {
-    std::unique_ptr<ObjArray> result( new ObjArray );
-
-    if ( has_symbols )
-    {
-      with_dbginfo(
-          [&]( unsigned int pc, const std::string& filename, unsigned int line,
-               const std::string& functionName )
-          {
-            std::unique_ptr<BStruct> entry( new BStruct );
-            entry->addMember( "file", new String( filename ) );
-            entry->addMember( "line", new BLong( line ) );
-            entry->addMember( "name", new String( functionName ) );
-            entry->addMember( "pc", new BLong( pc ) );
-            result->addElement( entry.release() );
-          } );
-    }
-    else
-    {
-      walkCallStack(
-          [&]( unsigned int pc )
-          {
-            std::unique_ptr<BStruct> entry( new BStruct );
-            entry->addMember( "file", new String( scriptname() ) );
-            entry->addMember( "pc", new BLong( pc ) );
-            result->addElement( entry.release() );
-          } );
-    }
-
-    return result.release();
   }
-  // as string
+
+  return result.release();
+}
+
+std::string Executor::stacktrace_string()
+{
+  bool has_symbols = prog_->read_dbg_file( true ) == 0;
+
   std::string result;
 
   if ( has_symbols )
   {
-    with_dbginfo(
+    walk_call_stack_with_symbols(
+        *this,
         [&]( unsigned int /*pc*/, const std::string& filename, unsigned int line,
              const std::string& functionName )
         {
@@ -3039,7 +3058,60 @@ BObjectImp* Executor::get_stacktrace( bool as_array )
         } );
   }
 
-  return new String( std::move( result ) );
+  return result;
+}
+
+namespace
+{
+// Script-controlled recursion is unbounded, so this block is capped tighter than
+// the native one.
+constexpr size_t MAX_REPORTED_ESCRIPT_FRAMES = 30;
+}  // namespace
+
+std::string Executor::execution_error_report( size_t onPC, const std::string& what )
+{
+  try
+  {
+    return format_execution_error( prog_->name.get(), pid(), onPC,
+                                   threadhelp::current_thread_name(), what, stacktrace_string(),
+                                   Clib::ExceptionParser::getTrace() );
+  }
+  catch ( ... )
+  {
+    // Collecting the stacks reads the debug file and symbolizes the native
+    // trace, either of which can fail. Losing the detail is acceptable; losing
+    // the message -- turning a script error into a second exception escaping an
+    // already-failing catch block -- is not.
+    return fmt::format( "Exception in {} PC {}\n  {}\n  (no stacks: reporting them failed)\n",
+                        prog_->name.get(), onPC, what );
+  }
+}
+
+std::string format_execution_error( const std::string& script, unsigned int pid, size_t pc,
+                                    const std::string& thread_name, const std::string& what,
+                                    const std::string& escript_stack,
+                                    const std::string& native_stack )
+{
+  std::string result = fmt::format( "Exception in {}", script );
+  // A plain Executor has no pid; only scripts scheduled by the core do.
+  if ( pid )
+    fmt::format_to( std::back_inserter( result ), " (pid {})", pid );
+  fmt::format_to( std::back_inserter( result ), " PC {}", pc );
+  if ( !thread_name.empty() )
+    fmt::format_to( std::back_inserter( result ), ", thread {}", thread_name );
+  fmt::format_to( std::back_inserter( result ), "\n  {}\n", what );
+
+  // Script block first: it is short, it is the answer for most readers, and it
+  // survives log truncation that would eat the tail of the native one.
+  auto escript = Clib::indent_stack_block( escript_stack, MAX_REPORTED_ESCRIPT_FRAMES );
+  if ( !escript.empty() )
+    result += "\neScript stack (innermost first):\n" + escript;
+
+  auto native = Clib::indent_stack_block( native_stack, Clib::MAX_REPORTED_NATIVE_FRAMES );
+  if ( !native.empty() )
+    result += "\nNative stack (throw site, innermost first):\n" + native;
+
+  return result;
 }
 
 void Executor::ins_pop_param( const Instruction& ins )
@@ -3739,7 +3811,7 @@ void Executor::execInstr()
 
     ++ins.cycles;
     ++prog_->instr_cycles;
-    ++escript_instr_cycles;
+    count_instr_cycle();
 
     ++PC;
 
@@ -3747,8 +3819,8 @@ void Executor::execInstr()
   }
   catch ( std::exception& ex )
   {
-    std::string tmp =
-        fmt::format( "Exception in: {} PC={}: {}\n", prog_->name.get(), onPC, ex.what() );
+    std::string tmp = execution_error_report(
+        onPC, boost::core::demangle( typeid( ex ).name() ) + ": " + ex.what() );
     if ( !run_ok_ )
       tmp += "run_ok_ = false\n";
     if ( PC < nLines )
@@ -3766,8 +3838,12 @@ void Executor::execInstr()
 #ifdef __unix__
   catch ( ... )
   {
+    // No exception object to describe, but the throw site is still recorded --
+    // boost's hook does not care what was thrown.
+    std::string tmp = execution_error_report( onPC, "unclassified" );
+
     seterror( true );
-    POLLOG_ERRORLN( "Exception in {}, PC={}: unclassified", prog_->name.get(), onPC );
+    POLLOG_ERROR( tmp );
 
     show_context( onPC );
   }
@@ -3888,12 +3964,12 @@ bool Executor::exec()
   passert( prog_ok_ );
   passert( !error_ );
 
-  Clib::scripts_thread_script = scriptname();
+  Clib::script_status.set_script( scriptname() );
 
   set_running_to_completion( true );
   while ( runnable() )
   {
-    Clib::scripts_thread_scriptPC = PC;
+    Clib::script_status.set_pc( PC );
     execInstr();
   }
 

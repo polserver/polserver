@@ -406,6 +406,7 @@ set (pol_sources  # sorted !
   testing/testdecay.cpp
   testing/testenv.cpp
   testing/testenv.h
+  testing/testexecerror.cpp
   testing/testexpansion.cpp
   testing/testipmatch.cpp
   testing/testlocation.cpp

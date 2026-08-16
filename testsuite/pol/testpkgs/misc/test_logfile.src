@@ -1,0 +1,62 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+
+program testlogfile()
+  return 1;
+endprogram
+
+// Covers the log-reading helpers themselves: that flushing makes a line
+// readable straight away, and that a mark really does exclude everything
+// logged before it. Every test asserting on log output rests on those two.
+exported function log_since_reads_only_new_lines()
+  var tag := $"logtest-{GetPid()}-{ReadGameClock()}";
+
+  SysLog( $"{tag}-before" );
+
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  SysLog( $"{tag}-after" );
+
+  var lines := log_since( mark );
+  if ( lines == error )
+    return lines;
+  endif
+
+  var res := assert_log_contains( lines, array{ $"{tag}-after" }, "syslog after the mark" );
+  if ( res != 1 )
+    return res;
+  endif
+
+  if ( log_find( lines, $"{tag}-before" ) )
+    return ret_error( "log_since returned a line that was logged before the mark" );
+  endif
+
+  // The mark is a line count, so it must have moved past the line just read
+  // back.
+  var mark2 := log_mark();
+  if ( mark2 <= mark )
+    return ret_error( $"log_mark did not advance: {mark} -> {mark2}" );
+  endif
+
+  return 1;
+endfunction
+
+// The failure message is the whole value of a log assertion, so check that it
+// names the substring that was missing rather than just failing.
+exported function assert_log_names_missing()
+  var res := assert_log_contains( array{ "first line", "second line" },
+                                  array{ "second", "not logged at all" }, "probe" );
+  if ( res != error )
+    return ret_error( $"assert_log_contains passed on a substring that is absent: {res}" );
+  elseif ( !res.errortext.find( "not logged at all" ) )
+    return ret_error( $"error did not name the missing substring: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction

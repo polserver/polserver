@@ -110,6 +110,7 @@ void uoextension_test();
 void caseinsensitive_compare_test();
 void resolve_test();
 void ipmatch_test();
+void execution_error_format_test();
 void www_test();
 void clibmisc_test();
 void clibutil_test();

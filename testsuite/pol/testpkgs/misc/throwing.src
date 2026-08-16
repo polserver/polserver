@@ -1,0 +1,11 @@
+use uo;
+
+// Throws a C++ exception out of a module function, which the executor's
+// exception handler catches and logs before killing this script. Lives in its
+// own script because that kill lands on whoever makes the call, so a test
+// cannot make it and still be running to assert afterwards.
+program throwing()
+  PolCore().internal( 9 );
+
+  return 1;
+endprogram

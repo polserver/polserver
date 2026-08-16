@@ -1,0 +1,45 @@
+use os;
+use polsys;
+
+include "testutil";
+
+program testexecexception()
+  return 1;
+endprogram
+
+// The executor's exception handler is not reachable from any ordinary script --
+// this layer reports errors by returning an error value rather than by throwing
+// -- so provoking it takes a deliberate throw. What is under test is that the
+// exception is caught there and reported, not the throw itself.
+exported function forced_exception_is_reported()
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  // Runs inline, so by the time this returns the child has already thrown, been
+  // caught and been logged. No waiting, no sleep.
+  Run_Script_To_Completion( ":testmisc:throwing.ecl" );
+
+  var lines := log_since( mark );
+  if ( lines == error )
+    return lines;
+  endif
+
+  // Substrings, never whole lines: the native frames and their addresses move
+  // with every build, and the exception type is spelled "class
+  // std::runtime_error" by MSVC and "std::runtime_error" everywhere else.
+  //
+  // The eScript frame proves the shard env compiles with debug symbols, which
+  // only this layer can show -- the C++ unit test is fed fixed strings. Without
+  // symbols the frame degrades to "at <scriptname>+<pc>", matching neither half
+  // below. The two halves are separate because the .dbg file records the
+  // absolute source path, so name and file never sit in one stable substring;
+  // the line number is left out so editing throwing.src cannot fail this.
+  return assert_log_contains( lines,
+                              array{ "Forced executor exception", "throwing", "runtime_error",
+                                     "eScript stack (innermost first):", "at <program> (",
+                                     "throwing.src:",
+                                     "Native stack (throw site, innermost first):" },
+                              "forced executor exception" );
+endfunction

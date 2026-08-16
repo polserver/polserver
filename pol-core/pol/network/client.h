@@ -200,7 +200,9 @@ public:
 
   const Core::MessageTypeFilter* msgtype_filter;
 
-  int checkpoint;  // CNXBUG
+  // CNXBUG -- progress marker for the stuck-thread watchdog, which reads it from another
+  // thread; advisory, so the SESSION/CLIENT_CHECKPOINT macros store relaxed.
+  std::atomic<int> checkpoint;
 
   mutable Clib::SpinLock _fpLog_lock;
   std::string fpLog;

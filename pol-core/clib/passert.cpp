@@ -32,9 +32,6 @@ bool passert_abort = true;
 bool passert_nosave = false;
 bool passert_shutdown_due_to_assertion = false;
 
-std::string scripts_thread_script;
-unsigned scripts_thread_scriptPC;
-
 #ifdef _WIN32
 void force_backtrace( bool /*complete*/ )
 {

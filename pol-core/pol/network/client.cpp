@@ -64,8 +64,8 @@
 #endif
 
 #ifdef _MSC_VER
-#pragma warning( disable \
-                 : 4351 )  // new behavior: elements of array '...' will be default initialized
+#pragma warning( \
+    disable : 4351 )  // new behavior: elements of array '...' will be default initialized
 #endif
 
 namespace Pol
@@ -467,7 +467,7 @@ std::string Client::status() const
   if ( ready )
     st += "RDY ";
   st += ipaddrAsString() + " ";
-  st += "CHK: " + Clib::tostring( checkpoint ) + " ";
+  st += "CHK: " + Clib::tostring( checkpoint.load( std::memory_order_relaxed ) ) + " ";
   st += "PID: " + Clib::tostring( thread_pid ) + " ";
   st += "LAST: " + Clib::hexint( last_msgtype );
   return st;

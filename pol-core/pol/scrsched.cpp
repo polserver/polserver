@@ -26,6 +26,7 @@
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/refptr.h"
+#include "clib/scriptstatus.h"
 #include "plib/systemstate.h"
 
 #include "pol/globals/script_internals.h"
@@ -293,7 +294,7 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
   ex.setDebugLevel( Bscript::Executor::NONE );
   ex.set_running_to_completion( true );
 
-  Clib::scripts_thread_script = ex.scriptname();
+  Clib::script_status.set_script( ex.scriptname() );
 
   if ( Plib::systemstate.config.report_rtc_scripts )
     INFO_PRINT( "Script {} running..", ex.scriptname() );
@@ -303,7 +304,7 @@ bool run_script_to_completion_worker( UOExecutor& ex, Bscript::EScriptProgram* p
     INFO_PRINT( "." );
     for ( int i = 0; ( i < 1000 ) && ex.runnable(); i++ )
     {
-      Clib::scripts_thread_scriptPC = ex.PC;
+      Clib::script_status.set_pc( ex.PC );
       ex.execInstr();
     }
   }
@@ -362,13 +363,13 @@ Bscript::BObjectImp* run_executor_to_completion( UOExecutor& ex, const ScriptDef
   ex.setDebugLevel( Bscript::Executor::NONE );
   ex.set_running_to_completion( true );
 
-  Clib::scripts_thread_script = ex.scriptname();
+  Clib::script_status.set_script( ex.scriptname() );
 
   int i = 0;
   bool reported = false;
   while ( ex.runnable() )
   {
-    Clib::scripts_thread_scriptPC = ex.PC;
+    Clib::script_status.set_pc( ex.PC );
     ex.execInstr();
     if ( ++i == 1000 )
     {

@@ -52,6 +52,21 @@ class ModuleFunction;
 class String;
 class Token;
 
+// Assembles the report logged when a C++ exception escapes an instruction
+// handler: a header line, the exception text, then the eScript call stack and
+// the native throw-site stack as two separate indented blocks, innermost frame
+// first in both. Either stack may be empty, in which case its heading is
+// omitted rather than left dangling.
+//
+// Pure string handling, and deliberately takes the stacks rather than fetching
+// them: it is the one assembly point for this layout, so the format can be
+// tested without provoking a real exception and the other paths that report a
+// dying script can render through it.
+std::string format_execution_error( const std::string& script, unsigned int pid, size_t pc,
+                                    const std::string& thread_name, const std::string& what,
+                                    const std::string& escript_stack,
+                                    const std::string& native_stack );
+
 class ExecutorDebugListener
 {
 public:
@@ -476,6 +491,15 @@ public:
   // not available, only program counter information will be available, and
   // filename+line+function name will be empty.
   BObjectImp* get_stacktrace( bool as_array );
+
+  // The same stack as get_stacktrace( false ), as one string with a line per
+  // frame, innermost first. Callable from C++ without going through a
+  // BObjectImp, which is what the error paths want.
+  std::string stacktrace_string();
+
+  // Gathers both stacks and renders them through format_execution_error. Never
+  // throws: a failure to collect the detail degrades to a message-only report.
+  std::string execution_error_report( size_t onPC, const std::string& what );
 
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );

@@ -70,11 +70,21 @@ def release_stdout():
 
 
 def game_port_free():
-    """True once nothing is listening on the game port, i.e. the shard is gone."""
+    """True once nothing is listening on the game port, i.e. the shard is gone.
+
+    The bind must use the wildcard address, not 127.0.0.1: POL's game listener binds
+    INADDR_ANY (clib/network/wnsckt.cpp, listen() with loopback_only false), and Windows
+    lets a socket bind a specific address while another holds the wildcard on the same
+    port. A loopback probe therefore succeeds every time, the shard is never seen, and
+    this process runs to its hard deadline instead of exiting with the shard -- which
+    pins shard_test_1 at 540s no matter what POLCORE_TEST_FILTER selects. The webserver
+    probe in deafclient.py is loopback-bound on both ends, so it does not have this
+    problem. Binding rather than connecting is still deliberate: a connection to the game
+    port would make POL build a client for it once a second.
+    """
     probe = socket.socket()
-    probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     try:
-        probe.bind(("127.0.0.1", GAME_PORT))
+        probe.bind(("0.0.0.0", GAME_PORT))
         return True
     except OSError:
         return False

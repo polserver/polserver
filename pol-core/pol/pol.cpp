@@ -75,6 +75,7 @@
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "clib/streamsaver.h"
 #include "clib/threadhelp.h"
@@ -659,7 +660,7 @@ void threadstatus_thread()
       polclock_t now = polclock();
       if ( now >= stateManager.checkin_clock_times_out_at )
       {
-        ERROR_PRINTLN(
+        POLLOG_ERRORLN(
             "########################################################\n"
             "No clock movement in 30 seconds.  Dumping thread status." );
         stateManager.polsig.report_status_signalled = true;
@@ -669,33 +670,61 @@ void threadstatus_thread()
 
     if ( stateManager.polsig.report_status_signalled )
     {
+      // Everything below belongs to another thread. This one only ever reads it, so each
+      // value is an atomic snapshot and the client list -- the only one that is not a single
+      // word, and the only one whose elements can be freed under us -- is read under the
+      // world lock, taken with try_lock so that a shard stuck holding it still gets a report.
       std::string tmp = fmt::format(
           "*Thread Info*\n"
           "Semaphore TID: {}\n",
-          locker );
+          locker.load( std::memory_order_relaxed ) );
 
       if ( Plib::systemstate.config.log_traces_when_stuck )
         Pol::Clib::ExceptionParser::logAllStackTraces();
 
-      fmt::format_to( std::back_inserter( tmp ),
-                      "Scripts Thread Checkpoint: {}\n"
-                      "Last Script: {} PC: {}\n"
-                      "Escript Instruction Cycles: {}\n"
-                      "Tasks Thread Checkpoint: {}\n"
-                      "Active Client Thread Checkpoint: {}\n"
-                      "Number of clients: {}\n",
-                      stateManager.polsig.scripts_thread_checkpoint, Clib::scripts_thread_script,
-                      Clib::scripts_thread_scriptPC, Bscript::escript_instr_cycles,
-                      stateManager.polsig.tasks_thread_checkpoint,
-                      stateManager.polsig.active_client_thread_checkpoint,
-                      Core::networkManager.clients.size() );
-      for ( const auto& client : Core::networkManager.clients )
-        fmt::format_to( std::back_inserter( tmp ), " {} {} {}\n", client->ipaddrAsString(),
-                        client->acct == nullptr ? "prelogin " : client->acct->name(),
-                        client->session()->checkpoint );
-      if ( stateManager.polsig.check_attack_after_move_function_checkpoint )
+      std::string script_name;
+      unsigned script_pc;
+      Clib::script_status.snapshot( script_name, script_pc );
+
+      fmt::format_to(
+          std::back_inserter( tmp ),
+          "Scripts Thread Checkpoint: {}\n"
+          "Last Script: {} PC: {}\n"
+          "Escript Instruction Cycles: {}\n"
+          "Tasks Thread Checkpoint: {}\n"
+          "Active Client Thread Checkpoint: {}\n",
+          stateManager.polsig.scripts_thread_checkpoint.load( std::memory_order_relaxed ),
+          script_name, script_pc, Bscript::escript_instr_cycles.load( std::memory_order_relaxed ),
+          stateManager.polsig.tasks_thread_checkpoint.load( std::memory_order_relaxed ),
+          stateManager.polsig.active_client_thread_checkpoint.load( std::memory_order_relaxed ) );
+
+      {
+        // Half a second of retrying: a busy shard hands the lock over many times in that
+        // window, a wedged one never does, and this report runs at most once a second.
+        PolLockTry lck( 500 );
+        if ( !lck.locked() )
+        {
+          // The stuck case: whoever is wedged is usually the holder, and the Semaphore TID
+          // above names them. Blocking here to list clients would wedge the report too.
+          tmp += "Clients: (world lock held for 500ms, list not read)\n";
+        }
+        else
+        {
+          fmt::format_to( std::back_inserter( tmp ), "Number of clients: {}\n",
+                          Core::networkManager.clients.size() );
+          for ( const auto& client : Core::networkManager.clients )
+            fmt::format_to( std::back_inserter( tmp ), " {} {} {}\n", client->ipaddrAsString(),
+                            client->acct == nullptr ? "prelogin " : client->acct->name(),
+                            client->session()->checkpoint.load( std::memory_order_relaxed ) );
+        }
+      }
+
+      unsigned attack_checkpoint =
+          stateManager.polsig.check_attack_after_move_function_checkpoint.load(
+              std::memory_order_relaxed );
+      if ( attack_checkpoint )
         fmt::format_to( std::back_inserter( tmp ), "check_attack_after_move() Checkpoint: {}\n",
-                        stateManager.polsig.check_attack_after_move_function_checkpoint );
+                        attack_checkpoint );
       tmp += "Current Threads:\n";
       ThreadMap::Contents contents;
       threadmap_instance().CopyContents( contents );
@@ -709,7 +738,12 @@ void threadstatus_thread()
                       "Registered threads (ThreadMap): {}",
                       threadhelp::child_threads, contents.size() );
       stateManager.polsig.report_status_signalled = false;
-      ERROR_PRINTLN( tmp );
+      // pol.log as well as the console: this report exists to be read after the fact, and
+      // ERROR_PRINTLN is stderr only -- so on any shard run as a service or with output
+      // redirected it has never been recoverable at all. Single argument, so it takes the
+      // runtime-string overload and is sent verbatim: it is a report, not a format string,
+      // and account names and script paths in it may contain braces.
+      POLLOG_ERRORLN( tmp );
     }
     if ( Clib::exit_signalled )
     {

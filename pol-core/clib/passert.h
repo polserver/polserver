@@ -35,9 +35,6 @@ extern bool passert_abort;
 extern bool passert_nosave;
 extern bool passert_shutdown_due_to_assertion;
 
-extern std::string scripts_thread_script;
-extern unsigned scripts_thread_scriptPC;
-
 // #if !defined(INC_PASSERT) && defined(NDEBUG)
 // #define INC_PASSERT 0
 // #elif !defined(INC_PASSERT) && !defined(NDEBUG)
