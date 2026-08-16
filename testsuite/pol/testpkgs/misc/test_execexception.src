@@ -1,0 +1,31 @@
+use os;
+use polsys;
+
+include "testutil";
+
+program testexecexception()
+  return 1;
+endprogram
+
+// The executor's exception handler is not reachable from any ordinary script --
+// this layer reports errors by returning an error value rather than by throwing
+// -- so provoking it takes a deliberate throw. What is under test is that the
+// exception is caught there and reported, not the throw itself.
+exported function forced_exception_is_reported()
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  // Runs inline, so by the time this returns the child has already thrown, been
+  // caught and been logged. No waiting, no sleep.
+  Run_Script_To_Completion( ":testmisc:throwing.ecl" );
+
+  var lines := log_since( mark );
+  if ( lines == error )
+    return lines;
+  endif
+
+  return assert_log_contains( lines, array{ "Forced executor exception", "throwing" },
+                              "forced executor exception" );
+endfunction

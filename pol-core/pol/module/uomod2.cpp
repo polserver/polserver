@@ -36,6 +36,7 @@
 #include <optional>
 #include <ranges>
 #include <stddef.h>
+#include <stdexcept>
 #include <string>
 
 #include "bscript/barray.h"
@@ -2103,6 +2104,14 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       else if ( type == 7 )
       {
         Core::objStorageManager.objecthash.Clear( false );
+      }
+      else if ( type == 9 )
+      {
+        // Reaches the executor's exception handler, which nothing else here can:
+        // this layer reports errors by returning a BError rather than by
+        // throwing, so that handler is only ever entered by something
+        // unanticipated. Exercising it at all takes a deliberate throw.
+        throw std::runtime_error( "Forced executor exception" );
       }
       else if ( type == 8 )
       {
