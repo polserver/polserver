@@ -1,0 +1,427 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// The small dialogs: a text entry, the dye window, the resurrect menu and the race changer.
+// The first three block the script that opens them until the client answers, and the answer is
+// what the call returns - so every case here arms the client first and then asks for the dialog.
+//
+// The core is strict about the shape of a text entry reply and answers a plain 0 for anything it
+// does not like. A real client never sends those shapes, which is why none of them had run.
+
+var char;
+var clientcon := getClientConnection();
+
+program dialogtests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// Arms the answer the next dialog of that kind gets. The ack has to be waited for: the todo
+// travels the test connection while the dialog comes down the game socket.
+function arm_dialog( kind, reply )
+  Clear_Event_Queue();
+  reply.+kind := kind;
+  clientcon.sendevent( struct{ todo := EVT_DIALOG_REPLY, arg := reply, id := 0 } );
+  var ev := waitForClient( 0, { EVT_DIALOG_REPLY } );
+  if ( !ev )
+    return ret_error( $"the client never acknowledged the armed {kind} reply" );
+  endif
+  return 1;
+endfunction
+
+// Parks one of the blocking dialogs on a script of its own and leaves it there, because a script
+// blocked on a dialog cannot ask for a second one itself. The client is armed to leave it
+// unanswered first; the holding script is cleaned up with the rest of the test's resources.
+function hold_dialog( resmgr, kind, arrival, item := 0 )
+  var armed := arm_dialog( kind, struct{ skip := 1 } );
+  if ( !armed )
+    return armed;
+  endif
+  var args := struct{ parent := GetProcess(), chr := char, kind := kind, item := item };
+  var waiter := resmgr.Start_Script( ":TestClient:dialogwaiter.ecl", args );
+  if ( !waiter )
+    return waiter;
+  endif
+  var ev := Wait_For_Event( 10 );
+  if ( !ev )
+    return ret_error( $"the script holding the {kind} dialog did not report in" );
+  endif
+  if ( !waitForClient( 0, { arrival } ) )
+    return ret_error( $"the held {kind} dialog never reached the client" );
+  endif
+  return 1;
+endfunction
+
+function textentry_answered_with( reply )
+  var armed := arm_dialog( DIALOG_TEXTENTRY, reply );
+  if ( !armed )
+    return armed;
+  endif
+  return SendTextEntryGump( char, "prompt" );
+endfunction
+
+exported function textentry_answer()
+  var res := textentry_answered_with( struct{ text := "typed" } );
+  if ( res != "typed" )
+    return ret_error( $"the typed line came back as {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_TEXT_ENTRY } );
+  if ( !ev )
+    return ret_error( "the client never saw the dialog" );
+  endif
+  if ( ev.text != "prompt" )
+    return ret_error( $"the prompt arrived as \"{ev.text}\"" );
+  endif
+  // The defaults of the .em declaration, which nothing else pins.
+  if ( ev.cancel != TE_CANCEL_ENABLE || ev.style != TE_STYLE_NORMAL || ev.maximum != 40 )
+    return ret_error( $"wrong dialog options: {ev}" );
+  endif
+  return 1;
+endfunction
+
+exported function textentry_options()
+  // A second line, and every option set away from its default.
+  var armed := arm_dialog( DIALOG_TEXTENTRY, struct{ text := "x" } );
+  if ( !armed )
+    return armed;
+  endif
+  var res := SendTextEntryGump( char, "one", TE_CANCEL_DISABLE, TE_STYLE_NUMERICAL, 7, "two" );
+  if ( res != "x" )
+    return ret_error( $"the typed line came back as {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_TEXT_ENTRY } );
+  if ( !ev )
+    return ret_error( "the client never saw the dialog" );
+  endif
+  if ( ev.text != "one" || ev.text2 != "two" )
+    return ret_error( $"wrong dialog texts: {ev}" );
+  endif
+  if ( ev.cancel != TE_CANCEL_DISABLE || ev.style != TE_STYLE_NUMERICAL || ev.maximum != 7 )
+    return ret_error( $"wrong dialog options: {ev}" );
+  endif
+  return 1;
+endfunction
+
+exported function textentry_cancel()
+  // A cancelled dialog is a plain 0, not an error and not an empty string.
+  var res := textentry_answered_with( struct{ retcode := 0, text := "ignored" } );
+  if ( res != 0 )
+    return ret_error( $"a cancelled dialog answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function textentry_malformed_replies()
+  // Every shape the core refuses answers the same plain 0, so each is asserted on its own.
+  var res := textentry_answered_with( struct{ text := "abc", terminated := 0 } );
+  if ( res != 0 )
+    return ret_error( $"a reply with no terminator answered {res}" );
+  endif
+
+  res := textentry_answered_with( struct{ text := "", terminated := 0 } );
+  if ( res != 0 )
+    return ret_error( $"a reply of no bytes at all answered {res}" );
+  endif
+
+  // 300 characters and a terminator, where the core stops reading at 256.
+  var big_text := "x";
+  for i := 1 to 300
+    big_text := big_text + "x";
+  endfor
+  res := textentry_answered_with( struct{ text := big_text } );
+  if ( res != 0 )
+    return ret_error( $"an over-long reply answered {res}" );
+  endif
+
+  // Printable is checked character by character, so one control character loses the whole line.
+  // The byte has to be handed over as a number: a control character does not survive the JSON
+  // the test connection carries, and arrives as a line the core is perfectly happy with.
+  res := textentry_answered_with( struct{ raw := { 97, 1, 98 } } );
+  if ( res != 0 )
+    return ret_error( $"a reply with a control character answered {res}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function textentry_busy( resmgr )
+  // A second dialog while one is pending.
+  var held := hold_dialog( resmgr, DIALOG_TEXTENTRY, EVT_TEXT_ENTRY );
+  if ( !held )
+    return held;
+  endif
+
+  var res := SendTextEntryGump( char, "second" );
+  if ( res )
+    return ret_error( $"a second text entry dialog was accepted: {res}" );
+  endif
+  if ( res.errortext != "Client busy with another textentry dialog" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function textentry_param_errors( resmgr )
+  var res := SendTextEntryGump( "blubb", "prompt" );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  res := SendTextEntryGump( char, 5 );
+  if ( res )
+    return ret_error( "succeeded given a number as the prompt" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 53, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendTextEntryGump( npc, "prompt" );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+function color_answered_with( reply, item )
+  var armed := arm_dialog( DIALOG_COLOR, reply );
+  if ( !armed )
+    return armed;
+  endif
+  return SelectColor( char, item );
+endfunction
+
+exported function selectcolor_picked( resmgr )
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  var res := color_answered_with( struct{ color := 500 }, item );
+  if ( res != 500 )
+    return ret_error( $"the picked colour came back as {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_SELECT_COLOR } );
+  if ( !ev )
+    return ret_error( "the client never saw the dye window" );
+  endif
+  if ( ev.serial != item.serial )
+    return ret_error( $"the dye window named 0x{ev.serial:x}, expected 0x{item.serial:x}" );
+  endif
+  if ( ev.graphic != item.graphic )
+    return ret_error( $"the dye window showed graphic 0x{ev.graphic:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function selectcolor_out_of_range( resmgr )
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  // Only 2..1001 are accepted, and a colour outside that is an error rather than a number.
+  var res := color_answered_with( struct{ color := 1500 }, item );
+  if ( res )
+    return ret_error( $"an out-of-range colour was accepted: {res}" );
+  endif
+  if ( res.errortext != "Client selected an out-of-range color" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+
+  res := color_answered_with( struct{ color := 1 }, item );
+  if ( res )
+    return ret_error( $"colour 1 was accepted: {res}" );
+  endif
+
+  // The colour is masked before it is judged, so the high bits of this one are dropped and what
+  // is left is in range - the script is told 5, not what the client actually sent.
+  res := color_answered_with( struct{ color := 0x8005 }, item );
+  if ( res != 5 )
+    return ret_error( $"a masked colour came back as {res}, expected 5" );
+  endif
+  return 1;
+endfunction
+
+exported function selectcolor_param_errors( resmgr )
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  var res := SelectColor( "blubb", item );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  res := SelectColor( char, char );
+  if ( res )
+    return ret_error( "succeeded given a character as the item" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 54, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SelectColor( npc, item );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+function instares_answered_with( reply )
+  var armed := arm_dialog( DIALOG_RESURRECT, reply );
+  if ( !armed )
+    return armed;
+  endif
+  return SendInstaResDialog( char );
+endfunction
+
+exported function instares_choice()
+  // Whatever the player picked is handed straight back, and the menu the client was shown is
+  // the one that asks rather than one of the answers.
+  var res := instares_answered_with( struct{ choice := 1 } );
+  if ( res != 1 )
+    return ret_error( $"choosing to resurrect answered {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_RESURRECT_MENU } );
+  if ( !ev )
+    return ret_error( "the client never saw the menu" );
+  endif
+  if ( ev.choice != 0 )
+    return ret_error( $"the menu arrived as choice {ev.choice}, expected the 0 that asks" );
+  endif
+
+  res := instares_answered_with( struct{ choice := 2 } );
+  if ( res != 2 )
+    return ret_error( $"choosing to stay a ghost answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function instares_busy( resmgr )
+  // A pending resurrect dialog refuses a second one, and refuses nothing else: the colour pick
+  // has a dialog of its own to be busy with, and used to be turned away by this one.
+  var held := hold_dialog( resmgr, DIALOG_RESURRECT, EVT_RESURRECT_MENU );
+  if ( !held )
+    return held;
+  endif
+
+  var res := SendInstaResDialog( char );
+  if ( res )
+    return ret_error( $"a second resurrect dialog was accepted: {res}" );
+  endif
+  if ( res.errortext != "Client busy with another instares dialog" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+  res := color_answered_with( struct{ color := 500 }, item );
+  if ( res != 500 )
+    return ret_error( $"a colour pick with a resurrect dialog pending answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function selectcolor_busy( resmgr )
+  // Two colour picks at once. The second is refused, which is what the message has always said
+  // and what it now checks.
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+  var held := hold_dialog( resmgr, DIALOG_COLOR, EVT_SELECT_COLOR, item );
+  if ( !held )
+    return held;
+  endif
+
+  var res := SelectColor( char, item );
+  if ( res )
+    return ret_error( $"a second colour pick was accepted: {res}" );
+  endif
+  if ( res.errortext != "Client is already selecting a color" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function instares_param_errors( resmgr )
+  var res := SendInstaResDialog( "blubb" );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 55, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendInstaResDialog( npc );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function race_changer_opens()
+  // Nothing blocks on this one: it answers 1 straight away and the client is left holding the
+  // dialog. The reply has a test of its own in test_client_racechange.src, which drives it
+  // without the server ever having offered it.
+  Clear_Event_Queue();
+  var res := SendCharacterRaceChanger( char );
+  if ( res != 1 )
+    return ret_error( $"SendCharacterRaceChanger answered {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_RACE_CHANGER } );
+  if ( !ev )
+    return ret_error( "the client never saw the race changer" );
+  endif
+  if ( ev.gender != char.gender )
+    return ret_error( $"the race changer carried gender {ev.gender}, expected {char.gender}" );
+  endif
+  // The race is sent counted from one, so it never matches the character's own value.
+  if ( ev.race != char.race + 1 )
+    return ret_error( $"the race changer carried race {ev.race}, expected {char.race} plus one" );
+  endif
+  return 1;
+endfunction
+
+exported function race_changer_param_errors()
+  var res := SendCharacterRaceChanger( "blubb" );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+  return 1;
+endfunction

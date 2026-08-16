@@ -184,6 +184,15 @@ class Event:
   EVT_OUT_OF_RANGE_OBJ = 29
   EVT_OBJ_REVISION = 30
   EVT_EFFECT = 31
+  EVT_CLOSE_WINDOW = 32
+  EVT_TEXT_ENTRY = 33
+  EVT_SELECT_COLOR = 34
+  EVT_RESURRECT_MENU = 35
+  EVT_RACE_CHANGER = 36
+  EVT_BOOK = 37
+  EVT_BOOK_PAGE = 38
+  EVT_POPUP = 39
+  EVT_VENDOR_SELL_LIST = 40
 
   EVT_EXIT = 100
   EVT_LIST_OBJS = 101
@@ -203,6 +212,8 @@ class Event:
   EVT_BUY_ITEMS = 115
   EVT_SELL_ITEMS = 116
   EVT_RACE_CHANGE = 117
+  EVT_GUMP_REPLY = 118
+  EVT_DIALOG_REPLY = 119
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -241,6 +252,28 @@ class Event:
       return "obj_revision"
     elif self.type==Event.EVT_EFFECT:
       return "effect"
+    elif self.type==Event.EVT_CLOSE_WINDOW:
+      return "close_window"
+    elif self.type==Event.EVT_GUMP_REPLY:
+      return "gump_reply"
+    elif self.type==Event.EVT_DIALOG_REPLY:
+      return "dialog_reply"
+    elif self.type==Event.EVT_TEXT_ENTRY:
+      return "text_entry"
+    elif self.type==Event.EVT_SELECT_COLOR:
+      return "select_color"
+    elif self.type==Event.EVT_RESURRECT_MENU:
+      return "resurrect_menu"
+    elif self.type==Event.EVT_RACE_CHANGER:
+      return "race_changer"
+    elif self.type==Event.EVT_BOOK:
+      return "book"
+    elif self.type==Event.EVT_BOOK_PAGE:
+      return "book_page"
+    elif self.type==Event.EVT_POPUP:
+      return "popup"
+    elif self.type==Event.EVT_VENDOR_SELL_LIST:
+      return "vendor_sell_list"
     elif self.type==Event.EVT_EXIT:
       return "exit"
     elif self.type==Event.EVT_LIST_OBJS:

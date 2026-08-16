@@ -1,0 +1,132 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// CloseWindow: the server shutting one of the client's own windows. It is a single 0xBF 0x16
+// packet with a window kind and the object the window belongs to, and the core's only work is
+// deciding whether that object is of a kind that window can be about.
+
+var char;
+var clientcon := getClientConnection();
+
+program windowtests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+function assert_closed( windowtype, obj, what )
+  Clear_Event_Queue();
+  var res := CloseWindow( char, windowtype, obj );
+  if ( !res )
+    return ret_error( $"closing {what} was refused: {res.errortext}" );
+  endif
+  var ev := waitForClient( 0, { EVT_CLOSE_WINDOW } );
+  if ( !ev )
+    return ret_error( $"the client was not told to close {what}" );
+  endif
+  if ( ev.windowtype != windowtype )
+    return ret_error( $"closing {what} arrived as window type {ev.windowtype}" );
+  endif
+  if ( ev.serial != obj.serial )
+    return ret_error( $"closing {what} named 0x{ev.serial:x}, expected 0x{obj.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function close_window_mobile_kinds()
+  // The three kinds that are about a mobile. Each is sent for the character's own windows, which
+  // is the only object a client has all three of.
+  var res := assert_closed( CLOSE_PAPERDOLL, char, "a paperdoll" );
+  if ( !res )
+    return res;
+  endif
+  res := assert_closed( CLOSE_STATUS, char, "a status bar" );
+  if ( !res )
+    return res;
+  endif
+  return assert_closed( CLOSE_PROFILE, char, "a profile" );
+endfunction
+
+exported function close_window_container( resmgr )
+  var cont := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !cont )
+    return ret_error( $"failed to create the container: {cont}" );
+  endif
+  return assert_closed( CLOSE_CONTAINER, cont, "a container" );
+endfunction
+
+exported function close_window_wrong_object( resmgr )
+  // Each window kind insists on the kind of object it can be about, and says which.
+  var res := CloseWindow( char, CLOSE_CONTAINER, char );
+  if ( res )
+    return ret_error( "closed a container window on a character" );
+  endif
+  if ( res.errortext != "Invalid object, has to be a containerRef" )
+    return ret_error( $"unexpected error for a character container: {res.errortext}" );
+  endif
+
+  var cont := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !cont )
+    return ret_error( $"failed to create the container: {cont}" );
+  endif
+  res := CloseWindow( char, CLOSE_PAPERDOLL, cont );
+  if ( res )
+    return ret_error( "closed a paperdoll on an item" );
+  endif
+  if ( res.errortext != "Invalid object, has to be a mobRef" )
+    return ret_error( $"unexpected error for an item paperdoll: {res.errortext}" );
+  endif
+
+  // A container is not a mobile for the other two kinds either.
+  res := CloseWindow( char, CLOSE_STATUS, cont );
+  if ( res )
+    return ret_error( "closed a status bar on an item" );
+  endif
+
+  return 1;
+endfunction
+
+exported function close_window_bad_params( resmgr )
+  // Anything that is not one of the four kinds, whatever it is sent about.
+  var res := CloseWindow( char, 3, char );
+  if ( res )
+    return ret_error( "accepted an unknown window type" );
+  endif
+  if ( res.errortext != "Invalid type" )
+    return ret_error( $"unexpected error for window type 3: {res.errortext}" );
+  endif
+
+  res := CloseWindow( char, 0, char );
+  if ( res )
+    return ret_error( "accepted window type 0" );
+  endif
+
+  res := CloseWindow( "blubb", CLOSE_PAPERDOLL, char );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 52, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := CloseWindow( npc, CLOSE_PAPERDOLL, npc );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction

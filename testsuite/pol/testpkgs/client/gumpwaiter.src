@@ -1,0 +1,16 @@
+use uo;
+use os;
+
+// Holds a gump open on behalf of a test function.
+//
+// SendDialogGump blocks the script that calls it until the gump is answered, so a test cannot
+// both open one and close it from outside - the close has to come from somewhere else. This
+// opens a gump the client will not answer ("no_close" keeps pyuo from replying) and reports
+// what CloseGump woke it up with.
+program gumpwaiter( args )
+  var { parent, chr, gumpid } := args;
+
+  parent.SendEvent( struct{ opened := gumpid } );
+  var res := SendDialogGump( chr, { "no_close" }, { "held" }, gumpid := gumpid );
+  parent.SendEvent( struct{ closed := res } );
+endprogram

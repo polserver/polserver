@@ -301,3 +301,43 @@ exported function test_logged_in()
   return ret_error_not_equal( char.logged_in, 1, $"Character should be logged_in, got {char.logged_in} expected 1" );
 endfunction
 
+exported function send_status( resmgr )
+  // A status bar arrives on its own for plenty of reasons, so this waits for a quiet queue
+  // rather than emptying it.
+  drain_events();
+  var res := SendStatus( char );
+  if ( res != 1 )
+    return ret_error( $"SendStatus answered {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_STATUS_BAR } );
+  if ( !ev )
+    return ret_error( "the client was sent no status bar" );
+  endif
+  if ( ev.serial != char.serial )
+    return ret_error( $"the status bar named 0x{ev.serial:x}, expected 0x{char.serial:x}" );
+  endif
+  if ( ev.name != char.name )
+    return ret_error( $"the status bar carried the name \"{ev.name}\"" );
+  endif
+
+  res := SendStatus( "blubb" );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 56, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendStatus( npc );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction

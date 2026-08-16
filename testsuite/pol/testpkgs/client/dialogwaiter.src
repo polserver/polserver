@@ -1,0 +1,27 @@
+use uo;
+use os;
+
+// Holds one of the small dialogs open on behalf of a test function.
+//
+// Each of them blocks the script that opened it until the client answers, so a test cannot both
+// have one pending and ask for a second - the first has to belong to somebody else. The client
+// is armed to leave this one unanswered before this script is started; it therefore stays parked
+// here until the resource manager kills it.
+program dialogwaiter( args )
+  var { parent, chr, kind, item } := args;
+
+  parent.SendEvent( struct{ opened := kind } );
+
+  var res := 0;
+  if ( kind == "textentry" )
+    res := SendTextEntryGump( chr, "held" );
+  elseif ( kind == "resurrect" )
+    res := SendInstaResDialog( chr );
+  elseif ( kind == "color" )
+    res := SelectColor( chr, item );
+  elseif ( kind == "popup" )
+    res := SendPopUpMenu( chr, item, { 3000100 } );
+  endif
+
+  parent.SendEvent( struct{ answered := res } );
+endprogram

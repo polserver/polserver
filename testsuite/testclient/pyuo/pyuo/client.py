@@ -634,6 +634,9 @@ class Client(threading.Thread):
     self.auto_delete_objs = True
 
     self.gumps=[] # open gumps
+    self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
+    # armed by the dialog_reply todo, keyed by dialog kind, consumed by the next one of that kind
+    self.next_dialog_reply={}
 
     ## Serial of the mobile currently traded with, None when not trading
     self.trade = None
@@ -1055,16 +1058,25 @@ class Client(threading.Thread):
       pass
     elif isinstance(pkt, packets.StatusBarInfoPacket):
       self.handleStatusBar(pkt)
-    elif isinstance(pkt, packets.CompressedGumpPacket):
-      has_button = any(['button' in c for c in pkt.commands])
-      no_close = any(['no_close' in c for c in pkt.commands])
-      if not no_close:
-        po = packets.CloseGumpResponsePacket()
-        po.fill(pkt.serial, pkt.gumpid,1 if has_button else 0)
-        self.queue(po)
-      else:
-        self.gumps.append(pkt.gumpid)
-      self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+    elif isinstance(pkt, (packets.CompressedGumpPacket, packets.SendGumpDialogPacket)):
+      self.handleGump(pkt)
+    elif isinstance(pkt, packets.VendorSellListPacket):
+      self.brain.event(brain.Event(brain.Event.EVT_VENDOR_SELL_LIST, serial=pkt.serial,
+        items=pkt.items))
+    elif isinstance(pkt, packets.OpenBookPacket):
+      # A book the server opened. Its pages follow in their own packet, and only if it can be
+      # written in - a read-only book is expected to be turned page by page.
+      self.brain.event(brain.Event(brain.Event.EVT_BOOK, serial=pkt.serial, title=pkt.title,
+        author=pkt.author, writable=pkt.writable, npages=pkt.npages))
+    elif isinstance(pkt, packets.BookPagePacket):
+      self.brain.event(brain.Event(brain.Event.EVT_BOOK_PAGE, serial=pkt.serial, pages=pkt.pages,
+        pagedata=[[page, lines] for page, lines in pkt.pagedata]))
+    elif isinstance(pkt, packets.TextEntryGumpPacket):
+      self.handleTextEntry(pkt)
+    elif isinstance(pkt, packets.SelectColorPacket):
+      self.handleSelectColor(pkt)
+    elif isinstance(pkt, packets.ResurrectMenuPacket):
+      self.handleResurrectMenu(pkt)
     elif isinstance(pkt, packets.WornItemPacket):
       self.handleWornItemPacket(pkt)
       self.log.info("wornitem item: %s mobile: %s", self.objects[pkt.serial], self.objects[pkt.mobile])
@@ -1312,6 +1324,102 @@ class Client(threading.Thread):
 
   @status('game')
   @clientthread
+  def handleGump(self, pkt):
+    ''' A gump the server opened, compressed (0xdd) or not (0xb0): both carry the same
+    layout commands and text lines, so both are answered the same way.
+
+    The reply is normally decided by the gump itself - a layout mentioning "button" is
+    answered with button 1, one mentioning "no_close" is not answered at all and is kept
+    open for a later CloseGump. A test that needs more than that arms the next reply with
+    the gump_reply todo first, and that armed reply wins over both.
+    '''
+    reply = self.next_gump_reply
+    self.next_gump_reply = None
+    if reply is not None:
+      po = packets.CloseGumpResponsePacket()
+      po.fill(pkt.serial, pkt.gumpid, reply.get('button', 0),
+              switches = reply.get('switches', None), texts = reply.get('texts', None),
+              short = reply.get('short', False),
+              claim_switches = reply.get('claim_switches', None),
+              claim_texts = reply.get('claim_texts', None))
+      self.queue(po)
+    else:
+      has_button = any(['button' in c for c in pkt.commands])
+      no_close = any(['no_close' in c for c in pkt.commands])
+      if not no_close:
+        po = packets.CloseGumpResponsePacket()
+        po.fill(pkt.serial, pkt.gumpid,1 if has_button else 0)
+        self.queue(po)
+      else:
+        self.gumps.append(pkt.gumpid)
+    self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+
+  @status('game')
+  @clientthread
+  def handlePopup(self, pkt):
+    ''' A pop-up menu. The script that opened it is blocked until an entry is picked, so the
+    first one is picked unless the test armed something else. A tag of 0, or a serial that is
+    not the object the menu is above, are both answers the core treats as no answer at all. '''
+    reply = self.next_dialog_reply.pop('popup', {})
+    if not reply.get('skip', 0):
+      tag = reply.get('tag', pkt.entries[0][0] if pkt.entries else 0)
+      self.popupSelect(reply.get('serial', pkt.serial), tag)
+    self.brain.event(brain.Event(brain.Event.EVT_POPUP, serial=pkt.serial, format=pkt.format,
+      entries=pkt.entries))
+
+  @status('game')
+  @clientthread
+  def handleTextEntry(self, pkt):
+    ''' A text entry dialog. The script that opened it is blocked until this is answered, so
+    there is always a reply - "ok" unless the test armed something else. '''
+    reply = self.next_dialog_reply.pop('textentry', {})
+    if reply.get('skip', 0):
+      # Left unanswered on purpose, which parks the script that opened it - the only way to
+      # have one of these already pending when the next is asked for.
+      self.brain.event(brain.Event(brain.Event.EVT_TEXT_ENTRY, text=pkt.text, text2=pkt.text2,
+        cancel=pkt.cancel, style=pkt.style, maximum=pkt.maximum))
+      return
+    po = packets.TextEntryResponsePacket()
+    po.fill(pkt.serial, reply.get('text', 'ok'),
+            retcode = reply.get('retcode', packets.TextEntryResponsePacket.RETCODE_OKAY),
+            terminated = bool(reply.get('terminated', 1)),
+            claim_datalen = reply.get('claim_datalen', None),
+            raw = reply.get('raw', None))
+    self.queue(po)
+    self.brain.event(brain.Event(brain.Event.EVT_TEXT_ENTRY, text=pkt.text, text2=pkt.text2,
+      cancel=pkt.cancel, style=pkt.style, maximum=pkt.maximum))
+
+  @status('game')
+  @clientthread
+  def handleSelectColor(self, pkt):
+    ''' The dye window, answered with a colour inside the range the core accepts unless the
+    test armed one outside it. '''
+    reply = self.next_dialog_reply.pop('color', {})
+    if reply.get('skip', 0):
+      self.brain.event(brain.Event(brain.Event.EVT_SELECT_COLOR, serial=pkt.serial,
+        graphic=pkt.graphic))
+      return
+    po = packets.SelectColorPacket()
+    po.fill(pkt.serial, reply.get('color', 5))
+    self.queue(po)
+    self.brain.event(brain.Event(brain.Event.EVT_SELECT_COLOR, serial=pkt.serial,
+      graphic=pkt.graphic))
+
+  @status('game')
+  @clientthread
+  def handleResurrectMenu(self, pkt):
+    ''' The resurrect menu, answered with the choice the test armed. '''
+    reply = self.next_dialog_reply.pop('resurrect', {})
+    if reply.get('skip', 0):
+      self.brain.event(brain.Event(brain.Event.EVT_RESURRECT_MENU, choice=pkt.choice))
+      return
+    po = packets.ResurrectMenuPacket()
+    po.fill(reply.get('choice', packets.ResurrectMenuPacket.CHOICE_INSTARES))
+    self.queue(po)
+    self.brain.event(brain.Event(brain.Event.EVT_RESURRECT_MENU, choice=pkt.choice))
+
+  @status('game')
+  @clientthread
   def handleStatusBar(self, pkt):
     # Creating a character brings a status bar in before the login is complete - the new character
     # is given its vitals while it is still being dressed - so this one is not gated on the login
@@ -1362,6 +1470,16 @@ class Client(threading.Thread):
         self.brain.event(brain.Event(brain.Event.EVT_GUMP, gumpid=pkt.gumpid,buttonid=pkt.buttonid))
       else:
         self.log.warn(f"non-open gumpid {pkt.gumpid} should close")
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_POPUP_DISPLAY:
+      self.handlePopup(pkt)
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEWINDOW:
+      self.brain.event(brain.Event(brain.Event.EVT_CLOSE_WINDOW,
+        windowtype=pkt.windowtype, serial=pkt.serial))
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_RACECHANGER:
+      # The server offering the race changer. Nothing is blocked on it - the answer is a
+      # race_change todo whenever the test is ready to send one.
+      self.brain.event(brain.Event(brain.Event.EVT_RACE_CHANGER,
+        gender=pkt.gender, race=pkt.race))
     else:
       self.log.warn("Unhandled GeneralInfo subpacket 0x%X", pkt.sub)
 
@@ -1592,6 +1710,41 @@ class Client(threading.Thread):
     '''
     po = packets.SecureTradingPacket()
     po.fill(action, self.player.tradecont.serial if self.player.tradecont else 0, flag)
+    self.queue(po)
+
+  @logincomplete
+  def gumpReply(self, gumpid, button=0, serial=None, **kwargs):
+    ''' Answers a gump straight away, without one having to be open.
+
+    @param gumpid int: the gump being answered, which the server is free not to know
+    @param serial int: whose gump it is, the player by default
+    @see packets.CloseGumpResponsePacket.fill for the rest
+    '''
+    po = packets.CloseGumpResponsePacket()
+    po.fill(self.player.serial if serial is None else serial, gumpid, button, **kwargs)
+    self.queue(po)
+
+  @logincomplete
+  def popupSelect(self, serial, entry_tag):
+    ''' Picks an entry of a pop-up menu, or answers nothing with a tag of 0 '''
+    po = packets.GeneralInfoPacket()
+    po.fill(po.SUB_POPUP_SELECT, serial, entry_tag)
+    self.queue(po)
+
+  @logincomplete
+  def bookPage(self, serial, page, lines=None):
+    '''! Asks for a page of a book, or writes one
+    @param lines list: the lines to write, or None to ask for the page instead
+    '''
+    po = packets.BookPagePacket()
+    po.fill(serial, page, lines)
+    self.queue(po)
+
+  @logincomplete
+  def bookTitle(self, serial, title, author):
+    ''' Writes a book's title and author back to the server '''
+    po = packets.OpenBookPacket()
+    po.fill(serial, title, author)
     self.queue(po)
 
   @logincomplete
