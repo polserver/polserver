@@ -798,8 +798,6 @@ void console_thread()
 
 void start_threads()
 {
-  threadmap_instance().Register( thread_pid(), "Main" );
-
   if ( Plib::systemstate.config.web_server )
     start_http_server();
 
@@ -945,6 +943,11 @@ const char* Use_low_fragmentation_Heap()
 
 int xmain_inner( bool testing )
 {
+  // Name this thread before anything can fail. Startup - reading the configuration, loading
+  // the world, running the start scripts - is where a misconfigured shard crashes, and until
+  // this ran inside start_threads() every one of those reports said "unnamed".
+  Pol::threadhelp::threadmap_instance().Register( Pol::threadhelp::thread_pid(), "Main" );
+
 #ifdef _WIN32
   Clib::MiniDumper::Initialize();
   // Aug. 15, 2006 Austin
@@ -1051,6 +1054,9 @@ int xmain_inner( bool testing )
 
   Core::checkpoint( "initializing IPC structures" );
   Core::init_ipc_vars();
+  // Hand the crash report the world lock's owner. Only the server has one, so it is published
+  // from here rather than reached for from clib.
+  Clib::ExceptionParser::registerWorldLockOwner( &Core::locker );
   threadhelp::init_threadhelp();
 
 #ifdef _WIN32

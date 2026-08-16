@@ -2,6 +2,7 @@
 
 #include "clib/Program/ProgramConfig.h"
 #include "clib/logfacility.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "clib/threadhelp.h"
 #include <pol_global_config.h>
@@ -41,6 +42,7 @@ using namespace std;
 
 ///////////////////////////////////////////////////////////////////////////////
 
+std::atomic<const std::atomic<size_t>*> ExceptionParser::m_worldLockOwner{ nullptr };
 bool ExceptionParser::m_programAbortReporting = false;
 std::string ExceptionParser::m_programAbortReportingServer = "";
 std::string ExceptionParser::m_programAbortReportingUrl = "";
@@ -370,6 +372,29 @@ void ExceptionParser::reportProgramAbort( const string& stackTrace, const string
   doHttpPOST( host, url, content );
 }
 
+namespace
+{
+// The script this thread was last known to be running, for a report to print beside its
+// native trace. Taken with the non-blocking snapshot: a report that waits on a lock held by
+// the very thread it describes has traded the report for a hang.
+//
+// "Last" is meant literally -- nothing clears the value when a script finishes, so this can
+// name a script the thread has already moved on from. Labelled accordingly, matching the
+// minidump and the watchdog dump.
+std::string last_script_line()
+{
+  std::string name;
+  unsigned pc;
+  Clib::script_status.snapshot( name, pc );
+  return fmt::format( "Last Script: {} PC: {}", name, pc );
+}
+}  // namespace
+
+void ExceptionParser::registerWorldLockOwner( const std::atomic<size_t>* owner )
+{
+  m_worldLockOwner.store( owner, std::memory_order_relaxed );
+}
+
 void ExceptionParser::handleExceptionSignal( int signal )
 {
   switch ( signal )
@@ -392,18 +417,35 @@ void ExceptionParser::handleExceptionSignal( int signal )
       printf(
           "POL will exit now. Please, post the following to the forum: "
           "http://forums.polserver.com/.\n" );
-    string tStackTrace = ExceptionParser::getTrace();
-    // Which thread died is the first thing anyone reading this needs, and the
-    // trace alone rarely says: the top frames are usually library code shared by
-    // every thread. Name comes from the per-thread buffer, so no lock is taken
-    // here. SIGSEGV and SIGABRT are both delivered to the thread that caused
-    // them, so this is the faulting thread and not a bystander.
+    // Everything cheap goes out and is flushed before the stack trace is walked. That walk
+    // symbolizes and allocates, and the crashes where it matters most -- a corrupted heap, a
+    // fault taken inside the allocator -- are exactly the ones where it hangs or faults again.
+    // Gathering it first, as this did, meant those crashes printed nothing at all.
+    //
+    // Which thread died is the first thing anyone reading this needs, and the trace alone
+    // rarely says: the top frames are usually library code shared by every thread. Name comes
+    // from the per-thread buffer, so no lock is taken here. SIGSEGV and SIGABRT are both
+    // delivered to the thread that caused them, so this is the faulting thread and not a
+    // bystander.
     printf( "Thread: %s (%zu)\n", threadhelp::current_thread_name(), threadhelp::thread_pid() );
+    printf( "%s\n", last_script_line().c_str() );
+    const std::atomic<size_t>* owner_slot = m_worldLockOwner.load( std::memory_order_relaxed );
+    if ( owner_slot != nullptr )
+    {
+      const size_t owner = owner_slot->load( std::memory_order_relaxed );
+      if ( owner != 0 )
+        printf( "World lock held by tid: %zu\n", owner );
+      else
+        printf( "World lock: free\n" );
+    }
     printf( "Admin contact: %s\n", m_programAbortReportingReporter.c_str() );
     printf( "Executable: %s\n", PROG_CONFIG::programName().c_str() );
     printf( "Start time: %s\n", m_programStart.c_str() );
     printf( "Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str() );
     printf( "\n" );
+    fflush( stdout );
+
+    string tStackTrace = ExceptionParser::getTrace();
     printf( "Stack trace:\n%s", tStackTrace.c_str() );
     printf( "\n" );
     printf( "Compiler: %s\n", getCompilerVersion().c_str() );
@@ -483,8 +525,9 @@ static void handleStackTraceRequestLinux( int signal, siginfo_t* signalInfo, voi
   // signal handler, and logAllStackTraces() below raises SIGUSR1 on every thread
   // at once, so each of them would be contending for the map's spinlock -- and
   // deadlocking outright against a thread stopped while holding it.
-  std::string output = fmt::format( "STACK TRACE for thread \"{}\"({}):\n",
-                                    threadhelp::current_thread_name(), threadhelp::thread_pid() );
+  std::string output =
+      fmt::format( "STACK TRACE for thread \"{}\"({}):\n{}\n", threadhelp::current_thread_name(),
+                   threadhelp::thread_pid(), last_script_line() );
   output += ExceptionParser::getTrace() + '\n';
 
   // print to stdout

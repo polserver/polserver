@@ -30,6 +30,14 @@ dump - a minidump file on Windows, a stack dump of every thread in the<br/>
 process elsewhere. The failure is logged with the stack of the throw instead.<br/>
 The whole-process dump is still available for a server that has stopped<br/>
 responding, through pol.cfg ThreadStacktracesWhenStuck.</change>
+			<change type="Changed">on Linux, a crash report and the per-thread stack dumps now name the script<br/>
+the thread was last running, and the tid holding the world lock. Whether the<br/>
+faulting thread held that lock decides how the rest of the report reads.<br/>
+Windows crash reports have carried the script for some time.</change>
+			<change type="Changed">a crash report writes out the thread, script and lock lines before it walks<br/>
+the stack. Collecting a stack allocates, so a crash caused by a corrupted<br/>
+heap used to die inside that walk having printed nothing at all.</change>
+			<change type="Changed">an assertion failure now logs the script that was running, on every platform.</change>
 		</entry>
 		<entry>
 			<date>08-16-2026</date>

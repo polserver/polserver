@@ -1,6 +1,8 @@
 #ifndef CLIB_EXCEPTION_PARSER_H
 #define CLIB_EXCEPTION_PARSER_H
 
+#include <atomic>
+#include <cstddef>
 #include <string>
 
 
@@ -51,7 +53,22 @@ public:
    */
   static void handleExceptionSignal( int signal );
 
+  /**
+   * @brief Publishes the tid holding the world lock, for the crash report to name.
+   *
+   * Whether the faulting thread died holding the world lock decides how to read everything
+   * else in the report: inside it, every other thread is about to hang behind this one.
+   * Only the server has a world lock and clib cannot see its globals, so the owner registers
+   * the address once at startup and the report does a single relaxed load -- no call back
+   * into server code from a signal handler, and the other binaries link without it.
+   */
+  static void registerWorldLockOwner( const std::atomic<size_t>* owner );
+
 private:
+  // Published from startup and read from whichever thread crashes, so the pointer is itself
+  // an atomic. It is one word and never changes after it is set, which is what lets the
+  // handler read it with no lock at all.
+  static std::atomic<const std::atomic<size_t>*> m_worldLockOwner;
   static bool m_programAbortReporting;
   static std::string m_programAbortReportingServer;
   static std::string m_programAbortReportingUrl;
