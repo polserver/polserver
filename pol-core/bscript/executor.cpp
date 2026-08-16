@@ -3062,48 +3062,9 @@ std::string Executor::stacktrace_string()
 
 namespace
 {
-// eScript recursion is script-controlled and unbounded, so that block is capped
-// tightly. The native one is capped only to bound the log: nothing enforces a
-// depth on the boost side (MAX_STACK_TRACE_DEPTH in ExceptionParser.cpp is
-// defined and never used), and a limit this high cannot fire on the ordinary
-// path, so the constant tail -- run_ready / scripts_thread / thread_stub2, the
-// part that identifies which thread ran the script -- always survives.
+// Script-controlled recursion is unbounded, so this block is capped tighter than
+// the native one.
 constexpr size_t MAX_REPORTED_ESCRIPT_FRAMES = 30;
-constexpr size_t MAX_REPORTED_NATIVE_FRAMES = 100;
-
-// Indents every line of `block` by two spaces, keeping the first `max_lines` of
-// them and replacing the rest with a count. Both stacks are innermost-first, so
-// what a cap drops is the outermost end. Returns empty for an empty block,
-// which is how a heading gets omitted rather than left dangling.
-std::string indent_stack_block( const std::string& block, size_t max_lines )
-{
-  std::string_view remaining( block );
-  while ( !remaining.empty() && ( remaining.back() == '\n' || remaining.back() == '\r' ) )
-    remaining.remove_suffix( 1 );
-
-  std::string result;
-  size_t kept = 0, dropped = 0;
-
-  while ( !remaining.empty() )
-  {
-    auto eol = remaining.find( '\n' );
-    auto line = remaining.substr( 0, eol );
-    remaining = eol == std::string_view::npos ? std::string_view() : remaining.substr( eol + 1 );
-
-    if ( kept < max_lines )
-    {
-      fmt::format_to( std::back_inserter( result ), "  {}\n", line );
-      ++kept;
-    }
-    else
-      ++dropped;
-  }
-
-  if ( dropped )
-    fmt::format_to( std::back_inserter( result ), "  ... ({} more)\n", dropped );
-
-  return result;
-}
 }  // namespace
 
 std::string Executor::execution_error_report( size_t onPC, const std::string& what )
@@ -3141,11 +3102,11 @@ std::string format_execution_error( const std::string& script, unsigned int pid,
 
   // Script block first: it is short, it is the answer for most readers, and it
   // survives log truncation that would eat the tail of the native one.
-  auto escript = indent_stack_block( escript_stack, MAX_REPORTED_ESCRIPT_FRAMES );
+  auto escript = Clib::indent_stack_block( escript_stack, MAX_REPORTED_ESCRIPT_FRAMES );
   if ( !escript.empty() )
     result += "\neScript stack (innermost first):\n" + escript;
 
-  auto native = indent_stack_block( native_stack, MAX_REPORTED_NATIVE_FRAMES );
+  auto native = Clib::indent_stack_block( native_stack, Clib::MAX_REPORTED_NATIVE_FRAMES );
   if ( !native.empty() )
     result += "\nNative stack (throw site, innermost first):\n" + native;
 

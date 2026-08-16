@@ -2,9 +2,25 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-15-2026</datemodified>
+		<datemodified>08-16-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-16-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">when a C++ exception ends a script, the log now carries the eScript call<br/>
+stack and the C++ call stack of the throw, instead of only the message and<br/>
+the program counter. Both are innermost-first, and either is omitted if it<br/>
+could not be collected.</change>
+			<change type="Changed">an exception that kills a thread is reported the same way, with the thread's<br/>
+name, the exception type and the stack of the throw. These reports go to<br/>
+pol.log as well as the console; before, they only ever reached the console.</change>
+			<change type="Changed">a task failing in one of the core's worker pools no longer forces a crash<br/>
+dump - a minidump file on Windows, a stack dump of every thread in the<br/>
+process elsewhere. The failure is logged with the stack of the throw instead.<br/>
+The whole-process dump is still available for a server that has stopped<br/>
+responding, through pol.cfg ThreadStacktracesWhenStuck.</change>
+		</entry>
 		<entry>
 			<date>08-15-2026</date>
 			<author>Turley:</author>

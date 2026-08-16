@@ -58,6 +58,16 @@ private:
   static std::string m_programAbortReportingReporter;
   static std::string m_programStart;
 };
+
+// Frames to keep when a stack trace goes into a log report. Nothing caps what
+// boost hands back; this only bounds a runaway, and is high enough never to fire
+// on an ordinary report.
+constexpr size_t MAX_REPORTED_NATIVE_FRAMES = 100;
+
+// Indents every line of `block` by two spaces, keeping the first `max_lines` and
+// replacing the rest with a count. Traces are innermost-first, so a cap drops the
+// outermost end. Empty in, empty out -- which lets a caller omit its heading.
+std::string indent_stack_block( const std::string& block, size_t max_lines );
 }  // namespace Pol::Clib
    // namespaces
 

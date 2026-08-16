@@ -1,4 +1,17 @@
 -- POL100.3.0 --
+08-16-2026 Nando:
+    Changed: when a C++ exception ends a script, the log now carries the eScript call
+             stack and the C++ call stack of the throw, instead of only the message and
+             the program counter. Both are innermost-first, and either is omitted if it
+             could not be collected.
+    Changed: an exception that kills a thread is reported the same way, with the thread's
+             name, the exception type and the stack of the throw. These reports go to
+             pol.log as well as the console; before, they only ever reached the console.
+    Changed: a task failing in one of the core's worker pools no longer forces a crash
+             dump - a minidump file on Windows, a stack dump of every thread in the
+             process elsewhere. The failure is logged with the stack of the throw instead.
+             The whole-process dump is still available for a server that has stopped
+             responding, through pol.cfg ThreadStacktracesWhenStuck.
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS
 08-15-2026 Nando:

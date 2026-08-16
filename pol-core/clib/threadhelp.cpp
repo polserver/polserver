@@ -19,7 +19,11 @@
 #include <cstring>
 #include <exception>
 #include <thread>
+#include <typeinfo>
 
+#include <boost/core/demangle.hpp>
+
+#include "clib/Debugging/ExceptionParser.h"
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
@@ -180,6 +184,30 @@ static void set_os_thread_name( const std::string& name )
 }
 #endif
 
+namespace
+{
+// Reports an exception that escaped a thread's work function. Logged rather than
+// only printed, so it survives for whoever reads pol.log afterwards. Never
+// throws: this is the last catch before the thread unwinds, and a failed
+// symbolization must not cost the message too.
+void report_thread_exception( const std::exception& ex )
+{
+  std::string report = fmt::format( "Thread exception in {}: {}: {}", current_thread_name(),
+                                    boost::core::demangle( typeid( ex ).name() ), ex.what() );
+  try
+  {
+    auto trace = Clib::indent_stack_block( Clib::ExceptionParser::getTrace(),
+                                           Clib::MAX_REPORTED_NATIVE_FRAMES );
+    if ( !trace.empty() )
+      report += "\nNative stack (throw site, innermost first):\n" + trace;
+  }
+  catch ( ... )
+  {
+  }
+  POLLOG_ERRORLN( report );
+}
+}  // namespace
+
 void run_thread( void ( *threadf )() )
 {
   // thread creator calls inc_child_thread_count before starting thread
@@ -189,7 +217,7 @@ void run_thread( void ( *threadf )() )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
+    report_thread_exception( ex );
   }
 
   --child_threads;
@@ -205,7 +233,7 @@ void run_thread( void ( *threadf )( void* ), void* arg )
   }
   catch ( std::exception& ex )
   {
-    ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
+    report_thread_exception( ex );
   }
 
   --child_threads;
@@ -440,8 +468,10 @@ void TaskThreadPool::init( unsigned int max_count, const std::string& name )
               }
               catch ( std::exception& ex )
               {
-                ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
-                Clib::force_backtrace( true );
+                // No crash dump: this catch used to sit outside the loop and end
+                // the worker, and forced one. It runs per failed task now, and the
+                // report already carries the stack of the throw.
+                report_thread_exception( ex );
               }
             }
           }
@@ -605,8 +635,7 @@ void DynTaskThreadPool::PoolWorker::run()
             }
             catch ( std::exception& ex )
             {
-              ERROR_PRINTLN( "Thread exception in {}: {}", current_thread_name(), ex.what() );
-              Clib::force_backtrace( false );
+              report_thread_exception( ex );
             }
             f = nullptr;  // reset BusyGuard
           }

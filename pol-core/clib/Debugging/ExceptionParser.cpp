@@ -12,6 +12,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdio.h>
+#include <string_view>
 
 #ifndef WINDOWS
 #include <arpa/inet.h>
@@ -572,6 +573,36 @@ string ExceptionParser::getTrace()
   if ( stack.empty() )
     stack = boost::stacktrace::stacktrace();
   return boost::stacktrace::to_string( stack );
+}
+
+std::string indent_stack_block( const std::string& block, size_t max_lines )
+{
+  std::string_view remaining( block );
+  while ( !remaining.empty() && ( remaining.back() == '\n' || remaining.back() == '\r' ) )
+    remaining.remove_suffix( 1 );
+
+  std::string result;
+  size_t kept = 0, dropped = 0;
+
+  while ( !remaining.empty() )
+  {
+    auto eol = remaining.find( '\n' );
+    auto line = remaining.substr( 0, eol );
+    remaining = eol == std::string_view::npos ? std::string_view() : remaining.substr( eol + 1 );
+
+    if ( kept < max_lines )
+    {
+      fmt::format_to( std::back_inserter( result ), "  {}\n", line );
+      ++kept;
+    }
+    else
+      ++dropped;
+  }
+
+  if ( dropped )
+    fmt::format_to( std::back_inserter( result ), "  ... ({} more)\n", dropped );
+
+  return result;
 }
 
 void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,
