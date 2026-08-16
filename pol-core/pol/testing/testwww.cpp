@@ -116,12 +116,88 @@ void test_reason_phrase()
 #define T_REASON( code, res ) \
   UnitTest( []() { return reasonPhrase( code ); }, res, "reasonPhrase( " #code " )" )
 
+  // 1xx informational
   T_REASON( 100, "Continue" );
+  T_REASON( 101, "Switching Protocols" );
+  T_REASON( 102, "Processing" );
+  T_REASON( 103, "Early Hints" );
+
+  // 2xx successful
   T_REASON( 200, "OK" );
+  T_REASON( 201, "Created" );
+  T_REASON( 202, "Accepted" );
+  T_REASON( 203, "Non-Authoritative Information" );
+  T_REASON( 204, "No Content" );
+  T_REASON( 205, "Reset Content" );
+  T_REASON( 206, "Partial Content" );
+  T_REASON( 207, "Multi-Status" );
+  T_REASON( 208, "Already Reported" );
+  T_REASON( 226, "IM Used" );
+
+  // 3xx redirection
+  T_REASON( 300, "Multiple Choices" );
   T_REASON( 301, "Moved Permanently" );
+  T_REASON( 302, "Found" );
+  T_REASON( 303, "See Other" );
+  T_REASON( 304, "Not Modified" );
+  T_REASON( 305, "Use Proxy" );
+  T_REASON( 307, "Temporary Redirect" );
+  T_REASON( 308, "Permanent Redirect" );
+
+  // 4xx client error
+  T_REASON( 400, "Bad Request" );
+  T_REASON( 401, "Unauthorized" );
+  T_REASON( 402, "Payment Required" );
+  T_REASON( 403, "Forbidden" );
   T_REASON( 404, "Not Found" );
+  T_REASON( 405, "Method Not Allowed" );
+  T_REASON( 406, "Not Acceptable" );
+  T_REASON( 407, "Proxy Authentication Required" );
+  T_REASON( 408, "Request Timeout" );
+  T_REASON( 409, "Conflict" );
+  T_REASON( 410, "Gone" );
+  T_REASON( 411, "Length Required" );
+  T_REASON( 412, "Precondition Failed" );
+  T_REASON( 413, "Content Too Large" );
+  T_REASON( 414, "URI Too Long" );
+  T_REASON( 415, "Unsupported Media Type" );
+  T_REASON( 416, "Range Not Satisfiable" );
+  T_REASON( 417, "Expectation Failed" );
+  T_REASON( 418, "I'm a teapot" );
+  T_REASON( 421, "Misdirected Request" );
+  T_REASON( 422, "Unprocessable Content" );
+  T_REASON( 423, "Locked" );
+  T_REASON( 424, "Failed Dependency" );
+  T_REASON( 425, "Too Early" );
+  T_REASON( 426, "Upgrade Required" );
+  T_REASON( 428, "Precondition Required" );
+  T_REASON( 429, "Too Many Requests" );
+  T_REASON( 431, "Request Header Fields Too Large" );
+  T_REASON( 451, "Unavailable For Legal Reasons" );
+
+  // 5xx server error
   T_REASON( 500, "Internal Server Error" );
-  T_REASON( 999, "" );  // unknown code
+  T_REASON( 501, "Not Implemented" );
+  T_REASON( 502, "Bad Gateway" );
+  T_REASON( 503, "Service Unavailable" );
+  T_REASON( 504, "Gateway Timeout" );
+  T_REASON( 505, "HTTP Version Not Supported" );
+  T_REASON( 506, "Variant Also Negotiates" );
+  T_REASON( 507, "Insufficient Storage" );
+  T_REASON( 508, "Loop Detected" );
+  T_REASON( 510, "Not Extended" );
+  T_REASON( 511, "Network Authentication Required" );
+
+  // Anything the table does not name is an empty string, whichever class it falls in -- codes
+  // the switch skips inside a range it otherwise covers, and codes outside every range.
+  T_REASON( 0, "" );
+  T_REASON( 104, "" );
+  T_REASON( 306, "" );
+  T_REASON( 420, "" );
+  T_REASON( 509, "" );
+  T_REASON( 512, "" );
+  T_REASON( 999, "" );
+  T_REASON( -1, "" );
 #undef T_REASON
 }
 }  // namespace

@@ -30,9 +30,13 @@ public:
     else
     {
       UnitTest::inc_failures();
-      INFO_PRINT( "    {}: {} != {}", msg, r, res );
+      UnitTest::report_failure( msg, fmt::format( "{}", r ), fmt::format( "{}", res ) );
     }
   }
+  // Printed the way the shard tests print theirs: red, and starting with "failed:", so one
+  // grep finds a failure in either suite's log.
+  static void report_failure( const std::string& msg, const std::string& got,
+                              const std::string& expected );
   static void inc_failures() { ++UnitTest::failures; }
   static void inc_successes() { ++UnitTest::successes; }
   static void display_test_results()
@@ -50,6 +54,26 @@ public:
 private:
   static unsigned int failures;
   static unsigned int successes;
+};
+
+// A unit test that needs real files works in unittest_temp/<test name>, under the working
+// directory the test suite is started in. One base directory for all of them, so that a run
+// which dies before its cleanup leaves everything it wrote in one recognisable place.
+std::string unittest_path( const std::string& testname );
+
+// Creates that directory empty and removes it again, whatever the test does in between.
+class UnitTestDir
+{
+public:
+  explicit UnitTestDir( std::string path );
+  ~UnitTestDir();
+  UnitTestDir( const UnitTestDir& ) = delete;
+  UnitTestDir& operator=( const UnitTestDir& ) = delete;
+
+  const std::string& path() const { return _path; }
+
+private:
+  std::string _path;
 };
 
 void test_splitnamevalue();
@@ -87,6 +111,11 @@ void caseinsensitive_compare_test();
 void resolve_test();
 void ipmatch_test();
 void www_test();
+void clibmisc_test();
+void clibutil_test();
+void cfgfile_test();
+void uop_test();
+void tokens_test();
 void dynthreadpool_test();
 }  // namespace Testing
 }  // namespace Pol
