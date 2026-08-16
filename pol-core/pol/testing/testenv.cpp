@@ -10,6 +10,7 @@
 #include <utility>
 
 #include "clib/fileutil.h"
+#include "plib/systemstate.h"
 
 namespace Pol::Testing
 {
@@ -19,6 +20,17 @@ unsigned int UnitTest::successes = 0;
 namespace
 {
 const std::string unittest_temp = "unittest_temp";
+constexpr char CONSOLE_RED[] = "\x1b[31m";
+}  // namespace
+
+void UnitTest::report_failure( const std::string& msg, const std::string& got,
+                               const std::string& expected )
+{
+  if ( Plib::systemstate.config.enable_colored_output )
+    INFO_PRINTLN( "{}    failed: {}: {} != {}{}", CONSOLE_RED, msg, got, expected,
+                  Clib::Logging::CONSOLE_RESET_COLOR );
+  else
+    INFO_PRINTLN( "    failed: {}: {} != {}", msg, got, expected );
 }
 
 std::string unittest_path( const std::string& testname )

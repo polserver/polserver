@@ -30,9 +30,13 @@ public:
     else
     {
       UnitTest::inc_failures();
-      INFO_PRINT( "    {}: {} != {}", msg, r, res );
+      UnitTest::report_failure( msg, fmt::format( "{}", r ), fmt::format( "{}", res ) );
     }
   }
+  // Printed the way the shard tests print theirs: red, and starting with "failed:", so one
+  // grep finds a failure in either suite's log.
+  static void report_failure( const std::string& msg, const std::string& got,
+                              const std::string& expected );
   static void inc_failures() { ++UnitTest::failures; }
   static void inc_successes() { ++UnitTest::successes; }
   static void display_test_results()

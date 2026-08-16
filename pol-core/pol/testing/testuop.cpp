@@ -16,7 +16,6 @@
 #include <fmt/format.h>
 #include <zlib.h>
 
-#include "clib/fileutil.h"
 #include "plib/clientfiles/RawMap.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/systemstate.h"
@@ -322,7 +321,9 @@ void test_uop_container()
       },
       true, "a container's blocks form a chain" );
 
-  // A zero address has no body at all, which is how the chain ends.
+  // A zero address has no body at all, which is how the chain ends. Only _is_null_block_body()
+  // may be asked: block_body() itself returns an uninitialised pointer for an absent body, so
+  // what it answers is not the reader's to promise. See uop.cpp:40.
   UnitTest(
       [&]()
       {
@@ -331,7 +332,7 @@ void test_uop_container()
         uop_t uop( &ks );
         auto* last = uop.header()->firstblock()->block_body()->next_addr();
         auto* end = last->block_body()->next_addr();
-        return end->block_body() == nullptr && end->_is_null_block_body();
+        return end->blockaddr() == 0 && end->_is_null_block_body();
       },
       true, "the block after the last one has no body" );
 
@@ -375,7 +376,8 @@ void test_uop_container()
       },
       true, "a file's payload is read only once" );
 
-  // An entry with no data address has no payload.
+  // An entry with no data address has no payload. Same as the block chain above: the answer is
+  // _is_null_data(), never the pointer data() hands back.
   UnitTest(
       []()
       {
@@ -387,7 +389,7 @@ void test_uop_container()
         kaitai::kstream ks( &iss );
         uop_t uop( &ks );
         auto* file = uop.header()->firstblock()->block_body()->files()->at( 0 );
-        return file->data() == nullptr && file->_is_null_data();
+        return file->dataaddr() == 0 && file->_is_null_data();
       },
       true, "a file entry with no data address has no payload" );
 
