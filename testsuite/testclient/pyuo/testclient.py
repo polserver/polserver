@@ -261,6 +261,32 @@ class TestBrain(brain.Brain):
 
     return True
 
+class ShardGone(Exception):
+  '''The shard ran and stopped without ever asking for a client.'''
+
+
+# Backstop if the shard never appears at all; ctest allows 600s.
+HARD_DEADLINE_SECS = 540
+
+
+def game_port_free(port):
+  '''True once nothing is listening on the game port, i.e. the shard is gone.
+
+  The bind has to use the wildcard address: POL's game listener binds INADDR_ANY, and
+  Windows lets a socket take a specific address while another holds the wildcard on the
+  same port, so a 127.0.0.1 probe reports "free" the whole time the shard is up. Bind
+  rather than connect, so the probe never makes the core build a client for it.
+  '''
+  probe = socket.socket()
+  try:
+    probe.bind(('0.0.0.0', port))
+    return True
+  except OSError:
+    return False
+  finally:
+    probe.close()
+
+
 class PolServer:
   def __init__(self):
     self.log = logging.getLogger('server')
@@ -277,8 +303,14 @@ class PolServer:
     self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.s.bind(('localhost', 50000))
     self.s.listen(1)
-    self.s.settimeout(30) # FIXME: we need a way to stop this process without a connection
-    self.conn, addr = self.s.accept()
+    # Poll rather than wait out one long timeout: no test package here connects until the
+    # shard runs the one that drives this client, which can be minutes into a full run, so
+    # the wait cannot be bounded by a constant. What ends it is the shard going away -- the
+    # same condition deafclient.py and rawpeer.py stop on. Without it a run that selects no
+    # client test (POLCORE_TEST_FILTER) pays this timeout in full, because cmake's
+    # execute_process waits on every stage of the pipeline, not just POL.
+    self.s.settimeout(1.0)
+    self.conn = self._accept(self.lconf.getint('port'))
     # How long run() sits in recv() before it gets to flush the brains' events
     # back to the script. Events are queued by the brain threads and only go
     # out between two reads, so this is a floor on how fast the script can be
@@ -286,6 +318,20 @@ class PolServer:
     # returns the moment a byte arrives either way.
     self.conn.settimeout(0.02)
     self.buf=b''
+
+  def _accept(self, gameport):
+    started = time.monotonic()
+    shard_seen = False
+    while time.monotonic() - started < HARD_DEADLINE_SECS:
+      try:
+        conn, _ = self.s.accept()
+        return conn
+      except socket.timeout:
+        if not game_port_free(gameport):
+          shard_seen = True
+        elif shard_seen:
+          raise ShardGone('shard stopped without connecting a test client')
+    raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
 
   def run(self):
     while True:
@@ -656,7 +702,13 @@ if __name__ == '__main__':
   atexit.register(lambda: lifecycle.info("LIFECYCLE process exiting"))
   lifecycle.info("LIFECYCLE process starting (pid %d)", os.getpid())
 
-  serv = PolServer()
+  try:
+    serv = PolServer()
+  except ShardGone as ex:
+    # Not a failure: nothing asked for a client. Exit quietly so the pipeline ends with POL.
+    lifecycle.info("LIFECYCLE %s", ex)
+    sys.exit(0)
+
   try:
     serv.run()
   finally: # wake up the server and let it close first
