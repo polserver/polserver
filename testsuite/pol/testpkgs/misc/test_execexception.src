@@ -26,6 +26,20 @@ exported function forced_exception_is_reported()
     return lines;
   endif
 
-  return assert_log_contains( lines, array{ "Forced executor exception", "throwing" },
+  // Substrings, never whole lines: the native frames and their addresses move
+  // with every build, and the exception type is spelled "class
+  // std::runtime_error" by MSVC and "std::runtime_error" everywhere else.
+  //
+  // The eScript frame proves the shard env compiles with debug symbols, which
+  // only this layer can show -- the C++ unit test is fed fixed strings. Without
+  // symbols the frame degrades to "at <scriptname>+<pc>", matching neither half
+  // below. The two halves are separate because the .dbg file records the
+  // absolute source path, so name and file never sit in one stable substring;
+  // the line number is left out so editing throwing.src cannot fail this.
+  return assert_log_contains( lines,
+                              array{ "Forced executor exception", "throwing", "runtime_error",
+                                     "eScript stack (innermost first):", "at <program> (",
+                                     "throwing.src:",
+                                     "Native stack (throw site, innermost first):" },
                               "forced executor exception" );
 endfunction

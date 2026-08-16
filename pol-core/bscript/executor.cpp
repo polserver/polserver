@@ -40,17 +40,20 @@
 #include "bscript/str.h"
 #include "bscript/token.h"
 #include "bscript/tokens.h"
+#include "clib/Debugging/ExceptionParser.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
+#include "clib/threadhelp.h"
 #include <iterator>
 #include <limits>
 #ifdef MEMORYLEAK
 #include "clib/mlog.h"
 #endif
 
+#include <boost/core/demangle.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index_container.hpp>
@@ -60,6 +63,8 @@
 #include <exception>
 #include <numeric>
 #include <ranges>
+#include <string_view>
+#include <typeinfo>
 
 
 namespace Pol::Bscript
@@ -3055,6 +3060,98 @@ std::string Executor::stacktrace_string()
   return result;
 }
 
+namespace
+{
+// eScript recursion is script-controlled and unbounded, so that block is capped
+// tightly. The native one is capped only to bound the log: nothing enforces a
+// depth on the boost side (MAX_STACK_TRACE_DEPTH in ExceptionParser.cpp is
+// defined and never used), and a limit this high cannot fire on the ordinary
+// path, so the constant tail -- run_ready / scripts_thread / thread_stub2, the
+// part that identifies which thread ran the script -- always survives.
+constexpr size_t MAX_REPORTED_ESCRIPT_FRAMES = 30;
+constexpr size_t MAX_REPORTED_NATIVE_FRAMES = 100;
+
+// Indents every line of `block` by two spaces, keeping the first `max_lines` of
+// them and replacing the rest with a count. Both stacks are innermost-first, so
+// what a cap drops is the outermost end. Returns empty for an empty block,
+// which is how a heading gets omitted rather than left dangling.
+std::string indent_stack_block( const std::string& block, size_t max_lines )
+{
+  std::string_view remaining( block );
+  while ( !remaining.empty() && ( remaining.back() == '\n' || remaining.back() == '\r' ) )
+    remaining.remove_suffix( 1 );
+
+  std::string result;
+  size_t kept = 0, dropped = 0;
+
+  while ( !remaining.empty() )
+  {
+    auto eol = remaining.find( '\n' );
+    auto line = remaining.substr( 0, eol );
+    remaining = eol == std::string_view::npos ? std::string_view() : remaining.substr( eol + 1 );
+
+    if ( kept < max_lines )
+    {
+      fmt::format_to( std::back_inserter( result ), "  {}\n", line );
+      ++kept;
+    }
+    else
+      ++dropped;
+  }
+
+  if ( dropped )
+    fmt::format_to( std::back_inserter( result ), "  ... ({} more)\n", dropped );
+
+  return result;
+}
+}  // namespace
+
+std::string Executor::execution_error_report( size_t onPC, const std::string& what )
+{
+  try
+  {
+    return format_execution_error( prog_->name.get(), pid(), onPC,
+                                   threadhelp::current_thread_name(), what, stacktrace_string(),
+                                   Clib::ExceptionParser::getTrace() );
+  }
+  catch ( ... )
+  {
+    // Collecting the stacks reads the debug file and symbolizes the native
+    // trace, either of which can fail. Losing the detail is acceptable; losing
+    // the message -- turning a script error into a second exception escaping an
+    // already-failing catch block -- is not.
+    return fmt::format( "Exception in {} PC {}\n  {}\n  (no stacks: reporting them failed)\n",
+                        prog_->name.get(), onPC, what );
+  }
+}
+
+std::string format_execution_error( const std::string& script, unsigned int pid, size_t pc,
+                                    const std::string& thread_name, const std::string& what,
+                                    const std::string& escript_stack,
+                                    const std::string& native_stack )
+{
+  std::string result = fmt::format( "Exception in {}", script );
+  // A plain Executor has no pid; only scripts scheduled by the core do.
+  if ( pid )
+    fmt::format_to( std::back_inserter( result ), " (pid {})", pid );
+  fmt::format_to( std::back_inserter( result ), " PC {}", pc );
+  if ( !thread_name.empty() )
+    fmt::format_to( std::back_inserter( result ), ", thread {}", thread_name );
+  fmt::format_to( std::back_inserter( result ), "\n  {}\n", what );
+
+  // Script block first: it is short, it is the answer for most readers, and it
+  // survives log truncation that would eat the tail of the native one.
+  auto escript = indent_stack_block( escript_stack, MAX_REPORTED_ESCRIPT_FRAMES );
+  if ( !escript.empty() )
+    result += "\neScript stack (innermost first):\n" + escript;
+
+  auto native = indent_stack_block( native_stack, MAX_REPORTED_NATIVE_FRAMES );
+  if ( !native.empty() )
+    result += "\nNative stack (throw site, innermost first):\n" + native;
+
+  return result;
+}
+
 void Executor::ins_pop_param( const Instruction& ins )
 {
   popParam( ins.token );
@@ -3760,8 +3857,8 @@ void Executor::execInstr()
   }
   catch ( std::exception& ex )
   {
-    std::string tmp =
-        fmt::format( "Exception in: {} PC={}: {}\n", prog_->name.get(), onPC, ex.what() );
+    std::string tmp = execution_error_report(
+        onPC, boost::core::demangle( typeid( ex ).name() ) + ": " + ex.what() );
     if ( !run_ok_ )
       tmp += "run_ok_ = false\n";
     if ( PC < nLines )
@@ -3779,8 +3876,12 @@ void Executor::execInstr()
 #ifdef __unix__
   catch ( ... )
   {
+    // No exception object to describe, but the throw site is still recorded --
+    // boost's hook does not care what was thrown.
+    std::string tmp = execution_error_report( onPC, "unclassified" );
+
     seterror( true );
-    POLLOG_ERRORLN( "Exception in {}, PC={}: unclassified", prog_->name.get(), onPC );
+    POLLOG_ERROR( tmp );
 
     show_context( onPC );
   }
