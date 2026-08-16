@@ -1,0 +1,280 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// Pop-up (context) menus. SendPopUpMenu blocks the script that opens one until the client picks
+// an entry, and what it returns is the entry tag - so every case here arms the client's answer
+// before it asks for the menu.
+//
+// The layout depends on what the client claims to be: the old two dimensional one numbers its
+// entries against a fixed cliloc range, the newer one carries whole cliloc numbers and no
+// colours. The test client is 7.0.9.1, which the core counts as a KR client, so only the newer
+// layout is reachable from here - and with it, the cliloc range check is skipped entirely.
+
+var char;
+var clientcon := getClientConnection();
+
+program popuptests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+function arm_popup( reply )
+  Clear_Event_Queue();
+  reply.+kind := DIALOG_POPUP;
+  clientcon.sendevent( struct{ todo := EVT_DIALOG_REPLY, arg := reply, id := 0 } );
+  var ev := waitForClient( 0, { EVT_DIALOG_REPLY } );
+  if ( !ev )
+    return ret_error( "the client never acknowledged the armed popup reply" );
+  endif
+  return 1;
+endfunction
+
+function menu_answered_with( reply, above, menu )
+  var armed := arm_popup( reply );
+  if ( !armed )
+    return armed;
+  endif
+  return SendPopUpMenu( char, above, menu );
+endfunction
+
+exported function popup_int_entries()
+  // The short form: a menu is a list of cliloc numbers, and the entries are tagged in order
+  // from one.
+  var menu := { 3000100, 3000200, 3000300 };
+  var res := menu_answered_with( struct{ tag := 2 }, char, menu );
+  if ( res != 2 )
+    return ret_error( $"the picked entry came back as {res}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_POPUP } );
+  if ( !ev )
+    return ret_error( "the client never saw the menu" );
+  endif
+  if ( ev.serial != char.serial )
+    return ret_error( $"the menu was shown above 0x{ev.serial:x}" );
+  endif
+  if ( ev.format != POPUP_FORMAT_KR )
+    return ret_error( $"the menu arrived in layout {ev.format}" );
+  endif
+  if ( ev.entries.size() != 3 )
+    return ret_error( $"the menu holds {ev.entries.size()} entries" );
+  endif
+  var first := ev.entries[1];
+  if ( first[1] != 1 || first[2] != 3000100 || first[3] != 0 )
+    return ret_error( $"the first entry arrived as {first}" );
+  endif
+  var third := ev.entries[3];
+  if ( third[1] != 3 || third[2] != 3000300 )
+    return ret_error( $"the third entry arrived as {third}" );
+  endif
+  return 1;
+endfunction
+
+exported function popup_struct_entries( resmgr )
+  // The full form. A colour is accepted and then dropped: the newer layout has nowhere to put
+  // one, so the flag is cleared again before the entry is written.
+  var item := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+
+  var menu := {};
+  menu.append( struct{ cliloc := 3000100, disabled := 1 } );
+  menu.append( struct{ cliloc := 3000200, arrow := 1 } );
+  menu.append( struct{ cliloc := 3000300, color := 0x7C00 } );
+  var res := menu_answered_with( struct{ tag := 1 }, item, menu );
+  if ( res != 1 )
+    return ret_error( $"the picked entry came back as {res}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_POPUP } );
+  if ( !ev )
+    return ret_error( "the client never saw the menu" );
+  endif
+  if ( ev.serial != item.serial )
+    return ret_error( $"the menu was shown above 0x{ev.serial:x}, expected the item" );
+  endif
+  if ( ev.entries[1][3] != POPUP_MENU_LOCKED )
+    return ret_error( $"the disabled entry arrived as {ev.entries[1]}" );
+  endif
+  if ( ev.entries[2][3] != POPUP_MENU_ARROW )
+    return ret_error( $"the arrow entry arrived as {ev.entries[2]}" );
+  endif
+  // The colour flag is cleared rather than carried, and no colour follows the entry.
+  if ( ev.entries[3][3] != 0 )
+    return ret_error( $"the coloured entry kept its flags: {ev.entries[3]}" );
+  endif
+  if ( ev.entries[3].size() != 3 )
+    return ret_error( $"the coloured entry carried a colour anyway: {ev.entries[3]}" );
+  endif
+  return 1;
+endfunction
+
+exported function popup_cancelled()
+  // A tag of nothing is how a closed menu comes back, and the script is woken with a plain 0
+  // rather than an error.
+  var res := menu_answered_with( struct{ tag := 0 }, char, { 3000100 } );
+  if ( res != 0 )
+    return ret_error( $"a cancelled menu answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function popup_wrong_serial()
+  // An answer naming something other than what the menu was shown above is logged and dropped,
+  // and the script is woken with nothing.
+  var res := menu_answered_with( struct{ tag := 1, serial := 0x40000001 }, char, { 3000100 } );
+  if ( res != 0 )
+    return ret_error( $"a menu answered for the wrong object gave {res}" );
+  endif
+
+  // The client is not left in a state where the next menu goes wrong.
+  res := menu_answered_with( struct{ tag := 1 }, char, { 3000100 } );
+  if ( res != 1 )
+    return ret_error( $"the menu after it answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function popup_replaces_pending( resmgr )
+  // A second menu cancels the first, which has to wake the script waiting on it - otherwise that
+  // script waits for an answer that can never come.
+  var armed := arm_popup( struct{ skip := 1 } );
+  if ( !armed )
+    return armed;
+  endif
+  var args := struct{ parent := GetProcess(), chr := char, kind := DIALOG_POPUP, item := char };
+  var waiter := resmgr.Start_Script( ":TestClient:dialogwaiter.ecl", args );
+  if ( !waiter )
+    return waiter;
+  endif
+  var ev := Wait_For_Event( 10 );
+  if ( !ev )
+    return ret_error( "the holding script did not report in" );
+  endif
+  if ( !waitForClient( 0, { EVT_POPUP } ) )
+    return ret_error( "the held menu never reached the client" );
+  endif
+
+  var res := menu_answered_with( struct{ tag := 1 }, char, { 3000100 } );
+  if ( res != 1 )
+    return ret_error( $"the second menu answered {res}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    ev := Wait_For_Event( 1 );
+    if ( !ev )
+      continue;
+    endif
+    var answered := ev.?answered;
+    if ( answered )
+      if ( ev.answered != 0 )
+        return ret_error( $"the cancelled script woke with {ev.answered}, expected nothing" );
+      endif
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the script holding the first menu was never woken" );
+endfunction
+
+exported function popup_select_without_menu()
+  // An answer with no menu open at all. The core has nothing to give it to and says so; what
+  // matters is that the next menu still works.
+  drain_events();
+  var picked := struct{ serial := char.serial, tag := 1 };
+  clientcon.sendevent( struct{ todo := "popup_select", arg := picked, id := 0 } );
+  Sleepms( 500 );
+
+  var res := menu_answered_with( struct{ tag := 1 }, char, { 3000100 } );
+  if ( res != 1 )
+    return ret_error( $"the menu after a stray answer gave {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function popup_menu_refusals( resmgr )
+  var res := SendPopUpMenu( char, char, {} );
+  if ( res )
+    return ret_error( "an empty menu was accepted" );
+  endif
+  if ( res.errortext != "Can't send empty menu" )
+    return ret_error( $"unexpected error for an empty menu: {res.errortext}" );
+  endif
+
+  res := SendPopUpMenu( char, char, { "not a number" } );
+  if ( res )
+    return ret_error( "a menu of strings was accepted" );
+  endif
+  if ( res.errortext != "Menu elements must be int or struct" )
+    return ret_error( $"unexpected error for a string entry: {res.errortext}" );
+  endif
+
+  res := SendPopUpMenu( char, char, { struct{ disabled := 1 } } );
+  if ( res )
+    return ret_error( "an entry with no cliloc was accepted" );
+  endif
+  if ( res.errortext != "Missing cliloc for menu element" )
+    return ret_error( $"unexpected error for a missing cliloc: {res.errortext}" );
+  endif
+
+  res := SendPopUpMenu( char, char, { struct{ cliloc := "text" } } );
+  if ( res )
+    return ret_error( "an entry with a string cliloc was accepted" );
+  endif
+  if ( res.errortext != "Invalid cliloc for menu element" )
+    return ret_error( $"unexpected error for a string cliloc: {res.errortext}" );
+  endif
+
+  // The entry count is a single byte on the wire, so the menu stops being sendable at 255. The
+  // check above the loop, against 0xfffe, can never be the one that fires.
+  var many := {};
+  for i := 1 to 256
+    many.append( 3000100 + i );
+  endfor
+  res := SendPopUpMenu( char, char, many );
+  if ( res )
+    return ret_error( "a menu of 256 entries was accepted" );
+  endif
+  if ( res.errortext != "Too many entries in menu" )
+    return ret_error( $"unexpected error for 256 entries: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function popup_param_errors( resmgr )
+  var res := SendPopUpMenu( "blubb", char, { 3000100 } );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  res := SendPopUpMenu( char, char, "not an array" );
+  if ( res )
+    return ret_error( "succeeded given a string as the menu" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 58, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendPopUpMenu( npc, npc, { 3000100 } );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction

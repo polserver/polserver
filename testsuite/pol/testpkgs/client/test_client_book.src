@@ -1,0 +1,385 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// Books. Nothing about one is the core's: whether it can be written in, its title, its author and
+// its pages all come from the method script named by its itemdesc, and the core only carries them
+// to the client and back. See bookmethods.src, which keeps them in CProps so a test can set them
+// up and read back what the client wrote.
+
+var char;
+var clientcon := getClientConnection();
+
+program booktests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// A book in the character's pack, which is where it has to be for the client to be allowed to
+// turn its pages.
+function make_book( resmgr, lines, writable := 0 )
+  var book := resmgr.CreateItemInContainer( char.backpack, 0x400020 );
+  if ( !book )
+    return ret_error( $"failed to create the book: {book}" );
+  endif
+  SetObjProperty( book, "title", "The Title" );
+  SetObjProperty( book, "author", "The Author" );
+  SetObjProperty( book, "lines", lines );
+  SetObjProperty( book, "writable", writable );
+  return book;
+endfunction
+
+exported function book_readonly_opens( resmgr )
+  var book := make_book( resmgr, { "one", "two", "three" } );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var res := SendOpenBook( char, book );
+  if ( res != 1 )
+    return ret_error( $"SendOpenBook answered {res}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_BOOK } );
+  if ( !ev )
+    return ret_error( "the client was sent no book" );
+  endif
+  if ( ev.serial != book.serial )
+    return ret_error( $"the book arrived as 0x{ev.serial:x}" );
+  endif
+  if ( ev.title != "The Title" || ev.author != "The Author" )
+    return ret_error( $"wrong title or author: {ev}" );
+  endif
+  if ( ev.writable != 0 )
+    return ret_error( $"the book arrived writable: {ev}" );
+  endif
+  // Eight lines to a page, so three lines are one page.
+  if ( ev.npages != 1 )
+    return ret_error( $"the book claims {ev.npages} pages, expected 1" );
+  endif
+
+  // A book that cannot be written in is sent without its contents: the client is expected to ask
+  // for each page as it is turned to.
+  ev := waitForClient( 0, { EVT_BOOK_PAGE }, QUIET_SECS );
+  if ( ev )
+    return ret_error( $"a read-only book was sent its pages anyway: {ev}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_writable_sends_pages( resmgr )
+  // Ten lines is two pages, the second holding the remainder.
+  var lines := {};
+  for i := 1 to 10
+    lines.append( $"line {i}" );
+  endfor
+  var book := make_book( resmgr, lines, 1 );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var res := SendOpenBook( char, book );
+  if ( res != 1 )
+    return ret_error( $"SendOpenBook answered {res}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_BOOK } );
+  if ( !ev )
+    return ret_error( "the client was sent no book" );
+  endif
+  if ( ev.writable != 1 )
+    return ret_error( $"the book arrived read-only: {ev}" );
+  endif
+  if ( ev.npages != 2 )
+    return ret_error( $"the book claims {ev.npages} pages, expected 2" );
+  endif
+
+  ev := waitForClient( 0, { EVT_BOOK_PAGE } );
+  if ( !ev )
+    return ret_error( "the writable book was sent without its pages" );
+  endif
+  if ( ev.pagedata.size() != 2 )
+    return ret_error( $"the pages arrived as {ev.pagedata}" );
+  endif
+  var first := ev.pagedata[1];
+  var second := ev.pagedata[2];
+  if ( first[1] != 1 || first[2].size() != 8 )
+    return ret_error( $"the first page arrived as {first}" );
+  endif
+  if ( first[2][1] != "line 1" || first[2][8] != "line 8" )
+    return ret_error( $"the first page holds {first[2]}" );
+  endif
+  if ( second[1] != 2 || second[2].size() != 2 )
+    return ret_error( $"the second page arrived as {second}" );
+  endif
+  if ( second[2][1] != "line 9" || second[2][2] != "line 10" )
+    return ret_error( $"the second page holds {second[2]}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_refusals( resmgr )
+  // Everything the core asks the item can come back wrong, and each answer is its own refusal.
+  var book := make_book( resmgr, { "one" } );
+  if ( !book )
+    return book;
+  endif
+
+  SetObjProperty( book, "broken_numlines", "not a number" );
+  var res := SendOpenBook( char, book );
+  if ( res )
+    return ret_error( "a book whose line count is a string was opened" );
+  endif
+  if ( res.errortext != "book.GetNumLines() did not return an Integer" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  EraseObjProperty( book, "broken_numlines" );
+
+  // The contents are only asked for when the book can be written in.
+  SetObjProperty( book, "writable", 1 );
+  SetObjProperty( book, "broken_contents", "not an array" );
+  res := SendOpenBook( char, book );
+  if ( res )
+    return ret_error( "a book whose contents are a string was opened" );
+  endif
+  if ( res.errortext != "book.GetContents() must return an array" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  EraseObjProperty( book, "broken_contents" );
+
+  // An error from the method script is handed back as it stands rather than replaced.
+  SetObjProperty( book, "error_contents", 1 );
+  res := SendOpenBook( char, book );
+  if ( res )
+    return ret_error( "a book whose contents are an error was opened" );
+  endif
+  if ( res.errortext != "the book refused its contents" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_without_method_script( resmgr )
+  // An ordinary item has no method script, so the very first question the core asks it fails.
+  var item := resmgr.CreateItemInContainer( char.backpack, 0x400021 );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+  var res := SendOpenBook( char, item );
+  if ( res )
+    return ret_error( "an item with no method script was opened as a book" );
+  endif
+  if ( res.errortext != "book.GetNumLines() did not return an Integer" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_param_errors( resmgr )
+  var book := make_book( resmgr, { "one" } );
+  if ( !book )
+    return book;
+  endif
+
+  var res := SendOpenBook( "blubb", book );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  res := SendOpenBook( char, char );
+  if ( res )
+    return ret_error( "succeeded given a character as the book" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 57, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendOpenBook( npc, book );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No active client" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_page_turned( resmgr )
+  // Turning to a page of a read-only book: the client asks, and the core builds that page one
+  // line at a time out of the method script rather than out of anything it kept.
+  var lines := {};
+  for i := 1 to 10
+    lines.append( $"line {i}" );
+  endfor
+  var book := make_book( resmgr, lines );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var asked := struct{ action := BOOK_READ, serial := book.serial, page := 2 };
+  clientcon.sendevent( struct{ todo := EVT_BOOK, arg := asked, id := 0 } );
+  var ev := waitForClient( 0, { EVT_BOOK_PAGE } );
+  if ( !ev )
+    return ret_error( "the page that was asked for never arrived" );
+  endif
+  if ( ev.pagedata.size() != 1 )
+    return ret_error( $"the answer holds {ev.pagedata.size()} pages, expected 1" );
+  endif
+  var page := ev.pagedata[1];
+  if ( page[1] != 2 )
+    return ret_error( $"page {page[1]} was sent, expected 2" );
+  endif
+  // Nine and ten are what is left after the first page of eight.
+  if ( page[2].size() != 2 || page[2][1] != "line 9" || page[2][2] != "line 10" )
+    return ret_error( $"the page holds {page[2]}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_page_out_of_reach( resmgr )
+  // A book the character cannot reach is not turned. It is on the ground far enough away that no
+  // reach check passes, and the core answers with nothing at all.
+  var book := resmgr.CreateItemAtLocation( char.x + 40, char.y + 40, char.z, 0x400020 );
+  if ( !book )
+    return ret_error( $"failed to create the book: {book}" );
+  endif
+  SetObjProperty( book, "lines", { "one" } );
+
+  drain_events();
+  var asked := struct{ action := BOOK_READ, serial := book.serial, page := 1 };
+  clientcon.sendevent( struct{ todo := EVT_BOOK, arg := asked, id := 0 } );
+  var ev := waitForClient( 0, { EVT_BOOK_PAGE }, QUIET_SECS );
+  if ( ev )
+    return ret_error( $"a book out of reach was turned anyway: {ev}" );
+  endif
+  return 1;
+endfunction
+
+// The client writing to a book, which the core hands to the method script and keeps nothing of.
+// The lines are read back out of the CProp the script stores them in.
+function wait_for_line( book, linenum, wanted, what )
+  var attempts := 50;
+  while ( attempts-- )
+    var lines := GetObjProperty( book, "lines" );
+    if ( lines and lines.size() >= linenum and lines[linenum] == wanted )
+      return 1;
+    endif
+    Sleepms( 100 );
+  endwhile
+  var lines := GetObjProperty( book, "lines" );
+  return ret_error( $"{what} (the book holds {lines})" );
+endfunction
+
+exported function book_page_written( resmgr )
+  var lines := {};
+  for i := 1 to 10
+    lines.append( $"line {i}" );
+  endfor
+  var book := make_book( resmgr, lines, 1 );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var written := struct{ action := BOOK_WRITE, serial := book.serial, page := 1 };
+  written.+lines := { "new one", "new two" };
+  clientcon.sendevent( struct{ todo := EVT_BOOK, arg := written, id := 0 } );
+
+  var res := wait_for_line( book, 1, "new one", "the first line was never written" );
+  if ( !res )
+    return res;
+  endif
+  res := wait_for_line( book, 2, "new two", "the second line was never written" );
+  if ( !res )
+    return res;
+  endif
+
+  // A page is always eight lines to the core, whatever the client actually sent: the six it did
+  // not send are written as empty rather than left alone.
+  res := wait_for_line( book, 3, "", "the rest of the page was left as it was" );
+  if ( !res )
+    return res;
+  endif
+  res := wait_for_line( book, 8, "", "the end of the page was left as it was" );
+  if ( !res )
+    return res;
+  endif
+
+  // The page after it is untouched, so the write did not run past its own page.
+  var stored := GetObjProperty( book, "lines" );
+  if ( stored[9] != "line 9" )
+    return ret_error( $"the next page was overwritten: {stored}" );
+  endif
+  return 1;
+endfunction
+
+exported function book_title_written( resmgr )
+  var book := make_book( resmgr, { "one" }, 1 );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var titled := struct{ action := BOOK_TITLE, serial := book.serial };
+  titled.+title := "New Title";
+  titled.+author := "New Author";
+  clientcon.sendevent( struct{ todo := EVT_BOOK, arg := titled, id := 0 } );
+
+  var attempts := 50;
+  while ( attempts-- )
+    if ( GetObjProperty( book, "title" ) == "New Title" and GetObjProperty( book, "author" ) == "New Author" )
+      return 1;
+    endif
+    Sleepms( 100 );
+  endwhile
+  var title := GetObjProperty( book, "title" );
+  var author := GetObjProperty( book, "author" );
+  return ret_error( $"the book is still \"{title}\" by \"{author}\"" );
+endfunction
+
+exported function book_contents_too_big( resmgr )
+  // A book whose pages do not fit one packet is refused, and nothing at all is sent: the header
+  // and the pages are both built before either goes out, so the client is not left holding a
+  // book whose pages can never arrive.
+  var big := "x";
+  for i := 1 to 10
+    big := big + big;
+  endfor
+  var lines := {};
+  for i := 1 to 80
+    lines.append( big );
+  endfor
+  var book := make_book( resmgr, lines, 1 );
+  if ( !book )
+    return book;
+  endif
+
+  drain_events();
+  var res := SendOpenBook( char, book );
+  if ( res )
+    return ret_error( "a book too big for one packet was opened" );
+  endif
+  if ( res.errortext != "Buffer overflow" )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+
+  var ev := waitForClient( 0, { EVT_BOOK }, QUIET_SECS );
+  if ( ev )
+    return ret_error( $"the header went out for a book with no pages: {ev}" );
+  endif
+  return 1;
+endfunction

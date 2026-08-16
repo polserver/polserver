@@ -8,6 +8,8 @@
 
 #include <string>
 
+#include "plib/uconst.h"
+
 namespace Pol::Network
 {
 class Client;
@@ -19,8 +21,9 @@ class Character;
 
 namespace Pol::Core
 {
-void send_sysmessage( Network::Client* client, const std::string& text, unsigned short font = 3,
-                      unsigned short color = 0x3B2 );
+void send_sysmessage( Network::Client* client, const std::string& text,
+                      unsigned short font = Plib::DEFAULT_TEXT_FONT,
+                      unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 void send_nametext( Network::Client* client, const Mobile::Character* chr, const std::string& str );
 }  // namespace Pol::Core
 

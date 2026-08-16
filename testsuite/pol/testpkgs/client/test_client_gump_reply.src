@@ -1,0 +1,177 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// What a gump reply may carry besides a button: the switches the player ticked and the text they
+// typed. pyuo answers a gump on its own with a button and nothing else, so every case here arms
+// the reply first and then opens a gump for it to answer.
+//
+// The malformed replies are the point of the arming: a real client would not send a count larger
+// than the packet it sits in, and the core's refusals for that had never run.
+
+var char;
+var clientcon := getClientConnection();
+
+program gumpreplytests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// Arms the answer the next gump gets. The ack matters: the todo travels the test connection while
+// the gump comes down the game socket, so without waiting for it the gump can be answered before
+// the arming has been read.
+function arm_reply( reply )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_GUMP_REPLY, arg := reply, id := 0 } );
+  var ev := waitForClient( 0, { EVT_GUMP_REPLY } );
+  if ( !ev )
+    return ret_error( "the client never acknowledged the armed reply" );
+  endif
+  return 1;
+endfunction
+
+// Opens a plain gump and returns what the armed reply woke the script with.
+function gump_answered_with( reply )
+  var armed := arm_reply( reply );
+  if ( !armed )
+    return armed;
+  endif
+  return SendDialogGump( char, { "hello" }, { "text" } );
+endfunction
+
+function assert_hash( res, what )
+  if ( CStr( res ) != "<inthash>" )
+    return ret_error( $"{what} answered {res} rather than a hash" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_switches()
+  // Every switch id becomes a key of its own, alongside the button under key 0.
+  var res := gump_answered_with( struct{ button := 5, switches := { 11, 22 } } );
+  var ok := assert_hash( res, "a reply with switches" );
+  if ( !ok )
+    return ok;
+  endif
+  if ( res.keys != { 0, 5, 11, 22 } )
+    return ret_error( $"wrong response keys: {res.keys}" );
+  endif
+  if ( res[0] != 5 )
+    return ret_error( $"the button came back as {res[0]}, expected 5" );
+  endif
+  if ( res[11] != 1 || res[22] != 1 )
+    return ret_error( $"a switch is missing from {res.keys}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_texts()
+  // A typed line is stored under its own tag, and the tag is repeated inside the value - the core
+  // formats it as "<tag>: <text>" and has a comment admitting it is throwing the tag away.
+  var res := gump_answered_with( struct{ button := 1, texts := { array{ 7, "hello" } } } );
+  var ok := assert_hash( res, "a reply with text" );
+  if ( !ok )
+    return ok;
+  endif
+  if ( res.keys != { 0, 1, 7 } )
+    return ret_error( $"wrong response keys: {res.keys}" );
+  endif
+  if ( res[7] != "7: hello" )
+    return ret_error( $"the typed line came back as \"{res[7]}\"" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_short_packet()
+  // The virtue button reply is 15 bytes: a header and nothing behind it. The core takes that
+  // length as its cue not to look for counts that are not there.
+  var res := gump_answered_with( struct{ short := 1, button := 3 } );
+  var ok := assert_hash( res, "a short reply with a button" );
+  if ( !ok )
+    return ok;
+  endif
+  if ( res.keys != { 0, 3 } )
+    return ret_error( $"wrong response keys: {res.keys}" );
+  endif
+  if ( res[0] != 3 )
+    return ret_error( $"the button came back as {res[0]}, expected 3" );
+  endif
+
+  // The same packet with no button at all is the one shape that answers a plain zero.
+  res := gump_answered_with( struct{ short := 1, button := 0 } );
+  if ( res != 0 )
+    return ret_error( $"a short reply with no button answered {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_too_many_ints()
+  // The packet claims 99 switches and carries none, so the strings would start past its end.
+  var res := gump_answered_with( struct{ claim_switches := 99 } );
+  if ( res )
+    return ret_error( $"a reply claiming 99 switches was accepted: {res}" );
+  endif
+  if ( res.errortext != "B1 message specified too many ints." )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_too_many_strings()
+  var res := gump_answered_with( struct{ claim_texts := 99 } );
+  if ( res )
+    return ret_error( $"a reply claiming 99 strings was accepted: {res}" );
+  endif
+  if ( res.errortext != "B1 message specified too many ints and/or strings." )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_string_overflow()
+  // Two typed lines, the second declaring nine characters and carrying two. The count is small
+  // enough to pass the check on the whole packet, so it is only caught while walking the strings
+  // themselves - and what was read before it is kept.
+  var lines := { array{ 3, "ab" }, array{ 4, "cd", 9 } };
+  var res := gump_answered_with( struct{ button := 1, texts := lines } );
+  var ok := assert_hash( res, "a reply with a lying string length" );
+  if ( !ok )
+    return ok;
+  endif
+  if ( res[3] != "3: ab" )
+    return ret_error( $"the first line came back as \"{res[3]}\"" );
+  endif
+  if ( res.keys != { 0, 1, 3 } )
+    return ret_error( $"the overrunning line was kept: {res.keys}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_unexpected_gumpid()
+  Clear_Event_Queue();
+  // A reply for a gump the server never sent. It is logged as suspicious and dropped; what
+  // matters is that it neither answers something else nor puts the client off its stride.
+  clientcon.sendevent( struct{ todo := EVT_GUMP_REPLY,
+                               arg := struct{ gumpid := 999999, button := 4 },
+                               id := 0 } );
+  if ( !waitForClient( 0, { EVT_GUMP_REPLY } ) )
+    return ret_error( "the client never acknowledged the stray reply" );
+  endif
+
+  var res := gump_answered_with( struct{ button := 9 } );
+  var ok := assert_hash( res, "the gump after a stray reply" );
+  if ( !ok )
+    return ok;
+  endif
+  if ( res[0] != 9 )
+    return ret_error( $"the stray reply was answered instead: {res[0]}" );
+  endif
+  return 1;
+endfunction

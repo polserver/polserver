@@ -421,6 +421,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
           std::back_inserter( log ), "  {} ({}) {}\n",
           prog->globalvarnames.size() > i ? prog->globalvarnames[i] : std::to_string( i ),
           global->impref().typeOf(), global->impref().sizeEstimate() );
+          ++i;
     }
     log += "Locals\n";
     auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )

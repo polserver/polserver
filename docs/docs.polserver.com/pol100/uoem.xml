@@ -189,7 +189,7 @@
 <constant>// Don't use these outside this file, use FONT_* from client.inc</constant>
 <constant>//  (and I don't know what for color)</constant>
 <constant>const _DEFAULT_TEXT_FONT     := 3;</constant>
-<constant>const _DEFAULT_TEXT_COLOR    := 1000;</constant>
+<constant>const _DEFAULT_TEXT_COLOR    := 946;</constant>
 <constant>const _DEFAULT_TEXT_REQUIREDCMD    := 0;</constant>
 <constant> </constant>
 <constant>// Realms</constant>

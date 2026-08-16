@@ -405,6 +405,29 @@ class VendorBuyListPacket(Packet):
       self.items.append({'price': price, 'name': name})
 
 
+class VendorSellListPacket(Packet):
+  ''' What a vendor is willing to buy: the player's own things, priced. Sent in answer to
+  SendSellWindow(), and the counterpart of the 0x74 list of what it has for sale. '''
+
+  cmd = 0x9e
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    num_items = self.dushort()
+    self.items = []
+    for i in range(num_items):
+      serial = self.duint()
+      graphic = self.dushort()
+      color = self.dushort()
+      amount = self.dushort()
+      price = self.dushort()
+      # no terminator on this one, the length is all there is
+      desc = self.dstring(self.dushort())
+      self.items.append({'serial': serial, 'graphic': graphic, 'color': color,
+                         'amount': amount, 'price': price, 'desc': desc})
+
+
 class SellItemsPacket(Packet):
   ''' Notify server of the items sold to a vendor '''
 
@@ -755,6 +778,28 @@ class ApproveDropItemPacket(Packet):
 
   def decodeChild(self):
       pass
+
+class ResurrectMenuPacket(Packet):
+  ''' The resurrect menu. The server opens it with SELECT and the client answers with what the
+  player picked, which is what the script waiting on SendInstaResDialog() receives. '''
+
+  cmd = 0x2c
+  length = 2
+
+  CHOICE_SELECT = 0
+  CHOICE_INSTARES = 1
+  CHOICE_GHOST = 2
+
+  def fill(self, choice):
+    self.choice = choice
+    self.length = 2
+
+  def decodeChild(self):
+    self.choice = self.duchar()
+
+  def encodeChild(self):
+    self.euchar(self.choice)
+
 
 class MobAttributesPacket(Packet):
   ''' Informs about a Mobile's attributes '''
@@ -1557,6 +1602,176 @@ class AllowAttackPacket(SerialOnlyPacket):
   cmd = 0xaa
 
 
+class OpenBookPacket(Packet):
+  ''' A book, both ways: the server opening one, and the client writing its title or author
+  back. The two strings are fixed width and whatever follows their terminator is ignored. '''
+
+  cmd = 0x93
+  length = 99
+
+  def fill(self, serial, title, author, writable=1, npages=1):
+    self.serial = serial
+    self.title = title
+    self.author = author
+    self.writable = writable
+    self.npages = npages
+    self.length = 99
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.writable = self.duchar()
+    self.duchar() # unknown, always 1
+    self.npages = self.dushort()
+    self.title = self.dstring(60)
+    self.author = self.dstring(30)
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.euchar(self.writable)
+    self.euchar(1)
+    self.eushort(self.npages)
+    self.estring(self.title, 60)
+    self.estring(self.author, 30)
+
+
+class BookPagePacket(Packet):
+  ''' The pages of a book, both ways.
+
+  Server to client it carries whichever pages it feels like sending, each with its own line
+  count. Client to server the same shape asks for a page when the line count is 0xffff, and
+  writes one otherwise.
+  '''
+
+  cmd = 0x66
+  PAGE_REQUEST = 0xffff
+
+  def fill(self, serial, page, lines=None):
+    '''!
+    @param lines list: the lines to write, or None to ask for the page instead
+    '''
+    self.serial = serial
+    self.page = page
+    self.lines = lines
+    self.length = 13
+    if lines is not None:
+      for line in lines:
+        self.length += len(line.encode('iso8859-15')) + 1
+
+  def dcstring(self):
+    ''' Reads one null terminated string '''
+    out = b''
+    while True:
+      c = self.rpb(1)
+      if c == b'\x00':
+        break
+      out += c
+    return self.varStr(out)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.pages = self.dushort()
+    # (page number, its lines) for each page the server put in
+    self.pagedata = []
+    while self.readCount < self.length:
+      page = self.dushort()
+      nlines = self.dushort()
+      self.pagedata.append((page, [self.dcstring() for i in range(0, nlines)]))
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.eushort(1) # one page in this packet
+    self.eushort(self.page)
+    if self.lines is None:
+      self.eushort(self.PAGE_REQUEST)
+    else:
+      self.eushort(len(self.lines))
+      for line in self.lines:
+        self.buf += line.encode('iso8859-15') + b'\x00'
+
+
+class SelectColorPacket(Packet):
+  ''' The dye window, both ways: the server names the item and the graphic to show it as, the
+  client answers with the colour that was picked. '''
+
+  cmd = 0x95
+  length = 9
+
+  def fill(self, serial, color):
+    self.serial = serial
+    self.color = color
+    self.length = 9
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.dushort() # unknown
+    self.graphic = self.dushort()
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(0)
+    self.eushort(self.color)
+
+
+class TextEntryGumpPacket(Packet):
+  ''' A text entry dialog the server opened. The two texts are the prompt and a second line the
+  script may add; both are sent with their own length, the terminator included. '''
+
+  cmd = 0xab
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.type = self.duchar()
+    self.index = self.duchar()
+    self.text = self.dstring(self.dushort())
+    self.cancel = self.duchar()
+    self.style = self.duchar()
+    self.maximum = self.duint()
+    self.text2 = self.dstring(self.dushort())
+
+
+class TextEntryResponsePacket(Packet):
+  ''' What the player typed into a text entry dialog.
+
+  The core is strict about the shape of this one and answers a plain 0 for anything it does not
+  like, so the pieces it checks can all be set wrong on purpose here.
+  '''
+
+  cmd = 0xac
+
+  RETCODE_CANCELED = 0
+  RETCODE_OKAY = 1
+
+  def fill(self, serial, text, retcode=1, type=0, index=0, terminated=True, claim_datalen=None,
+           raw=None):
+    '''!
+    @param terminated bool: whether the null the core insists on is actually sent
+    @param claim_datalen int: write this length instead of the real one
+    @param raw list: the bytes to send instead of encoding text, for a line that cannot survive
+                     being carried as a string - a control character does not come through the
+                     test connection's JSON
+    '''
+    self.serial = serial
+    self.retcode = retcode
+    self.type = type
+    self.index = index
+    self.claim_datalen = claim_datalen
+    body = bytes(raw) if raw is not None else text.encode('iso8859-15')
+    self.data = body + (b'\x00' if terminated else b'')
+    self.length = 12 + len(self.data)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.euchar(self.type)
+    self.euchar(self.index)
+    self.euchar(self.retcode)
+    self.eushort(len(self.data) if self.claim_datalen is None else self.claim_datalen)
+    self.buf += self.data
+
+
 class UnicodeSpeechRequestPacket(Packet):
   ''' Unicode speech request packet '''
 
@@ -1689,7 +1904,13 @@ class SendGumpDialogPacket(Packet):
     self.x = self.duint()
     self.y = self.duint()
     cmdLen = self.dushort()
-    self.commands = self.dstring(cmdLen)
+    # The layout arrives as one run of "{ cmd }{ cmd }" with a null after it, the same shape the
+    # compressed gump carries, so it is split back into the entries the script sent.
+    commands = self.dstring(cmdLen)
+    self.commands = commands.split(' }{ ')
+    if len(self.commands):
+      self.commands[0]=self.commands[0].strip('{ ')
+      self.commands[-1]=self.commands[-1].strip(' }')
     textLines = self.dushort()
     self.texts = []
     for i in range(0, textLines):
@@ -1763,6 +1984,13 @@ class GeneralInfoPacket(Packet):
   SUB_LOGIN = 0x0f
   ## MegaCliLoc
   SUB_MEGACLILOC = 0x10
+  ## A pop-up (context) menu the server is showing, above some object
+  SUB_POPUP_DISPLAY = 0x14
+  ## Which entry of it the player picked
+  SUB_POPUP_SELECT = 0x15
+  ## The server closing one of the client's own windows: paperdoll, status,
+  ## profile or container. Carries which kind and what it belongs to.
+  SUB_CLOSEWINDOW = 0x16
   ## The contents of a spellbook the server opened
   SUB_SPELLBOOK = 0x1b
   ## Cast the spell picked out of a spellbook gump
@@ -1851,6 +2079,12 @@ class GeneralInfoPacket(Packet):
       self.listid = args[1]
       self.length = 5 + 8
 
+    elif self.sub == self.SUB_POPUP_SELECT:
+      checkArgLen(2)
+      self.serial = args[0]
+      self.entry_tag = args[1]
+      self.length = 5 + 6
+
     elif self.sub == self.SUB_RACECHANGER:
       checkArgLen(5)
       self.bodyhue = args[0]
@@ -1918,6 +2152,10 @@ class GeneralInfoPacket(Packet):
       self.euint(self.serial)
       self.euint(self.listid)
 
+    elif self.sub == self.SUB_POPUP_SELECT:
+      self.euint(self.serial)
+      self.eushort(self.entry_tag)
+
     elif self.sub == self.SUB_RACECHANGER:
       self.eushort(self.bodyhue)
       self.eushort(self.hairid)
@@ -1959,6 +2197,39 @@ class GeneralInfoPacket(Packet):
     elif self.sub == self.SUB_CLOSEGUMP:
       self.gumpid = self.duint()
       self.buttonid = self.duint()
+
+    elif self.sub == self.SUB_POPUP_DISPLAY:
+      self.duchar() # unknown
+      # 1 is the old two dimensional layout, 2 the one every client since KR uses. They put the
+      # same three fields in a different order, and only the old one can carry a colour.
+      self.format = self.duchar()
+      self.serial = self.duint()
+      count = self.duchar()
+      self.entries = []
+      for i in range(0, count):
+        if self.format == 2:
+          cliloc = self.duint()
+          tag = self.dushort()
+          flags = self.dushort()
+        else:
+          tag = self.dushort()
+          # sent as an offset from the first of the range the old format can express
+          cliloc = self.dushort() + 3000000
+          flags = self.dushort()
+        entry = [tag, cliloc, flags]
+        if self.format != 2 and flags & 0x20:
+          entry.append(self.dushort())
+        self.entries.append(entry)
+
+    elif self.sub == self.SUB_CLOSEWINDOW:
+      self.windowtype = self.duint()
+      self.serial = self.duint()
+
+    elif self.sub == self.SUB_RACECHANGER:
+      # The server opening the race changer, which carries only who is being changed: the
+      # gender and the race, the latter counted from one rather than from zero.
+      self.gender = self.duchar()
+      self.race = self.duchar()
 
     elif self.sub == self.SUB_SCREENSIZE:
       unk = self.dushort()
@@ -2175,19 +2446,47 @@ class CloseGumpResponsePacket(Packet):
 
   cmd = 0xb1
 
-  def fill(self,serial,gumpid, button=0):
+  def fill(self,serial,gumpid, button=0, switches=None, texts=None, short=False,
+           claim_switches=None, claim_texts=None):
+    '''!
+    @param switches list: the switch ids the player ticked, one uint each
+    @param texts list: (tag, text) pairs, or (tag, text, claimed_length) to declare a
+                       length the data does not have
+    @param short bool: send the 15 byte header alone with no counts behind it, which is
+                       the shape the virtue button reply has
+    @param claim_switches int: write this switch count instead of the real one
+    @param claim_texts int: write this string count instead of the real one
+    '''
     self.serial=serial
     self.gumpid=gumpid
     self.button=button
-    self.length=23
+    self.switches=switches if switches is not None else []
+    self.texts=[(t[0], t[1], t[2] if len(t)>2 else len(t[1])) for t in (texts or [])]
+    self.short=short
+    self.claim_switches=claim_switches
+    self.claim_texts=claim_texts
+
+    self.length=15
+    if not short:
+      self.length += 4 + 4*len(self.switches) + 4
+      for tag, text, claimed in self.texts:
+        self.length += 4 + 2*len(text)
 
   def encodeChild(self):
     self.eulen()
     self.euint(self.serial)
     self.euint(self.gumpid)
     self.euint(self.button) #button id
-    self.euint(0) #switch count
-    self.euint(0) #string count
+    if self.short:
+      return
+    self.euint(len(self.switches) if self.claim_switches is None else self.claim_switches)
+    for switch in self.switches:
+      self.euint(switch)
+    self.euint(len(self.texts) if self.claim_texts is None else self.claim_texts)
+    for tag, text, claimed in self.texts:
+      self.eushort(tag)
+      self.eushort(claimed) # in characters, the data behind it is two bytes each
+      self.buf += text.encode('utf_16_be')
 
 
 class AOSTooltipPacket(Packet):

@@ -62,7 +62,7 @@ enum MOVEMODE : u8
 #define MAX_WEIGHT 65535L
 
 const unsigned short DEFAULT_TEXT_FONT = 3;
-const unsigned short DEFAULT_TEXT_COLOR = 0x3B2;
+const unsigned short DEFAULT_TEXT_COLOR = 946;
 const unsigned short DEFAULT_TEXT_REQUIREDCMD = 0;
 }  // namespace Pol::Plib
 

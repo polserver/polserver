@@ -201,7 +201,7 @@ const RACE_GARGOYLE := 2;
 // Don't use these outside this file, use FONT_* from client.inc
 //  (and I don't know what for color)
 const _DEFAULT_TEXT_FONT        := 3;
-const _DEFAULT_TEXT_COLOR       := 1000;
+const _DEFAULT_TEXT_COLOR       := 946;
 const _DEFAULT_TEXT_REQUIREDCMD := 0;
 
 // Realms
