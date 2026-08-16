@@ -6,7 +6,7 @@
     <filedesc>Functions for sending Cliloc (Client Localized) messages to the Client.</filedesc>
     <datemodified>08/31/2015</datemodified>
     <constant>const _DEFAULT_CLFONT  := 3;</constant>
-    <constant>const _DEFAULT_CLCOLOR := 0x3B2;</constant>
+    <constant>const _DEFAULT_CLCOLOR := 946;</constant>
   </fileheader>
 
   <function name="SendSysMessageCL"> 

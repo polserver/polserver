@@ -6,7 +6,7 @@
     <filedesc>Functions that allow messages to be sent to clients in any unicode language UO supports.</filedesc>
     <datemodified>02/10/2009</datemodified>
     <constant>const _DEFAULT_UCFONT  := 3;</constant>
-    <constant>const _DEFAULT_UCCOLOR := 0x3B2;</constant>
+    <constant>const _DEFAULT_UCCOLOR := 946;</constant>
     <constant>// Constants for PrintTextAbove*</constant>
     <constant>const JOURNAL_UC_PRINT_NAME    := 0x00; // Implicit.  Print's the object's description / npc's name in the journal.</constant>
     <constant>const JOURNAL_UC_PRINT_YOU_SEE := 0x01; // Will print "You see:" in the journal.</constant>
