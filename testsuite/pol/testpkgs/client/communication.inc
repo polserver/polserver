@@ -47,6 +47,10 @@ const EVT_DROP_ITEM := "drop_item";
 const EVT_WEAR_ITEM := "wear_item";
 const EVT_BUY_ITEMS := "buy_items";
 const EVT_SELL_ITEMS := "sell_items";
+// What a vendor offers to buy, from SendSellWindow(). Each entry carries serial, graphic, color,
+// amount, price and desc. The counterpart, what a vendor has for sale, arrives as part of the
+// buy window rather than as an event of its own.
+const EVT_VENDOR_SELL_LIST := "vendor_sell_list";
 const EVT_RACE_CHANGE := "race_change";
 const EVT_BOAT_MOVE := "boat_move";
 const EVT_DROP_APPROVED := "drop_approved";
@@ -71,6 +75,46 @@ const EVT_HOUSE_REV := "house_rev";
 const EVT_SPELLBOOK := "spellbook";
 const EVT_MAP := "map";
 const EVT_MAP_PIN := "map_pin";
+// The server closed one of the client's own windows, see CloseWindow() and the CLOSE_*
+// constants in uo.em. Carries which kind of window and what it belonged to.
+const EVT_CLOSE_WINDOW := "close_window";
+// The ack of the gump_reply todo: the reply is armed, or has been sent. Arming has to be
+// waited for before the gump that consumes it is asked for.
+const EVT_GUMP_REPLY := "gump_reply";
+// The same for the dialog_reply todo, which arms one of the small dialogs below. Its arg
+// carries a "kind" naming which: DIALOG_* here.
+const EVT_DIALOG_REPLY := "dialog_reply";
+const DIALOG_TEXTENTRY := "textentry";
+const DIALOG_POPUP := "popup";
+const DIALOG_COLOR := "color";
+const DIALOG_RESURRECT := "resurrect";
+// The dialogs themselves, as the client sees them arrive. Each blocks the script that opened
+// it until the client answers, so the client always answers - see the arming todo above for
+// saying what with.
+const EVT_TEXT_ENTRY := "text_entry";
+const EVT_SELECT_COLOR := "select_color";
+const EVT_RESURRECT_MENU := "resurrect_menu";
+// A pop-up (context) menu. Its entries arrive as { tag, cliloc, flags } - and a colour, when the
+// old two dimensional layout carried one. The flags are the POPUP_MENU_* below.
+const EVT_POPUP := "popup";
+const POPUP_MENU_LOCKED := 0x1;
+const POPUP_MENU_ARROW := 0x2;
+const POPUP_MENU_COLOR := 0x20;
+// What the client claims to be decides the layout: 1 is the old two dimensional one, 2 the one
+// every client since KR uses. The test client is 7.0.9.1, so it always gets 2.
+const POPUP_FORMAT_2D := 1;
+const POPUP_FORMAT_KR := 2;
+// The server offering the race changer. Nothing blocks on this one; the answer is a
+// race_change todo whenever the test is ready.
+const EVT_RACE_CHANGER := "race_changer";
+// A book the server opened, and the pages that follow it. The client asks for a page, writes
+// one, or writes the title and author back with the "book" todo; only a page it asked for is
+// answered, so nothing is armed here.
+const EVT_BOOK := "book";
+const EVT_BOOK_PAGE := "book_page";
+const BOOK_READ := "read";
+const BOOK_WRITE := "write";
+const BOOK_TITLE := "title";
 
 // actions of the secure trade window packet, see PKTBI_6F in the core
 const TRADE_ACTION_INIT := 0;

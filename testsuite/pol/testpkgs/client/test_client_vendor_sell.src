@@ -1,0 +1,463 @@
+use os;
+use uo;
+use storage;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// The sell window: what a vendor is willing to buy, which is the player's own pack priced item by
+// item. test_client_vendor.src covers the buy window and what comes back from both; this covers
+// the sending of the sell list, which nothing had ever called - the packet it produces was one
+// the test client could not even read.
+//
+// Note which container is which: the list is built from the *character's backpack*, and the three
+// containers SendSellWindow takes are the merchant's own.
+
+var char;
+var clientcon := getClientConnection();
+
+program vendorselltests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// A merchant with the three containers a sell window needs. forcelocation, for the reason
+// test_client_vendor.src gives: the character is wherever the test before left them, and that
+// tile need not be one an npc may be created on.
+function make_vendor( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z, 0,
+                                           _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create vendor npc: {npc}" );
+  endif
+  var stockpack := resmgr.CreateItemAtLocation( 0, 0, 0, 0xE75 );
+  if ( !stockpack )
+    return ret_error( $"failed to create the vendor's pack: {stockpack}" );
+  endif
+  var equipped := EquipItem( npc, stockpack );
+  if ( !equipped )
+    return ret_error( $"failed to equip the vendor's pack: {equipped}" );
+  endif
+
+  var for_sale := resmgr.CreateItemInContainer( stockpack, 0xE75 );
+  var bought := resmgr.CreateItemInContainer( stockpack, 0xE75 );
+  var buyable := resmgr.CreateItemInContainer( stockpack, 0xE75 );
+  if ( !for_sale or !bought or !buyable )
+    return ret_error( "failed to create the vendor's containers" );
+  endif
+  return struct{ npc := npc, for_sale := for_sale, bought := bought, buyable := buyable };
+endfunction
+
+// Something the vendor will pay for, in the player's own pack.
+function make_sellable( resmgr, name, price := 5, amount := 1, objtype := 0xE75 )
+  var item := resmgr.CreateItemInContainer( char.backpack, objtype, amount );
+  if ( !item )
+    return ret_error( $"failed to create {name}: {item}" );
+  endif
+  item.name := name;
+  item.buyprice := price;
+  return item;
+endfunction
+
+function open_sell_window( vendor, flags := 0 )
+  drain_events();
+  var res := SendSellWindow( char, vendor.npc, vendor.for_sale, vendor.bought, vendor.buyable,
+                             flags );
+  if ( !res )
+    return ret_error( $"SendSellWindow failed: {res.errortext}" );
+  endif
+  return waitForClient( 0, { EVT_VENDOR_SELL_LIST } );
+endfunction
+
+function listed_item( ev, serial )
+  foreach entry in ( ev.items )
+    if ( entry.serial == serial )
+      return entry;
+    endif
+  endforeach
+  return 0;
+endfunction
+
+exported function sell_window_lists_pack( resmgr )
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  // A stack, so the amount in the list is worth asserting - and 0xE75 is a container, which
+  // cannot be created more than one at a time.
+  var item := make_sellable( resmgr, "sellable boot", 7, 3, "NormalStackable" );
+  if ( !item )
+    return item;
+  endif
+
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.serial != vendor.npc.serial )
+    return ret_error( $"the list came from 0x{ev.serial:x}, expected the vendor" );
+  endif
+
+  var entry := listed_item( ev, item.serial );
+  if ( !entry )
+    return ret_error( $"the item is not in the list: {ev.items}" );
+  endif
+  if ( entry.price != 7 )
+    return ret_error( $"the item is priced {entry.price}, expected 7" );
+  endif
+  if ( entry.amount != 3 )
+    return ret_error( $"the item is listed as {entry.amount}, expected 3" );
+  endif
+  if ( entry.graphic != item.graphic )
+    return ret_error( $"the item is listed as graphic 0x{entry.graphic:x}" );
+  endif
+  // A named item is described by its own name rather than by what its itemdesc calls it.
+  if ( entry.desc != "sellable boot" )
+    return ret_error( $"the item is described as \"{entry.desc}\"" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_window_skips_items( resmgr )
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+
+  var priced := make_sellable( resmgr, "priced thing", 5 );
+  if ( !priced )
+    return priced;
+  endif
+
+  // Nothing the vendor has no price for is offered at all.
+  var unpriced := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !unpriced )
+    return ret_error( $"failed to create the unpriced item: {unpriced}" );
+  endif
+  unpriced.name := "unpriced thing";
+
+  // Nor is anything the player was given as a newbie, price or no price.
+  var newbie := make_sellable( resmgr, "newbie thing", 5 );
+  if ( !newbie )
+    return newbie;
+  endif
+  newbie.newbie := 1;
+
+  // A container is only offered when it is empty - what is inside would go with it.
+  var full := make_sellable( resmgr, "full box", 5 );
+  if ( !full )
+    return full;
+  endif
+  var inside := resmgr.CreateItemInContainer( full, 0xE75 );
+  if ( !inside )
+    return ret_error( $"failed to fill the box: {inside}" );
+  endif
+  var empty := make_sellable( resmgr, "empty box", 5 );
+  if ( !empty )
+    return empty;
+  endif
+
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !listed_item( ev, priced.serial ) )
+    return ret_error( $"the priced item is not in the list: {ev.items}" );
+  endif
+  if ( listed_item( ev, unpriced.serial ) )
+    return ret_error( "an item with no price was offered" );
+  endif
+  if ( listed_item( ev, newbie.serial ) )
+    return ret_error( "a newbie item was offered" );
+  endif
+  if ( listed_item( ev, full.serial ) )
+    return ret_error( "a container with something in it was offered" );
+  endif
+  if ( !listed_item( ev, empty.serial ) )
+    return ret_error( "an empty container was not offered" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_window_buyable_filter( resmgr )
+  // With the filter flag the vendor only offers to buy what it stocks itself, matched by objtype.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var stocked := resmgr.CreateItemInContainer( vendor.buyable, 0xE75 );
+  if ( !stocked )
+    return ret_error( $"failed to stock the buyable container: {stocked}" );
+  endif
+
+  var same := make_sellable( resmgr, "same objtype", 5 );
+  if ( !same )
+    return same;
+  endif
+  var other := resmgr.CreateItemInContainer( char.backpack, 0x400005 );
+  if ( !other )
+    return ret_error( $"failed to create the other item: {other}" );
+  endif
+  other.name := "other objtype";
+  other.buyprice := 5;
+
+  var ev := open_sell_window( vendor, VENDOR_BUYABLE_CONTAINER_FILTER );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !listed_item( ev, same.serial ) )
+    return ret_error( $"the stocked objtype was not offered: {ev.items}" );
+  endif
+  if ( listed_item( ev, other.serial ) )
+    return ret_error( "an objtype the vendor does not stock was offered" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_window_aos_tooltip( resmgr )
+  // With the tooltip flag each offered item gets its own tooltip as well as its list entry.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "tooltipped thing", 5 );
+  if ( !item )
+    return item;
+  endif
+
+  // The tooltips go out from inside the loop that builds the list, so they arrive *before* it -
+  // waiting for the list first would throw them away.
+  drain_events();
+  var res := SendSellWindow( char, vendor.npc, vendor.for_sale, vendor.bought, vendor.buyable,
+                             VENDOR_SEND_AOS_TOOLTIP );
+  if ( !res )
+    return ret_error( $"SendSellWindow failed: {res.errortext}" );
+  endif
+
+  var tooltipped := 0;
+  var listed := 0;
+  for i := 1 to 8
+    var ev := waitForClient( 0, { EVT_AOS_TOOLTIP, EVT_VENDOR_SELL_LIST } );
+    if ( !ev )
+      return ret_error( $"only saw tooltip {tooltipped} and list {listed}" );
+    endif
+    if ( ev.type == EVT_AOS_TOOLTIP )
+      tooltipped := 1;
+    elseif ( listed_item( ev, item.serial ) )
+      listed := 1;
+    endif
+    if ( tooltipped and listed )
+      return 1;
+    endif
+  endfor
+  return ret_error( $"saw tooltip {tooltipped} and list {listed}" );
+endfunction
+
+exported function sell_window_param_errors( resmgr )
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+
+  var res := SendSellWindow( char, vendor.npc, vendor.for_sale, vendor.bought, vendor.buyable,
+                             "notanumber" );
+  if ( res )
+    return ret_error( "succeeded given a string as the flags" );
+  endif
+  if ( res.errortext != "A parameter was invalid" )
+    return ret_error( $"unexpected error for a string flag: {res.errortext}" );
+  endif
+
+  // The merchant has to be an npc, not merely a mobile.
+  res := SendSellWindow( char, char, vendor.for_sale, vendor.bought, vendor.buyable, 0 );
+  if ( res )
+    return ret_error( "succeeded given a player as the vendor" );
+  endif
+  if ( res.errortext != "Parameter 1 invalid" )
+    return ret_error( $"unexpected error for a player vendor: {res.errortext}" );
+  endif
+
+  // The container the vendor keeps what it bought in is the one it cannot do without.
+  var plain := resmgr.CreateItemInContainer( char.backpack, 0x400005 );
+  if ( !plain )
+    return ret_error( $"failed to create the plain item: {plain}" );
+  endif
+  res := SendSellWindow( char, vendor.npc, vendor.for_sale, plain, vendor.buyable, 0 );
+  if ( res )
+    return ret_error( "succeeded given a non-container to buy into" );
+  endif
+  if ( res.errortext != "Parameter 2 must be a container" )
+    return ret_error( $"unexpected error for a non-container: {res.errortext}" );
+  endif
+
+  // The third container is only looked at when the filter asks for it.
+  res := SendSellWindow( char, vendor.npc, vendor.for_sale, vendor.bought, plain, 0 );
+  if ( !res )
+    return ret_error( $"a non-container was refused without the filter: {res.errortext}" );
+  endif
+  res := SendSellWindow( char, vendor.npc, vendor.for_sale, vendor.bought, plain,
+                         VENDOR_BUYABLE_CONTAINER_FILTER );
+  if ( res )
+    return ret_error( "succeeded with a non-container to filter by" );
+  endif
+  if ( res.errortext != "Parameter 3 must be a container" )
+    return ret_error( $"unexpected error for a non-container filter: {res.errortext}" );
+  endif
+
+  res := SendSellWindow( vendor.npc, vendor.npc, vendor.for_sale, vendor.bought, vendor.buyable,
+                         0 );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client connected to character" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+function sell( vendor_serial, items )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_SELL_ITEMS,
+                               arg := struct{ vendor_serial := vendor_serial, items := items },
+                               id := 0 } );
+  return waitForClient( 0, { EVT_SELL_ITEMS } );
+endfunction
+
+exported function sell_to_wrong_vendor( resmgr )
+  // An answer naming a vendor other than the one whose window is open is dropped, and the window
+  // is forgotten with it.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "not really sold", 5 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+
+  var res := sell( char.serial, { struct{ serial := item.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+  Sleepms( 500 );
+
+  if ( item.container != char.backpack )
+    return ret_error( $"the item left the pack for {item.container}" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_pays_in_stacks( resmgr )
+  // Gold is created in stacks of sixty thousand, so anything dearer than that is paid in more
+  // than one. Nothing else in the suite sells anything worth that much.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "very dear thing", 61000 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+
+  var gold_objtype := GetObjtypeByName( "goldcoin" );
+  var before := 0;
+  foreach thing in ( EnumerateItemsInContainer( char.backpack ) )
+    if ( thing.objtype == gold_objtype )
+      before := before + 1;
+    endif
+  endforeach
+
+  var res := sell( vendor.npc.serial, { struct{ serial := item.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  var attempts := 50;
+  var stacks := 0;
+  while ( attempts-- )
+    stacks := 0;
+    foreach thing in ( EnumerateItemsInContainer( char.backpack ) )
+      if ( thing.objtype == gold_objtype )
+        stacks := stacks + 1;
+      endif
+    endforeach
+    if ( stacks >= before + 2 )
+      return 1;
+    endif
+    Sleepms( 100 );
+  endwhile
+  return ret_error( $"the sale paid into {stacks - before} new stacks, expected two" );
+endfunction
+
+exported function buy_back_a_sold_item( resmgr )
+  // Buying something out of the container the vendor keeps what it bought in, rather than out of
+  // the one it offers for sale. Only a sale can put something there.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var gold := resmgr.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  if ( !gold )
+    return ret_error( $"failed to create gold: {gold}" );
+  endif
+  var item := make_sellable( resmgr, "sold and bought", 5 );
+  if ( !item )
+    return item;
+  endif
+  item.sellprice := 5;
+
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var res := sell( vendor.npc.serial, { struct{ serial := item.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  var attempts := 50;
+  while ( attempts-- )
+    if ( item.container == vendor.bought )
+      break;
+    endif
+    Sleepms( 100 );
+  endwhile
+  if ( item.container != vendor.bought )
+    return ret_error( $"the item never reached the vendor, it is in {item.container}" );
+  endif
+
+  // The buy window is what the buy answer is matched against, and it names the same vendor.
+  res := SendBuyWindow( char, vendor.for_sale, vendor.npc, vendor.bought, 0 );
+  if ( !res )
+    return ret_error( $"SendBuyWindow failed: {res.errortext}" );
+  endif
+  Clear_Event_Queue();
+  var bought := struct{ vendor_serial := vendor.npc.serial };
+  bought.+items := { struct{ serial := item.serial, amount := 1 } };
+  clientcon.sendevent( struct{ todo := EVT_BUY_ITEMS, arg := bought, id := 0 } );
+  if ( !waitForClient( 0, { EVT_BUY_ITEMS } ) )
+    return ret_error( "client 0 did not send the purchase" );
+  endif
+
+  attempts := 50;
+  while ( attempts-- )
+    if ( item.container == char.backpack )
+      return 1;
+    endif
+    Sleepms( 100 );
+  endwhile
+  return ret_error( $"the bought-back item is in {item.container}, expected the buyer's pack" );
+endfunction

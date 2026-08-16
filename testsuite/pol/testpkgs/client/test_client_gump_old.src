@@ -1,0 +1,305 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+include "sysevent";
+
+// The uncompressed gump. Every client the test suite pretends to be is new enough for the
+// compressed form, so buildUnCompressedGumpMenu is only ever reached through
+// SENDDIALOGMENU_FORCE_OLD - which is why nothing had run it before. Both builders are also
+// asked for more than they can carry here, which is the only way to their refusals.
+
+var char;
+var clientcon := getClientConnection();
+
+program gumpoldtests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// A layout big enough that the builder gives up on it. Each entry costs its length plus the four
+// bytes of the braces around it, and both builders measure against a 65535 byte buffer.
+function oversized_array()
+  var big := "x";
+  for i := 1 to 10
+    big := big + big;
+  endfor
+  var filler := {};
+  for i := 1 to 80
+    filler.append( big );
+  endfor
+  return filler;
+endfunction
+
+exported function send_gump_old_simple()
+  Clear_Event_Queue();
+  var cmds := { "hello", "world" };
+  var texts := { "more", "text" };
+  var res := SendDialogGump( char, cmds, texts, flags := SENDDIALOGMENU_FORCE_OLD );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  // The layout arrives as one run of braced entries and is split back apart by the client, so
+  // this is also the assertion that the old packet lays its layout out the way the new one does.
+  if ( ev.commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {ev}" );
+  endif
+  if ( ev.texts != texts )
+    return ret_error( $"wrong gump textstring: {ev}" );
+  endif
+  if ( res != 0 )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function send_gump_old_button()
+  Clear_Event_Queue();
+  var cmds := { "button blubb" };
+  var texts := { "more", "text" };
+  var res := SendDialogGump( char, cmds, texts, flags := SENDDIALOGMENU_FORCE_OLD );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {ev}" );
+  endif
+  if ( CStr( res ) != "<inthash>" )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  if ( res.keys != { 0, 1 } )
+    return ret_error( $"wrong response keys: {res.keys}" );
+  endif
+  return 1;
+endfunction
+
+exported function display_gump_old()
+  Clear_Event_Queue();
+  var cmds := { "hello", "old" };
+  var texts := { "display", "old" };
+  var res := DisplayDialogGump( char, cmds, texts, flags := SENDDIALOGMENU_FORCE_OLD );
+  if ( res != { char } )
+    return ret_error( $"wrong response: {res}" );
+  endif
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.commands != cmds )
+    return ret_error( $"wrong gump cmdstring: {ev}" );
+  endif
+  if ( ev.texts != texts )
+    return ret_error( $"wrong gump textstring: {ev}" );
+  endif
+  return 1;
+endfunction
+
+// A refused build sends nothing at all, so the script is never blocked and the client hears
+// nothing - both halves are asserted, because a builder that gave up halfway would still have
+// put a packet on the wire.
+function assert_refused_build( res, what )
+  if ( res )
+    return ret_error( $"{what} was accepted: {res}" );
+  endif
+  if ( res.errortext != "Buffer length exceeded" )
+    return ret_error( $"{what} answered {res.errortext}" );
+  endif
+  var ev := waitForClient( 0, { EVT_GUMP }, QUIET_SECS );
+  if ( ev )
+    return ret_error( $"{what} was sent to the client anyway: {ev}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_old_layout_overflow()
+  // A late event from the test before would look like the packet this one asserts was
+  // never sent, so the queue has to be quiet rather than merely emptied.
+  drain_events();
+  var big := oversized_array();
+  var res := SendDialogGump( char, big, {}, flags := SENDDIALOGMENU_FORCE_OLD );
+  return assert_refused_build( res, "an oversized old layout" );
+endfunction
+
+exported function gump_old_text_overflow()
+  // A late event from the test before would look like the packet this one asserts was
+  // never sent, so the queue has to be quiet rather than merely emptied.
+  drain_events();
+  // The text lines are written as UTF-16, so half as many of them fill the same buffer.
+  var big := oversized_array();
+  var res := SendDialogGump( char, { "hello" }, big, flags := SENDDIALOGMENU_FORCE_OLD );
+  return assert_refused_build( res, "oversized old text lines" );
+endfunction
+
+exported function gump_compressed_layout_overflow()
+  // A late event from the test before would look like the packet this one asserts was
+  // never sent, so the queue has to be quiet rather than merely emptied.
+  drain_events();
+  // The compressed builder measures the layout before it compresses it, so it refuses the same
+  // input for the same reason - compression never gets a chance to make it fit.
+  var big := oversized_array();
+  var res := SendDialogGump( char, big, {} );
+  return assert_refused_build( res, "an oversized compressed layout" );
+endfunction
+
+exported function gump_compressed_text_overflow()
+  // A late event from the test before would look like the packet this one asserts was
+  // never sent, so the queue has to be quiet rather than merely emptied.
+  drain_events();
+  var big := oversized_array();
+  var res := SendDialogGump( char, { "hello" }, big );
+  return assert_refused_build( res, "oversized compressed text lines" );
+endfunction
+
+exported function send_gump_param_errors( resmgr )
+  var cmds := { "hello" };
+  var texts := { "text" };
+
+  var res := SendDialogGump( "blubb", cmds, texts );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+
+  res := SendDialogGump( char, "notanarray", texts );
+  if ( res )
+    return ret_error( "succeeded given a string layout" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 50, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := SendDialogGump( npc, cmds, texts );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+
+  // A gumpid is the script's to choose, but only below the range the core hands out to running
+  // scripts - a gump numbered like a pid would answer for one.
+  res := SendDialogGump( char, cmds, texts, gumpid := -1 );
+  if ( res )
+    return ret_error( "succeeded with a negative gumpid" );
+  endif
+  if ( res.errortext != "GumpID out of range" )
+    return ret_error( $"unexpected error for a negative gumpid: {res.errortext}" );
+  endif
+
+  res := SendDialogGump( char, cmds, texts, gumpid := 0x1000000 );
+  if ( res )
+    return ret_error( "succeeded with a gumpid in the pid range" );
+  endif
+  if ( res.errortext != "GumpID out of range" )
+    return ret_error( $"unexpected error for a pid-range gumpid: {res.errortext}" );
+  endif
+
+  return 1;
+endfunction
+
+exported function display_gump_param_errors( resmgr )
+  var cmds := { "hello" };
+  var texts := { "text" };
+
+  var res := DisplayDialogGump( char, "notanarray", texts );
+  if ( res )
+    return ret_error( "succeeded given a string layout" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string layout: {res.errortext}" );
+  endif
+
+  res := DisplayDialogGump( "blubb", cmds, texts );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 51, 50, 0 );
+  if ( !npc )
+    return npc;
+  endif
+  res := DisplayDialogGump( npc, cmds, texts );
+  if ( res )
+    return ret_error( "succeeded on an npc" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"unexpected error for an npc: {res.errortext}" );
+  endif
+
+  res := DisplayDialogGump( char, cmds, texts, gumpid := -1 );
+  if ( res )
+    return ret_error( "succeeded with a negative gumpid" );
+  endif
+  if ( res.errortext != "GumpID out of range" )
+    return ret_error( $"unexpected error for a negative gumpid: {res.errortext}" );
+  endif
+
+  res := DisplayDialogGump( char, cmds, texts, gumpid := 0x1000000 );
+  if ( res )
+    return ret_error( "succeeded with a gumpid in the pid range" );
+  endif
+
+  return 1;
+endfunction
+
+// CloseGump against a gump whose script is *blocked* on it, rather than one opened with
+// DisplayDialogGump. That is the arm that has to hand the response back to the waiting script
+// instead of signalling an event, and no other test has a script parked on a gump.
+exported function close_suspended_gump( resmgr )
+  Clear_Event_Queue();
+  var waiter := resmgr.Start_Script( ":TestClient:gumpwaiter.ecl", struct{ parent := GetProcess(),
+                                                                           chr := char,
+                                                                           gumpid := 200 } );
+  if ( !waiter )
+    return waiter;
+  endif
+
+  var ev := Wait_For_Event( 10 );
+  if ( !ev or ev.opened != 200 )
+    return ret_error( $"the holding script did not report in: {ev}" );
+  endif
+
+  // Waiting for the client is what proves the gump was registered before it is closed: CloseGump
+  // refuses a gump the character does not have open.
+  if ( !waitForClient( 0, { EVT_GUMP } ) )
+    return ret_error( "the held gump never reached the client" );
+  endif
+
+  var res := CloseGump( char, 200, 77 );
+  if ( !res )
+    return ret_error( $"CloseGump refused the held gump: {res.errortext}" );
+  endif
+
+  // The client is told to close it as well, so its event and the holding script's answer race;
+  // only the one carrying a response is of interest here.
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    ev := Wait_For_Event( 1 );
+    if ( !ev )
+      continue;
+    endif
+    // The .? has to stand on its own: inside a larger condition the operators around it bind
+    // tighter, so what gets asked for a member is the result of the rest of the expression.
+    var answered := ev.?closed;
+    if ( answered )
+      if ( ev.closed != 77 )
+        return ret_error( $"the held script woke with {ev.closed}, expected the 77 passed to CloseGump" );
+      endif
+      // The client is told to close the gump as well, and that event outlives this test if it
+      // has not arrived yet - the next one would take it for its own.
+      drain_events();
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the held script never woke up" );
+endfunction

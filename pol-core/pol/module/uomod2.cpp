@@ -2272,7 +2272,7 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
   }
   if ( !chr->has_active_client() )
     return new BError( "No client attached" );
-  if ( chr->client->gd->resurrect_uoemod != nullptr )
+  if ( chr->client->gd->selcolor_uoemod != nullptr )
     return new BError( "Client is already selecting a color" );
 
   PktHelper::PacketOut<PktOut_95> msg;
@@ -2347,7 +2347,6 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
   msg93->WriteFlipped<u16>( static_cast<u16>( npages ) );
   msg93->Write( title.c_str(), 60, false );
   msg93->Write( author.c_str(), 30, false );
-  msg93.Send( chr->client );
 
   if ( writable )
   {
@@ -2387,42 +2386,15 @@ BObjectImp* UOExecutorModule::mf_SendOpenBook()
       msg->WriteFlipped<u16>( static_cast<u16>( pagelines ) );
       msg->offset = len;
     }
-
-    /*
-            int linenum = 1;
-            for( int page = 1; page <= npages; ++page )
-            {
-            PKTBI_66_CONTENTS* ppage = reinterpret_cast<PKTBI_66_CONTENTS*>(&buffer[msglen]);
-            msglen += sizeof(*ppage);
-            if (msglen > sizeof buffer)
-            return new BError( "Buffer overflow" );
-            ppage->page = ctBEu16( page );
-
-            int pagelines;
-            for( pagelines = 0; pagelines < 8 && linenum <= nlines; ++pagelines, ++linenum )
-            {
-            string linetext;
-
-            BObjectVec params;
-            params.push_back( BObject(new BLong(linenum)) );
-            BObject line_ob = book->call_custom_method( "getline", params );
-            linetext = line_ob->getStringRep();
-
-            char* linebuf = reinterpret_cast<char*>(&buffer[msglen]);
-            msglen += linetext.size()+1;
-            if (msglen > sizeof buffer)
-            return new BError( "Buffer overflow" );
-            memcpy( linebuf, linetext.c_str(), linetext.size()+1 );
-            }
-            ppage->lines = ctBEu16( pagelines );
-            }
-            */
     u16 len = msg->offset;
     msg->offset = 1;
     msg->WriteFlipped<u16>( len );
+    msg93.Send( chr->client );
     msg.Send( chr->client, len );
+    return new BLong( 1 );
   }
 
+  msg93.Send( chr->client );
   return new BLong( 1 );
 }
 

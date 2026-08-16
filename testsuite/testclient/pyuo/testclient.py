@@ -156,6 +156,45 @@ class TestBrain(brain.Brain):
           self.client.secureTrade(arg)
         else:
           self.client.secureTrade(arg['action'], arg.get('flag', 0))
+      elif todo=="gump_reply":
+        # With a gumpid, answer that gump right now - the server is free never to have
+        # sent it. Without one, arm the answer the next gump to arrive gets, which is how
+        # a suspending SendDialogGump is answered with more than a button.
+        if 'gumpid' in arg:
+          self.client.gumpReply(int(arg['gumpid']), int(arg.get('button', 0)),
+            serial = arg.get('serial', None),
+            switches = arg.get('switches', None), texts = arg.get('texts', None),
+            short = bool(arg.get('short', 0)),
+            claim_switches = arg.get('claim_switches', None),
+            claim_texts = arg.get('claim_texts', None))
+        else:
+          self.client.next_gump_reply = arg
+        # Acked, because arming has to be known to have happened before the gump is asked for:
+        # the todo travels the test connection while the gump comes down the game socket, and
+        # the two are read by different threads.
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_GUMP_REPLY,
+            clientid = self.id
+            ))
+      elif todo=="popup_select":
+        # answers a menu right now, which the server is free never to have shown
+        self.client.popupSelect(int(arg['serial']), int(arg['tag']))
+      elif todo=="book":
+        # read a page, write one, or write the title and author back
+        action = arg.get('action', 'read')
+        if action == 'title':
+          self.client.bookTitle(int(arg['serial']), arg.get('title', ''), arg.get('author', ''))
+        else:
+          self.client.bookPage(int(arg['serial']), int(arg['page']),
+            arg['lines'] if action == 'write' else None)
+      elif todo=="dialog_reply":
+        # Arms the answer the next dialog of that kind gets: "textentry", "color" or
+        # "resurrect". Acked for the same reason the gump reply is.
+        self.client.next_dialog_reply[arg['kind']] = arg
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_DIALOG_REPLY,
+            clientid = self.id
+            ))
       elif todo=="race_change":
         self.client.raceChange(arg['bodyhue'], arg['hairid'], arg['hairhue'],
                                arg['beardid'], arg['beardhue'])
@@ -555,6 +594,42 @@ class PolServer:
       else:
         res['commands']=ev.commands
         res['texts']=ev.texts
+    elif ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY:
+      pass
+    elif ev.type==Event.EVT_VENDOR_SELL_LIST:
+      res['serial']=ev.serial
+      res['items']=ev.items
+    elif ev.type==Event.EVT_POPUP:
+      res['serial']=ev.serial
+      res['format']=ev.format
+      res['entries']=ev.entries
+    elif ev.type==Event.EVT_BOOK:
+      res['serial']=ev.serial
+      res['title']=ev.title
+      res['author']=ev.author
+      res['writable']=ev.writable
+      res['npages']=ev.npages
+    elif ev.type==Event.EVT_BOOK_PAGE:
+      res['serial']=ev.serial
+      res['pages']=ev.pages
+      res['pagedata']=ev.pagedata
+    elif ev.type==Event.EVT_TEXT_ENTRY:
+      res['text']=ev.text
+      res['text2']=ev.text2
+      res['cancel']=ev.cancel
+      res['style']=ev.style
+      res['maximum']=ev.maximum
+    elif ev.type==Event.EVT_SELECT_COLOR:
+      res['serial']=ev.serial
+      res['graphic']=ev.graphic
+    elif ev.type==Event.EVT_RESURRECT_MENU:
+      res['choice']=ev.choice
+    elif ev.type==Event.EVT_RACE_CHANGER:
+      res['gender']=ev.gender
+      res['race']=ev.race
+    elif ev.type==Event.EVT_CLOSE_WINDOW:
+      res['windowtype']=ev.windowtype
+      res['serial']=ev.serial
     elif ev.type==Event.EVT_AOS_TOOLTIP:
       res['text']=ev.text
     elif ev.type==Event.EVT_OPEN_PAPERDOLL:

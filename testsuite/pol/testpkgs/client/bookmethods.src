@@ -1,0 +1,88 @@
+use uo;
+use os;
+
+// The method script behind the test book. Everything SendOpenBook() shows and everything the
+// client writes back goes through these: the core asks the item, and the item is whatever this
+// says it is. The pages live in a CProp so a test can set them up and read back what the client
+// wrote.
+//
+// The answers are deliberately not sanity checked. getnumlines returning something that is not
+// an integer, and getcontents returning something that is not an array, are both arms of
+// SendOpenBook that only a book like this can reach - the "broken" CProps below are how.
+
+program bookmethods()
+  return 1;
+endprogram
+
+exported function iswritable( book )
+  return CInt( GetObjProperty( book, "writable" ) );
+endfunction
+
+exported function getnumlines( book )
+  var broken := GetObjProperty( book, "broken_numlines" );
+  if ( broken )
+    return broken;
+  endif
+  var lines := GetObjProperty( book, "lines" );
+  if ( !lines )
+    return 0;
+  endif
+  return lines.size();
+endfunction
+
+exported function gettitle( book )
+  return CStr( GetObjProperty( book, "title" ) );
+endfunction
+
+exported function getauthor( book )
+  return CStr( GetObjProperty( book, "author" ) );
+endfunction
+
+exported function getcontents( book )
+  var broken := GetObjProperty( book, "broken_contents" );
+  if ( broken )
+    return broken;
+  endif
+  if ( GetObjProperty( book, "error_contents" ) )
+    return error{ errortext := "the book refused its contents" };
+  endif
+  var lines := GetObjProperty( book, "lines" );
+  if ( !lines )
+    return array{};
+  endif
+  return lines;
+endfunction
+
+// The core numbers lines from one and asks for them one at a time when the client turns a page.
+exported function getline( book, linenum )
+  var lines := GetObjProperty( book, "lines" );
+  if ( !lines )
+    return "";
+  endif
+  return CStr( lines[linenum] );
+endfunction
+
+// What the client typed. The core calls this eight times for every page it is sent, whatever the
+// page actually holds, so the trailing calls arrive with an empty line.
+exported function setline( book, linenum, text )
+  var lines := GetObjProperty( book, "lines" );
+  if ( !lines )
+    lines := array{};
+  endif
+  while ( lines.size() < linenum )
+    lines.append( "" );
+  endwhile
+  lines[linenum] := text;
+  SetObjProperty( book, "lines", lines );
+  return 1;
+endfunction
+
+exported function settitle( book, title )
+  SetObjProperty( book, "title", title );
+  return 1;
+endfunction
+
+exported function setauthor( book, author )
+  SetObjProperty( book, "author", author );
+  return 1;
+endfunction
