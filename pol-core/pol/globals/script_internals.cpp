@@ -275,6 +275,15 @@ void ScriptScheduler::run_ready()
           // parent script
           if ( ex->pChild != nullptr )
             ex->pChild->pParent = nullptr;
+          // And the same the other way round: we are reached with a parent still
+          // set whenever that parent stopped being runnable while we ran, so
+          // deleting without clearing its handle leaves it pointing at freed
+          // memory -- which it then writes through on the line above when the
+          // scheduler gets to it. Such a parent is un-runnable by definition of
+          // this branch, so it never resumes into run_script's "child has ended"
+          // path, and clearing the handle cannot make it start a second child.
+          if ( ex->pParent != nullptr )
+            ex->pParent->pChild = nullptr;
           if ( !ex->keep_alive() )
           {
             delete ex;

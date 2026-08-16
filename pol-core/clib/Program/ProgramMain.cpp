@@ -2,11 +2,12 @@
 
 #include <stdlib.h>
 
-#include <boost/stacktrace.hpp>
+#include <boost/core/demangle.hpp>
 
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"
 #include "clib/logfacility.h"
+#include "clib/threadhelp.h"
 #include <pol_global_config.h>
 
 #ifdef ENABLE_BENCHMARK
@@ -29,6 +30,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <typeinfo>
 
 
 namespace Pol::Clib
@@ -36,12 +38,51 @@ namespace Pol::Clib
 using namespace std;
 
 
-// last resort: print backtrace on terminate
+// last resort: print what went wrong and a backtrace on terminate.
+//
+// The exception is reported separately from the trace because the two can fail
+// independently: the backtrace's quality depends on the boost::stacktrace backend
+// the platform got (macOS builds against the basic one, which resolves each frame
+// to the nearest exported symbol and has no source lines), while the exception's
+// type and message come straight from the runtime and read the same everywhere.
 void terminate_handler()
 {
   try
   {
-    std::cerr << "Terminate failure:\n" << boost::stacktrace::stacktrace() << std::endl;
+    // Take the trace before touching the exception: getTrace() prefers the
+    // stack recorded at the throw, and the rethrow below must not be given the
+    // chance to look like a newer one. Symbolizing allocates and is the most
+    // likely step to fail on the way out of a memory fault, so a trace we
+    // cannot build must not cost us the exception message as well.
+    std::string trace;
+    try
+    {
+      trace = ExceptionParser::getTrace();
+    }
+    catch ( ... )
+    {
+      trace = "<no stack trace available>";
+    }
+
+    std::string reason = "no active exception";
+    if ( auto eptr = std::current_exception() )
+    {
+      try
+      {
+        std::rethrow_exception( eptr );
+      }
+      catch ( const std::exception& ex )
+      {
+        reason = "uncaught " + boost::core::demangle( typeid( ex ).name() ) + ": " + ex.what();
+      }
+      catch ( ... )
+      {
+        reason = "uncaught exception not derived from std::exception";
+      }
+    }
+    std::cerr << "Terminate failure in " << threadhelp::current_thread_name() << ": " << reason
+              << "\n"
+              << trace << std::endl;
   }
   catch ( ... )
   {
