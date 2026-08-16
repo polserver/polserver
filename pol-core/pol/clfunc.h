@@ -43,7 +43,7 @@ void private_say_above_cl( Mobile::Character* chr, const UObject* obj, unsigned 
 void send_sysmessage_cl_affix( Network::Client* client, unsigned int cliloc_num,
                                const std::string& affix, bool prepend = false,
                                const std::string& arguments = "",
-                               unsigned short font = Plib::DEFAULT_TEXT_COLOR,
+                               unsigned short font = Plib::DEFAULT_TEXT_FONT,
                                unsigned short color = Plib::DEFAULT_TEXT_COLOR );
 void say_above_cl_affix( UObject* obj, unsigned int cliloc_num, const std::string& affix,
                          bool prepend = false, const std::string& arguments = "",

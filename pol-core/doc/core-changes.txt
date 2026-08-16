@@ -1,4 +1,6 @@
 -- POL100.3.0 --
+08-16-2026 AsYlum:
+    Changed: the default system message text color is now 946 (was 1000).
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS
 08-15-2026 Nando:
