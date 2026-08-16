@@ -78,47 +78,9 @@ size_t thread_pid()
   return GetCurrentThreadId();
 }
 
-const DWORD MS_VC_EXCEPTION = 0x406D1388;
-
-#pragma pack( push, 8 )
-typedef struct tagTHREADNAME_INFO
-{
-  DWORD dwType;      // Must be 0x1000.
-  LPCSTR szName;     // Pointer to name (in user addr space).
-  DWORD dwThreadID;  // Thread ID (-1=caller thread).
-  DWORD dwFlags;     // Reserved for future use, must be zero.
-} THREADNAME_INFO;
-#pragma pack( pop )
-
-void _SetThreadName( DWORD dwThreadID, const char* name )
-{
-  THREADNAME_INFO info;
-  info.dwType = 0x1000;
-  info.szName = name;
-  info.dwThreadID = dwThreadID;
-  info.dwFlags = 0;
-
-  __try
-  {  // oh my god i hate ms ...
-    RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( ULONG_PTR ), (ULONG_PTR*)&info );
-  }
-  __except ( EXCEPTION_EXECUTE_HANDLER )
-  {
-  }
-}
-void SetThreadName( int threadid, std::string threadName )
-{
-  // This redirection is needed because std::string has a destructor
-  // which isn't compatible with __try
-  _SetThreadName( threadid, threadName.c_str() );
-}
-
-// Name the calling thread for the OS itself. This is not what SetThreadName
-// above does: that raises MS_VC_EXCEPTION, which is only seen by a debugger
-// attached at that very moment. SetThreadDescription is stored with the thread,
-// so it reaches our own minidumps, WinDbg, Process Explorer and Task Manager
-// long after the fact. It needs Windows 10 1607, hence the dynamic lookup --
-// on anything older the thread simply stays unnamed, as it is today.
+// Name the calling thread for the OS itself, so the name reaches our own
+// minidumps, WinDbg, Process Explorer and Task Manager. Needs Windows 10 1607,
+// hence the dynamic lookup -- on anything older the thread stays unnamed.
 static void set_os_thread_name( const std::string& name )
 {
   using SetThreadDescription_t = HRESULT( WINAPI* )( HANDLE, PCWSTR );
@@ -284,12 +246,7 @@ void* thread_stub2( void* v_td )
 #ifdef _WIN32
 void create_thread( ThreadData* td, bool dec_child = false )
 {
-  // If the thread starts successfully, td will be deleted by thread_stub2.
-  // So we must save the threadName for later.
-  std::string threadName = td->name;
-
-  unsigned threadid = 0;
-  HANDLE h = (HANDLE)_beginthreadex( nullptr, 0, thread_stub2, td, 0, &threadid );
+  HANDLE h = (HANDLE)_beginthreadex( nullptr, 0, thread_stub2, td, 0, nullptr );
   if ( h == 0 )  // added for better debugging
   {
     POLLOG( "error in create_thread: {} {} \"{}\" \"{}\" {} {} {} {} {} {}\n", errno, _doserrno,
@@ -302,7 +259,7 @@ void create_thread( ThreadData* td, bool dec_child = false )
   }
   else
   {
-    SetThreadName( threadid, threadName );
+    // thread_stub2 names the thread itself, from the thread, via ThreadMap::Register.
     CloseHandle( h );
   }
 }

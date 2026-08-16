@@ -64,9 +64,6 @@ ThreadMap& threadmap_instance();
 // per-thread buffer rather than the ThreadMap, so it takes no lock and does not
 // allocate: safe to read from a crash or terminate handler. Never null.
 const char* current_thread_name();
-#ifdef _WIN32
-void SetThreadName( int dwThreadID, std::string threadName );
-#endif
 
 class ThreadRegister
 {
