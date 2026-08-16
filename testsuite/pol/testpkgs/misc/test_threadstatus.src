@@ -1,0 +1,68 @@
+use os;
+use polsys;
+
+include "testutil";
+
+program testthreadstatus()
+  return 1;
+endprogram
+
+// The stuck-thread report is the one diagnostic in the server that reads state
+// belonging to every other thread, and until this test it only ever ran on a
+// shard that was already wedged -- so nothing under CI, and in particular
+// nothing under ThreadSanitizer, ever executed it. It got noticed the way such
+// code always does: a slow sanitizer build crossed the 30-second no-clock-
+// movement threshold by accident and the job went red on six data races.
+//
+// PolCore().internal( 10 ) raises the same flag the watchdog raises, so the
+// report is printed on demand. What is under test is that it prints, in full,
+// while the rest of the shard keeps running.
+exported function thread_status_report_prints()
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  PolCore().internal( 10 );
+
+  // The ThreadStatus thread wakes once a second, so the report is not written
+  // by the time internal() returns. Poll rather than sleep a fixed time: the
+  // sanitizer builds are slow enough that any single sleep would be either
+  // flaky there or wasteful everywhere else.
+  var lines;
+  var i;
+  for ( i := 1; i <= 60; ++i )
+    lines := log_since( mark );
+    if ( lines == error )
+      return lines;
+    endif
+    if ( log_find( lines, "*Thread Info*" ) )
+      break;
+    endif
+    SleepMS( 250 );
+  endfor
+
+  var res := assert_log_contains( lines,
+                                  array{ "*Thread Info*", "Semaphore TID:",
+                                         "Scripts Thread Checkpoint:", "Last Script:",
+                                         "Escript Instruction Cycles:", "Tasks Thread Checkpoint:",
+                                         "Active Client Thread Checkpoint:", "Current Threads:",
+                                         "Child threads (child_threads):",
+                                         "Registered threads (ThreadMap):" },
+                                  "thread status report" );
+  if ( res != 1 )
+    return res;
+  endif
+
+  // The client list is the one part that can legitimately be missing: it is
+  // read under the world lock, taken with try_lock so that a shard stuck
+  // holding that lock still gets a report. Which branch runs here depends on
+  // what the other threads are doing, so accept either -- what matters is that
+  // the block ran and said which.
+  if ( !log_find( lines, "Number of clients:" ) &&
+       !log_find( lines, "Clients: (world lock held for" ) )
+    return ret_error( "thread status report: neither the client list nor the lock-held note" );
+  endif
+
+  return 1;
+endfunction

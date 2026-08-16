@@ -17,18 +17,11 @@
 #include "clib/stlutil.h"
 #include "plib/systemstate.h"
 
-#include "pol/accounts/account.h"
 #include "clib/network/sockets.h"
+#include "pol/accounts/account.h"
 #include "pol/core.h"
 #include "pol/crypt/cryptbase.h"
 #include "pol/mobile/charactr.h"
-#include "pol/polclock.h"
-#include "pol/polsem.h"
-#include "pol/schedule.h"
-#include "pol/scrdef.h"
-#include "pol/scrsched.h"
-#include "pol/uoscrobj.h"
-#include "pol/uworld.h"
 #include "pol/network/cgdata.h"  // This might not be needed if the client has a clear_gd() method
 #include "pol/network/client.h"
 #include "pol/network/msgfiltr.h"  // Client could also have a method client->is_msg_allowed(), for example. Then this is not needed here.
@@ -40,10 +33,17 @@
 #include "pol/network/pktdef.h"
 #include "pol/network/pktinid.h"
 #include "pol/network/proxyprotocol.h"
+#include "pol/polclock.h"
+#include "pol/polsem.h"
+#include "pol/schedule.h"
+#include "pol/scrdef.h"
+#include "pol/scrsched.h"
+#include "pol/uoscrobj.h"
+#include "pol/uworld.h"
 
 
-#define CLIENT_CHECKPOINT( x ) client->session()->checkpoint = x
-#define SESSION_CHECKPOINT( x ) session->checkpoint = x
+#define CLIENT_CHECKPOINT( x ) client->session()->checkpoint.store( x, std::memory_order_relaxed )
+#define SESSION_CHECKPOINT( x ) session->checkpoint.store( x, std::memory_order_relaxed )
 
 namespace Pol::Core
 {

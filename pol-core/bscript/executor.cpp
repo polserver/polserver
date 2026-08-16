@@ -44,6 +44,7 @@
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
@@ -3810,7 +3811,7 @@ void Executor::execInstr()
 
     ++ins.cycles;
     ++prog_->instr_cycles;
-    ++escript_instr_cycles;
+    count_instr_cycle();
 
     ++PC;
 
@@ -3963,12 +3964,12 @@ bool Executor::exec()
   passert( prog_ok_ );
   passert( !error_ );
 
-  Clib::scripts_thread_script = scriptname();
+  Clib::script_status.set_script( scriptname() );
 
   set_running_to_completion( true );
   while ( runnable() )
   {
-    Clib::scripts_thread_scriptPC = PC;
+    Clib::script_status.set_pc( PC );
     execInstr();
   }
 

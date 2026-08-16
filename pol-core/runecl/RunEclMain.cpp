@@ -171,11 +171,12 @@ int RunEclMain::runeclScript( std::string fileName )
     if ( eobject_imp_count )
       fmt::format_to( std::back_inserter( buffer ), "\tRemaining BObjectImps: {}\n",
                       eobject_imp_count );
+    u64 instr_cycles = escript_instr_cycles.load( std::memory_order_relaxed );
     fmt::format_to( std::back_inserter( buffer ),
                     "\tInstruction cycles: {}\n"
                     "\tInnerExec calls: {}\n"
                     "\tClocks: {} ( {} seconds)\n",
-                    escript_instr_cycles, escript_execinstr_calls, clocks, seconds );
+                    instr_cycles, escript_execinstr_calls, clocks, seconds );
 #ifdef _WIN32
     fmt::format_to( std::back_inserter( buffer ),
                     "\tKernel Time: {}\n"
@@ -188,9 +189,8 @@ int RunEclMain::runeclScript( std::string fileName )
                     "\tCycles Per Second: {}\n"
                     "\tCycles Per Minute: {}\n"
                     "\tCycles Per Hour:   {}\n",
-                    memory_used, escript_instr_cycles / seconds,
-                    60.0 * escript_instr_cycles / seconds,
-                    3600.0 * escript_instr_cycles / seconds );
+                    memory_used, instr_cycles / seconds, 60.0 * instr_cycles / seconds,
+                    3600.0 * instr_cycles / seconds );
 #if BOBJECTIMP_DEBUG
     display_bobjectimp_instances();
 #endif

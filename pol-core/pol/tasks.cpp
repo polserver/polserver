@@ -174,9 +174,10 @@ void update_rpm()
 {
   THREAD_CHECKPOINT( tasks, 300 );
   auto& pvars = stateManager.profilevars;
+  u64 instr_cycles = Bscript::escript_instr_cycles.load( std::memory_order_relaxed );
   pvars.last_instructions_pm =
-      Clib::clamp_convert<size_t>( Bscript::escript_instr_cycles - pvars.last_instructions );
-  pvars.last_instructions = Bscript::escript_instr_cycles;
+      Clib::clamp_convert<size_t>( instr_cycles - pvars.last_instructions );
+  pvars.last_instructions = instr_cycles;
 
   TICK_PROFILEVAR( sleep_cycles );
 

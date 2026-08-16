@@ -15,6 +15,16 @@ could not be collected.</change>
 			<change type="Changed">an exception that kills a thread is reported the same way, with the thread's<br/>
 name, the exception type and the stack of the throw. These reports go to<br/>
 pol.log as well as the console; before, they only ever reached the console.</change>
+			<change type="Changed">the thread status report - printed when the server's clock has not moved for<br/>
+30 seconds, and by the [threadstatus] console command - now goes to pol.log<br/>
+as well as the console, together with the &quot;No clock movement in 30 seconds&quot;<br/>
+line that precedes it. Before, both only ever reached the console, so a<br/>
+server started as a service, or with its output redirected, had no way to<br/>
+recover the report afterwards.</change>
+			<change type="Changed">that report lists the connected clients only if it can take the world lock<br/>
+within half a second, and prints &quot;Clients: (world lock held for 500ms, list<br/>
+not read)&quot; instead when it cannot. It previously read that list with no lock<br/>
+at all, which risked crashing a server that was already in trouble.</change>
 			<change type="Changed">a task failing in one of the core's worker pools no longer forces a crash<br/>
 dump - a minidump file on Windows, a stack dump of every thread in the<br/>
 process elsewhere. The failure is logged with the stack of the throw instead.<br/>

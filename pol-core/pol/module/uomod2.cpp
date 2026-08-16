@@ -2113,6 +2113,16 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
         // unanticipated. Exercising it at all takes a deliberate throw.
         throw std::runtime_error( "Forced executor exception" );
       }
+      else if ( type == 10 )
+      {
+        // Ask the ThreadStatus thread for the same report the 30-second
+        // stuck-watchdog prints. That report reads state owned by every other
+        // thread, so it is the one place in the server where a diagnostic can
+        // race the thing it is diagnosing -- and it otherwise only ever runs on
+        // a shard that is already wedged, i.e. never in CI. Firing it on demand
+        // puts it under the sanitizers on every run.
+        Core::stateManager.polsig.report_status_signalled = true;
+      }
       else if ( type == 8 )
       {
         // Block until everything logged so far has reached its file, so that a

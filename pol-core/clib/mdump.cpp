@@ -9,6 +9,7 @@
 #include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/scriptstatus.h"
 #include "clib/strexcpt.h"
 #include "clib/threadhelp.h"
 #include <iterator>
@@ -164,9 +165,12 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
       // too now that threads are named for the OS, but nothing in it can say
       // which script was running -- so a .dmp mailed in without the matching
       // log lines is otherwise unreadable on that point.
-      std::string comment = fmt::format(
-          "Thread: {} ({})\nLast Script: {} PC: {}\n", threadhelp::current_thread_name(),
-          threadhelp::thread_pid(), scripts_thread_script, scripts_thread_scriptPC );
+      std::string script_name;
+      unsigned script_pc;
+      script_status.snapshot( script_name, script_pc );
+      std::string comment = fmt::format( "Thread: {} ({})\nLast Script: {} PC: {}\n",
+                                         threadhelp::current_thread_name(),
+                                         threadhelp::thread_pid(), script_name, script_pc );
       MINIDUMP_USER_STREAM commentStream;
       commentStream.Type = CommentStreamA;
       commentStream.BufferSize = static_cast<ULONG>( comment.size() + 1 );
@@ -215,14 +219,17 @@ LONG HiddenMiniDumper::TopLevelFilter( struct _EXCEPTION_POINTERS* pExceptionInf
 
   if ( !result.empty() )
   {
+    std::string script_name;
+    unsigned script_pc;
+    script_status.snapshot( script_name, script_pc );
     POLLOG_ERRORLN(
         "##########################################################\n"
         "{}\n"
         "Thread: {} ({})\n"
         "Last Script: {} PC: {}\n"
         "##########################################################",
-        result, threadhelp::current_thread_name(), threadhelp::thread_pid(), scripts_thread_script,
-        scripts_thread_scriptPC );
+        result, threadhelp::current_thread_name(), threadhelp::thread_pid(), script_name,
+        script_pc );
   }
   if ( Clib::Logging::global_logger )
     Clib::Logging::global_logger->wait_for_empty_queue();  // wait here for logging facility to make

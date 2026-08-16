@@ -2,6 +2,7 @@
 
 #include "clib/logfacility.h"
 #include "clib/random.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 
 #include "bscript/bcontiter.h"
@@ -450,7 +451,7 @@ long ObjArray::contains( const BObjectImp& imp ) const
       if ( bo == nullptr )
       {
         INFO_PRINTLN( "{} - '{} in array{{}}' check. Invalid data at index {}",
-                      Clib::scripts_thread_script, imp.getStringRep(),
+                      Clib::script_status.script_name(), imp.getStringRep(),
                       ( itr - ref_arr.begin() ) + 1 );
         continue;
       }

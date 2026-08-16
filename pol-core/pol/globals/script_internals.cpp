@@ -5,11 +5,12 @@
 
 #include "clib/logfacility.h"
 #include "clib/passert.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "plib/systemstate.h"
+#include "pol/globals/state.h"
 #include "pol/polsig.h"
 #include "pol/uoexec.h"
-#include "pol/globals/state.h"
 
 
 namespace Pol::Core
@@ -190,7 +191,7 @@ void ScriptScheduler::run_ready()
     passert_paranoid( ex != nullptr );
     runlist.pop_front();  // remove it directly, since itr can get invalid during execution
 
-    Clib::scripts_thread_script = ex->scriptname();
+    Clib::script_status.set_script( ex->scriptname() );
 
     int inscount = 0;
     int totcount = 0;
@@ -204,7 +205,7 @@ void ScriptScheduler::run_ready()
     {
       ++ex->instr_cycles;
       THREAD_CHECKPOINT( scripts, 112 );
-      Clib::scripts_thread_scriptPC = ex->PC;
+      Clib::script_status.set_pc( ex->PC );
       ex->execInstr();
 
       THREAD_CHECKPOINT( scripts, 113 );

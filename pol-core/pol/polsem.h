@@ -35,7 +35,9 @@ void wait_for_pulse( unsigned int millis );
 void wake_tasks_thread();
 void tasks_thread_sleep( unsigned int millis );
 
-extern size_t locker;
+/// tid of the thread holding the world lock, 0 if free. Read unlocked by the stuck-thread
+/// watchdog and the crash reports, hence atomic; relaxed, it orders nothing.
+extern std::atomic<size_t> locker;
 #ifdef _WIN32
 extern CRITICAL_SECTION cs;
 #else
@@ -44,6 +46,8 @@ extern pthread_mutex_t polsem;
 
 void polsem_lock();
 void polsem_unlock();
+/// Takes the world lock if it is free. For diagnostics that must not block on a stuck shard.
+bool polsem_trylock();
 
 #ifdef POLLOCK_TRACE
 class PolLockD
@@ -65,6 +69,31 @@ public:
   ~PolLock() { polsem_unlock(); }
 };
 #endif
+
+/// Takes the world lock only if it is free, so a diagnostic can read world state without
+/// hanging on the very deadlock it is reporting. Check locked() before trusting what you read.
+///
+/// A plain attempt fails most of the time on a *healthy* shard, because the scripts thread
+/// holds the lock for a whole pass and releases it only between passes -- so pass a budget
+/// in milliseconds to retry within, which distinguishes "busy" from "wedged" instead of
+/// treating them alike.
+class PolLockTry
+{
+public:
+  explicit PolLockTry( unsigned max_wait_ms = 0 );
+  ~PolLockTry()
+  {
+    if ( locked_ )
+      polsem_unlock();
+  }
+  PolLockTry( const PolLockTry& ) = delete;
+  PolLockTry& operator=( const PolLockTry& ) = delete;
+
+  bool locked() const { return locked_; }
+
+private:
+  bool locked_;
+};
 
 class PolLock2
 {
