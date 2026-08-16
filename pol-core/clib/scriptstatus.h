@@ -28,9 +28,9 @@ namespace Pol::Clib
  * fixed-buffer copy taken once per script switch, which is cheaper than the std::string
  * assignment it replaces.
  *
- * There is only one instance, so a script running off the scripts thread overwrites the
- * scripts thread's value and the dump can name the wrong script. That is pre-existing and is
- * what specs/stacktraces/02 replaces with per-thread context; this class exists to make the
+ * There is only one instance, so a script running off the scripts thread -- a client i/o
+ * thread running a logoff test or a syshook -- overwrites the scripts thread's value and a
+ * report can name the wrong script. That is pre-existing: this class exists to make the
  * access race-free, not to make it accurate.
  */
 class ScriptStatus
