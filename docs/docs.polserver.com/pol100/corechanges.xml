@@ -82,6 +82,13 @@ symbol pool were not counted at all) and for regular expressions.</change>
 server while they run. The object walk no longer counts the object hash in a<br/>
 separate pass over it, and the per-script report measures each script once rather<br/>
 than twice. The reported numbers are unchanged.</change>
+			<change type="Added">PolCore().log_memory_usage( sections ) takes an optional array of section names<br/>
+(&quot;objects&quot;, &quot;scripts&quot;, &quot;realms&quot;, ...) and measures only those, so a report can skip<br/>
+the parts you are not chasing. Walking every object in the world and every zone of<br/>
+every realm is the expensive part, and the server is stopped while it happens.<br/>
+Columns outside the requested sections are written empty rather than dropped, since<br/>
+log/memoryusage.log's header is written once and has to keep describing the file; an<br/>
+empty field means &quot;not measured&quot;, which is not the same as a measured zero.</change>
 			<change type="Changed">the default system message text color is now 946 (was 1000).</change>
 		</entry>
 		<entry>

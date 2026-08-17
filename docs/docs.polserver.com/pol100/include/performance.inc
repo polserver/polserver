@@ -263,7 +263,7 @@ endprogram
 <p>
 	<b>
 		PolCore().memory_usage<br />
-		PolCore().log_memory_usage()<br />
+		PolCore().log_memory_usage( sections := uninit )<br />
 		PolCore().log_script_memory()<br />
 		PolCore().log_script_variables( script )<br />
 	</b>
@@ -272,6 +272,17 @@ endprogram
 	<b>A word of warning first.</b> Scripts run on the server's main thread, so while one of these reports is being built nothing else happens - no packets, no tasks, no decay. <code>log_memory_usage()</code> visits every item, container and mobile in the world, and every zone of every realm, which is a fixed six-figure count no matter how quiet the shard is. Call these deliberately - from an admin command, or a task on an interval measured in minutes - and never in a hot path or an event handler.<br /><br />
 
 	<code>log_memory_usage()</code> appends one semicolon-separated line to <code>log/memoryusage.log</code>, writing a header row the first time it creates the file. That one stays a single growing file on purpose: it is a time series meant to be graphed, and a leak shows up as one column climbing while the others stay flat. Comparing <code>ProcessSize</code> against the sum of the rest also tells you whether the leak is in something the core measures at all.<br /><br />
+
+	Pass an array of section names to measure only part of it. This is the difference between a report you can afford every minute and one you can afford every hour:<br />
+<div class="doc-guide-pre">
+<pre>
+// everything - the full world walk
+PolCore().log_memory_usage();
+
+// just the scripts, which skips the object hash and the realm grids
+PolCore().log_memory_usage( { "scripts", "process" } );
+</pre></div>
+	The sections are <code>process</code>, <code>objects</code>, <code>scripts</code>, <code>gamestate</code>, <code>realms</code>, <code>network</code>, <code>config</code>, <code>systemstate</code>, <code>multis</code>, <code>settings</code>, <code>state</code>, <code>cprops</code> and <code>allocators</code>. An unknown name is an error listing the valid ones. The columns you left out are still written, but empty, because the header is only written once and has to keep describing the file - so an empty field means "not measured", which is not the same as a measured zero.<br /><br />
 
 	Once <code>ScriptSize</code> is the column that is growing, <code>log_script_memory()</code> says which script it is. It writes the estimated size of every running script, grouped by scheduler queue (<code>runlist</code>, <code>ranlist</code>, <code>holdlist</code>, <code>notimeoutholdlist</code>, <code>debuggerholdlist</code>), to <code>log/memory/scripts-YYYYMMDD-HHMMSS.log</code>.<br /><br />
 

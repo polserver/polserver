@@ -16,6 +16,11 @@ exported function polcore_memory()
   if ( core.log_memory_usage() != 1 )
     bad.append( "log_memory_usage answered falsy" );
   endif
+  // A subset costs less than the whole census; both have to be accepted, and the columns left
+  // out are written empty so the header keeps describing the file.
+  if ( core.log_memory_usage( { "scripts", "process" } ) != 1 )
+    bad.append( "log_memory_usage with sections answered falsy" );
+  endif
   if ( core.log_script_memory() != 1 )
     bad.append( "log_script_memory answered falsy" );
   endif
@@ -273,9 +278,25 @@ exported function polcore_methods( unused resmngr )
 
   // The memory reports. Their successful calls live in polcore_memory(); here only the
   // arguments they refuse.
+  res := core.log_memory_usage( 1, 2 );
+  if ( res.errortext != "polcore.log_memory_usage(sections) takes at most 1 parameter." )
+    bad.append( $"log_memory_usage with two parameters answered {res}" );
+  endif
   res := core.log_memory_usage( 1 );
-  if ( res.errortext != "polcore.log_memory_usage() doesn't take parameters." )
-    bad.append( $"log_memory_usage with a parameter answered {res}" );
+  if ( !res.errortext.find( "Invalid parameter type" ) )
+    bad.append( $"log_memory_usage with a non-array answered {res}" );
+  endif
+  res := core.log_memory_usage( { "not_a_section" } );
+  if ( !res.errortext.find( "Unknown memory section" ) )
+    bad.append( $"log_memory_usage with a bad section answered {res}" );
+  endif
+  res := core.log_memory_usage( {} );
+  if ( res.errortext != "polcore.log_memory_usage(sections) wants at least one section." )
+    bad.append( $"log_memory_usage with an empty array answered {res}" );
+  endif
+  res := core.log_memory_usage( { 1 } );
+  if ( res.errortext != "polcore.log_memory_usage(sections) wants an array of strings." )
+    bad.append( $"log_memory_usage with a non-string section answered {res}" );
   endif
   res := core.log_script_memory( 1 );
   if ( res.errortext != "polcore.log_script_memory() doesn't take parameters." )

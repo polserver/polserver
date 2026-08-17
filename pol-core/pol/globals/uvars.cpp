@@ -452,10 +452,9 @@ void GameState::unload_npc_templates()
 }
 
 
-GameState::Memory GameState::estimateSize() const
+GameState::Memory GameState::estimateSize( bool include_realms ) const
 {
-  Memory usage;
-  memset( &usage, 0, sizeof( usage ) );
+  Memory usage{};
 
   usage.misc = sizeof( GameState ) + Clib::memsize( cmdlevels );
   for ( const auto& ele : cmdlevels )
@@ -519,10 +518,13 @@ GameState::Memory GameState::estimateSize() const
       usage.misc += guild.second->estimateSize();
 
   usage.misc += Clib::memsize( Realms );
-  for ( const auto& realm : Realms )
+  if ( include_realms )
   {
-    if ( realm != nullptr )
-      usage.realm_size += realm->sizeEstimate();
+    for ( const auto& realm : Realms )
+    {
+      if ( realm != nullptr )
+        usage.realm_size += realm->sizeEstimate();
+    }
   }
 
   usage.misc += Clib::memsize( attributes );

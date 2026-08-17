@@ -2065,9 +2065,36 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
   }
   else if ( stricmp( methodname, "log_memory_usage" ) == 0 )
   {
-    if ( ex.numParams() > 0 )
-      return new BError( "polcore.log_memory_usage() doesn't take parameters." );
-    Core::MemoryUsage::log();
+    if ( ex.numParams() > 1 )
+      return new BError( "polcore.log_memory_usage(sections) takes at most 1 parameter." );
+
+    unsigned sections = MemoryUsage::SECTION_ALL;
+    // No argument, or an uninit one, means everything - which is what this cost before there
+    // was anything to choose.
+    if ( ex.numParams() == 1 && !ex.getParamImp( 0 )->isa( BObjectImp::OTUninit ) )
+    {
+      ObjArray* arr;
+      if ( !ex.getObjArrayParam( 0, arr ) )
+        return new BError( "Invalid parameter type" );
+
+      sections = 0;
+      for ( const auto& ref : arr->ref_arr )
+      {
+        BObject* bo = ref.get();
+        if ( bo == nullptr || !bo->isa( BObjectImp::OTString ) )
+          return new BError( "polcore.log_memory_usage(sections) wants an array of strings." );
+
+        unsigned flag;
+        const std::string& section = bo->impptr<String>()->value();
+        if ( !MemoryUsage::sectionByName( section, &flag ) )
+          return new BError( fmt::format( "Unknown memory section '{}'. Known sections: {}.",
+                                          section, MemoryUsage::sectionNames() ) );
+        sections |= flag;
+      }
+      if ( sections == 0 )
+        return new BError( "polcore.log_memory_usage(sections) wants at least one section." );
+    }
+    Core::MemoryUsage::log( sections );
     return new BLong( 1 );
   }
   else if ( stricmp( methodname, "log_script_memory" ) == 0 )

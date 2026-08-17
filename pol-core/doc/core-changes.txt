@@ -68,6 +68,13 @@
              server while they run. The object walk no longer counts the object hash in a
              separate pass over it, and the per-script report measures each script once rather
              than twice. The reported numbers are unchanged.
+    Added: PolCore().log_memory_usage( sections ) takes an optional array of section names
+           ("objects", "scripts", "realms", ...) and measures only those, so a report can skip
+           the parts you are not chasing. Walking every object in the world and every zone of
+           every realm is the expensive part, and the server is stopped while it happens.
+           Columns outside the requested sections are written empty rather than dropped, since
+           log/memoryusage.log's header is written once and has to keep describing the file; an
+           empty field means "not measured", which is not the same as a measured zero.
     Changed: the default system message text color is now 946 (was 1000).
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS
