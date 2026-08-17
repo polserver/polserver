@@ -35,6 +35,7 @@
 #include <ctype.h>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
@@ -1943,6 +1944,18 @@ BObjectImp* GetPktStatusObj()
   return pkts.release();
 }
 
+// The memory selectors of PolCore().internal() have named methods now. Say so once per
+// selector per run: these get called on a timer, and a line every time would drown the log.
+void warn_deprecated_internal( int selector, const char* replacement )
+{
+  static std::set<int> warned;
+  if ( warned.insert( selector ).second )
+  {
+    POLLOG_INFOLN( "PolCore().internal({}) is deprecated, use PolCore().{} instead.", selector,
+                   replacement );
+  }
+}
+
 BObjectImp* GetCoreVariable( const char* corevar )
 {
 #define LONG_COREVAR( name, expr )      \
@@ -2050,6 +2063,32 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
     clear_script_profile_counters();
     return new BLong( 1 );
   }
+  else if ( stricmp( methodname, "log_memory_usage" ) == 0 )
+  {
+    if ( ex.numParams() > 0 )
+      return new BError( "polcore.log_memory_usage() doesn't take parameters." );
+    Core::MemoryUsage::log();
+    return new BLong( 1 );
+  }
+  else if ( stricmp( methodname, "log_script_memory" ) == 0 )
+  {
+    if ( ex.numParams() > 0 )
+      return new BError( "polcore.log_script_memory() doesn't take parameters." );
+    Core::scriptScheduler.estimateSize( true );
+    return new BLong( 1 );
+  }
+  else if ( stricmp( methodname, "log_script_variables" ) == 0 )
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "polcore.log_script_variables(script) requires 1 parameter." );
+    const String* script;
+    // getStringParam does not raise a script error of its own, so returning nullptr here
+    // would surface as uninit rather than saying what was wrong.
+    if ( !ex.getStringParam( 0, script ) )
+      return new BError( "Invalid parameter type" );
+    Core::scriptScheduler.logScriptVariables( script->data() );
+    return new BLong( 1 );
+  }
   else if ( stricmp( methodname, "internal" ) == 0 )  // Just for internal Development...
   {
     if ( ex.numParams() != 1 && ex.numParams() != 2 )
@@ -2077,6 +2116,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 #endif
       if ( type == 2 )
       {
+        warn_deprecated_internal( 2, "log_memory_usage()" );
         Core::MemoryUsage::log();
       }
       else if ( type == 3 )
@@ -2092,10 +2132,12 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       }
       else if ( type == 5 )
       {
+        warn_deprecated_internal( 5, "log_script_memory()" );
         Core::scriptScheduler.estimateSize( true );
       }
       else if ( type == 6 )
       {
+        warn_deprecated_internal( 6, "log_script_variables(script)" );
         const String* script;
         if ( ex.numParams() != 2 || !ex.getStringParam( 1, script ) )
           return new BLong( 0 );

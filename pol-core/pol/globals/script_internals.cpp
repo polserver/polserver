@@ -8,6 +8,7 @@
 #include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "plib/systemstate.h"
+#include "pol/globals/memoryusage.h"
 #include "pol/globals/state.h"
 #include "pol/polsig.h"
 #include "pol/uoexec.h"
@@ -159,7 +160,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   usage.script_count += debuggerholdlist.size();
   if ( verbose )
   {
-    auto log = OPEN_FLEXLOG( "log/memoryusagescripts.log", false );
+    // One file per snapshot: on a busy shard a single one of these runs to megabytes, so
+    // appending them all to log/memoryusagescripts.log made it unusable within a day.
+    auto path = MemoryUsage::reportPath( "scripts" );
+    auto log = OPEN_FLEXLOG( path.c_str(), false );
     FLEXLOGLN( log, verbose_w );  // extra newline at the end,seperates the old from the new entry
 
     CLOSE_FLEXLOG( log );
@@ -421,7 +425,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
           std::back_inserter( log ), "  {} ({}) {}\n",
           prog->globalvarnames.size() > i ? prog->globalvarnames[i] : std::to_string( i ),
           global->impref().typeOf(), global->impref().sizeEstimate() );
-          ++i;
+      ++i;
     }
     log += "Locals\n";
     auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )
@@ -453,7 +457,9 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
     }
   }
-  auto logf = OPEN_FLEXLOG( "log/scriptmemory.log", false );
+  // One file per dump, named for the script - see the comment in estimateSize().
+  auto path = MemoryUsage::reportPath( "vars-" + MemoryUsage::sanitizeForFilename( name ) );
+  auto logf = OPEN_FLEXLOG( path.c_str(), false );
   FLEXLOGLN( logf, log );
   CLOSE_FLEXLOG( logf );
   return true;

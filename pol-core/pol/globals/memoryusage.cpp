@@ -4,6 +4,7 @@
 #include "bscript/blong.h"
 #include "bscript/buninit.h"
 #include "clib/boostutils.h"
+#include "clib/clib.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "plib/systemstate.h"
@@ -17,6 +18,7 @@
 #include "pol/globals/ucfg.h"
 #include "pol/globals/uvars.h"
 
+#include <ctime>
 #include <fmt/format.h>
 #include <iterator>
 
@@ -25,6 +27,26 @@
 
 namespace Pol::Core
 {
+std::string MemoryUsage::reportPath( const std::string& prefix )
+{
+  Clib::make_dir( "log/memory" );
+  auto now = Clib::localtime( std::time( nullptr ) );
+  return fmt::format( "log/memory/{}-{:%Y%m%d-%H%M%S}.log", prefix, now );
+}
+
+std::string MemoryUsage::sanitizeForFilename( const std::string& name )
+{
+  std::string out = name;
+  if ( out.size() > 4 && stricmp( out.c_str() + out.size() - 4, ".ecl" ) == 0 )
+    out.resize( out.size() - 4 );
+  for ( auto& ch : out )
+  {
+    if ( ch == '/' || ch == '\\' || ch == ':' || ch == ' ' )
+      ch = '_';
+  }
+  return out;
+}
+
 void MemoryUsage::log()
 {
   size_t systemstate_size = Plib::systemstate.estimatedSize();

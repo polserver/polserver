@@ -7,10 +7,30 @@ program testpolcore()
   return 1;
 endprogram
 
+// The named memory reports, and the numeric selectors they replaced. Only that they run and
+// answer truthy is checked here - what they write goes to log files nothing reads back.
 exported function polcore_memory()
+  var core := PolCore();
+  var bad := {};
+
+  if ( core.log_memory_usage() != 1 )
+    bad.append( "log_memory_usage answered falsy" );
+  endif
+  if ( core.log_script_memory() != 1 )
+    bad.append( "log_script_memory answered falsy" );
+  endif
+  if ( core.log_script_variables( "scripts/tests.ecl" ) != 1 )
+    bad.append( "log_script_variables answered falsy" );
+  endif
+
+  // The deprecated selectors still have to work.
   PolCore().internal( 2 ); // memory estimation log
   PolCore().internal( 5 ); // memory estimation log (scriptscheduler)
   PolCore().internal( 6, "scripts/tests.ecl" ); // memory estimation log (script)
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
   return 1;
 endfunction
 
@@ -249,6 +269,25 @@ exported function polcore_methods( unused resmngr )
   res := core.log_profile();
   if ( res.errortext != "polcore.log_profile(clear) requires 1 parameter." )
     bad.append( $"log_profile with no parameter answered {res}" );
+  endif
+
+  // The memory reports. Their successful calls live in polcore_memory(); here only the
+  // arguments they refuse.
+  res := core.log_memory_usage( 1 );
+  if ( res.errortext != "polcore.log_memory_usage() doesn't take parameters." )
+    bad.append( $"log_memory_usage with a parameter answered {res}" );
+  endif
+  res := core.log_script_memory( 1 );
+  if ( res.errortext != "polcore.log_script_memory() doesn't take parameters." )
+    bad.append( $"log_script_memory with a parameter answered {res}" );
+  endif
+  res := core.log_script_variables();
+  if ( res.errortext != "polcore.log_script_variables(script) requires 1 parameter." )
+    bad.append( $"log_script_variables with no parameter answered {res}" );
+  endif
+  res := core.log_script_variables( 1 );
+  if ( !res.errortext.find( "Invalid parameter type" ) )
+    bad.append( $"log_script_variables with a non-string answered {res}" );
   endif
 
   // internal() used to read parameter 0 without checking that there was one, which is an
