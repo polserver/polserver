@@ -19,6 +19,7 @@
 #include "pol/globals/uvars.h"
 
 #include <ctime>
+#include <fmt/chrono.h>
 #include <fmt/format.h>
 #include <iterator>
 #include <optional>
