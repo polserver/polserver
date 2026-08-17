@@ -26,6 +26,7 @@
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
 #include "pol/syshook.h"
+#include "pol/threadwatch.h"
 #include "pol/ufunc.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
@@ -231,7 +232,14 @@ void Decay::decay_thread( void* /*arg*/ )
 {
   auto& decay = gamestate.decay;
   decay.calculate_sleeptime();
+  Core::watch_this_thread();
   decay.threadloop();
+  // Reached only when threadloop() returns of its own accord, which it does when there is
+  // nothing left to decay -- a legitimate end, not a failure, and one that can happen at any
+  // time since after_realms_size_changed() recalculates the sleep time on a running shard.
+  // An exception on the way out skips this line, which is the intent: that death must stay
+  // visible to the watchdog.
+  Core::unwatch_this_thread();
 }
 
 void Decay::threadloop()

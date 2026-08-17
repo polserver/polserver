@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+08-17-2026 Nando:
+    Added: the server now reports when one of the threads it depends on has stopped, and
+           names it. The existing 30-second check could not: its deadline is shared, so any
+           one thread still running kept it fresh for the rest, and a stopped thread among
+           live ones stayed invisible indefinitely.
+    Changed: the thread status report gives the number of threads being watched and names
+             any that have stopped.
 08-16-2026 Nando:
     Changed: when a C++ exception ends a script, the log now carries the eScript call
              stack and the C++ call stack of the throw, instead of only the message and

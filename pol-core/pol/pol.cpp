@@ -135,6 +135,7 @@
 #include "pol/sqlscrobj.h"
 #include "pol/ssopt.h"
 #include "pol/testing/poltest.h"
+#include "pol/threadwatch.h"
 #include "pol/ufunc.h"
 #include "pol/uimport.h"
 #include "pol/uoclient.h"
@@ -510,6 +511,7 @@ void polclock_checkin()
 
 void tasks_thread()
 {
+  watch_this_thread();
   polclock_t sleeptime;
   bool activity;
   try
@@ -565,6 +567,7 @@ void tasks_thread()
 void scripts_thread()
 {
   using namespace std::chrono_literals;
+  watch_this_thread();
   polclock_t sleeptime;
   bool activity;
   while ( !Clib::exit_signalled )
@@ -630,6 +633,7 @@ public:
 
 void reap_thread()
 {
+  watch_this_thread();
   while ( !Clib::exit_signalled )
   {
     {
@@ -652,9 +656,25 @@ void threadstatus_thread()
 {
   int timeouts_remaining = 1;
   bool sent_wakeups = false;
+  watch_this_thread();
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
+    // A thread that has stopped is invisible to the clock check below, because that deadline
+    // is shared: any one thread still running keeps it fresh on behalf of all of them, so it
+    // only ever fires when every one of them is silent at once. Ask separately whether each
+    // thread we expect is still there. Not while shutting down, where they all stop and that
+    // is the point.
+    if ( !Clib::exit_signalled )
+    {
+      for ( const auto& name : take_unreported_stopped_threads() )
+        POLLOG_ERRORLN(
+            "########################################################\n"
+            "Thread '{}' has stopped. The server is still running, but whatever that thread "
+            "was responsible for is no longer happening.",
+            name );
+    }
+
     if ( is_polclock_paused_at_zero() )
     {
       polclock_t now = polclock();
@@ -733,6 +753,16 @@ void threadstatus_thread()
       {
         fmt::format_to( std::back_inserter( tmp ), "{} - {}\n", ( *citr ).first, ( *citr ).second );
       }
+      // The threads a running server is supposed to have, as against the ones it has. This
+      // cannot see its own thread stopping, for the obvious reason; a death there is logged
+      // by the thread wrapper like any other, it just has nobody left to act on it.
+      auto watched = watched_thread_status();
+      if ( watched.missing.empty() )
+        fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}, all running\n",
+                        watched.watched );
+      else
+        fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}, STOPPED: {}\n",
+                        watched.watched, fmt::join( watched.missing, ", " ) );
       fmt::format_to( std::back_inserter( tmp ),
                       "Child threads (child_threads): {}\n"
                       "Registered threads (ThreadMap): {}",
@@ -776,6 +806,10 @@ void console_thread()
 {
 #ifndef _WIN32
   Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook
+  // Watched only here: on Windows this function is not a thread at all, it is called
+  // directly on the main thread, and registering there would file the main thread under
+  // the name "Console".
+  watch_this_thread();
 #endif
   while ( !Clib::exit_signalled )
   {

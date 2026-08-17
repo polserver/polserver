@@ -102,6 +102,7 @@
 #include "pol/sngclick.h"
 #include "pol/statmsg.h"
 #include "pol/systems/suspiciousacts.h"
+#include "pol/threadwatch.h"
 #include "pol/tooltips.h"
 #include "pol/ufunc.h"
 #include "pol/uobject.h"
@@ -2122,6 +2123,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
         // a shard that is already wedged, i.e. never in CI. Firing it on demand
         // puts it under the sanitizers on every run.
         Core::stateManager.polsig.report_status_signalled = true;
+      }
+      else if ( type == 11 )
+      {
+        // Watch a thread that does not exist, so the "an essential thread has stopped"
+        // detector can be exercised without stopping a real one. The alternative -- killing
+        // a thread the shard needs -- would end the test run rather than test it.
+        Core::watch_absent_thread_for_testing( "TestAbsentThread" );
       }
       else if ( type == 8 )
       {

@@ -48,6 +48,7 @@
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
 #include "pol/scrstore.h"
+#include "pol/threadwatch.h"
 #include "pol/uoexec.h"
 
 #ifdef _WIN32
@@ -970,6 +971,7 @@ void init_http_thread_support()
 
 void http_thread()
 {
+  watch_this_thread();
   config_web_server();
   init_http_thread_support();
 

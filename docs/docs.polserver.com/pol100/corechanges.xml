@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-16-2026</datemodified>
+		<datemodified>08-17-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-17-2026</date>
+			<author>Nando:</author>
+			<change type="Added">the server now reports when one of the threads it depends on has stopped, and<br/>
+names it. The existing 30-second check could not: its deadline is shared, so any<br/>
+one thread still running kept it fresh for the rest, and a stopped thread among<br/>
+live ones stayed invisible indefinitely.</change>
+			<change type="Changed">the thread status report gives the number of threads being watched and names<br/>
+any that have stopped.</change>
+		</entry>
 		<entry>
 			<date>08-16-2026</date>
 			<author>Nando:</author>

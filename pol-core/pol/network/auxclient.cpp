@@ -32,6 +32,7 @@
 #include "pol/polsem.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
+#include "pol/threadwatch.h"
 #include "pol/uoexec.h"
 
 
@@ -344,6 +345,7 @@ size_t AuxService::estimateSize() const
 void aux_service_thread_stub( void* arg )
 {
   AuxService* as = static_cast<AuxService*>( arg );
+  Core::watch_this_thread();
   as->run();
 }
 
