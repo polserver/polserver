@@ -54,6 +54,16 @@
              single snapshot of either runs to megabytes on a busy shard, so the old files
              grew unusable within a day. log/memoryusage.log is unchanged: it stays one
              appended line per snapshot, since it is a time series meant to be graphed.
+    Fixed: PolCore().log_script_variables() reported each local variable's name next to a
+           different local's type and size, so the breakdown was misleading rather than just
+           coarse. The debugger's stacktrace command had the same fault.
+    Fixed: PolCore().log_script_variables() stopped at the first instance whose debug info
+           could not be loaded instead of skipping just that one, and never looked at scripts
+           held by the debugger.
+    Fixed: SizeOf() on a class instance that refers to itself - directly, or around a longer
+           loop - recursed until the stack overflowed and took the server down.
+    Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
+           symbol pool were not counted at all) and for regular expressions.
     Changed: the default system message text color is now 946 (was 1000).
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS

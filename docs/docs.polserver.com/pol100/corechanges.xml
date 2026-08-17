@@ -68,6 +68,16 @@ instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A<b
 single snapshot of either runs to megabytes on a busy shard, so the old files<br/>
 grew unusable within a day. log/memoryusage.log is unchanged: it stays one<br/>
 appended line per snapshot, since it is a time series meant to be graphed.</change>
+			<change type="Fixed">PolCore().log_script_variables() reported each local variable's name next to a<br/>
+different local's type and size, so the breakdown was misleading rather than just<br/>
+coarse. The debugger's stacktrace command had the same fault.</change>
+			<change type="Fixed">PolCore().log_script_variables() stopped at the first instance whose debug info<br/>
+could not be loaded instead of skipping just that one, and never looked at scripts<br/>
+held by the debugger.</change>
+			<change type="Fixed">SizeOf() on a class instance that refers to itself - directly, or around a longer<br/>
+loop - recursed until the stack overflowed and took the server down.</change>
+			<change type="Fixed">memory estimates were too low for packets, for compiled scripts (the bytecode and<br/>
+symbol pool were not counted at all) and for regular expressions.</change>
 			<change type="Changed">the default system message text color is now 946 (was 1000).</change>
 		</entry>
 		<entry>

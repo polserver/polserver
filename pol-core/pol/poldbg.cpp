@@ -566,7 +566,8 @@ std::string DebugContext::cmd_stacktrace( Results& results )
       const EPDbgBlock& progblock = prog->blocks[block];
       size_t varidx = left - 1 - progblock.parentvariables;
       left--;
-      BObjectImp* ptr = ( *Locals2 )[varidx]->impptr();
+      // varidx indexes the block's own names; the value lives at the frame-wide slot
+      BObjectImp* ptr = ( *Locals2 )[left]->impptr();
 
       results2.push_back( progblock.localvarnames[varidx] + " " + ptr->pack() );
     }

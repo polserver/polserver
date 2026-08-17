@@ -408,14 +408,22 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
     if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
       scripts.push_back( exec );
   }
+  // estimateSize counts this queue too, so a script stopped in the debugger belongs in the
+  // breakdown rather than silently missing from it.
+  for ( const auto& exec : debuggerholdlist )
+  {
+    if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec );
+  }
   for ( const auto& exec : scripts )
   {
     fmt::format_to( std::back_inserter( log ), "Size: {}", exec->sizeEstimate() );
     auto prog = const_cast<Bscript::EScriptProgram*>( exec->prog() );
     if ( prog->read_dbg_file() != 0 )
     {
+      // Only this instance is unreportable; the other matches still have something to say.
       log += " failed to load debug info\n";
-      break;
+      continue;
     }
     size_t i = 0;
     log += "\nGlobals\n";
@@ -445,7 +453,8 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
         const Bscript::EPDbgBlock& progblock = prog->blocks[block];
         size_t varidx = left - 1 - progblock.parentvariables;
         left--;
-        Bscript::BObjectImp* ptr = ( *locals )[varidx]->impptr();
+        // varidx indexes the block's own names; the value lives at the frame-wide slot
+        Bscript::BObjectImp* ptr = ( *locals )[left]->impptr();
         fmt::format_to( std::back_inserter( log ), "  {} ({}) {}\n",
                         progblock.localvarnames[varidx], ptr->typeOf(), ptr->sizeEstimate() );
       }

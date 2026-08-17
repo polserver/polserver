@@ -77,6 +77,18 @@ size_t EScriptProgram::sizeEstimate() const
           memsize( dbg_ins_statementbegin ) + memsize( modules ) + memsize( exported_functions ) +
           memsize( instr ) + memsize( blocks ) + memsize( dbg_functions );
 
+  // The bytecode and the symbol pool are the bulk of a compiled script, and memsize() cannot
+  // see them: both hold a raw buffer rather than a container.
+  size += tokens.allocated() + symbols.allocated();
+
+  // memsize( blocks ) only covers the vector itself; each block owns its own name vector
+  for ( const auto& block : blocks )
+  {
+    size += memsize( block.localvarnames );
+    for ( const auto& l : block.localvarnames )
+      size += l.capacity();
+  }
+
   return size;
 }
 

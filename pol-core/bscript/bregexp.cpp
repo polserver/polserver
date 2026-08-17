@@ -428,7 +428,16 @@ std::string BRegExp::getStringRep() const
 
 size_t BRegExp::sizeEstimate() const
 {
-  return sizeof( BRegExp );
+  // The pattern is the only part boost lets us measure; the compiled program it builds from
+  // that pattern is usually the larger half and has no size accessor, so this under-reports.
+  auto pattern = std::visit(
+      []( const auto& re )
+      {
+        using CharT = typename std::decay_t<decltype( re )>::value_type;
+        return re.str().size() * sizeof( CharT );
+      },
+      regex_ );
+  return sizeof( BRegExp ) + pattern;
 }
 
 bool BRegExp::operator<( const BObjectImp& ) const

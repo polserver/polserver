@@ -40,7 +40,7 @@ public:
   Bscript::BObjectImp* SetSize( u16 newsize, bool giveReturn );
   Bscript::BObjectImp* ensure_space( size_t needed );
   bool has_space( size_t needed ) const { return needed <= buffer.size(); }
-  size_t sizeEstimate() const override { return Clib::memsize( buffer ); }
+  size_t sizeEstimate() const override { return sizeof( *this ) + Clib::memsize( buffer ); }
   const char* typeOf() const override { return "Packet"; }
   u8 typeOfInt() const override { return OTPacket; }
   bool is_variable_length;

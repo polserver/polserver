@@ -205,9 +205,50 @@ BClassInstanceRef::BClassInstanceRef( BClassInstance* inst )
 {
 }
 
+namespace
+{
+// Class instances are reference types, so one can reach itself - directly through a member
+// holding a reference back to it, or around a longer loop. The size walk has no other stop
+// condition, so without this guard it recurses until the stack overflows. That happens under
+// the global server lock, and it is reachable from any script through SizeOf(), so an
+// unguarded walk is a way to take the shard down.
+thread_local std::set<const BClassInstance*> size_estimate_visiting;
+
+// Marks an instance as being measured for as long as it is on the recursion stack.
+class VisitGuard
+{
+public:
+  explicit VisitGuard( const BClassInstance* inst )
+      : inst_( inst ), entered_( size_estimate_visiting.insert( inst ).second )
+  {
+  }
+  ~VisitGuard()
+  {
+    if ( entered_ )
+      size_estimate_visiting.erase( inst_ );
+  }
+  VisitGuard( const VisitGuard& ) = delete;
+  VisitGuard& operator=( const VisitGuard& ) = delete;
+
+  bool entered() const { return entered_; }
+
+private:
+  const BClassInstance* inst_;
+  bool entered_;
+};
+}  // namespace
+
 size_t BClassInstanceRef::sizeEstimate() const
 {
-  return sizeof( BClassInstanceRef ) + class_instance_->sizeEstimate();
+  const BClassInstance* inst = class_instance_.get();
+  if ( inst == nullptr )
+    return sizeof( BClassInstanceRef );
+
+  VisitGuard guard( inst );
+  if ( !guard.entered() )
+    return sizeof( BClassInstanceRef );  // already being measured further up: a cycle
+
+  return sizeof( BClassInstanceRef ) + inst->sizeEstimate();
 }
 
 const char* BClassInstanceRef::typeOf() const

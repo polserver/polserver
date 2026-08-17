@@ -41,6 +41,8 @@ public:
   void append( void* data, unsigned datalen, unsigned& position );
 
   unsigned length() const { return usedLen; }
+  // the whole buffer, not just the used part - what the container costs in memory
+  unsigned allocated() const { return allocLen; }
   void setlength( unsigned newLen ) { usedLen = newLen; }
   const char* array() const { return s; }
   virtual void* detach()
