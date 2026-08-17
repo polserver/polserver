@@ -282,7 +282,62 @@ PolCore().log_memory_usage();
 // just the scripts, which skips the object hash and the realm grids
 PolCore().log_memory_usage( { "scripts", "process" } );
 </pre></div>
-	The sections are <code>process</code>, <code>objects</code>, <code>scripts</code>, <code>gamestate</code>, <code>realms</code>, <code>network</code>, <code>config</code>, <code>systemstate</code>, <code>multis</code>, <code>settings</code>, <code>state</code>, <code>cprops</code> and <code>allocators</code>. An unknown name is an error listing the valid ones. The columns you left out are still written, but empty, because the header is only written once and has to keep describing the file - so an empty field means "not measured", which is not the same as a measured zero.<br /><br />
+	An unknown name is an error listing the valid ones. These are the sections, and what each one costs:<br />
+	<table>
+		<tr>
+			<td><code>process</code></td>
+			<td>Resident size as the operating system reports it. Free, and the only figure here that is measured rather than estimated.</td>
+		</tr>
+		<tr>
+			<td><code>objects</code></td>
+			<td>Every item, container, mobile and multi in the world, split into the <code>Obj*</code> columns. One of the two expensive ones: it visits every object you have.</td>
+		</tr>
+		<tr>
+			<td><code>realms</code></td>
+			<td>The zone grid of every realm. The other expensive one, and a fixed cost - a Britannia-sized map is some 390,000 cells whether the shard is full or empty.</td>
+		</tr>
+		<tr>
+			<td><code>scripts</code></td>
+			<td>Running scripts and the compiled-script cache. Cost grows with how much your scripts hold, since it walks the globals and locals of each one.</td>
+		</tr>
+		<tr>
+			<td><code>gamestate</code></td>
+			<td>Accounts, guilds, parties, storage, NPC templates and the other global tables. Moderate.</td>
+		</tr>
+		<tr>
+			<td><code>config</code></td>
+			<td>Cached cfg files and datastores.</td>
+		</tr>
+		<tr>
+			<td><code>network</code></td>
+			<td>Connected clients, listening servers and packet hooks. Cheap.</td>
+		</tr>
+		<tr>
+			<td><code>systemstate</code></td>
+			<td>Tile data and packages.</td>
+		</tr>
+		<tr>
+			<td><code>multis</code></td>
+			<td>The multi definition buffer.</td>
+		</tr>
+		<tr>
+			<td><code>settings</code></td>
+			<td>pol.cfg settings. Cheap and effectively constant.</td>
+		</tr>
+		<tr>
+			<td><code>state</code></td>
+			<td>A fixed size rather than a walk, so this column never moves. Cheap.</td>
+		</tr>
+		<tr>
+			<td><code>cprops</code></td>
+			<td>The CProp profiler, which only holds anything when <code>ProfileCProps</code> is enabled.</td>
+		</tr>
+		<tr>
+			<td><code>allocators</code></td>
+			<td>The pools eScript objects are handed out of. Cheap to read, but mind that these <i>overlap</i> <code>scripts</code> rather than adding to it - the pools contain the very objects <code>ScriptSize</code> already counted, so do not add the two together. They also only ever grow, so they are a high-water mark of churn rather than current usage.</td>
+		</tr>
+	</table>
+	The columns you left out are still written, but empty, because the header is only written once and has to keep describing the file - so an empty field means "not measured", which is not the same as a measured zero.<br /><br />
 
 	Once <code>ScriptSize</code> is the column that is growing, <code>log_script_memory()</code> says which script it is. It writes the estimated size of every running script, grouped by scheduler queue (<code>runlist</code>, <code>ranlist</code>, <code>holdlist</code>, <code>notimeoutholdlist</code>, <code>debuggerholdlist</code>), to <code>log/memory/scripts-YYYYMMDD-HHMMSS.log</code>.<br /><br />
 

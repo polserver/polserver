@@ -90,8 +90,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( exec != nullptr )
     {
-      // Measured once and reused: sizeEstimate() walks every global, local, value-stack entry
-      // and saved frame of the executor, so calling it again just to log it is not cheap.
+      // Measured once and reused: sizeEstimate() walks the executor's whole object graph.
       size_t size = exec->sizeEstimate();
       usage.script_size += size;
       if ( verbose )
@@ -162,8 +161,6 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   usage.script_count += debuggerholdlist.size();
   if ( verbose )
   {
-    // One file per snapshot: on a busy shard a single one of these runs to megabytes, so
-    // appending them all to log/memoryusagescripts.log made it unusable within a day.
     auto path = MemoryUsage::reportPath( "scripts" );
     auto log = OPEN_FLEXLOG( path.c_str(), false );
     FLEXLOGLN( log, verbose_w );  // extra newline at the end,seperates the old from the new entry
@@ -410,8 +407,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
     if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
       scripts.push_back( exec );
   }
-  // estimateSize counts this queue too, so a script stopped in the debugger belongs in the
-  // breakdown rather than silently missing from it.
+  // estimateSize counts this queue too
   for ( const auto& exec : debuggerholdlist )
   {
     if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
@@ -423,7 +419,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
     auto prog = const_cast<Bscript::EScriptProgram*>( exec->prog() );
     if ( prog->read_dbg_file() != 0 )
     {
-      // Only this instance is unreportable; the other matches still have something to say.
+      // continue, not break: the other matched instances are still reportable
       log += " failed to load debug info\n";
       continue;
     }
@@ -468,7 +464,6 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
     }
   }
-  // One file per dump, named for the script - see the comment in estimateSize().
   auto path = MemoryUsage::reportPath( "vars-" + MemoryUsage::sanitizeForFilename( name ) );
   auto logf = OPEN_FLEXLOG( path.c_str(), false );
   FLEXLOGLN( logf, log );

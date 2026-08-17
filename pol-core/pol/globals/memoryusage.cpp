@@ -38,7 +38,6 @@ struct SectionName
   MemoryUsage::Section flag;
 };
 
-// The names scripts use. Kept in the order a report reads best, not alphabetical.
 constexpr SectionName section_names[] = { { "process", MemoryUsage::SECTION_PROCESS },
                                           { "objects", MemoryUsage::SECTION_OBJECTS },
                                           { "scripts", MemoryUsage::SECTION_SCRIPTS },
@@ -130,15 +129,14 @@ void MemoryUsage::log( unsigned sections )
   if ( sections & SECTION_CONFIG )
     config_sizes = configurationbuffer.estimateSize();
 
-  // One call covers both sections; the realm walk is the expensive half and is skipped
-  // unless it was asked for.
+  // One call covers both sections; the realm walk is the expensive half.
   GameState::Memory gamestate_size{};
   if ( want_gamestate || want_realms )
     gamestate_size = gamestate.estimateSize( want_realms );
 
-  // A column outside the requested sections is written empty rather than dropped: the header
-  // is written once, when the file is created, so the column set has to stay the same for the
-  // life of the file.
+  // Unmeasured columns are written empty rather than dropped: the header is written once, when
+  // the file is created, so the column set has to stay fixed for the life of the file. An empty
+  // field also reads differently from a measured zero.
   std::vector<std::pair<std::string, std::optional<size_t>>> logs;
   auto add = [&]( std::string label, unsigned section, size_t value )
   {

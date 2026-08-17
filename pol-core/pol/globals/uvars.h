@@ -136,9 +136,8 @@ public:
   void deinitialize();
   struct Memory;
 
-  /// Sums the global tables. Walking the realms means walking every zone of the grid, a fixed
-  /// six-figure cost per realm, so a caller that does not need realm_size can leave it out
-  /// and still get the rest.
+  /// Walking the realms means walking every zone of the grid, so a caller that does not need
+  /// realm_size can leave it out and still get the rest.
   Memory estimateSize( bool include_realms = true ) const;
 
   CmdLevels cmdlevels;

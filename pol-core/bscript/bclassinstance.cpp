@@ -207,14 +207,11 @@ BClassInstanceRef::BClassInstanceRef( BClassInstance* inst )
 
 namespace
 {
-// Class instances are reference types, so one can reach itself - directly through a member
-// holding a reference back to it, or around a longer loop. The size walk has no other stop
-// condition, so without this guard it recurses until the stack overflows. That happens under
-// the global server lock, and it is reachable from any script through SizeOf(), so an
-// unguarded walk is a way to take the shard down.
+// Class instances are reference types, so one can reach itself and the walk below has no
+// other stop condition. Unguarded it recurses until the stack overflows, from any script
+// through SizeOf().
 thread_local std::set<const BClassInstance*> size_estimate_visiting;
 
-// Marks an instance as being measured for as long as it is on the recursion stack.
 class VisitGuard
 {
 public:

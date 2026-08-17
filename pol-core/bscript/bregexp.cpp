@@ -428,8 +428,7 @@ std::string BRegExp::getStringRep() const
 
 size_t BRegExp::sizeEstimate() const
 {
-  // The pattern is the only part boost lets us measure; the compiled program it builds from
-  // that pattern is usually the larger half and has no size accessor, so this under-reports.
+  // Under-reports: boost exposes no size for the compiled program, only the pattern.
   auto pattern = std::visit(
       []( const auto& re )
       {

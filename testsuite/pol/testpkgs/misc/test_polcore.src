@@ -16,8 +16,7 @@ exported function polcore_memory()
   if ( core.log_memory_usage() != 1 )
     bad.append( "log_memory_usage answered falsy" );
   endif
-  // A subset costs less than the whole census; both have to be accepted, and the columns left
-  // out are written empty so the header keeps describing the file.
+  // A subset costs less than the whole census; both have to be accepted.
   if ( core.log_memory_usage( { "scripts", "process" } ) != 1 )
     bad.append( "log_memory_usage with sections answered falsy" );
   endif

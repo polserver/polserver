@@ -1944,8 +1944,8 @@ BObjectImp* GetPktStatusObj()
   return pkts.release();
 }
 
-// The memory selectors of PolCore().internal() have named methods now. Say so once per
-// selector per run: these get called on a timer, and a line every time would drown the log.
+// Once per selector per run: these get called on a timer, and a line every time would drown
+// the log.
 void warn_deprecated_internal( int selector, const char* replacement )
 {
   static std::set<int> warned;
@@ -2068,9 +2068,8 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
     if ( ex.numParams() > 1 )
       return new BError( "polcore.log_memory_usage(sections) takes at most 1 parameter." );
 
+    // No argument, or an uninit one, means everything.
     unsigned sections = MemoryUsage::SECTION_ALL;
-    // No argument, or an uninit one, means everything - which is what this cost before there
-    // was anything to choose.
     if ( ex.numParams() == 1 && !ex.getParamImp( 0 )->isa( BObjectImp::OTUninit ) )
     {
       ObjArray* arr;
@@ -2109,8 +2108,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
     if ( ex.numParams() != 1 )
       return new BError( "polcore.log_script_variables(script) requires 1 parameter." );
     const String* script;
-    // getStringParam does not raise a script error of its own, so returning nullptr here
-    // would surface as uninit rather than saying what was wrong.
+    // getStringParam raises no error of its own, so nullptr here would surface as uninit.
     if ( !ex.getStringParam( 0, script ) )
       return new BError( "Invalid parameter type" );
     Core::scriptScheduler.logScriptVariables( script->data() );

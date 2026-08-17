@@ -40,8 +40,7 @@ ObjectStorageManager::MemoryUsage ObjectStorageManager::estimateSize() const
 
   MemoryUsage usage{};
 
-  // The hash is a std::map, so counting it with std::distance would be a second full walk of
-  // one node per object in the world. The loop below already visits every one of them.
+  // Counted in the loop: the hash is a std::map, so std::distance would walk it a second time.
   for ( ; hs_citr != hs_cend; ++hs_citr )
   {
     const UObjectRef& ref = ( *hs_citr ).second;
