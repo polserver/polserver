@@ -11,6 +11,38 @@
   Removed: The "No clock movement in 30 seconds" check. Its deadline was shared between four
            threads, so any one of them still running kept it fresh for the rest, and a
            stopped thread among live ones stayed invisible. The checks above replace it.
+08-17-2026 AsYlum:
+    Added: PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()
+           and PolCore().log_script_variables( script ), the memory reports that used to be
+           PolCore().internal(2), (5) and (6). sections is an optional array of section names
+           ("objects", "scripts", "realms", ...) limiting what is measured, so a report can
+           skip the parts you are not chasing - walking every object in the world and every
+           zone of every realm is the expensive part, and the server is stopped throughout.
+           The Performance Guide lists what each section covers and costs. The old selectors
+           still work and log a deprecation notice naming the replacement.
+    Changed: the two per-script memory reports now write one timestamped file per call under
+             log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-<script>-YYYYMMDD-HHMMSS.log)
+             instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A
+             single snapshot of either runs to megabytes on a busy shard, so the old files
+             grew unusable within a day. log/memoryusage.log still accumulates one line per
+             snapshot, since it is a time series meant to be graphed; columns outside the
+             requested sections are written empty rather than dropped, because its header is
+             written once and has to keep describing the file - so an empty field means "not
+             measured", which is not the same as a measured zero.
+    Changed: the memory reports do less redundant work, which matters because they block the
+             server while they run. The object walk no longer counts the object hash in a
+             separate pass over it, and the per-script report measures each script once rather
+             than twice. The reported numbers are unchanged.
+    Fixed: PolCore().log_script_variables() reported each local variable's name next to a
+           different local's type and size, so the breakdown was misleading rather than just
+           coarse. The debugger's stacktrace command had the same fault.
+    Fixed: PolCore().log_script_variables() stopped at the first instance whose debug info
+           could not be loaded instead of skipping just that one, and never looked at scripts
+           held by the debugger.
+    Fixed: SizeOf() on a class instance that refers to itself - directly, or around a longer
+           loop - recursed until the stack overflowed and took the server down.
+    Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
+           symbol pool were not counted at all) and for regular expressions.
 08-16-2026 Nando:
     Changed: when a C++ exception ends a script, the log now carries the eScript call
              stack and the C++ call stack of the throw, instead of only the message and
@@ -43,38 +75,6 @@
              heap used to die inside that walk having printed nothing at all.
     Changed: an assertion failure now logs the script that was running, on every platform.
 08-16-2026 AsYlum:
-    Added: PolCore().log_memory_usage(), PolCore().log_script_memory() and
-           PolCore().log_script_variables( script ), the memory reports that used to be
-           PolCore().internal(2), (5) and (6). See the Performance Guide for what each one
-           reports and when to use it. The old selectors still work and log a deprecation
-           notice naming the replacement.
-    Changed: the two per-script memory reports now write one timestamped file per call under
-             log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-<script>-YYYYMMDD-HHMMSS.log)
-             instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A
-             single snapshot of either runs to megabytes on a busy shard, so the old files
-             grew unusable within a day. log/memoryusage.log is unchanged: it stays one
-             appended line per snapshot, since it is a time series meant to be graphed.
-    Fixed: PolCore().log_script_variables() reported each local variable's name next to a
-           different local's type and size, so the breakdown was misleading rather than just
-           coarse. The debugger's stacktrace command had the same fault.
-    Fixed: PolCore().log_script_variables() stopped at the first instance whose debug info
-           could not be loaded instead of skipping just that one, and never looked at scripts
-           held by the debugger.
-    Fixed: SizeOf() on a class instance that refers to itself - directly, or around a longer
-           loop - recursed until the stack overflowed and took the server down.
-    Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
-           symbol pool were not counted at all) and for regular expressions.
-    Changed: the memory reports do less redundant work, which matters because they block the
-             server while they run. The object walk no longer counts the object hash in a
-             separate pass over it, and the per-script report measures each script once rather
-             than twice. The reported numbers are unchanged.
-    Added: PolCore().log_memory_usage( sections ) takes an optional array of section names
-           ("objects", "scripts", "realms", ...) and measures only those, so a report can skip
-           the parts you are not chasing. Walking every object in the world and every zone of
-           every realm is the expensive part, and the server is stopped while it happens.
-           Columns outside the requested sections are written empty rather than dropped, since
-           log/memoryusage.log's header is written once and has to keep describing the file; an
-           empty field means "not measured", which is not the same as a measured zero.
     Changed: the default system message text color is now 946 (was 1000).
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS
