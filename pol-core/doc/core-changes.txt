@@ -64,6 +64,10 @@
            loop - recursed until the stack overflowed and took the server down.
     Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
            symbol pool were not counted at all) and for regular expressions.
+    Changed: the memory reports do less redundant work, which matters because they block the
+             server while they run. The object walk no longer counts the object hash in a
+             separate pass over it, and the per-script report measures each script once rather
+             than twice. The reported numbers are unchanged.
     Changed: the default system message text color is now 946 (was 1000).
 08-15-2026 Turley:
     Fixed: polcore.memory_usage was always 0 on macOS

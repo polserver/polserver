@@ -66,8 +66,7 @@ void ScriptScheduler::deinitialize()
 
 ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 {
-  Memory usage;
-  memset( &usage, 0, sizeof( usage ) );
+  Memory usage{};
 
   usage.script_size = sizeof( int )            /*priority_divide*/
                       + sizeof( unsigned int ) /*next_pid*/
@@ -91,10 +90,12 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( exec != nullptr )
     {
-      usage.script_size += exec->sizeEstimate();
+      // Measured once and reused: sizeEstimate() walks every global, local, value-stack entry
+      // and saved frame of the executor, so calling it again just to log it is not cheap.
+      size_t size = exec->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {} \n", exec->scriptname(),
-                        exec->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {} \n", exec->scriptname(), size );
     }
   }
   usage.script_count += runlist.size();
@@ -106,10 +107,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( exec != nullptr )
     {
-      usage.script_size += exec->sizeEstimate();
+      size_t size = exec->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(),
-                        exec->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(), size );
     }
   }
   usage.script_count += ranlist.size();
@@ -121,10 +122,11 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold.second != nullptr )
     {
-      usage.script_size += hold.second->sizeEstimate();
+      size_t size = hold.second->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
         fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold.second->scriptname(),
-                        hold.second->sizeEstimate() );
+                        size );
     }
   }
   usage.script_count += holdlist.size();
@@ -136,10 +138,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate();
+      size_t size = hold->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
-                        hold->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(), size );
     }
   }
   usage.script_count += notimeoutholdlist.size();
@@ -151,10 +153,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate();
+      size_t size = hold->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
-                        hold->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(), size );
     }
   }
   usage.script_count += debuggerholdlist.size();

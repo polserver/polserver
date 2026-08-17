@@ -78,6 +78,10 @@ held by the debugger.</change>
 loop - recursed until the stack overflowed and took the server down.</change>
 			<change type="Fixed">memory estimates were too low for packets, for compiled scripts (the bytecode and<br/>
 symbol pool were not counted at all) and for regular expressions.</change>
+			<change type="Changed">the memory reports do less redundant work, which matters because they block the<br/>
+server while they run. The object walk no longer counts the object hash in a<br/>
+separate pass over it, and the per-script report measures each script once rather<br/>
+than twice. The reported numbers are unchanged.</change>
 			<change type="Changed">the default system message text color is now 946 (was 1000).</change>
 		</entry>
 		<entry>

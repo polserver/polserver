@@ -38,15 +38,16 @@ ObjectStorageManager::MemoryUsage ObjectStorageManager::estimateSize() const
   ObjectHash::OH_const_iterator hs_citr = objStorageManager.objecthash.begin(),
                                 hs_cend = objStorageManager.objecthash.end();
 
-  MemoryUsage usage;
-  memset( &usage, 0, sizeof( usage ) );
+  MemoryUsage usage{};
 
-  usage.objcount = std::distance( hs_citr, hs_cend );
+  // The hash is a std::map, so counting it with std::distance would be a second full walk of
+  // one node per object in the world. The loop below already visits every one of them.
   for ( ; hs_citr != hs_cend; ++hs_citr )
   {
     const UObjectRef& ref = ( *hs_citr ).second;
     auto size = ref->estimatedSize();
     usage.objsize += size;
+    usage.objcount++;
     if ( ref->isa( UOBJ_CLASS::CLASS_ITEM ) )
     {
       usage.obj_item_size += size;
