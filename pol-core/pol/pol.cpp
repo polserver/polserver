@@ -502,11 +502,6 @@ void restart_all_clients()
   }
 }
 
-void polclock_checkin()
-{
-  stateManager.checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
-}
-
 #define clock_t_to_ms( x ) ( x )
 
 void tasks_thread()
@@ -521,7 +516,6 @@ void tasks_thread()
       THREAD_CHECKPOINT( tasks, 1 );
       {
         PolLock lck;
-        polclock_checkin();
         THREAD_CHECKPOINT( tasks, 2 );
         INC_PROFILEVAR( task_passes );
         check_scheduled_tasks( &sleeptime, &activity );
@@ -543,6 +537,7 @@ void tasks_thread()
       TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", static_cast<u32>( sleeptime ) );
 
       THREAD_CHECKPOINT( tasks, 8 );
+      thread_checkin( static_cast<unsigned>( polclock_t_to_ms( sleeptime ) ) );
       tasks_thread_sleep( static_cast<u32>( polclock_t_to_ms( sleeptime ) ) );
       THREAD_CHECKPOINT( tasks, 9 );
     }
@@ -575,7 +570,6 @@ void scripts_thread()
     THREAD_CHECKPOINT( scripts, 0 );
     {
       PolLock lck;
-      polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", static_cast<u32>( polclock() ) );
       INC_PROFILEVAR( script_passes );
       THREAD_CHECKPOINT( scripts, 1 );
@@ -606,6 +600,8 @@ void scripts_thread()
     {
       ++stateManager.profilevars.script_passes_noactivity;
     }
+
+    thread_checkin( static_cast<unsigned>( polclock_t_to_ms( sleeptime ) ) );
 
     if ( sleeptime )
     {
@@ -638,7 +634,6 @@ void reap_thread()
   {
     {
       PolLock lck;
-      polclock_checkin();
       objStorageManager.objecthash.Reap();
       for ( auto& item : gamestate.dynamic_item_descriptors )
       {
@@ -647,6 +642,7 @@ void reap_thread()
       gamestate.dynamic_item_descriptors.clear();
     }
 
+    thread_checkin( 2000 );
     threadhelp::thread_sleep_ms( 2000 );
   }
 }
@@ -660,32 +656,43 @@ void threadstatus_thread()
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
-    // A thread that has stopped is invisible to the clock check below, because that deadline
-    // is shared: any one thread still running keeps it fresh on behalf of all of them, so it
-    // only ever fires when every one of them is silent at once. Ask separately whether each
-    // thread we expect is still there. Not while shutting down, where they all stop and that
-    // is the point.
+    // Ask of each thread the server depends on whether it is still there, and whether it got
+    // back to work when it said it would. Not while shutting down, where they all stop and
+    // that is the point.
     if ( !Clib::exit_signalled )
     {
-      for ( const auto& name : take_unreported_stopped_threads() )
+      auto report = take_thread_watch_report();
+
+      for ( const auto& name : report.stopped )
         POLLOG_ERRORLN(
             "########################################################\n"
             "Thread '{}' has stopped. The server is still running, but whatever that thread "
             "was responsible for is no longer happening.",
             name );
-    }
 
-    if ( is_polclock_paused_at_zero() )
-    {
-      polclock_t now = polclock();
-      if ( now >= stateManager.checkin_clock_times_out_at )
+      if ( report.everything_stalled && !report.stalled.empty() )
       {
+        // Not several faults at once. They all do their work under the world lock, so one
+        // holder that never lets go stops every one of them: name the holder, not its
+        // victims.
         POLLOG_ERRORLN(
             "########################################################\n"
-            "No clock movement in 30 seconds.  Dumping thread status." );
-        stateManager.polsig.report_status_signalled = true;
-        stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
+            "The server has stopped making progress: no thread that reports in has done so "
+            "within its own deadline. The world lock is held by thread {}.",
+            locker.load( std::memory_order_relaxed ) );
       }
+      else
+      {
+        for ( const auto& name : report.stalled )
+          POLLOG_ERRORLN(
+              "########################################################\n"
+              "Thread '{}' is running but has not got back to work when it said it would. It "
+              "is stuck rather than stopped.",
+              name );
+      }
+
+      if ( !report.stopped.empty() || !report.stalled.empty() )
+        stateManager.polsig.report_status_signalled = true;
     }
 
     if ( stateManager.polsig.report_status_signalled )
@@ -757,12 +764,16 @@ void threadstatus_thread()
       // cannot see its own thread stopping, for the obvious reason; a death there is logged
       // by the thread wrapper like any other, it just has nobody left to act on it.
       auto watched = watched_thread_status();
-      if ( watched.missing.empty() )
-        fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}, all running\n",
-                        watched.watched );
-      else
-        fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}, STOPPED: {}\n",
-                        watched.watched, fmt::join( watched.missing, ", " ) );
+      fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}", watched.watched );
+      if ( watched.missing.empty() && watched.overdue.empty() )
+        tmp += ", all running";
+      if ( !watched.missing.empty() )
+        fmt::format_to( std::back_inserter( tmp ), ", STOPPED: {}",
+                        fmt::join( watched.missing, ", " ) );
+      if ( !watched.overdue.empty() )
+        fmt::format_to( std::back_inserter( tmp ), ", LATE: {}",
+                        fmt::join( watched.overdue, ", " ) );
+      tmp += "\n";
       fmt::format_to( std::back_inserter( tmp ),
                       "Child threads (child_threads): {}\n"
                       "Registered threads (ThreadMap): {}",
@@ -1171,7 +1182,6 @@ int xmain_inner( bool testing )
   Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
   Core::restart_pol_clocks();
-  Core::polclock_checkin();
 
   // this is done right after reading globals from pol.txt:
   // checkpoint( "starting game clock" );

@@ -250,10 +250,10 @@ void Decay::threadloop()
       return;
     {
       PolLock lck;
-      polclock_checkin();
       step();
       restart_all_clients();
     }
+    thread_checkin( sleeptime );
     pol_sleep_ms( sleeptime );
   }
 }

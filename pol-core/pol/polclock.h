@@ -69,8 +69,6 @@ public:
   PolClockPauser() { pause_pol_clocks(); }
   ~PolClockPauser() { restart_pol_clocks(); }
 };
-
-void polclock_checkin();
 }  // namespace Pol::Core
 
 #endif

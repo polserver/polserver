@@ -79,16 +79,27 @@ exported function thread_status_report_prints()
 endfunction
 
 // A thread that dies leaves the shard running with a subsystem missing, and the
-// 30-second clock watchdog cannot see it: that deadline is shared between four
-// threads, so any one of them still running keeps it fresh for all of them.
-// The check that can see it compares the threads we expect against the ones
-// still registered.
+// clock watchdog could not see it: that deadline used to be shared between four
+// threads, so any one of them still running kept it fresh for all of them. Two
+// checks replace it. Is each thread we expect still registered, which catches
+// one that has died; and, for those whose loop runs unconditionally, did it get
+// back to work by the time it said it would, which catches one that is alive but
+// stuck.
 //
-// Both halves matter, and the first is the one that would go unnoticed if it
-// broke. Most watched threads block indefinitely when idle -- a listener in
-// accept(), the transmit thread on its queue -- so a detector built on
-// "has it made progress lately" would report a healthy shard as full of dead
-// threads. Asserting that a healthy shard reports none is what pins that down.
+// All three assertions here run in one function on purpose. The first is the one
+// that would go unnoticed if it broke, and it is only meaningful before the fakes
+// below exist -- exported functions are called in whatever order the compiler
+// lists them, so it cannot be left in a function of its own and assumed to run
+// first.
+//
+// That first assertion is also what pins down the harder half of the design.
+// Most watched threads block indefinitely when idle -- a listener in accept(),
+// the transmit thread on its queue -- so a detector built on "has it made
+// progress lately" would report a healthy shard as full of dead threads. Those
+// threads are therefore watched for presence only, and the ones that do report
+// in publish their own deadline: the sleep they are about to take plus a grace
+// period, since a decay pass sleeps 30ms and an idle scripts thread sleeps a
+// full minute and no single window suits both.
 exported function watched_threads_reported()
   var mark := log_mark();
   if ( mark == error )
@@ -141,6 +152,47 @@ exported function watched_threads_reported()
   endif
   if ( !log_find( lines, "STOPPED: TestAbsentThread" ) )
     return ret_error( "the report stopped listing a thread that is still missing" );
+  endif
+
+  // The other failure: still registered, still there, but past the deadline it
+  // published for itself. Faking it is what keeps this test cheap -- wedging a
+  // real thread would test the length of the grace period rather than the check,
+  // and would cost every run those thirty seconds.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  PolCore().internal( 12 );
+
+  var stalled := 0;
+  for ( i := 1; i <= 60; ++i )
+    lines := log_since( mark );
+    if ( lines == error )
+      return lines;
+    endif
+    if ( log_find( lines, "Thread 'TestStalledThread' is running but has not got back to work" ) )
+      stalled := 1;
+      break;
+    endif
+    SleepMS( 250 );
+  endfor
+  if ( !stalled )
+    return ret_error( "a stalled thread was never announced" );
+  endif
+
+  // Named once, listed for as long as it is late, and distinguished from a
+  // thread that has stopped: the two want different answers from whoever reads
+  // the report.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  lines := dump_thread_status( mark );
+  if ( lines == error )
+    return lines;
+  endif
+  if ( !log_find( lines, "LATE: TestStalledThread" ) )
+    return ret_error( "the report stopped listing a thread that is still late" );
   endif
 
   return 1;

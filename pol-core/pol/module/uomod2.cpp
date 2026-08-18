@@ -2131,6 +2131,13 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
         // a thread the shard needs -- would end the test run rather than test it.
         Core::watch_absent_thread_for_testing( "TestAbsentThread" );
       }
+      else if ( type == 12 )
+      {
+        // The other half: a thread that is still there but has not got back to work when it
+        // said it would. Wedging a real one for thirty seconds would test the window rather
+        // than the check, and would cost every run those thirty seconds.
+        Core::watch_stalled_thread_for_testing( "TestStalledThread" );
+      }
       else if ( type == 8 )
       {
         // Block until everything logged so far has reached its file, so that a

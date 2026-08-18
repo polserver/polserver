@@ -17,8 +17,7 @@ StateManager::StateManager()
       itemserialnumber( ITEMSERIAL_START ),
       charserialnumber( CHARACTERSERIAL_START ),
       polsig(),
-      decay_statistics(),
-      checkin_clock_times_out_at( 0 )
+      decay_statistics()
 {
 }
 
