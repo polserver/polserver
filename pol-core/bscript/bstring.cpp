@@ -388,6 +388,11 @@ bool String::operator<( const BObjectImp& objimp ) const
   if ( objimp.isa( OTString ) )
     return ( value_ < static_cast<const String&>( objimp ).value_ );
 
+  // operator== compares a String to a Boolean by truthiness; order them the same way, or the
+  // <=, >, >= that BObjectImp derives from the pair contradict it.
+  if ( objimp.isa( OTBoolean ) )
+    return !isTrue() && static_cast<const BBoolean&>( objimp ).isTrue();
+
   return base::operator<( objimp );
 }
 

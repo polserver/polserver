@@ -63,6 +63,26 @@
            global and local variable names and the source filenames - and did the same for the
            element names of an array and for the keys of the script storage index, while missing
            the names of a script's exported and debug functions altogether.
+08-21-2026 Nando:
+    Fixed: An eScript expression built from constants could compute a different answer than
+           the same expression written through variables: the compiler folded it with
+           arithmetic of its own instead of the arithmetic the VM runs. Folding now applies
+           the VM's own operators, so the two cannot disagree. This affected every comparison
+           mixing an Integer with a Real, and every operator on Booleans.
+    Fixed: `(-2147483647-1) / -1` and the matching modulus crashed ecompile outright, and
+           evaluating them at runtime killed the running script with no message on Windows.
+           Integer arithmetic is now defined in every case: overflow wraps, INT_MIN / -1 is
+           INT_MIN, INT_MIN % -1 is 0, and shift counts are taken modulo 32. These are the
+           answers the VM has always given on x86, so no working script changes.
+    Fixed: Comparing an Integer to a Real applied the documented tolerance of 0.00000001 only
+           when the Real was on the left, so `2 == 2.000000001` and `2.000000001 == 2`
+           disagreed. The tolerance now applies whichever side the Real is on, and `<`
+           excludes the band that `==` accepts, so `==`, `<`, `<=`, `>` and `>=` can no longer
+           contradict one another. Previously `2.0 == 2.000000001` was true while
+           `2.0 >= 2.000000001` was false.
+    Fixed: `<`, `<=`, `>` and `>=` on Booleans compared the addresses of the two objects
+           rather than their values, so `true < true` was as likely to be 1 as 0. false now
+           orders below true, and below any other value that is true.
 08-18-2026 Nando:
     Added: The core now names a thread it depends on that has stopped, or that is still
            running but no longer getting anywhere. Each thread that reports in publishes

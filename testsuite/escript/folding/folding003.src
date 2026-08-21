@@ -1,0 +1,33 @@
+// Booleans have no arithmetic of their own, so every operator on them used to reach a different
+// answer folded than at runtime. Relational operators in particular fell through to
+// BObjectImp::operator<, which compares object addresses -- `true < true` was as likely to be 1
+// as 0. See specs/escript/03.
+
+var t := true;
+var f := false;
+
+print( "true<true    " + ( true < true ) + ( t < t ) );
+print( "false<true   " + ( false < true ) + ( f < t ) );
+print( "true<false   " + ( true < false ) + ( t < f ) );
+print( "false>=false " + ( false >= false ) + ( f >= f ) );
+print( "true>=false  " + ( true >= false ) + ( t >= f ) );
+print( "false<=true  " + ( false <= true ) + ( f <= t ) );
+print( "true>false   " + ( true > false ) + ( t > f ) );
+print( "true==true   " + ( true == true ) + ( t == t ) );
+
+// Ordering agrees with equality when a boolean is compared to another type.
+var one := 1;
+var zero := 0;
+var empty := "";
+print( "true==1      " + ( true == 1 ) + ( t == one ) );
+print( "true>=1      " + ( true >= 1 ) + ( t >= one ) );
+print( "false<1      " + ( false < 1 ) + ( f < one ) );
+print( "false==0     " + ( false == 0 ) + ( f == zero ) );
+print( "false>=''    " + ( false >= "" ) + ( f >= empty ) );
+
+// A boolean has no concatenation: the VM keeps the boolean and drops the string, and the folder
+// now says the same thing rather than producing a string.
+var abc := "abc";
+print( "true+'abc'   " + CStr( true + "abc" ) + " " + CStr( t + abc ) );
+print( "'abc'+true   " + ( "abc" + true ) + " " + ( abc + t ) );
+print( "1+'abc'      " + ( 1 + "abc" ) + " " + ( one + abc ) );

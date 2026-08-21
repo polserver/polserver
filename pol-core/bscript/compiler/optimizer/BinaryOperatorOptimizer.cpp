@@ -5,10 +5,7 @@
 #include "bscript/compilercfg.h"
 
 #include "bscript/compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h"
-#include "bscript/compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h"
-#include "bscript/compiler/optimizer/BinaryOperatorWithFloatOptimizer.h"
-#include "bscript/compiler/optimizer/BinaryOperatorWithIntegerOptimizer.h"
-#include "bscript/compiler/optimizer/BinaryOperatorWithStringOptimizer.h"
+#include "bscript/compiler/optimizer/ConstantFolder.h"
 #include "bscript/compiler/optimizer/ShortCircuitCombiner.h"
 
 namespace Pol::Bscript::Compiler
@@ -20,7 +17,7 @@ BinaryOperatorOptimizer::BinaryOperatorOptimizer( BinaryOperator& op, Report& re
 
 std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
 {
-  op.lhs().accept( *this );
+  optimized_result = ConstantFolder::fold( op, report );
 
   // second parse step
   if ( compilercfg.ShortCircuitEvaluation )
@@ -39,36 +36,6 @@ std::unique_ptr<Expression> BinaryOperatorOptimizer::optimize()
     }
   }
   return std::move( optimized_result );
-}
-
-void BinaryOperatorOptimizer::visit_children( Node& ) {}
-
-void BinaryOperatorOptimizer::visit_boolean_value( BooleanValue& lhs )
-{
-  BinaryOperatorWithBooleanOptimizer optimizer( lhs, op, report );
-  op.rhs().accept( optimizer );
-  optimized_result = std::move( optimizer.optimized_result );
-}
-
-void BinaryOperatorOptimizer::visit_float_value( FloatValue& lhs )
-{
-  BinaryOperatorWithFloatOptimizer optimizer( lhs, op, report );
-  op.rhs().accept( optimizer );
-  optimized_result = std::move( optimizer.optimized_result );
-}
-
-void BinaryOperatorOptimizer::visit_integer_value( IntegerValue& lhs )
-{
-  BinaryOperatorWithIntegerOptimizer optimizer( lhs, op, report );
-  op.rhs().accept( optimizer );
-  optimized_result = std::move( optimizer.optimized_result );
-}
-
-void BinaryOperatorOptimizer::visit_string_value( StringValue& lhs )
-{
-  BinaryOperatorWithStringOptimizer optimizer( lhs, op );
-  op.rhs().accept( optimizer );
-  optimized_result = std::move( optimizer.optimized_result );
 }
 
 }  // namespace Pol::Bscript::Compiler

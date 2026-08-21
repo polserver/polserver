@@ -1,0 +1,19 @@
+INT_MIN / -1  -2147483648 -2147483648
+INT_MIN % -1  0 0
+-INT_MIN      -2147483648 -2147483648
+INT_MAX + 1   -2147483648 -2147483648
+INT_MIN - 1   2147483647 2147483647
+INT_MAX * 2   -2 -2
+64 << 32      64 64
+64 >> 32      64 64
+1 << 31       -2147483648 -2147483648
+-1 >> 40      -1 -1
+64 << -1      0 0
+error{ errortext = "Divide by Zero" }
+error{ errortext = "Divide by Zero" }
+INT_MIN /= -1 -2147483648
+INT_MIN %= -1 0
+INT_MAX += 1  -2147483648
+INT_MIN -= 1  2147483647
+INT_MAX *= 2  -2
+error{ errortext = "Divide by Zero" }

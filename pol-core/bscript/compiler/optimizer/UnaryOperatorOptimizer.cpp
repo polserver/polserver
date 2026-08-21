@@ -1,12 +1,11 @@
 #include "bscript/compiler/optimizer/UnaryOperatorOptimizer.h"
 
-#include "bscript/compiler/ast/BooleanValue.h"
-#include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 #include "bscript/compiler/ast/UninitializedValue.h"
+#include "bscript/compiler/optimizer/ConstantFolder.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -17,84 +16,13 @@ UnaryOperatorOptimizer::UnaryOperatorOptimizer( UnaryOperator& unary_operator )
 
 std::unique_ptr<Expression> UnaryOperatorOptimizer::optimize()
 {
-  unary_operator.operand().accept( *this );
+  optimized_result = ConstantFolder::fold( unary_operator );
+  if ( !optimized_result )
+    unary_operator.operand().accept( *this );
   return std::move( optimized_result );
 }
 
 void UnaryOperatorOptimizer::visit_children( Node& ) {}
-
-void UnaryOperatorOptimizer::visit_boolean_value( BooleanValue& bv )
-{
-  bool value;
-
-  switch ( unary_operator.token_id )
-  {
-  case TOK_LOG_NOT:
-    value = !bv.value;
-    break;
-
-  default:
-    return;
-  }
-
-  // Logical-not returns 1/0 as BLong, ie. `!false` == `1`
-  optimized_result = std::make_unique<IntegerValue>( bv.source_location, value );
-}
-
-void UnaryOperatorOptimizer::visit_float_value( FloatValue& fv )
-{
-  double value;
-
-  switch ( unary_operator.token_id )
-  {
-  case TOK_LOG_NOT:
-    value = fv.value == 0.0;
-    break;
-  case TOK_UNMINUS:
-    value = -fv.value;
-    break;
-  case TOK_UNPLUSPLUS:
-    value = fv.value + 1;
-    break;
-  case TOK_UNMINUSMINUS:
-    value = fv.value - 1;
-    break;
-
-  default:
-    return;
-  }
-
-  optimized_result = std::make_unique<FloatValue>( fv.source_location, value );
-}
-
-void UnaryOperatorOptimizer::visit_integer_value( IntegerValue& iv )
-{
-  int value;
-
-  switch ( unary_operator.token_id )
-  {
-  case TOK_UNMINUS:
-    value = -iv.value;
-    break;
-  case TOK_LOG_NOT:
-    value = !iv.value;
-    break;
-  case TOK_BITWISE_NOT:
-    value = static_cast<int>( ~static_cast<unsigned>( iv.value ) );
-    break;
-  case TOK_UNPLUSPLUS:
-    value = iv.value + 1;
-    break;
-  case TOK_UNMINUSMINUS:
-    value = iv.value - 1;
-    break;
-
-  default:
-    return;
-  }
-
-  optimized_result = std::make_unique<IntegerValue>( iv.source_location, value );
-}
 
 void UnaryOperatorOptimizer::visit_member_access( MemberAccess& gm )
 {

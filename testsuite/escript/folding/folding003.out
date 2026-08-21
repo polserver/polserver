@@ -1,0 +1,16 @@
+true<true    00
+false<true   11
+true<false   00
+false>=false 11
+true>=false  11
+false<=true  11
+true>false   11
+true==true   11
+true==1      11
+true>=1      11
+false<1      11
+false==0     11
+false>=''    11
+true+'abc'   true true
+'abc'+true   abctrue abctrue
+1+'abc'      1abc 1abc
