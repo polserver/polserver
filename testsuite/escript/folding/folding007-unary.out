@@ -1,0 +1,14 @@
+!int      0 0
+!real     0 0
+!zeroreal 1 1
+!string   0 0
+!true     0 0
+!false    1 1
+-int      -2 -2
+-real     -2.1 -2.1
+-INT_MIN  -2147483648 -2147483648
+~int      -3 -3
+~INT_MIN  2147483647 2147483647
+++int     3 3
+--real    1.1 1.1
+types     Integer Integer Integer Integer

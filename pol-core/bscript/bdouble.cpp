@@ -115,13 +115,11 @@ bool Double::operator==( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( OTDouble ) )
   {
-    double diff = dval_ - ( (Double&)objimp ).dval_;
-    return fabs( diff ) < 0.00000001;
+    return numbers_equal( dval_, ( (Double&)objimp ).dval_ );
   }
   if ( objimp.isa( OTLong ) )
   {
-    double diff = dval_ - ( (BLong&)objimp ).value();
-    return fabs( diff ) < 0.00000001;
+    return numbers_equal( dval_, ( (BLong&)objimp ).value() );
   }
   if ( objimp.isa( OTBoolean ) )
   {
@@ -135,11 +133,15 @@ bool Double::operator<( const BObjectImp& objimp ) const
 {
   if ( objimp.isa( OTDouble ) )
   {
-    return ( dval_ < ( (Double&)objimp ).dval_ );
+    return number_less( dval_, ( (Double&)objimp ).dval_ );
   }
   if ( objimp.isa( OTLong ) )
   {
-    return ( dval_ < ( (BLong&)objimp ).value() );
+    return number_less( dval_, ( (BLong&)objimp ).value() );
+  }
+  if ( objimp.isa( OTBoolean ) )
+  {
+    return !isTrue() && static_cast<const BBoolean&>( objimp ).isTrue();
   }
 
   return base::operator<( objimp );

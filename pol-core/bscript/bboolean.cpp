@@ -51,6 +51,14 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
   return bval_ == objimp.isTrue();
 }
 
+// Ordered by truthiness, exactly as operator== compares by it: false sorts below true and below
+// anything else that is true. Without this, BObjectImp::operator< reached its same-type branch and
+// compared object *addresses*, so `true < true` was 1 as often as not.
+bool BBoolean::operator<( const BObjectImp& objimp ) const
+{
+  return !bval_ && objimp.isTrue();
+}
+
 std::string BBoolean::getStringRep() const
 {
   return bval_ ? "true" : "false";

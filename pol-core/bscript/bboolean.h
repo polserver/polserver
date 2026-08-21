@@ -30,6 +30,7 @@ public:  // Class Machinery
   BObjectImp* copy() const override;
   bool isTrue() const override;
   bool operator==( const BObjectImp& objimp ) const override;
+  bool operator<( const BObjectImp& objimp ) const override;
 
   std::string getStringRep() const override;
 

@@ -1,12 +1,31 @@
 
 #pragma once
 
+#include <cmath>
+
 #include "clib/fixalloc.h"
 #include "clib/passert.h"
 #include "bscript/bobjectimp.h"
 
 namespace Pol::Bscript
 {
+// eScript compares Real values with a tolerance rather than exactly (core-changes.txt, 06-02
+// Syzygy). Every numeric comparison in the VM goes through these two, so `==` and `<` and the
+// `<=`, `>`, `>=` that BObjectImp derives from them agree: `<` excludes the band `==` accepts,
+// so no two values are ever both equal and less. The compiler's constant folder inherits the
+// same answers by calling the same operators (see specs/escript/03).
+inline constexpr double escript_number_epsilon = 0.00000001;
+
+inline bool numbers_equal( double a, double b )
+{
+  return std::fabs( a - b ) < escript_number_epsilon;
+}
+
+inline bool number_less( double a, double b )
+{
+  return a < b && !numbers_equal( a, b );
+}
+
 class Double final : public BObjectImp
 {
   using base = BObjectImp;

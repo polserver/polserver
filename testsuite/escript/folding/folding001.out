@@ -1,0 +1,15 @@
+int==float   11
+int!=float   00
+int<=float   11
+int>=float   11
+int<float    00
+int>float    00
+float==int   11
+float>int    00
+float>=int   11
+float==float 11
+float<float  00
+float>=float 11
+float>float  00
+symmetric==  11
+far apart    010
