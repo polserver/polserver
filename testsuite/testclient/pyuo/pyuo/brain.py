@@ -214,6 +214,9 @@ class Event:
   EVT_RACE_CHANGE = 117
   EVT_GUMP_REPLY = 118
   EVT_DIALOG_REPLY = 119
+  EVT_PACKET_SENT = 120
+  EVT_ALL_NAMES = 121
+  EVT_WORLDMAP = 122
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -258,6 +261,12 @@ class Event:
       return "gump_reply"
     elif self.type==Event.EVT_DIALOG_REPLY:
       return "dialog_reply"
+    elif self.type==Event.EVT_PACKET_SENT:
+      return "packet_sent"
+    elif self.type==Event.EVT_ALL_NAMES:
+      return "all_names"
+    elif self.type==Event.EVT_WORLDMAP:
+      return "worldmap"
     elif self.type==Event.EVT_TEXT_ENTRY:
       return "text_entry"
     elif self.type==Event.EVT_SELECT_COLOR:

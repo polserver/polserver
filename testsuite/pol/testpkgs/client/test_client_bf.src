@@ -1,0 +1,358 @@
+use os;
+use uo;
+use attributes;
+use polsys;
+
+include "customhouse";
+include "clientpkt";
+
+// The 0xBF packet, which is a family rather than a message: everything the client has to say that
+// nobody gave a packet of its own. The subcommands covered where they belong - party, popup
+// answers, the race changer - are not repeated here; what is left is the rest.
+//
+// The house helpers come from customhouse.inc because one of these subcommands asks for a
+// design, and that is where the plot and the account expansion are managed.
+
+program bftests()
+  return house_setup();
+endprogram
+
+// Sends one packet the client knows how to build, named by what it is.
+function client_sends( packet )
+  return send_client_packet( clientcon, 0, packet );
+endfunction
+
+// Waits for a system message client 0 was sent, matched by its opening.
+function wait_sysmsg( prefix, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != 0 or ev.msg.find( prefix ) != 1 )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"the client was never told anything starting with \"{prefix}\"" );
+endfunction
+
+function expect_sysmsg( prefix )
+  var ev := wait_sysmsg( prefix );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+// Says something as the client and waits to hear it back, which proves the connection is still in
+// step with the core after a packet that answers nothing.
+function client_alive( what )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := what, id := 0 } );
+  var ev := wait_for_speech( 0, what );
+  if ( !ev )
+    return ret_error( $"the connection did not survive: \"{what}\" was never heard back" );
+  endif
+  return 1;
+endfunction
+
+// Sends a subcommand the core reads and does nothing about, and asserts the connection is still
+// in step with it afterwards.
+function ignored_sub( what, packet )
+  var res := client_sends( packet );
+  if ( !res )
+    return ret_error( $"{what}: {res.errortext}" );
+  endif
+  return client_alive( $"survived {what}" );
+endfunction
+
+exported function bf_ignored_subs()
+  // Each of these has an arm of its own so that a client sending one is not reported as sending
+  // something unknown, and each of those arms does nothing else.
+  var res := ignored_sub( "0xBF sespam", struct{ packet := "se_spam", flag := 1 } );
+  if ( !res )
+    return res;
+  endif
+  res := ignored_sub( "0xBF closed status gump", struct{ packet := "close_status",
+                                                         serial := char.serial } );
+  if ( !res )
+    return res;
+  endif
+  return ignored_sub( "0xBF screen size", struct{ packet := "screen_size",
+                                                  width := 800, height := 600 } );
+endfunction
+
+// Asking for the context menu of one object.
+function popup_request( serial )
+  return struct{ packet := "popup_request", serial := serial };
+endfunction
+
+exported function bf_popup_request( resmgr )
+  // Asking for the context menu of an object. What it does is start scripts/misc/popupmenu, which
+  // is handed whatever was asked about - a mobile and an item take different routes to it.
+  var res := client_sends( popup_request( char2_serial() ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"popupmenu [0x{char2_serial():x}]" );
+  if ( !res )
+    return res;
+  endif
+
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"failed to create the item: {it}" );
+  endif
+  res := client_sends( popup_request( it.serial ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"popupmenu [0x{it.serial:x}]" );
+  if ( !res )
+    return res;
+  endif
+
+  // Neither a mobile nor an item: nothing is started at all.
+  drain_events();
+  res := client_sends( popup_request( 0x7FFFFFF0 ) );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_SPEECH and ev.msg.find( "popupmenu" ) == 1 )
+      return ret_error( $"a menu was offered for nobody: {ev.msg}" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// One stat lock button: which stat, and which way it was clicked.
+function stat_lock( stat, mode )
+  return struct{ packet := "stat_lock", stat := stat, mode := mode };
+endfunction
+
+exported function bf_extended_stats( resmgr )
+  // The stat lock buttons of the status bar. The core only acts on them when it is told to, and
+  // the shard default is to leave them to a script.
+  var res := resmgr.UpdateConfiguration( struct{ CoreHandledLocks := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  // MODE_UP is 0, MODE_DOWN 1 and MODE_LOCKED 2, and stats are numbered in the order the status
+  // bar shows them.
+  var stats := struct{ Strength := 0, Dexterity := 1, Intelligence := 2 };
+  foreach statnum in ( stats )
+    var was := GetAttributeLock( char, _statnum_iter );
+    res := client_sends( stat_lock( statnum, 2 ) );
+    if ( !res )
+      return res;
+    endif
+    res := client_alive( $"locked {_statnum_iter}" );
+    if ( !res )
+      return res;
+    endif
+    var lock := GetAttributeLock( char, _statnum_iter );
+    if ( lock != 2 )
+      return ret_error( $"{_statnum_iter} is at lock {lock}, expected 2" );
+    endif
+
+    // A mode the client cannot mean is dropped, and the lock stays where it was.
+    res := client_sends( stat_lock( statnum, 3 ) );
+    if ( !res )
+      return res;
+    endif
+    res := client_alive( $"refused an impossible lock for {_statnum_iter}" );
+    if ( !res )
+      return res;
+    endif
+    lock := GetAttributeLock( char, _statnum_iter );
+    if ( lock != 2 )
+      return ret_error( $"{_statnum_iter} moved to {lock}" );
+    endif
+
+    SetAttributeLock( char, _statnum_iter, was );
+  endforeach
+
+  // A stat that is not one of the three is dropped the same way.
+  res := client_sends( stat_lock( 5, 0 ) );
+  if ( !res )
+    return res;
+  endif
+  return client_alive( "refused an unknown stat" );
+endfunction
+
+// The flying button, whose two fields the core does not read.
+function toggle_flying()
+  return struct{ packet := "flying" };
+endfunction
+
+exported function bf_toggle_flying()
+  // Gargoyles fly, and the button that turns it on and off is a packet of its own. Anything else
+  // sending it is ignored, which is what the second half of this checks.
+  var was_race := char.race;
+  var was_movemode := char.movemode;
+
+  char.race := RACE_GARGOYLE;
+  var res := client_sends( toggle_flying() );
+  if ( !res )
+    char.race := was_race;
+    return res;
+  endif
+  res := client_alive( "toggled flying" );
+  if ( !res )
+    char.race := was_race;
+    return res;
+  endif
+  if ( char.movemode == was_movemode )
+    char.race := was_race;
+    return ret_error( $"the movemode stayed {char.movemode}" );
+  endif
+
+  // and back again: the flying bit is flipped, not set
+  res := client_sends( toggle_flying() );
+  if ( !res )
+    char.race := was_race;
+    return res;
+  endif
+  res := client_alive( "toggled flying back" );
+  if ( !res )
+    char.race := was_race;
+    return res;
+  endif
+  var movemode := char.movemode;
+  char.race := was_race;
+  if ( movemode != was_movemode )
+    return ret_error( $"the movemode ended at {movemode}, started at {was_movemode}" );
+  endif
+
+  // a race that does not fly is not given the chance
+  res := client_sends( toggle_flying() );
+  if ( !res )
+    return res;
+  endif
+  res := client_alive( "ignored flying" );
+  if ( !res )
+    return res;
+  endif
+  if ( char.movemode != was_movemode )
+    return ret_error( $"a human took off: {char.movemode}" );
+  endif
+  return 1;
+endfunction
+
+// Asking for the whole design of a house, and for the tooltip of one object.
+function design_request( serial )
+  return struct{ packet := "house_design", serial := serial };
+endfunction
+
+function object_cache( serial )
+  return struct{ packet := "object_cache", serial := serial };
+endfunction
+
+exported function bf_full_custom_house( resmgr )
+  // Asking for the whole design of a house, which is what a client does when it comes into range
+  // of one it has no design for.
+  var started := house_start( resmgr );
+  if ( !started )
+    return started;
+  endif
+
+  drain_events();
+  var res := client_sends( design_request( house.serial ) );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != house.serial )
+    return ret_error( $"the design is for 0x{ev.serial:x}, expected 0x{house.serial:x}" );
+  endif
+
+  // A multi that is not a house, and a serial that is no multi at all, are both answered with
+  // nothing rather than with an empty design.
+  drain_events();
+  res := client_sends( design_request( 0x7FFFFFF0 ) );
+  if ( !res )
+    return res;
+  endif
+  return wait_for_no_design( 0 );
+endfunction
+
+exported function bf_non_aos( resmgr )
+  // Two of these subcommands are only answered for an account that has the expansion they came
+  // with. The client characters are on AOS, so this is the one case that takes it away again.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"failed to create the item: {it}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  var was := set_expansion( "testclient0", "T2A" );
+  if ( !was )
+    return was;
+  endif
+
+  drain_events();
+  res := client_sends( object_cache( it.serial ) );
+  if ( !res )
+    set_expansion( "testclient0", was );
+    return res;
+  endif
+  res := client_alive( "asked for a tooltip without aos" );
+  if ( !res )
+    set_expansion( "testclient0", was );
+    return res;
+  endif
+
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  var described := 0;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_AOS_TOOLTIP and CInt( ev.serial ) == it.serial )
+      described := 1;
+      break;
+    endif
+  endwhile
+
+  // the same for a house design, which the same expansion check guards
+  res := client_sends( design_request( 0x7FFFFFF0 ) );
+  if ( res )
+    res := client_alive( "asked for a design without aos" );
+  endif
+  set_expansion( "testclient0", was );
+  if ( !res )
+    return res;
+  endif
+  if ( described )
+    return ret_error( "a tooltip was sent to an account without the expansion" );
+  endif
+
+  // and with the expansion back, the same request is answered
+  drain_events();
+  res := client_sends( object_cache( it.serial ) );
+  if ( !res )
+    return res;
+  endif
+  deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( ev and ev.type == EVT_AOS_TOOLTIP and CInt( ev.serial ) == it.serial )
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the tooltip was not sent once the expansion was back" );
+endfunction
+
+// The second client character, which the popup case asks about. customhouse.inc only knows the
+// first one.
+function char2_serial()
+  var acct := FindAccount( "testclient1" );
+  return acct.getcharacter( 1 ).serial;
+endfunction

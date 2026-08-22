@@ -213,6 +213,18 @@ class Packet():
   # Utility methods ----------------------------------------------------------
 
   @staticmethod
+  def tobytes(val):
+    '''! Takes what a caller handed over as the bytes it is
+    @param val: a string, which is encoded the way the protocol carries text, or
+                a sequence of byte values, which is how a caller puts something
+                in a packet that no string would carry
+    @return bytes
+    '''
+    if isinstance(val, str):
+      return val.encode('cp1252', 'replace')
+    return bytes(int(b) & 0xff for b in val)
+
+  @staticmethod
   def fixStr(string, length, unicode=False):
     ''' Convert a str to fixed length, return bytes '''
     ##TODO: Better handling on unicode
@@ -1520,6 +1532,80 @@ class GameServerLoginPacket(Packet):
     self.estring(self.password, 30)
 
 
+class WorldmapQueryPacket(Packet):
+  ''' Where the party (sub 0x01) or the guild (sub 0x02) is, answering a worldmap query. A
+      member the client can already see is left out of it, and a guild list only carries
+      positions when the query asked for them.
+  '''
+
+  cmd = 0xf0
+
+  SUB_PARTY = 0x01
+  SUB_GUILD = 0x02
+
+  def fill(self, sub, locations=None):
+    '''! The query itself, which is off until the shard turns it on
+    @param sub int: one of the SUB_ constants, or a number nothing handles
+    @param locations int: whether a guild answer should carry positions. The
+                          party form of the query has no such field.
+    '''
+    self.sub = sub
+    self.locations = locations
+    self.length = 3 + 1 + (0 if self.locations is None else 1)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.sub)
+    if self.locations is not None:
+      self.euchar(self.locations)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.subcmd = self.duchar()
+    # a party list always carries positions, a guild list says whether it does
+    self.locations = True
+    if self.subcmd == self.SUB_GUILD:
+      self.locations = bool(self.duchar())
+    self.members = []
+    # the list ends with a zero serial, which is the last four bytes of the packet
+    while self.readCount < self.length - 4:
+      member = {'serial': self.duint()}
+      if self.locations:
+        member['x'] = self.dushort()
+        member['y'] = self.dushort()
+        member['map'] = self.duchar()
+        if self.subcmd == self.SUB_GUILD:
+          member['hits'] = self.duchar()
+      self.members.append(member)
+    self.duint()
+
+
+class AllNamesPacket(Packet):
+  ''' The name of one mobile, answering an all names request
+
+  The client sends one of these for everything on screen at once and is
+  answered with a packet per mobile - it says nothing about anything else.
+  '''
+
+  cmd = 0x98
+
+  def fill(self, serial):
+    '''!
+    @param serial int: who to ask about
+    '''
+    self.serial = serial
+    self.length = 3 + 4
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.name = self.dstring(self.length - 7)
+
+
 class UpdateHealthPacket(UpdateVitalPacket):
   ''' Updates current health '''
 
@@ -1984,6 +2070,16 @@ class GeneralInfoPacket(Packet):
   SUB_LOGIN = 0x0f
   ## MegaCliLoc
   SUB_MEGACLILOC = 0x10
+  ## Ask for the context menu of an object
+  SUB_POPUP_REQUEST = 0x13
+  ## A stat lock button of the status bar
+  SUB_STATLOCK = 0x1a
+  ## Ask for the whole design of a house
+  SUB_HOUSE_DESIGN = 0x1e
+  ## The gargoyle flying button
+  SUB_TOGGLE_FLYING = 0x32
+  ## What the client calls SE spam, a flag and nothing else
+  SUB_SESPAM = 0x24
   ## A pop-up (context) menu the server is showing, above some object
   SUB_POPUP_DISPLAY = 0x14
   ## Which entry of it the player picked
@@ -2129,8 +2225,43 @@ class GeneralInfoPacket(Packet):
       else:
         raise NotImplementedError('Party command {:02x} not implemented to send'.format(self.partycmd))
 
+    elif self.sub in (self.SUB_POPUP_REQUEST, self.SUB_HOUSE_DESIGN):
+      checkArgLen(1)
+      self.serial = args[0]
+      self.length = 5 + 4
+
+    elif self.sub == self.SUB_STATLOCK:
+      checkArgLen(2)
+      self.stat = args[0]
+      self.mode = args[1]
+      self.length = 5 + 2
+
+    elif self.sub == self.SUB_TOGGLE_FLYING:
+      checkArgLen(0)
+      self.length = 5 + 6
+
+    elif self.sub == self.SUB_CLOSESTATUS:
+      checkArgLen(1)
+      self.serial = args[0]
+      self.length = 5 + 4
+
+    elif self.sub == self.SUB_SCREENSIZE:
+      checkArgLen(2)
+      self.width = args[0]
+      self.height = args[1]
+      self.length = 5 + 8
+
+    elif self.sub == self.SUB_SESPAM:
+      checkArgLen(1)
+      self.flag = args[0]
+      self.length = 5 + 1
+
     else:
-      raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
+      # A subcommand nothing handles, which the core still has to read before it
+      # can go on to the next packet. What it carries is whatever the caller
+      # handed over, so this sends a known subcommand malformed as well.
+      self.body = bytes(args[0]) if len(args) else b''
+      self.length = 5 + len(self.body)
 
   def encodeChild(self):
     self.eulen()
@@ -2179,8 +2310,32 @@ class GeneralInfoPacket(Packet):
       elif self.partycmd == self.PARTY_LOOT_PERMISSION:
         self.euchar(self.canloot)
 
+    elif self.sub in (self.SUB_POPUP_REQUEST, self.SUB_HOUSE_DESIGN):
+      self.euint(self.serial)
+
+    elif self.sub == self.SUB_STATLOCK:
+      self.euchar(self.stat)
+      self.euchar(self.mode)
+
+    elif self.sub == self.SUB_TOGGLE_FLYING:
+      # neither field is read by the core
+      self.eushort(0x0100)
+      self.euint(0)
+
+    elif self.sub == self.SUB_CLOSESTATUS:
+      self.euint(self.serial)
+
+    elif self.sub == self.SUB_SCREENSIZE:
+      self.eushort(0)
+      self.eushort(self.width)
+      self.eushort(self.height)
+      self.eushort(0)
+
+    elif self.sub == self.SUB_SESPAM:
+      self.euchar(self.flag)
+
     else:
-      raise NotImplementedError('Subcommand {:02x} not implemented yet'.format(self.sub))
+      self.buf += self.body
 
   def decodeChild(self):
     self.length = self.dushort()
@@ -2587,10 +2742,14 @@ class CustomHouseCommandPacket(Packet):
   SUB_DELETE_ROOF = 0x14
   ## Throw the working design away, going back to the committed one
   SUB_REVERT = 0x1a
+  ## The paperdoll guild button, which is only a script hook
+  SUB_GUILD_BUTTON = 0x28
+  ## The paperdoll quest button, likewise
+  SUB_QUEST_BUTTON = 0x32
 
   ## Subcommands that carry nothing but the serial and the subcommand itself
   NO_ARGS = (SUB_BACKUP, SUB_RESTORE, SUB_COMMIT, SUB_QUIT, SUB_SYNCH,
-             SUB_CLEAR, SUB_REVERT)
+             SUB_CLEAR, SUB_REVERT, SUB_GUILD_BUTTON, SUB_QUEST_BUTTON)
   ## Subcommands laid out as CH_ADD: a tile and an offset
   TILE_AT = (SUB_ADD, SUB_ADD_MULTI)
   ## Subcommands laid out as CH_ERASE: a tile, an offset and a z
@@ -2641,7 +2800,9 @@ class CustomHouseCommandPacket(Packet):
       self.length += 5
 
     else:
-      raise NotImplementedError('Subcommand {:02x} not implemented to send'.format(self.sub))
+      # A subcommand nothing handles, which carries the serial and itself and
+      # nothing more - the core still has to read past it to the next packet.
+      checkArgLen(0)
 
   def eu32signed(self, val):
     ''' Adds an offset as the u32 the core reads back into an s32 '''
@@ -2808,6 +2969,218 @@ class HealthBarStatusUpdate(Packet):
     self.dushort()
     self.color = self.dushort()
     self.flags = self.duchar()
+
+
+class AsciiSpeechRequestPacket(Packet):
+  ''' Client speech from before unicode, see PKTIN_03 in the core
+
+  Modern clients say everything through the unicode 0xAD packet. This is the
+  older door into the same handling and the only way to reach it.
+  '''
+
+  cmd = 0x03
+
+  def fill(self, text, type=0, color=0, font=3):
+    '''!
+    @param text: what is said, either as a string or as the bytes it is - a list
+                 of byte values carries what no string would, an embedded zero
+                 or a character that cannot be printed
+    @param type int: one of the speech types the core knows
+    @param color int
+    @param font int
+    '''
+    self.text = self.tobytes(text)
+    self.type = type
+    self.color = color
+    self.font = font
+    # header, type, color, font, and the text with its terminator
+    self.length = 3 + 1 + 2 + 2 + len(self.text) + 1
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.type)
+    self.eushort(self.color)
+    self.eushort(self.font)
+    self.buf += self.text + b'\x00'
+
+
+class BulletinBoardPacket(Packet):
+  ''' A bulletin board command, see PKTBI_71 in the core '''
+
+  cmd = 0x71
+
+  def fill(self, sub, body=b''):
+    '''!
+    @param sub int: which bulletin board command
+    @param body: what that command carries, as bytes
+    '''
+    self.sub = sub
+    self.body = self.tobytes(body)
+    self.length = 3 + 1 + len(self.body)
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.sub)
+    self.buf += self.body
+
+
+class RenameCharPacket(Packet):
+  ''' Renames a mobile, see PKTIN_75 in the core
+
+  The core answers a mobile that does not answer to the sender with a refusal
+  rather than by ignoring the packet.
+  '''
+
+  cmd = 0x75
+  length = 35
+
+  def fill(self, serial, name):
+    '''!
+    @param serial int: who to rename
+    @param name string: the new name, up to 30 characters
+    '''
+    self.serial = serial
+    self.name = name
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.estring(self.name, 30)
+
+
+class CharProfileRequestPacket(Packet):
+  ''' Reads or writes a character profile, see PKTBI_B8 in the core '''
+
+  ## Ask for a profile
+  MODE_READ = 0
+  ## Write a profile
+  MODE_WRITE = 1
+
+  cmd = 0xb8
+
+  def fill(self, serial, text=None):
+    '''!
+    @param serial int: whose profile. A serial no mobile has starts nothing.
+    @param text string: the new profile text, or None to only ask for it. The
+                        core works the length out from the length of the packet
+                        rather than from the field that claims it.
+    '''
+    self.serial = serial
+    self.text = text
+    self.length = 3 + 1 + 4
+    if self.text is not None:
+      self.length += 2 + 2 + len(self.text) * 2
+
+  def encodeChild(self):
+    self.eulen()
+    self.euchar(self.MODE_READ if self.text is None else self.MODE_WRITE)
+    self.euint(self.serial)
+    if self.text is not None:
+      self.eushort(0)
+      self.eushort(len(self.text))
+      self.estring(self.text, len(self.text), True)
+
+
+class ChatButtonPacket(Packet):
+  ''' The paperdoll chat button, see PKTIN_B5 in the core
+
+  Carries the name the client would chat under, which the core does not read.
+  '''
+
+  cmd = 0xb5
+  length = 64
+
+  def fill(self, name=''):
+    '''!
+    @param name string: up to 31 characters, unicode on the wire
+    '''
+    self.name = name
+
+  def encodeChild(self):
+    self.estring(self.name, 31, True)
+    self.euchar(0)
+
+
+class UltimaMessengerPacket(Packet):
+  ''' The old mail system, see PKTBI_BB in the core. Only reported. '''
+
+  cmd = 0xbb
+  length = 9
+
+  def fill(self, serial, serial2=0):
+    self.serial = serial
+    self.serial2 = serial2
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.euint(self.serial2)
+
+
+class UnknownC4Packet(Packet):
+  ''' What the core calls handle_unknown_C4: read, reported, nothing else '''
+
+  cmd = 0xc4
+  length = 6
+
+  def fill(self, serial, intensity=0):
+    self.serial = serial
+    self.intensity = intensity
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.euchar(self.intensity)
+
+
+class OpenUOStorePacket(Packet):
+  ''' The UO store button, see PKTIN_FA. The whole packet is its type. '''
+
+  cmd = 0xfa
+  length = 1
+
+  def fill(self):
+    pass
+
+  def encodeChild(self):
+    pass
+
+
+class PublicHouseContentPacket(Packet):
+  ''' See PKTIN_FB in the core. Carries a flag the core does not read. '''
+
+  cmd = 0xfb
+  length = 2
+
+  def fill(self, flag=1):
+    self.flag = flag
+
+  def encodeChild(self):
+    self.euchar(self.flag)
+
+
+class ClientTypePacket(Packet):
+  ''' What the 3D clients announce themselves as, see PKTIN_E1 in the core
+
+  Announcing a type REPLACES what the server believes the client is rather than
+  adding to it, so a claim of an older type lowers what the client is sent.
+  '''
+
+  ## Kingdom Reborn
+  TYPE_KR = 0x2
+  ## Stygian Abyss
+  TYPE_SA = 0x3
+
+  cmd = 0xe1
+  length = 9
+
+  def fill(self, clienttype):
+    '''!
+    @param clienttype int: one of the TYPE_ constants, or a number nothing knows
+    '''
+    self.clienttype = clienttype
+
+  def encodeChild(self):
+    self.eushort(self.length)
+    self.eushort(1)
+    self.euint(self.clienttype)
 
 
 class MapPinPacket(Packet):

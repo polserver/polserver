@@ -1,0 +1,20 @@
+use npc;
+use os;
+use uo;
+
+// The NPC the drop tests give things to. It says what it was handed, which is how a case sees the
+// event arrive: the item itself is put away in a storage container the core keeps for exactly this
+// and is nowhere a client can look at it.
+
+const SYSEVENT_ITEM_GIVEN := 0x0400;
+
+program ai_given()
+  EnableEvents( SYSEVENT_ITEM_GIVEN );
+
+  while ( 1 )
+    var ev := os::wait_for_event( 60 );
+    if ( ev and ev.type == SYSEVENT_ITEM_GIVEN )
+      Say( $"given 0x{ev.item.serial:x} by {ev.source.name}" );
+    endif
+  endwhile
+endprogram

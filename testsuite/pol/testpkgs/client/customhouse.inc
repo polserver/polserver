@@ -23,6 +23,7 @@ use uo;
 
 include "testutil";
 include "communication";
+include "clientpkt";
 
 // the subcommands of the 0xD7 packet, see PKTBI_D7 in the core. Keep in sync
 // with the SUB_ constants of pyuo's CustomHouseCommandPacket.
@@ -212,14 +213,14 @@ endfunction
 // takes are the ones its packet carries, see CustomHouseCommandPacket.fill():
 // a graphic and an offset, optionally a z, or a floor number on its own.
 function house_cmd( id, sub, arg := 0 )
-  var todo := struct{ todo := "house", id := id };
   if ( !arg )
     arg := struct{};
   endif
+  arg.+packet := "house_command";
   arg.+sub := sub;
-  todo.+arg := arg;
-  clientcon.sendevent( todo );
-  return 1;
+  // no ack: these cases are waiting for the design the command changes, and the ack would be
+  // thrown away in front of it - see send_client_packet()
+  return send_client_packet( clientcon, id, arg, wait := 0 );
 endfunction
 
 function house_add( id, graphic, xoffset, yoffset )

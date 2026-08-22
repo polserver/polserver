@@ -1,0 +1,7 @@
+// A text command script with no program block. The core still finds it and starts it - the
+// character, the text and the language code are only pushed when there is a program to receive
+// them - so the command counts as handled and the client is told nothing.
+
+exported function unused_by_anything()
+  return 1;
+endfunction
