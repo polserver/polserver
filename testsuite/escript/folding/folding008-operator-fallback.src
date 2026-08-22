@@ -1,0 +1,63 @@
+// What a binary operator means when no type in the pair implemented a rule for it. A Boolean
+// counts as 1 or 0 in arithmetic, `+` with a String on either side concatenates, and anything
+// else is an error naming the operator and both types -- where all of it used to return the
+// LEFT operand unchanged and say nothing. See specs/escript/15.
+//
+// As in the other folding tests, each line prints the folded form and the same expression through
+// variables, so the compiler and the VM have to agree.
+
+var t := true;
+var f := false;
+var i := 2;
+var d := 2.5;
+var s := "abc";
+
+// A Boolean is 1 or 0, and the answer does not depend on which side it is written.
+print( "int+bool   " + ( 2 + true ) + " " + ( i + t ) );
+print( "bool+int   " + ( true + 2 ) + " " + ( t + i ) );
+print( "int-bool   " + ( 2 - true ) + " " + ( i - t ) );
+print( "bool-int   " + ( true - 2 ) + " " + ( t - i ) );
+print( "int*bool   " + ( 2 * true ) + " " + ( i * t ) );
+print( "real+bool  " + ( 2.5 + true ) + " " + ( d + t ) );
+print( "bool+real  " + ( true + 2.5 ) + " " + ( t + d ) );
+print( "bool+bool  " + ( true + true ) + " " + ( t + t ) );
+print( "false+int  " + ( false + 2 ) + " " + ( f + i ) );
+print( "bool|int   " + ( true | 2 ) + " " + ( t | i ) );
+print( "bool<<int  " + ( true << 2 ) + " " + ( t << i ) );
+
+// Unary too: these were an uninitialized value and `true` itself.
+print( "-bool      " + ( -true ) + " " + ( -t ) );
+print( "~bool      " + ( ~true ) + " " + ( ~t ) );
+print( "-false     " + ( -false ) + " " + ( -f ) );
+
+// `+` with a String stringifies the Boolean rather than numbering it, in both orders. A String on
+// the left already did this; the other order used to evaluate to the Boolean and drop the string.
+print( "str+bool   " + ( "abc" + true ) + " " + ( s + t ) );
+print( "bool+str   " + ( true + "abc" ) + " " + ( t + s ) );
+print( "int+str    " + ( 2 + "abc" ) + " " + ( i + s ) );
+
+// Types with no arithmetic at all now say so. None of these operands can be written as a literal,
+// so there is no folded half to compare -- the point is that the answer is an error rather than
+// the left operand.
+var a := array{ 1, 2 };
+var un;
+var er := error{ errortext := "boom" };
+
+print( 2 + er );
+print( 2 + un );
+print( 2 + a );
+print( 2 - a );
+print( "abc" << 2 );
+
+// An error must survive being added to, rather than being replaced by the number.
+var kept := 2 + er;
+print( kept.errortext );
+
+// Compound assignment goes through a different set of operator overloads, so it is checked
+// separately.
+var c := 2;
+c += true;
+print( "int+=bool  " + c );
+var e := 2;
+e += un;
+print( e );

@@ -14,10 +14,20 @@
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/UnaryOperator.h"
 
+#include <mutex>
+
 namespace Pol::Bscript::Compiler
 {
 namespace
 {
+// The values below are built out of the VM's own object types, which are handed out by
+// process-wide freelists (Clib::fixed_allocator, see blong.h/bdouble.h/bobject.h) that are not
+// synchronized. The server gets away with that because every allocation there happens under
+// PolLock; ecompile has no such lock and compiles files in parallel under -T, so the folder
+// takes its own. Every object it builds is also destroyed before the fold returns -- the result
+// leaves as a literal AST node -- so holding this across the whole fold contains all of it.
+std::mutex fold_mutex;
+
 /**
  * Builds the value a constant expression stands for. Leaves `imp` empty for anything else, which
  * is how a non-constant operand declines the fold.
@@ -165,6 +175,8 @@ bool is_zero( const BObject& obj )
 
 std::unique_ptr<Expression> ConstantFolder::fold( BinaryOperator& op, Report& report )
 {
+  std::lock_guard<std::mutex> guard( fold_mutex );
+
   ConstantValue lhs( op.lhs() );
   if ( lhs.empty() )
     return {};
@@ -184,7 +196,17 @@ std::unique_ptr<Expression> ConstantFolder::fold( BinaryOperator& op, Report& re
 
   BObjectImp* applied = apply( lhs.object(), op.token_id, rhs.object() );
   if ( !applied )
-    return {};
+  {
+    // No type in the pair had a rule. The same policy the VM applies decides what the expression
+    // means (specs/escript/15); unlike the VM we can say so at compile time, where it is cheap and
+    // the author is still looking.
+    std::string no_rule_message;
+    applied = apply_operator_fallback( op.token_id, lhs.object().impref(), rhs.object().impref(),
+                                       &no_rule_message );
+    if ( !no_rule_message.empty() )
+      // "{}" and not the message itself: Report::warning has no runtime-string overload.
+      report.warning( op, "{}", no_rule_message );
+  }
 
   BObject result( applied );
   return to_expression( op.source_location, result.impref() );
@@ -192,6 +214,8 @@ std::unique_ptr<Expression> ConstantFolder::fold( BinaryOperator& op, Report& re
 
 std::unique_ptr<Expression> ConstantFolder::fold( UnaryOperator& op )
 {
+  std::lock_guard<std::mutex> guard( fold_mutex );
+
   ConstantValue operand( op.operand() );
   if ( operand.empty() )
     return {};

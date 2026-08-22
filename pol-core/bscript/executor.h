@@ -537,6 +537,10 @@ public:
   virtual unsigned int pid() const { return 0; };
 
 private:
+  // Applies the operator policy for an operand pair no type had a rule for, and reports the
+  // no-rule case once per program with the script and PC. See specs/escript/15.
+  BObjectImp* operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right );
+
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;

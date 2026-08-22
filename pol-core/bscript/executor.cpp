@@ -1777,6 +1777,17 @@ void Executor::ins_array_assign_consume( const Instruction& /*ins*/ )
   ValueStack.pop_back();
 }
 
+BObjectImp* Executor::operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right )
+{
+  std::string no_rule_message;
+  BObjectImp* result = apply_operator_fallback( token_id, left, right, &no_rule_message );
+  if ( !no_rule_message.empty() && !prog_->reported_operator_fallback.exchange( true ) )
+  {
+    POLLOG_ERRORLN( "{} ({},PC={})", no_rule_message, prog_->name, PC );
+  }
+  return result;
+}
+
 // TOK_ADD:
 void Executor::ins_add( const Instruction& /*ins*/ )
 {
@@ -1792,7 +1803,10 @@ void Executor::ins_add( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfPlusObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfPlusObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_ADD, left.impref(), right.impref() );
+  leftref.set( result );
 }
 
 // TOK_SUBTRACT
@@ -1810,7 +1824,10 @@ void Executor::ins_subtract( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfMinusObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfMinusObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_SUBTRACT, left.impref(), right.impref() );
+  leftref.set( result );
 }
 
 // TOK_MULT:
@@ -1828,7 +1845,10 @@ void Executor::ins_mult( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfTimesObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfTimesObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_MULT, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_DIV:
 void Executor::ins_div( const Instruction& /*ins*/ )
@@ -1845,7 +1865,10 @@ void Executor::ins_div( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfDividedByObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfDividedByObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_DIV, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_MODULUS:
 void Executor::ins_modulus( const Instruction& /*ins*/ )
@@ -1862,7 +1885,10 @@ void Executor::ins_modulus( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfModulusObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfModulusObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_MODULUS, left.impref(), right.impref() );
+  leftref.set( result );
 }
 
 // TOK_IS:
@@ -1893,7 +1919,10 @@ void Executor::ins_bitshift_right( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfBitShiftRightObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfBitShiftRightObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_BSRIGHT, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_BSLEFT:
 void Executor::ins_bitshift_left( const Instruction& /*ins*/ )
@@ -1910,7 +1939,10 @@ void Executor::ins_bitshift_left( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfBitShiftLeftObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfBitShiftLeftObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_BSLEFT, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_BITAND:
 void Executor::ins_bitwise_and( const Instruction& /*ins*/ )
@@ -1927,7 +1959,10 @@ void Executor::ins_bitwise_and( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfBitAndObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfBitAndObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_BITAND, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_BITXOR:
 void Executor::ins_bitwise_xor( const Instruction& /*ins*/ )
@@ -1944,7 +1979,10 @@ void Executor::ins_bitwise_xor( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfBitXorObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfBitXorObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_BITXOR, left.impref(), right.impref() );
+  leftref.set( result );
 }
 // TOK_BITOR:
 void Executor::ins_bitwise_or( const Instruction& /*ins*/ )
@@ -1961,7 +1999,10 @@ void Executor::ins_bitwise_or( const Instruction& /*ins*/ )
   BObject& right = *rightref;
   BObject& left = *leftref;
 
-  leftref.set( right.impref().selfBitOrObjImp( left.impref() ) );
+  BObjectImp* result = right.impref().selfBitOrObjImp( left.impref() );
+  if ( !result )
+    result = operator_fallback( TOK_BITOR, left.impref(), right.impref() );
+  leftref.set( result );
 }
 
 void Executor::ins_logical_and( const Instruction& /*ins*/ )

@@ -1,0 +1,40 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+
+program testoperatorfallback()
+  return 1;
+endprogram
+
+// A Boolean counts as 1 or 0 in arithmetic, and the answer does not depend on which side it is
+// written on. Both of these used to return whichever operand came first.
+exported function boolean_is_a_number_in_arith()
+  if ( 2 + true != 3 )
+    return $"2 + true was {2 + true}";
+  endif
+  if ( true + 2 != 3 )
+    return $"true + 2 was {true + 2}";
+  endif
+  if ( true + true != 2 )
+    return $"true + true was {true + true}";
+  endif
+  if ( 2 - false != 2 )
+    return $"2 - false was {2 - false}";
+  endif
+  return 1;
+endfunction
+
+// An error must survive being operated on rather than being replaced by the other operand.
+exported function error_is_not_swallowed()
+  var err := error{ errortext := "original" };
+  var sum := 1 + err;
+  if ( sum.errortext == "original" )
+    return "the error passed through unchanged, so nothing was reported";
+  endif
+  if ( sum.errortext != "Operator + not supported for Integer and Error" )
+    return $"unexpected error text: {sum.errortext}";
+  endif
+  return 1;
+endfunction
