@@ -664,6 +664,39 @@ class PolServer:
       res["graphic"]=ev.graphic
       res["pos"]=[ev.x, ev.y, ev.z]
       res["tpos"]=[ev.tx, ev.ty, ev.tz]
+      res["speed"]=ev.speed
+      res["duration"]=ev.duration
+      res["adjust"]=ev.adjust
+      res["explode"]=ev.explode
+      # only the extended packet carries these, so their presence is also what
+      # says which of the two the client was sent
+      for name in ("hue", "rendermode", "effect3d", "effect3dexplode",
+                   "effect3dsound", "itemid", "layer"):
+        if hasattr(ev, name):
+          res[name]=getattr(ev, name)
+    elif ev.type==Event.EVT_SOUND:
+      res["mode"]=ev.mode
+      res["sound"]=ev.sound
+      res["pos"]=[ev.x, ev.y, ev.z]
+    elif ev.type==Event.EVT_MUSIC:
+      res["music"]=ev.music
+    elif ev.type==Event.EVT_DAMAGE:
+      res["serial"]=ev.serial
+      res["damage"]=ev.damage
+    elif ev.type==Event.EVT_BUFF:
+      res["serial"]=ev.serial
+      res["icon"]=ev.icon
+      res["show"]=1 if ev.show else 0
+      res["duration"]=ev.duration
+      res["cl_name"]=ev.cl_name
+      res["cl_descr"]=ev.cl_descr
+      res["name_arguments"]=ev.name_arguments
+      res["desc_arguments"]=ev.desc_arguments
+    elif ev.type==Event.EVT_CHAR_PROFILE:
+      res["serial"]=ev.serial
+      res["title"]=ev.title
+      res["utext"]=ev.utext
+      res["etext"]=ev.etext
     elif ev.type==Event.EVT_LIST_OBJS:
       res["objs"]=[]
       for _,o in ev.objs.items():
