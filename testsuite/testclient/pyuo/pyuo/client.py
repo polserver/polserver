@@ -999,6 +999,16 @@ class Client(threading.Thread):
       assert self.lc
       # Just check that the object exists
       self.objects[pkt.serial]
+      # "cmd" is which of the two animation packets it was: the core sends this older
+      # one only to a client below 7.0.9.0, and the 0xE2 to everything newer
+      self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
+          serial=pkt.serial, action=pkt.action, frames=pkt.frames, repeat=pkt.repeat,
+          delay=pkt.delay))
+
+    elif isinstance(pkt, packets.NewCharacterAnimationPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
+          serial=pkt.serial, anim=pkt.anim, action=pkt.action, subaction=pkt.subaction))
 
     elif isinstance(pkt, packets.LoginCompletePacket):
       assert not self.lc
@@ -1396,7 +1406,10 @@ class Client(threading.Thread):
         self.queue(po)
       else:
         self.gumps.append(pkt.gumpid)
-    self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+    # which of the two packets it came in: the core picks the compressed 0xDD for anything
+    # newer than a 5.0 client, and only an old one is sent the 0xB0
+    self.brain.event(brain.Event(brain.Event.EVT_GUMP, cmd=pkt.cmd, commands=pkt.commands,
+        texts=pkt.texts))
 
   @status('game')
   @clientthread

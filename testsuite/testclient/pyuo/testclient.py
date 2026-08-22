@@ -696,6 +696,14 @@ class PolServer:
       res["cl_descr"]=ev.cl_descr
       res["name_arguments"]=ev.name_arguments
       res["desc_arguments"]=ev.desc_arguments
+    elif ev.type==Event.EVT_ANIMATION:
+      res["cmd"]=ev.cmd
+      res["serial"]=ev.serial
+      res["action"]=ev.action
+      # the two packets carry different things beyond the action, so each reports its own
+      for name in ("anim", "subaction", "frames", "repeat", "delay"):
+        if hasattr(ev, name):
+          res[name]=getattr(ev, name)
     elif ev.type==Event.EVT_CHAR_PROFILE:
       res["serial"]=ev.serial
       res["title"]=ev.title
@@ -773,6 +781,7 @@ class PolServer:
       else:
         res['commands']=ev.commands
         res['texts']=ev.texts
+        res['cmd']=ev.cmd
     elif (ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY or
         ev.type==Event.EVT_PACKET_SENT):
       pass

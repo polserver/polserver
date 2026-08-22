@@ -4,11 +4,19 @@ use uo;
 include "testutil";
 include "communication";
 include "sysevent";
+include "clientpkt";
 
 // The uncompressed gump. Every client the test suite pretends to be is new enough for the
-// compressed form, so buildUnCompressedGumpMenu is only ever reached through
-// SENDDIALOGMENU_FORCE_OLD - which is why nothing had run it before. Both builders are also
-// asked for more than they can carry here, which is the only way to their refusals.
+// compressed form, and **SENDDIALOGMENU_FORCE_OLD is not enough to ask for the old one**: the
+// core takes the compressed path for any Stygian Abyss or Kingdom Reborn client before it ever
+// looks at the flag, and the test client reads as Kingdom Reborn. The only way to the
+// uncompressed builder is a client claiming a version older than 5.0, which is what
+// send_gump_uncompressed does. Both builders are also asked for more than they can carry here,
+// which is the only way to their refusals.
+
+// Which packet a gump arrived in: the compressed form, and the one only an old client is sent.
+const GUMP_PKT_COMPRESSED := 0xDD;
+const GUMP_PKT_UNCOMPRESSED := 0xB0;
 
 var char;
 var clientcon := getClientConnection();
@@ -302,4 +310,73 @@ exported function close_suspended_gump( resmgr )
     endif
   endwhile
   return ret_error( "the held script never woke up" );
+endfunction
+
+// Tells the shard what version the client is and waits until it has been read - the shard reads
+// one packet at a time, so hearing something said after it proves the version arrived.
+function claim_version( text )
+  var res := send_client_packet( clientcon, 0, struct{ packet := "version", text := text } );
+  if ( !res )
+    return res;
+  endif
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := $"claimed {text}", id := 0 } );
+  var ev := wait_for_speech( 0, $"claimed {text}" );
+  if ( !ev )
+    return ret_error( $"the shard never read the version {text}" );
+  endif
+  return 1;
+endfunction
+
+exported function send_gump_uncompressed()
+  // An old client is sent the gump uncompressed, in a 0xB0 instead of a 0xDD. Two things have to
+  // be true at once, which is why nothing had reached this builder: the client must be below
+  // Stygian Abyss, and either older than 5.0 or asking for the old form with the flag.
+  //
+  // The version has to be put back before this returns. A client below 7.0.9.0 is sent the older
+  // object packet for everything it is shown, which the test client cannot read.
+  var original := char.client.clientversion;
+  var res := claim_version( "5.0.9.1" );
+  if ( !res )
+    return res;
+  endif
+
+  var restore := @( answer ) {
+    var back := claim_version( original );
+    return back ? answer : back;
+  };
+
+  Clear_Event_Queue();
+  var cmds := { "hello", "uncompressed" };
+  var texts := { "old", "packet" };
+  SendDialogGump( char, cmds, texts, flags := SENDDIALOGMENU_FORCE_OLD );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return restore.call( ev );
+  endif
+  if ( CInt( ev.cmd ) != GUMP_PKT_UNCOMPRESSED )
+    return restore.call( ret_error( $"the gump arrived in packet 0x{CInt( ev.cmd ):x}, expected 0x{GUMP_PKT_UNCOMPRESSED:x}"
+                                    ) );
+  endif
+  if ( ev.commands != cmds or ev.texts != texts )
+    return restore.call( ret_error( $"the old packet carried {ev.commands} and {ev.texts}" ) );
+  endif
+  return restore.call( 1 );
+endfunction
+
+exported function send_gump_force_old_ignored()
+  // The flag on its own leaves a modern client on the compressed path, because the client type is
+  // checked in front of it. This is the behaviour, not a defect - but it is why the cases above
+  // that pass the flag are not testing what their name suggests.
+  Clear_Event_Queue();
+  SendDialogGump( char, { "hello", "forced" },
+                  { "still", "compressed" }, flags := SENDDIALOGMENU_FORCE_OLD );
+  var ev := waitForClient( 0, { EVT_GUMP } );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.cmd ) != GUMP_PKT_COMPRESSED )
+    return ret_error( $"a forced old gump arrived in packet 0x{CInt( ev.cmd ):x}, expected the compressed one" );
+  endif
+  return 1;
 endfunction

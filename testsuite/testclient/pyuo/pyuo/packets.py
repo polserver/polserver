@@ -2997,6 +2997,25 @@ class HealthBarStatusUpdate(Packet):
     self.flags = self.duchar()
 
 
+class NewCharacterAnimationPacket(Packet):
+  ''' Play an animation for a character, the form a 7.0.9.0 client is sent
+
+  The core builds this one or the 0x6E, never both, and which one depends on the
+  client - see MobileAnimationMsg::Send. Whether it can build this one at all
+  depends on animxlate.cfg having a NewAnim entry for the mobile's graphic; with
+  none, a modern client is sent nothing at all.
+  '''
+
+  cmd = 0xe2
+  length = 10
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.anim = self.dushort()
+    self.action = self.dushort()
+    self.subaction = self.duchar()
+
+
 class DamagePacket(Packet):
   ''' How much damage was just taken, see SendDamagePkt in the core
 
