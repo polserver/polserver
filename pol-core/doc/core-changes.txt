@@ -43,6 +43,7 @@
 08-22-2026 Turley:
     Fixed: inconsistency of ghost speech
     Fixed: client.clientinfo it was partially garbage
+    Fixed: a one byte packet (0xFA) disconnected the client on some platforms
 08-18-2026 Nando:
     Added: The core now names a thread it depends on that has stopped, or that is still
            running but no longer getting anywhere. Each thread that reports in publishes

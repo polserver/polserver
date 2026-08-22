@@ -54,6 +54,7 @@ the names of a script's exported and debug functions altogether.</change>
 			<author>Turley:</author>
 			<change type="Fixed">inconsistency of ghost speech</change>
 			<change type="Fixed">client.clientinfo it was partially garbage</change>
+			<change type="Fixed">a one byte packet (0xFA) disconnected the client on some platforms</change>
 		</entry>
 		<entry>
 			<date>08-18-2026</date>
