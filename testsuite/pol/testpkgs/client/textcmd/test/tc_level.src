@@ -1,0 +1,9 @@
+use os;
+use uo;
+
+// The same as tc_echo, one command level up: a character searches its own command level and every
+// level below it, so this one answers only once the caller is at least cmdlevel "test".
+
+program tc_level( who, unused text, unused langcode )
+  SendSysMessage( who, "tc_level ran" );
+endprogram

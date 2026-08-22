@@ -214,6 +214,15 @@ class Event:
   EVT_RACE_CHANGE = 117
   EVT_GUMP_REPLY = 118
   EVT_DIALOG_REPLY = 119
+  EVT_PACKET_SENT = 120
+  EVT_ALL_NAMES = 121
+  EVT_WORLDMAP = 122
+  EVT_SOUND = 123
+  EVT_MUSIC = 124
+  EVT_DAMAGE = 125
+  EVT_BUFF = 126
+  EVT_CHAR_PROFILE = 127
+  EVT_ANIMATION = 128
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -252,12 +261,30 @@ class Event:
       return "obj_revision"
     elif self.type==Event.EVT_EFFECT:
       return "effect"
+    elif self.type==Event.EVT_SOUND:
+      return "sound"
+    elif self.type==Event.EVT_MUSIC:
+      return "music"
+    elif self.type==Event.EVT_DAMAGE:
+      return "damage"
+    elif self.type==Event.EVT_BUFF:
+      return "buff"
+    elif self.type==Event.EVT_CHAR_PROFILE:
+      return "char_profile"
+    elif self.type==Event.EVT_ANIMATION:
+      return "animation"
     elif self.type==Event.EVT_CLOSE_WINDOW:
       return "close_window"
     elif self.type==Event.EVT_GUMP_REPLY:
       return "gump_reply"
     elif self.type==Event.EVT_DIALOG_REPLY:
       return "dialog_reply"
+    elif self.type==Event.EVT_PACKET_SENT:
+      return "packet_sent"
+    elif self.type==Event.EVT_ALL_NAMES:
+      return "all_names"
+    elif self.type==Event.EVT_WORLDMAP:
+      return "worldmap"
     elif self.type==Event.EVT_TEXT_ENTRY:
       return "text_entry"
     elif self.type==Event.EVT_SELECT_COLOR:

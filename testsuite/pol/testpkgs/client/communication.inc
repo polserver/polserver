@@ -22,6 +22,27 @@ const EVT_OBJ_REVISION := "obj_revision";
 // between two objects says where the client draws it, not merely which objects it
 // is about. "cmd" is 0x70 or the extended 0xC7, "kind" the effect type below.
 const EVT_EFFECT := "effect";
+// A sound played at a place, and the music a client is told to start. Both carry only what the
+// packet does: a sound has coordinates, music has an id and nothing else.
+const EVT_SOUND := "sound";
+const EVT_MUSIC := "music";
+// How much damage a client is shown, the buff icons it is told to draw, and a character profile
+// answered back to it.
+const EVT_DAMAGE := "damage";
+const EVT_BUFF := "buff";
+const EVT_CHAR_PROFILE := "char_profile";
+// An animation played on a mobile. "cmd" says which of the two packets carried it: the older
+// 0x6E, or the 0xE2 that is the only one a 7.0.9.0 client is sent.
+const EVT_ANIMATION := "animation";
+const ANIM_PKT_OLD := 0x6E;
+const ANIM_PKT_NEW := 0xE2;
+// What the "kind" of an effect says the client should draw. Named for the field rather than for
+// the effect, because eScript identifiers are case insensitive and a case called
+// effect_stationary would collide with a constant called EFFECT_STATIONARY.
+const EFFECTKIND_MOVING := 0;
+const EFFECTKIND_LIGHTNING := 1;
+const EFFECTKIND_STATIONARY := 2;
+const EFFECTKIND_FOLLOW := 3;
 const EFFECT_KIND_MOVING := 0;
 const EFFECT_KIND_LIGHTNING := 1;
 const EFFECT_KIND_FIXEDXYZ := 2;
@@ -88,6 +109,16 @@ const DIALOG_TEXTENTRY := "textentry";
 const DIALOG_POPUP := "popup";
 const DIALOG_COLOR := "color";
 const DIALOG_RESURRECT := "resurrect";
+// The ack of the client_packet and raw_packet todos: the packet is on its way down the game
+// socket. What sends them is clientpkt.inc.
+const EVT_PACKET_SENT := "packet_sent";
+// One mobile's name, which is what the all names request of a 0x98 packet is answered with.
+const EVT_ALL_NAMES := "all_names";
+// Where the rest of the party or the guild is, answering a worldmap query. Carries which of the
+// two it is, whether positions came with it, and the members themselves.
+const EVT_WORLDMAP := "worldmap";
+const WORLDMAP_PARTY := 0x01;
+const WORLDMAP_GUILD := 0x02;
 // The dialogs themselves, as the client sees them arrive. Each blocks the script that opened
 // it until the client answers, so the client always answers - see the arming todo above for
 // saying what with.

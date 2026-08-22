@@ -1,4 +1,5 @@
 include "communication";
+include "clientpkt";
 include "testutil";
 
 use uo;
@@ -81,8 +82,7 @@ exported function test_title_separators( resources )
   };
   // @format-on
 
-  var res := run_matrix( resources, "default separators", default_separators, titles,
-                         default_matrix );
+  var res := run_matrix( resources, "default separators", default_separators, titles, default_matrix );
   if ( !res )
     clear_titles();
     return res;
@@ -136,12 +136,12 @@ endfunction
 
 // servspecopt.cfg trims unquoted values, so the separators go in quoted.
 function apply_separators( resources, separators )
-  var configs := struct{
-    TitlePrefixSeparator := "\"" + separators.prefix + "\"",
-    TitleSuffixSeparator := "\"" + separators.suffix + "\"",
-    TitleRaceSeparator := "\"" + separators.race + "\"",
-    TitleGuildSeparator := "\"" + separators.guild + "\""
-  };
+  var configs := struct{ TitlePrefixSeparator := "\"" + separators.prefix +
+                         "\"",
+                         TitleSuffixSeparator := "\"" + separators.suffix +
+                         "\"",
+                         TitleRaceSeparator := "\"" + separators.race + "\"",
+                         TitleGuildSeparator := "\"" + separators.guild + "\"" };
 
   return resources.UpdateConfiguration( configs );
 endfunction
@@ -188,7 +188,8 @@ endfunction
 function tooltip_text()
   Clear_Event_Queue();
 
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "tooltips", serials := { char.serial }
+                                    }, wait := 0 );
 
   var ev := waitForClient( 0, { EVT_AOS_TOOLTIP } );
   if ( !ev )

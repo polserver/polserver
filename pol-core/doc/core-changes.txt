@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+08-22-2026 Turley:
+    Fixed: inconsistency of ghost speech
+    Fixed: client.clientinfo it was partially garbage
+    Fixed: a one byte packet (0xFA) disconnected the client on some platforms
 08-22-2026 AsYlum:
     Added: PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()
            and PolCore().log_script_variables( script ), the memory reports that used to be

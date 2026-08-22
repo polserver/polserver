@@ -33,7 +33,7 @@ import time
 CONTROL_PORT = 5011
 WEB_PORT = 5006
 WEB_AUTH = "Basic cG9sY29yZTp0ZXN0"  # polcore:test, matches pol.cfg WebServerPassword
-HARD_DEADLINE_SECS = 540  # backstop if the shard never appears; ctest allows 600s
+HARD_DEADLINE_SECS = 540  # backstop for a shard that never appears, see main()
 
 logfile = open("deafclient.log", "w", encoding="utf-8", buffering=1)
 
@@ -186,7 +186,7 @@ def main():
 
     started = time.monotonic()
     shard_seen = False
-    while time.monotonic() - started < HARD_DEADLINE_SECS:
+    while True:
         try:
             control, _ = listener.accept()
         except socket.timeout:
@@ -195,18 +195,23 @@ def main():
             elif shard_seen and threading.active_count() == 1:  # no stall in progress
                 log("shard gone, exiting")
                 return
+            waited = time.monotonic() - started
+            # The deadline only ends a wait for a shard that never turned up. Once one has been
+            # seen this helper waits for it to go, however long the run takes: a deadline that
+            # also applies then takes the helper away part way through, and every test that needs
+            # it afterwards fails to connect to it. The run itself is bounded by ctest.
+            if not shard_seen and waited >= HARD_DEADLINE_SECS:
+                log("hard deadline reached without a shard, exiting")
+                return
             # Which of the three conditions is holding this process open, once a minute. Without
             # it a stuck deafclient is indistinguishable from a stuck shard: both end as one
             # timeout with no explanation.
-            waited = time.monotonic() - started
             if int(waited) % 60 < 2:
                 log(f"still waiting: shard_seen={shard_seen} "
                     f"webserver_port_free={webserver_port_free()} "
                     f"threads={threading.active_count()}")
             continue
         threading.Thread(target=handle, args=(control,), daemon=True).start()
-
-    log("hard deadline reached, exiting")
 
 
 if __name__ == "__main__":

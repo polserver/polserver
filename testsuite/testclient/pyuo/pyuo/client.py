@@ -975,6 +975,16 @@ class Client(threading.Thread):
         self.log.warn('EARLY %s', repr(speech))
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
+    elif isinstance(pkt, packets.WorldmapQueryPacket):
+      # where the server says the rest of the party or guild is
+      self.brain.event(brain.Event(brain.Event.EVT_WORLDMAP,
+        subcmd = pkt.subcmd, locations = pkt.locations, members = pkt.members))
+
+    elif isinstance(pkt, packets.AllNamesPacket):
+      # the answer to an all names request, one packet per mobile
+      self.brain.event(brain.Event(brain.Event.EVT_ALL_NAMES,
+        serial = pkt.serial, name = pkt.name))
+
     elif isinstance(pkt, packets.TargetCursorPacket):
       if pkt.type == packets.TargetCursorPacket.CANCEL:
         if self.target is not None:
@@ -989,6 +999,16 @@ class Client(threading.Thread):
       assert self.lc
       # Just check that the object exists
       self.objects[pkt.serial]
+      # "cmd" is which of the two animation packets it was: the core sends this older
+      # one only to a client below 7.0.9.0, and the 0xE2 to everything newer
+      self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
+          serial=pkt.serial, action=pkt.action, frames=pkt.frames, repeat=pkt.repeat,
+          delay=pkt.delay))
+
+    elif isinstance(pkt, packets.NewCharacterAnimationPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
+          serial=pkt.serial, anim=pkt.anim, action=pkt.action, subaction=pkt.subaction))
 
     elif isinstance(pkt, packets.LoginCompletePacket):
       assert not self.lc
@@ -1026,14 +1046,48 @@ class Client(threading.Thread):
       # Both endpoints come with their own coordinates: an effect between two
       # objects is drawn where the packet says, not where the client last saw
       # the objects, so this is the whole of what the client is told.
-      self.brain.event(brain.Event(brain.Event.EVT_EFFECT, cmd=pkt.cmd,
-          kind=pkt.direction, serial=pkt.serial, target=pkt.target,
-          graphic=pkt.graphic, x=pkt.x, y=pkt.y, z=pkt.z,
-          tx=pkt.tx, ty=pkt.ty, tz=pkt.tz))
+      # The Ex packet carries everything the plain one does and then what only it
+      # can say - a hue, a render mode, the 3d effect ids and a layer. Both are
+      # reported the same way, with the Ex-only fields left out of the plain one,
+      # so a case can tell which packet it was told by and check what it asked for.
+      effect = dict(cmd=pkt.cmd, kind=pkt.direction, serial=pkt.serial,
+          target=pkt.target, graphic=pkt.graphic, x=pkt.x, y=pkt.y, z=pkt.z,
+          tx=pkt.tx, ty=pkt.ty, tz=pkt.tz, speed=pkt.speed, duration=pkt.duration,
+          adjust=pkt.adjust, explode=pkt.explode)
+      if isinstance(pkt, packets.GraphicalEffectExPacket):
+        effect.update(hue=pkt.hue, rendermode=pkt.rendermode, effect3d=pkt.effect3d,
+            effect3dexplode=pkt.effect3dexplode, effect3dsound=pkt.effect3dsound,
+            itemid=pkt.itemid, layer=pkt.layer)
+      self.brain.event(brain.Event(brain.Event.EVT_EFFECT, **effect))
 
     elif isinstance(pkt, packets.PlaySoundPacket):
       assert self.lc
-      self.log.info('Ignoring sound packet')
+      # mode 0 is the only one the core sends; the coordinates are where it is
+      # played, which is what tells a private sound from one played at a place
+      self.brain.event(brain.Event(brain.Event.EVT_SOUND, mode=pkt.mode,
+          sound=pkt.model, x=pkt.x, y=pkt.y, z=pkt.z))
+
+    elif isinstance(pkt, packets.PlayMidiPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_MUSIC, music=pkt.music))
+
+    elif isinstance(pkt, packets.DamagePacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_DAMAGE, serial=pkt.serial,
+          damage=pkt.damage))
+
+    elif isinstance(pkt, packets.BuffPacket):
+      assert self.lc
+      # the removal form carries nothing but the icon it takes away
+      self.brain.event(brain.Event(brain.Event.EVT_BUFF, serial=pkt.serial,
+          icon=pkt.icon, show=pkt.show, duration=pkt.duration, cl_name=pkt.cl_name,
+          cl_descr=pkt.cl_descr, name_arguments=pkt.name_arguments,
+          desc_arguments=pkt.desc_arguments))
+
+    elif isinstance(pkt, packets.CharProfilePacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_CHAR_PROFILE, serial=pkt.serial,
+          title=pkt.title, utext=pkt.utext, etext=pkt.etext))
 
     elif isinstance(pkt, packets.SetWeatherPacket):
       self.log.info('Ignoring weather packet')
@@ -1352,7 +1406,10 @@ class Client(threading.Thread):
         self.queue(po)
       else:
         self.gumps.append(pkt.gumpid)
-    self.brain.event(brain.Event(brain.Event.EVT_GUMP, commands=pkt.commands, texts=pkt.texts))
+    # which of the two packets it came in: the core picks the compressed 0xDD for anything
+    # newer than a 5.0 client, and only an old one is sent the 0xB0
+    self.brain.event(brain.Event(brain.Event.EVT_GUMP, cmd=pkt.cmd, commands=pkt.commands,
+        texts=pkt.texts))
 
   @status('game')
   @clientthread
@@ -1612,6 +1669,166 @@ class Client(threading.Thread):
     po = packets.ClientVersionPacket()
     po.fill(self.VERSION if version is None else version)
     self.queue(po)
+
+  @logincomplete
+  def sayAscii(self, text, type=0, color=50, font=3):
+    '''! Says something the way a client from before unicode did (0x03)
+    @param text: what is said, as a string or as the bytes it is
+    @param type int: one of the speech types the core knows
+    @param color int
+    @param font int
+    '''
+    po = packets.AsciiSpeechRequestPacket()
+    po.fill(text, type, color, font)
+    self.queue(po)
+
+  @logincomplete
+  def bulletinBoard(self, sub, body=b''):
+    '''! Sends a bulletin board command (0x71), which the core only reports '''
+    po = packets.BulletinBoardPacket()
+    po.fill(sub, body)
+    self.queue(po)
+
+  @logincomplete
+  def renameChar(self, serial, name):
+    '''! Renames a mobile (0x75)
+    @param serial int: who to rename. One that does not answer to this character
+                       is refused out loud rather than ignored.
+    @param name string: the new name
+    '''
+    po = packets.RenameCharPacket()
+    po.fill(serial, name)
+    self.queue(po)
+
+  @logincomplete
+  def requestAllNames(self, serial):
+    '''! Asks for the name of one mobile (0x98) '''
+    po = packets.AllNamesPacket()
+    po.fill(serial)
+    self.queue(po)
+
+  @logincomplete
+  def charProfile(self, serial, text=None):
+    '''! Reads a character profile, or writes one when given a text (0xB8) '''
+    po = packets.CharProfilePacket()
+    po.fill(serial, text)
+    self.queue(po)
+
+  @logincomplete
+  def chatButton(self, name=''):
+    '''! Presses the paperdoll chat button (0xB5) '''
+    po = packets.ChatButtonPacket()
+    po.fill(name)
+    self.queue(po)
+
+  @logincomplete
+  def ultimaMessenger(self, serial, serial2=0):
+    '''! Sends the old mail system packet (0xBB), which the core only reports '''
+    po = packets.UltimaMessengerPacket()
+    po.fill(serial, serial2)
+    self.queue(po)
+
+  @logincomplete
+  def unknownC4(self, serial, intensity=0):
+    '''! Sends the 0xC4 the core reads, reports and does nothing else with '''
+    po = packets.UnknownC4Packet()
+    po.fill(serial, intensity)
+    self.queue(po)
+
+  @logincomplete
+  def openUOStore(self):
+    '''! Presses the UO store button (0xFA) '''
+    po = packets.OpenUOStorePacket()
+    po.fill()
+    self.queue(po)
+
+  @logincomplete
+  def publicHouseContent(self, flag=1):
+    '''! Sends the public house content packet (0xFB) '''
+    po = packets.PublicHouseContentPacket()
+    po.fill(flag)
+    self.queue(po)
+
+  @logincomplete
+  def announceClientType(self, clienttype):
+    '''! Announces what kind of client this is (0xE1)
+    @param clienttype int: see ClientTypePacket.TYPE_ constants. This REPLACES
+                           what the server believes the client is, so claiming
+                           an old type lowers what the client is sent - the
+                           version has to be claimed again afterwards.
+    '''
+    po = packets.ClientTypePacket()
+    po.fill(clienttype)
+    self.queue(po)
+
+  @logincomplete
+  def sendSeed(self, version=None, ip=(0,0,0,0)):
+    '''! Sends the seed packet (0xEF), which carries the version as numbers
+    @param version string: the version to claim, this client's own by default
+    '''
+    po = packets.SeedPacket()
+    po.fill(list(ip), self.VERSION if version is None else version)
+    self.queue(po)
+
+  @logincomplete
+  def worldmapQuery(self, sub, locations=None):
+    '''! Asks where the party or the guild is (0xF0)
+    @param sub int: see WorldmapQueryPacket.SUB_ constants
+    @param locations int: whether a guild answer should carry positions
+    '''
+    po = packets.WorldmapQueryPacket()
+    po.fill(sub, locations)
+    self.queue(po)
+
+  @logincomplete
+  def generalInfo(self, sub, *args):
+    '''! Sends a 0xBF subcommand
+    @param sub int: see GeneralInfoPacket.SUB_ constants. A subcommand nothing
+                    knows is sent as it is, which is how a test checks that the
+                    core reads it and goes on to the next packet.
+    @param *args: what that subcommand carries
+    '''
+    po = packets.GeneralInfoPacket()
+    po.fill(sub, *args)
+    self.queue(po)
+
+  @logincomplete
+  def requestTooltips(self, serials):
+    '''! Asks for the tooltips of several objects at once (0xD6) '''
+    po = packets.AOSTooltipPacket()
+    po.fill(serials)
+    self.queue(po)
+
+  @logincomplete
+  def answerTarget(self, serial, cursorid, type=0):
+    '''! Answers a target cursor with the cursor id named (0x6C)
+    @param serial int: what was picked
+    @param cursorid int: which cursor is being answered. A cursor id the core is
+                         not waiting for is read as a cancel, which is what a
+                         test naming one of its own is checking; the ordinary
+                         answer goes through Target.target(), which knows the id
+                         of the cursor the client was actually shown.
+    @param type int: see TargetCursorPacket, NEUTRAL by default
+    '''
+    po = packets.TargetCursorPacket()
+    po.fill(po.OBJECT, cursorid, type, serial)
+    self.queue(po)
+
+  @logincomplete
+  def rawPacket(self, data):
+    '''! Puts caller supplied bytes on the game socket exactly as they are
+    @param data: the whole packet - message type, length field and body - either
+                 as a list of byte values or as a string of hex digits. Nothing
+                 is validated or filled in.
+
+    This is the last resort, for a packet that is deliberately wrong: one cut
+    short, or one whose fields say something the packet does not carry. A packet
+    that is merely one the client has no method for belongs in a method of its
+    own - see the ones above.
+    '''
+    raw = bytes.fromhex(data) if isinstance(data, str) else bytes(int(b) & 0xff for b in data)
+    self.log.info("raw packet 0x%0.2X, %d bytes", raw[0] if len(raw) else 0, len(raw))
+    self.queue(raw)
 
   @logincomplete
   def sendVisualRange(self):

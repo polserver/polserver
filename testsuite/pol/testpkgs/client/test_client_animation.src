@@ -1,0 +1,121 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+// An animation played on a character, as the client is told it.
+//
+// Which packet carries it is decided by the client and by config/animxlate.cfg together: a
+// 7.0.9.0 client is sent the 0xE2, and the core can only build that one for a graphic the file
+// gives a NewAnim entry. With no entry it builds nothing and the client is told nothing at all,
+// which is what the test shard did until its Human block gained the shipped NewAnim values.
+
+const HOME_X := 100;
+const HOME_Y := 50;
+
+// Bow, which is action 0x20 and so is translated by the NewAnim32 line of config/animxlate.cfg:
+// "7 0" - animation 7, action 0, and a subaction the loader defaults to 0.
+const ACTION_BOW := 0x20;
+const BOW_ANIM := 7;
+const BOW_ACTION := 0;
+const BOW_SUBACTION := 0;
+
+var char;
+var char2;
+
+// takes ownership of the client events, which is what puts them in this script's queue
+var clientcon := getClientConnection();
+
+program test_client_animation()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, HOME_X + 1, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Waits until both clients have been told about an animation on the given mobile and hands back
+// what each of them got, client 0 first. Both at once, in one pass: an animation in range reaches
+// both, in either order, and a loop waiting for one throws the other away.
+function collect_animations( serial, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var seen := array{ 0, 0 };
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_ANIMATION or CInt( ev.serial ) != serial )
+      continue;
+    endif
+    seen[CInt( ev.id ) + 1] := ev;
+    if ( seen[1] and seen[2] )
+      return seen;
+    endif
+  endwhile
+  var missing := seen[1] ? "1" : ( seen[2] ? "0" : "0 and 1" );
+  return ret_error( $"client {missing} was never told the animation" );
+endfunction
+
+exported function animation_reaches_clients()
+  // A character bowing is drawn by everyone who can see it.
+  drain_events();
+  var res := PerformAction( char, ACTION_BOW );
+  if ( !res )
+    return ret_error( $"the action was refused: {res}" );
+  endif
+  var both := collect_animations( char.serial );
+  if ( !both )
+    return both;
+  endif
+  foreach ev in ( both )
+    if ( CInt( ev.cmd ) != ANIM_PKT_NEW )
+      return ret_error( $"client {ev.id} got packet 0x{CInt( ev.cmd ):x}, expected the new form" );
+    endif
+    if ( CInt( ev.anim ) != BOW_ANIM or CInt( ev.action ) != BOW_ACTION or
+         CInt( ev.subaction ) != BOW_SUBACTION )
+      return ret_error( $"it carried anim {ev.anim} action {ev.action} subaction {ev.subaction}" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+exported function animation_out_of_range()
+  // Nothing is sent to a client that cannot see the mobile.
+  var away := MoveObjectToLocation( char2, 140, 90, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !away )
+    return ret_error( $"could not move the second character away: {away}" );
+  endif
+  drain_events();
+  PerformAction( char, ACTION_BOW );
+
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  var told := 0;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_ANIMATION and CInt( ev.id ) == 1 )
+      told := 1;
+      break;
+    endif
+  endwhile
+
+  MoveObjectToLocation( char2, HOME_X + 1, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  wait_for_own_create( 1 );
+  drain_events();
+  if ( told )
+    return ret_error( "a client out of range was told the animation" );
+  endif
+  return 1;
+endfunction

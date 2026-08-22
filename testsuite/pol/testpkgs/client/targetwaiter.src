@@ -1,0 +1,18 @@
+use os;
+use uo;
+
+// Holds a target cursor open for the target tests. Target() parks the script it is called from
+// until the client answers or the cursor is dropped, so the cursor needs a script of its own: this
+// one says when the cursor is on its way and then hands back whatever came of it.
+
+program targetwaiter( caller )
+  var char := FindAccount( "testclient0" ).getcharacter( 1 );
+  if ( !char )
+    return;
+  endif
+
+  // the cursor is sent by Target() itself, so the caller is told first and reads the answer after
+  caller.sendevent( struct{ type := "cursor_sent" } );
+  var got := Target( char );
+  caller.sendevent( struct{ type := "targeted", res := got ? got.serial : 0 } );
+endprogram

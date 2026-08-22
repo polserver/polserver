@@ -7,6 +7,7 @@
 // testpkgs/item; this file only covers what goes on the wire.
 
 include "map";
+include "clientpkt";
 
 program test_client_map()
   return map_setup();
@@ -272,7 +273,10 @@ exported function map_version_switches_packet( resmgn )
   endif
   mp.facetid := 3;
 
-  clientcon.sendevent( struct{ todo := "client_version", arg := VERSION_NEW, id := 0 } );
+  res := send_client_packet( clientcon, 0, struct{ packet := "version", text := VERSION_NEW } );
+  if ( !res )
+    return res;
+  endif
   client_use_map( mp );
   var ev := wait_for_map( mp );
   if ( !ev )
@@ -284,7 +288,10 @@ exported function map_version_switches_packet( resmgn )
 
   // and back down, which is both the restore and the proof that the version is
   // what decided it
-  clientcon.sendevent( struct{ todo := "client_version", arg := VERSION_OLD, id := 0 } );
+  res := send_client_packet( clientcon, 0, struct{ packet := "version", text := VERSION_OLD } );
+  if ( !res )
+    return res;
+  endif
   client_use_map( mp );
   ev := wait_for_map( mp );
   if ( !ev )

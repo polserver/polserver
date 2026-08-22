@@ -22,14 +22,14 @@
 #include "pol/ctable.h"
 #include "pol/globals/network.h"
 #include "pol/globals/state.h"
-#include "pol/packetscrobj.h"
-#include "pol/polsem.h"
-#include "pol/polsig.h"
 #include "pol/network/client.h"
 #include "pol/network/clienttransmit.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packethooks.h"
 #include "pol/network/packets.h"
+#include "pol/packetscrobj.h"
+#include "pol/polsem.h"
+#include "pol/polsig.h"
 #include <fmt/chrono.h>
 
 
@@ -98,6 +98,9 @@ void ThreadedClient::recv_remaining( int total_expected )
   int count;
   int max_expected = total_expected - bytes_received;
 
+  if ( max_expected <= 0 )
+    return;
+
   {
     std::lock_guard<std::mutex> lock( _socketMutex );
     count = cryptengine->Receive( &buffer[bytes_received], max_expected, csocket );
@@ -126,6 +129,9 @@ void ThreadedClient::recv_remaining( int total_expected )
 void ThreadedClient::recv_remaining_nocrypt( int total_expected )
 {
   int count;
+
+  if ( total_expected - bytes_received <= 0 )
+    return;
 
   {
     std::lock_guard<std::mutex> lock( _socketMutex );

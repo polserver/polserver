@@ -1,0 +1,428 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+// Every way a script has of playing something at a client, as the client is told it.
+//
+// The effects come in pairs: a plain one, which the client is sent in a 0x70 packet, and an
+// extended one, which is sent in a 0xC7 carrying a hue, a render mode and the 3d effect ids that
+// the plain packet has nowhere for. Both are reported the same way, and the extended fields are
+// present only when the extended packet arrived - which is how a case tells the two apart.
+//
+// What the packet says about itself is the whole of what is checked here, because that is all the
+// core decides: the kind of effect, whose serials it names, the endpoints, and the speed and loop
+// that were asked for. A "loop" reaches the client as the packet's duration byte.
+
+// A graphic and a sound nothing else on this shard plays, so these can be picked out of everything
+// the spell and combat tests are setting off. test_client_effect.src owns 0x7EDF.
+const EFFECT_GRAPHIC := 0x7EE0;
+const EFFECT_SPEED := 7;
+const EFFECT_LOOP := 3;
+const SOUND_ID := 0x1F4;
+// What that id looks like on the wire. The core sends one less than it was asked for - the
+// scripts count sounds from 1 and the protocol from 0 - and always with the single play flag.
+const SOUND_ON_THE_WIRE := SOUND_ID - 1;
+const SOUND_SINGLEPLAY := 1;
+const MUSIC_ID := 0x15;
+
+// What the extended effects carry that the plain ones cannot.
+const EFFECT_HUE := 0x1F;
+const EFFECT_RENDER := 4;
+const EFFECT_3D := 0x2A;
+
+const HOME_X := 100;
+const HOME_Y := 50;
+// far enough that neither client can see anything played there
+const FAR_X := 140;
+const FAR_Y := 90;
+
+var char;
+var char2;
+
+// takes ownership of the client events, which is what puts them in this script's queue
+var clientcon := getClientConnection();
+
+program test_client_effect_play()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, HOME_X + 1, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Waits for an effect of this file's graphic, told to the given client.
+function wait_effect( id, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_EFFECT or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.graphic ) != EFFECT_GRAPHIC )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} was never told effect 0x{EFFECT_GRAPHIC:x}" );
+endfunction
+
+// The lightning bolt carries no graphic of its own, so it is picked out by its kind instead.
+function wait_lightning( id, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_EFFECT or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.kind ) != EFFECTKIND_LIGHTNING )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} was never told a lightning bolt" );
+endfunction
+
+function wait_sound( id, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SOUND or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.sound ) != SOUND_ON_THE_WIRE )
+      continue;
+    endif
+    if ( CInt( ev.mode ) != SOUND_SINGLEPLAY )
+      return ret_error( $"the sound came with mode {ev.mode}, expected {SOUND_SINGLEPLAY}" );
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} never heard sound 0x{SOUND_ON_THE_WIRE:x}" );
+endfunction
+
+// Waits until both clients have heard this file's sound and hands back what each was told,
+// client 0 first.
+//
+// Both at once, in one pass: a sound played at a place reaches both of them, the two events
+// arrive in either order, and a loop waiting for one throws the other away on its way past.
+function collect_sounds( timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var seen := array{ 0, 0 };
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SOUND or CInt( ev.sound ) != SOUND_ON_THE_WIRE )
+      continue;
+    endif
+    if ( CInt( ev.mode ) != SOUND_SINGLEPLAY )
+      return ret_error( $"the sound came with mode {ev.mode}, expected {SOUND_SINGLEPLAY}" );
+    endif
+    seen[CInt( ev.id ) + 1] := ev;
+    if ( seen[1] and seen[2] )
+      return seen;
+    endif
+  endwhile
+  var missing := seen[1] ? "1" : ( seen[2] ? "0" : "0 and 1" );
+  return ret_error( $"client {missing} never heard sound 0x{SOUND_ON_THE_WIRE:x}" );
+endfunction
+
+// Asserts a client is told nothing of this file's making. The whole window is always paid, so it
+// is kept to the round trip a wrongly sent packet would need.
+function nothing_played( id, timeout := QUIET_SECS )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( ev.type == EVT_EFFECT and CInt( ev.graphic ) == EFFECT_GRAPHIC )
+      return ret_error( $"client {id} was told effect 0x{EFFECT_GRAPHIC:x}" );
+    endif
+    if ( ev.type == EVT_SOUND and CInt( ev.sound ) == SOUND_ON_THE_WIRE )
+      return ret_error( $"client {id} heard sound 0x{SOUND_ON_THE_WIRE:x}" );
+    endif
+    if ( ev.type == EVT_MUSIC )
+      return ret_error( $"client {id} was told music {ev.music}" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// The two endpoints of an effect, as the client was given them.
+function check_pos( label, pos, x, y, z )
+  if ( CInt( pos[1] ) != x or CInt( pos[2] ) != y or CInt( pos[3] ) != z )
+    return ret_error( $"{label} was {pos[1]},{pos[2]},{pos[3]}, expected {x},{y},{z}" );
+  endif
+  return 1;
+endfunction
+
+// An extended effect is known by the fields only its packet has.
+function check_extended( ev )
+  if ( !ev.?hue )
+    return ret_error( "the client was sent the plain effect packet, not the extended one" );
+  endif
+  if ( CInt( ev.hue ) != EFFECT_HUE )
+    return ret_error( $"the hue came back as {ev.hue}, expected {EFFECT_HUE}" );
+  endif
+  if ( CInt( ev.rendermode ) != EFFECT_RENDER )
+    return ret_error( $"the render mode came back as {ev.rendermode}, expected {EFFECT_RENDER}" );
+  endif
+  return 1;
+endfunction
+
+// A plain effect must not carry them.
+function check_plain( ev )
+  if ( ev.?hue )
+    return ret_error( "the client was sent the extended effect packet, not the plain one" );
+  endif
+  return 1;
+endfunction
+
+exported function effect_stationary()
+  // An effect standing at a place belongs to nobody: it names no serial at either end, and both
+  // endpoints are the place it was played.
+  drain_events();
+  PlayStationaryEffect( HOME_X, HOME_Y, 0, EFFECT_GRAPHIC, EFFECT_SPEED, EFFECT_LOOP );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_plain( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_STATIONARY )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_STATIONARY}" );
+  endif
+  if ( CInt( ev.serial ) != 0 or CInt( ev.target ) != 0 )
+    return ret_error( $"it named 0x{ev.serial:x} and 0x{ev.target:x}, expected neither" );
+  endif
+  res := check_pos( "the effect", ev.pos, HOME_X, HOME_Y, 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.speed ) != EFFECT_SPEED or CInt( ev.duration ) != EFFECT_LOOP )
+    return ret_error( $"speed {ev.speed} loop {ev.duration}, asked for {EFFECT_SPEED} and {EFFECT_LOOP}" );
+  endif
+  // the one thing this packet says that the others do not
+  if ( CInt( ev.adjust ) != 1 )
+    return ret_error( $"a stationary effect came with adjust {ev.adjust}, expected 1" );
+  endif
+  return 1;
+endfunction
+
+exported function effect_stationary_ex()
+  // The same effect through the extended packet, which is the only one that can carry a hue.
+  drain_events();
+  PlayStationaryEffectEx( HOME_X, HOME_Y, 0, char.realm, EFFECT_GRAPHIC, EFFECT_SPEED, EFFECT_LOOP,
+                          EFFECT_HUE, EFFECT_RENDER, EFFECT_3D );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_extended( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_STATIONARY )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_STATIONARY}" );
+  endif
+  res := check_pos( "the effect", ev.pos, HOME_X, HOME_Y, 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.effect3d ) != EFFECT_3D )
+    return ret_error( $"the 3d effect came back as {ev.effect3d}, expected {EFFECT_3D}" );
+  endif
+  return 1;
+endfunction
+
+exported function effect_object_centered()
+  // An effect that follows an object names it at the source end and is drawn where it stands.
+  drain_events();
+  PlayObjectCenteredEffect( char2, EFFECT_GRAPHIC, EFFECT_SPEED, EFFECT_LOOP );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_plain( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_FOLLOW )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_FOLLOW}" );
+  endif
+  if ( CInt( ev.serial ) != char2.serial )
+    return ret_error( $"it followed 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  endif
+  return check_pos( "the effect", ev.pos, char2.x, char2.y, char2.z );
+endfunction
+
+exported function effect_object_centered_ex()
+  // The extended form carries a layer as well, which is what puts the effect on a worn item.
+  drain_events();
+  PlayObjectCenteredEffectEx( char2, EFFECT_GRAPHIC, EFFECT_SPEED, EFFECT_LOOP, EFFECT_HUE,
+                              EFFECT_RENDER, 0, EFFECT_3D );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_extended( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_FOLLOW )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_FOLLOW}" );
+  endif
+  if ( CInt( ev.serial ) != char2.serial )
+    return ret_error( $"it followed 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function effect_moving_xyz()
+  // An effect between two places names nobody at either end, unlike the one between two objects
+  // that test_client_effect.src covers.
+  drain_events();
+  PlayMovingEffectXYZ( HOME_X, HOME_Y, 0, HOME_X + 2, HOME_Y + 2, 0, EFFECT_GRAPHIC, EFFECT_SPEED,
+                       EFFECT_LOOP );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_plain( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_MOVING )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_MOVING}" );
+  endif
+  if ( CInt( ev.serial ) != 0 or CInt( ev.target ) != 0 )
+    return ret_error( $"it named 0x{ev.serial:x} and 0x{ev.target:x}, expected neither" );
+  endif
+  res := check_pos( "the source", ev.pos, HOME_X, HOME_Y, 0 );
+  if ( !res )
+    return res;
+  endif
+  return check_pos( "the target", ev.tpos, HOME_X + 2, HOME_Y + 2, 0 );
+endfunction
+
+exported function effect_moving_xyz_ex()
+  drain_events();
+  PlayMovingEffectXYZEx( HOME_X, HOME_Y, 0, HOME_X + 2, HOME_Y + 2, 0, char.realm, EFFECT_GRAPHIC,
+                         EFFECT_SPEED, EFFECT_LOOP, EFFECT_HUE, EFFECT_RENDER );
+  var ev := wait_effect( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  var res := check_extended( ev );
+  if ( !res )
+    return res;
+  endif
+  if ( CInt( ev.kind ) != EFFECTKIND_MOVING )
+    return ret_error( $"the effect was kind {ev.kind}, expected {EFFECTKIND_MOVING}" );
+  endif
+  res := check_pos( "the source", ev.pos, HOME_X, HOME_Y, 0 );
+  if ( !res )
+    return res;
+  endif
+  return check_pos( "the target", ev.tpos, HOME_X + 2, HOME_Y + 2, 0 );
+endfunction
+
+exported function effect_lightning()
+  // The lightning bolt is the one effect with nothing to say but where it struck: no graphic, no
+  // speed, no loop, only the object it came down on.
+  drain_events();
+  PlayLightningBoltEffect( char2 );
+  var ev := wait_lightning( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != char2.serial )
+    return ret_error( $"it struck 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  endif
+  if ( CInt( ev.graphic ) != 0 )
+    return ret_error( $"it carried graphic 0x{ev.graphic:x}, expected none" );
+  endif
+  return check_pos( "the bolt", ev.pos, char2.x, char2.y, char2.z );
+endfunction
+
+exported function sound_effect()
+  // A sound played at an object reaches everyone who can hear it, at the object's own place.
+  drain_events();
+  PlaySoundEffect( char2, SOUND_ID );
+  var both := collect_sounds();
+  if ( !both )
+    return both;
+  endif
+  // the object's place, but never its height: this packet carries a flat z
+  var res := check_pos( "the sound client 0 heard", both[1].pos, char2.x, char2.y, 0 );
+  if ( !res )
+    return res;
+  endif
+  return check_pos( "the sound client 1 heard", both[2].pos, char2.x, char2.y, 0 );
+endfunction
+
+exported function sound_effect_private()
+  // The private form is played for one client and nobody else, which is the whole of what it does
+  // differently - so the other client having heard nothing is the assertion.
+  drain_events();
+  PlaySoundEffectPrivate( char2, SOUND_ID, char );
+  var ev := wait_sound( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  return nothing_played( 1 );
+endfunction
+
+exported function sound_effect_xyz()
+  // A sound at a place belongs to no object at all.
+  drain_events();
+  PlaySoundEffectXYZ( HOME_X, HOME_Y, 0, SOUND_ID, char.realm );
+  var ev := wait_sound( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  return check_pos( "the sound", ev.pos, HOME_X, HOME_Y, 0 );
+endfunction
+
+exported function play_music()
+  // Music is told to one client and carries nothing but which piece to start.
+  drain_events();
+  PlayMusic( char, MUSIC_ID );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_MUSIC or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( CInt( ev.music ) != MUSIC_ID )
+      return ret_error( $"the client was told music {ev.music}, expected {MUSIC_ID}" );
+    endif
+    return 1;
+  endwhile
+  return ret_error( "the client was never told any music" );
+endfunction
+
+exported function effect_out_of_range()
+  // Nothing is sent to a client that cannot see where it happened.
+  drain_events();
+  PlayStationaryEffect( FAR_X, FAR_Y, 0, EFFECT_GRAPHIC, EFFECT_SPEED, EFFECT_LOOP );
+  PlaySoundEffectXYZ( FAR_X, FAR_Y, 0, SOUND_ID, char.realm );
+  return nothing_played( 0 );
+endfunction

@@ -1,0 +1,440 @@
+use os;
+use uo;
+use polsys;
+
+include "speech";
+include "clientpkt";
+
+// Client to server speech: what the shard does with what a client says.
+//
+// There are two doors into it and they are written twice over in the core. The unicode one is
+// what every modern client uses and what the test client says everything through; the plain
+// ASCII 0x03 is what the old clients sent, and the client has a method of its own for it. Both
+// end in the same behaviours - ranges, ghosts, the deaf - so the cases below take the ASCII door
+// for the plain ones and the unicode door for the ghost, which is where the two implementations
+// differ most.
+
+// the fixed part of a 0x03 packet: type, colour and font in front of the text
+const SPEECH_COLOR := 50;
+const SPEECH_FONT := 3;
+
+// Says something as client 0 the way a client from before unicode did.
+function say_ascii( text, texttype := TEXTTYPE_NORMAL )
+  return send_client_packet( clientcon, 0, struct{ packet := "say_ascii",
+                                                   text := text,
+                                                   type := texttype,
+                                                   color := SPEECH_COLOR,
+                                                   font := SPEECH_FONT } );
+endfunction
+
+// The same, with the text handed over as bytes - which is how a case puts something in it that no
+// string would carry, a zero byte or a character that cannot be printed.
+function say_ascii_bytes( bytes, texttype := TEXTTYPE_NORMAL )
+  return send_client_packet( clientcon, 0, struct{ packet := "say_ascii",
+                                                   raw := bytes,
+                                                   type := texttype,
+                                                   color := SPEECH_COLOR,
+                                                   font := SPEECH_FONT } );
+endfunction
+
+// Waits for anything a client hears from the given mobile, whatever it says - which is what a
+// case wants when the shard is free to garble the text on the way.
+function wait_heard_from( id, serial, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or CInt( ev.serial ) != serial )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} heard nothing from 0x{serial:x} within {timeout}s" );
+endfunction
+
+// Asserts a client hears nothing at all from the given mobile.
+function nothing_heard_from( id, serial, timeout := QUIET_SECS )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_SPEECH and CInt( ev.id ) == id and CInt( ev.serial ) == serial )
+      return ret_error( $"client {id} heard \"{ev.msg}\"" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// The waits above hand back the event they matched; a case has to answer 1, so these are what a
+// case returns.
+function expect_speech( id, text )
+  var ev := wait_for_speech( id, text );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+function expect_speeches( text )
+  var found := wait_for_speeches( text );
+  if ( !found )
+    return found;
+  endif
+  return 1;
+endfunction
+
+// What a ghost sounds like to somebody who cannot hear the dead: every letter is replaced with an
+// o or an O at random, the spaces are left where they were, and the text is as long as it was
+// said. Both doors garble the same way, one byte at a time and two bytes at a time.
+function is_garbled( heard, said )
+  if ( heard.length() != said.length() )
+    return 0;
+  endif
+  for i := 1 to said.length()
+    var ch := heard[i];
+    if ( said[i] == " " )
+      if ( ch != " " )
+        return 0;
+      endif
+    elseif ( ch != "o" and ch != "O" )
+      return 0;
+    endif
+  endfor
+  return 1;
+endfunction
+
+program speechrawtests()
+  return speech_setup();
+endprogram
+
+// Both clients are told about a ghost in whichever order the shard gets to them, and a wait for
+// one throws away what the other was told - so the two have to be collected in the same loop.
+function collect_ghost_speech( timeout := 10 )
+  var mine := 0;
+  var theirs := 0;
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.serial ) != char.serial )
+      continue;
+    endif
+    if ( CInt( ev.id ) == 0 )
+      mine := ev;
+    elseif ( CInt( ev.id ) == 1 )
+      theirs := ev;
+    endif
+    if ( mine and theirs )
+      return struct{ mine := mine, theirs := theirs };
+    endif
+  endwhile
+  if ( !mine )
+    return ret_error( "the ghost did not hear itself" );
+  endif
+  return ret_error( "the listener heard nothing from the ghost" );
+endfunction
+
+exported function speech_ascii_heard()
+  // The plain packet reaches everyone in range, and what they are sent is the plain packet back:
+  // an old client is not answered in unicode.
+  Clear_Event_Queue();
+  var res := say_ascii( "ascii hello" );
+  if ( !res )
+    return res;
+  endif
+  var found := wait_for_speeches( "ascii hello" );
+  if ( !found )
+    return found;
+  endif
+  foreach ev in ( found )
+    if ( CInt( ev.unicode ) )
+      return ret_error( $"client {ev.id} was answered in unicode" );
+    endif
+    if ( CInt( ev.serial ) != char.serial )
+      return ret_error( $"the speech came from 0x{ev.serial:x}" );
+    endif
+    if ( CInt( ev.color ) != SPEECH_COLOR )
+      return ret_error( $"colour {ev.color} came back" );
+    endif
+    if ( CInt( ev.font ) != SPEECH_FONT )
+      return ret_error( $"font {ev.font} came back" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+exported function speech_ascii_empty()
+  // A packet with no text in it is dropped where it arrives - nobody is told anything, not even
+  // an empty line.
+  Clear_Event_Queue();
+  var res := say_ascii_bytes( {} );
+  if ( !res )
+    return res;
+  endif
+  res := nothing_heard_from( 0, char.serial );
+  if ( !res )
+    return res;
+  endif
+  // and the connection is still in step afterwards
+  res := say_ascii( "after the empty one" );
+  if ( !res )
+    return res;
+  endif
+  return expect_speech( 0, "after the empty one" );
+endfunction
+
+exported function speech_ascii_command()
+  // A text command reaches process_command through this door as well.
+  Clear_Event_Queue();
+  var res := say_ascii( ".procs" );
+  if ( !res )
+    return res;
+  endif
+  return expect_speech( 0, "Process Information:" );
+endfunction
+
+exported function speech_ascii_filtered()
+  // Everything that is not printable is dropped out of the text, and a zero byte ends it - the
+  // rest of the packet is never looked at.
+  Clear_Event_Queue();
+  var res := say_ascii_bytes( { 0x61, 0x01, 0x62, 0x07, 0x63 } );
+  if ( !res )
+    return res;
+  endif
+  res := wait_for_speech( 0, "abc" );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := say_ascii_bytes( { 0x61, 0x62, 0x00, 0x63, 0x64 } );
+  if ( !res )
+    return res;
+  endif
+  return expect_speech( 0, "ab" );
+endfunction
+
+exported function speech_ascii_too_long()
+  // A text longer than a speech packet may carry is cut to length rather than refused.
+  var said := "";
+  for i := 1 to 25
+    said := said + "0123456789";
+  endfor
+
+  Clear_Event_Queue();
+  var res := say_ascii( said );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_heard_from( 0, char.serial );
+  if ( !ev )
+    return ev;
+  endif
+  // SPEECH_MAX_LEN in the core
+  if ( ev.msg.length() != 200 )
+    return ret_error( $"{said.length()} characters came back as {ev.msg.length()}" );
+  endif
+  return 1;
+endfunction
+
+exported function speech_ascii_ranges()
+  // Whispering carries two tiles and yelling twenty five, where ordinary speech carries twelve.
+  MoveObjectToLocation( char2, 105, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := say_ascii( "whispered", TEXTTYPE_WHISPER );
+  if ( !res )
+    return res;
+  endif
+  // the speaker always hears itself, whatever the range
+  res := wait_for_speech( 0, "whispered" );
+  if ( !res )
+    return res;
+  endif
+  res := no_speech_for( 1, "whispered" );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := say_ascii( "yelled", TEXTTYPE_YELL );
+  if ( !res )
+    return res;
+  endif
+  res := expect_speeches( "yelled" );
+  if ( !res )
+    return res;
+  endif
+
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 1 );
+endfunction
+
+exported function speech_ascii_deafened()
+  // A deafened character is passed over while everyone else is told.
+  char2.deaf( -1 );
+
+  Clear_Event_Queue();
+  var res := say_ascii( "to the deaf" );
+  if ( !res )
+    char2.deaf( 0 );
+    return res;
+  endif
+  res := wait_for_speech( 0, "to the deaf" );
+  if ( !res )
+    char2.deaf( 0 );
+    return res;
+  endif
+  res := no_speech_for( 1, "to the deaf" );
+  char2.deaf( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  // and hears again once it wears off
+  Clear_Event_Queue();
+  res := say_ascii( "to the hearing" );
+  if ( !res )
+    return res;
+  endif
+  return expect_speeches( "to the hearing" );
+endfunction
+
+// Brings the character back from the dead and clears away what dying left behind, then hands back
+// whatever the case had to say. Killing the shared character is the most destructive thing these
+// cases do, so every path through them goes through here - see test_client_spellbook.src, which
+// does the same.
+function revive( res )
+  var corpse := char.getcorpse();
+  Resurrect( char );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return res;
+endfunction
+
+exported function speech_ghost_ascii( resmgr )
+  // The dead are not understood: what they say reaches everyone in range as an "OoOo", one letter
+  // for one letter, with the spaces left where they were. The ghost itself hears what it said.
+  var said := "i am a ghost";
+  // The dead are invisible to the living, and the speech loop passes over anyone who cannot see
+  // the speaker - so the listener needs to be able to see ghosts before it can be garbled at.
+  var res := resmgr.GrantPrivilege( char2, "seeghosts" );
+  if ( !res )
+    return res;
+  endif
+  char.Kill();
+  drain_events();
+
+  res := say_ascii( said );
+  if ( !res )
+    return revive( res );
+  endif
+  var heard := collect_ghost_speech();
+  if ( !heard )
+    return revive( heard );
+  endif
+  if ( heard.mine.msg != said )
+    return revive( ret_error( $"the ghost heard itself say \"{heard.mine.msg}\"" ) );
+  endif
+  if ( !is_garbled( heard.theirs.msg, said ) )
+    return revive( ret_error( $"the listener heard \"{heard.theirs.msg}\"" ) );
+  endif
+
+  // Somebody who can hear ghosts is sent what was really said.
+  res := resmgr.GrantPrivilege( char2, "hearghosts" );
+  if ( !res )
+    return revive( res );
+  endif
+  Clear_Event_Queue();
+  res := say_ascii( said );
+  if ( !res )
+    return revive( res );
+  endif
+  res := wait_for_speech( 1, said );
+  if ( !res )
+    return revive( ret_error( "a listener who can hear ghosts was garbled at" ) );
+  endif
+  return revive( 1 );
+endfunction
+
+exported function speech_ghost_unicode( resmgr )
+  // The same through the unicode door, which garbles two bytes at a time and has an arm of its
+  // own for every one of these.
+  var said := "unicode ghost";
+  var res := resmgr.GrantPrivilege( char2, "seeghosts" );
+  if ( !res )
+    return res;
+  endif
+  char.Kill();
+  drain_events();
+
+  clientcon.sendevent( struct{ todo := "speech", arg := said, id := 0 } );
+  var heard := collect_ghost_speech();
+  if ( !heard )
+    return revive( heard );
+  endif
+  if ( heard.mine.msg != said )
+    return revive( ret_error( $"the ghost heard itself say \"{heard.mine.msg}\"" ) );
+  endif
+  if ( !is_garbled( heard.theirs.msg, said ) )
+    return revive( ret_error( $"the listener heard \"{heard.theirs.msg}\"" ) );
+  endif
+
+  // A ghost the shard lets be heard is not garbled at all.
+  res := resmgr.GrantPrivilege( char, "canbeheardasghost" );
+  if ( !res )
+    return revive( res );
+  endif
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := said, id := 0 } );
+  res := expect_speeches( said );
+  return revive( res );
+endfunction
+
+exported function speech_unicode_malformed()
+  // A unicode packet that claims less text than it has room for. The core works the length out
+  // from the packet rather than trusting a field, and a negative one is read as none at all.
+  Clear_Event_Queue();
+  var pkt := CreatePacket( 0xAD, MSGLEN_VARIABLE );
+  pkt.SetInt8( 3, TEXTTYPE_NORMAL );
+  pkt.SetInt16( 4, SPEECH_COLOR );
+  pkt.SetInt16( 6, SPEECH_FONT );
+  pkt.SetString( 8, "ENU", 1 );
+  var res := send_packet( clientcon, 0, pkt );
+  if ( !res )
+    return res;
+  endif
+  res := nothing_heard_from( 0, char.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // The same for the tokenized form, where the text starts behind a list of speech tokens: one
+  // that claims more tokens than the packet holds leaves no text behind it.
+  pkt := CreatePacket( 0xAD, MSGLEN_VARIABLE );
+  pkt.SetInt8( 3, 0xC0 );
+  pkt.SetInt16( 4, SPEECH_COLOR );
+  pkt.SetInt16( 6, SPEECH_FONT );
+  pkt.SetString( 8, "ENU", 1 );
+  // a token count of fifteen, where the packet ends right behind it
+  pkt.SetInt16( 12, 0x00F0 );
+  res := send_packet( clientcon, 0, pkt );
+  if ( !res )
+    return res;
+  endif
+  res := nothing_heard_from( 0, char.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // and the connection is still in step
+  Clear_Event_Queue();
+  res := say_ascii( "after the malformed ones" );
+  if ( !res )
+    return res;
+  endif
+  return expect_speech( 0, "after the malformed ones" );
+endfunction
