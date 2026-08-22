@@ -27,6 +27,7 @@
 #include "pol/network/cliface.h"
 #include "pol/polclock.h"
 #include "pol/polsem.h"
+#include "pol/threadwatch.h"
 #include "pol/uoclient.h"
 
 
@@ -103,6 +104,7 @@ bool UoClientThread::create()
 void uo_client_listener_thread( void* arg )
 {
   UoClientListener* ls = static_cast<UoClientListener*>( arg );
+  watch_this_thread();
   ls->run();
 }
 

@@ -6,6 +6,8 @@
 
 #include "pol/sqlscrobj.h"
 
+#include "pol/threadwatch.h"
+
 #include <exception>
 #include <regex>
 #include <string.h>
@@ -543,6 +545,7 @@ MYSQL_RES* ResultWrapper::ptr()
 
 void sql_service_thread_stub()
 {
+  watch_this_thread();
   try
   {
     networkManager.sql_service->start();

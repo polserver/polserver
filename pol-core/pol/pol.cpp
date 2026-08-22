@@ -135,6 +135,7 @@
 #include "pol/sqlscrobj.h"
 #include "pol/ssopt.h"
 #include "pol/testing/poltest.h"
+#include "pol/threadwatch.h"
 #include "pol/ufunc.h"
 #include "pol/uimport.h"
 #include "pol/uoclient.h"
@@ -501,15 +502,11 @@ void restart_all_clients()
   }
 }
 
-void polclock_checkin()
-{
-  stateManager.checkin_clock_times_out_at = polclock() + 30 * POLCLOCKS_PER_SEC;
-}
-
 #define clock_t_to_ms( x ) ( x )
 
 void tasks_thread()
 {
+  watch_this_thread();
   polclock_t sleeptime;
   bool activity;
   try
@@ -519,7 +516,6 @@ void tasks_thread()
       THREAD_CHECKPOINT( tasks, 1 );
       {
         PolLock lck;
-        polclock_checkin();
         THREAD_CHECKPOINT( tasks, 2 );
         INC_PROFILEVAR( task_passes );
         check_scheduled_tasks( &sleeptime, &activity );
@@ -541,6 +537,7 @@ void tasks_thread()
       TRACEBUF_ADDELEM( "tasks wait_for_pulse sleeptime", static_cast<u32>( sleeptime ) );
 
       THREAD_CHECKPOINT( tasks, 8 );
+      thread_checkin( static_cast<unsigned>( polclock_t_to_ms( sleeptime ) ) );
       tasks_thread_sleep( static_cast<u32>( polclock_t_to_ms( sleeptime ) ) );
       THREAD_CHECKPOINT( tasks, 9 );
     }
@@ -565,6 +562,7 @@ void tasks_thread()
 void scripts_thread()
 {
   using namespace std::chrono_literals;
+  watch_this_thread();
   polclock_t sleeptime;
   bool activity;
   while ( !Clib::exit_signalled )
@@ -572,7 +570,6 @@ void scripts_thread()
     THREAD_CHECKPOINT( scripts, 0 );
     {
       PolLock lck;
-      polclock_checkin();
       TRACEBUF_ADDELEM( "scripts thread now", static_cast<u32>( polclock() ) );
       INC_PROFILEVAR( script_passes );
       THREAD_CHECKPOINT( scripts, 1 );
@@ -604,6 +601,8 @@ void scripts_thread()
       ++stateManager.profilevars.script_passes_noactivity;
     }
 
+    thread_checkin( static_cast<unsigned>( polclock_t_to_ms( sleeptime ) ) );
+
     if ( sleeptime )
     {
       THREAD_CHECKPOINT( scripts, 54 );
@@ -630,11 +629,11 @@ public:
 
 void reap_thread()
 {
+  watch_this_thread();
   while ( !Clib::exit_signalled )
   {
     {
       PolLock lck;
-      polclock_checkin();
       objStorageManager.objecthash.Reap();
       for ( auto& item : gamestate.dynamic_item_descriptors )
       {
@@ -643,6 +642,7 @@ void reap_thread()
       gamestate.dynamic_item_descriptors.clear();
     }
 
+    thread_checkin( 2000 );
     threadhelp::thread_sleep_ms( 2000 );
   }
 }
@@ -652,20 +652,47 @@ void threadstatus_thread()
 {
   int timeouts_remaining = 1;
   bool sent_wakeups = false;
+  watch_this_thread();
   // we want this thread to be the last out, so that it can report stuff at shutdown.
   while ( !Clib::exit_signalled || threadhelp::child_threads > 1 )
   {
-    if ( is_polclock_paused_at_zero() )
+    // Ask of each thread the server depends on whether it is still there, and whether it got
+    // back to work when it said it would. Not while shutting down, where they all stop and
+    // that is the point.
+    if ( !Clib::exit_signalled )
     {
-      polclock_t now = polclock();
-      if ( now >= stateManager.checkin_clock_times_out_at )
-      {
+      auto report = take_thread_watch_report();
+
+      for ( const auto& name : report.stopped )
         POLLOG_ERRORLN(
             "########################################################\n"
-            "No clock movement in 30 seconds.  Dumping thread status." );
-        stateManager.polsig.report_status_signalled = true;
-        stateManager.checkin_clock_times_out_at = now + 30 * POLCLOCKS_PER_SEC;
+            "Thread '{}' has stopped. The server is still running, but whatever that thread "
+            "was responsible for is no longer happening.",
+            name );
+
+      if ( report.everything_stalled && !report.stalled.empty() )
+      {
+        // Not several faults at once. They all do their work under the world lock, so one
+        // holder that never lets go stops every one of them: name the holder, not its
+        // victims.
+        POLLOG_ERRORLN(
+            "########################################################\n"
+            "The server has stopped making progress: no thread that reports in has done so "
+            "within its own deadline. The world lock is held by thread {}.",
+            locker.load( std::memory_order_relaxed ) );
       }
+      else
+      {
+        for ( const auto& name : report.stalled )
+          POLLOG_ERRORLN(
+              "########################################################\n"
+              "Thread '{}' is running but has not got back to work when it said it would. It "
+              "is stuck rather than stopped.",
+              name );
+      }
+
+      if ( !report.stopped.empty() || !report.stalled.empty() )
+        stateManager.polsig.report_status_signalled = true;
     }
 
     if ( stateManager.polsig.report_status_signalled )
@@ -733,6 +760,20 @@ void threadstatus_thread()
       {
         fmt::format_to( std::back_inserter( tmp ), "{} - {}\n", ( *citr ).first, ( *citr ).second );
       }
+      // The threads a running server is supposed to have, as against the ones it has. This
+      // cannot see its own thread stopping, for the obvious reason; a death there is logged
+      // by the thread wrapper like any other, it just has nobody left to act on it.
+      auto watched = watched_thread_status();
+      fmt::format_to( std::back_inserter( tmp ), "Watched threads: {}", watched.watched );
+      if ( watched.missing.empty() && watched.overdue.empty() )
+        tmp += ", all running";
+      if ( !watched.missing.empty() )
+        fmt::format_to( std::back_inserter( tmp ), ", STOPPED: {}",
+                        fmt::join( watched.missing, ", " ) );
+      if ( !watched.overdue.empty() )
+        fmt::format_to( std::back_inserter( tmp ), ", LATE: {}",
+                        fmt::join( watched.overdue, ", " ) );
+      tmp += "\n";
       fmt::format_to( std::back_inserter( tmp ),
                       "Child threads (child_threads): {}\n"
                       "Registered threads (ThreadMap): {}",
@@ -776,6 +817,10 @@ void console_thread()
 {
 #ifndef _WIN32
   Clib::KeyboardHook kb;  // local to have a defined deconstruction to uninstall the hook
+  // Watched only here: on Windows this function is not a thread at all, it is called
+  // directly on the main thread, and registering there would file the main thread under
+  // the name "Console".
+  watch_this_thread();
 #endif
   while ( !Clib::exit_signalled )
   {
@@ -798,8 +843,6 @@ void console_thread()
 
 void start_threads()
 {
-  threadmap_instance().Register( thread_pid(), "Main" );
-
   if ( Plib::systemstate.config.web_server )
     start_http_server();
 
@@ -945,6 +988,11 @@ const char* Use_low_fragmentation_Heap()
 
 int xmain_inner( bool testing )
 {
+  // Name this thread before anything can fail. Startup - reading the configuration, loading
+  // the world, running the start scripts - is where a misconfigured shard crashes, and until
+  // this ran inside start_threads() every one of those reports said "unnamed".
+  Pol::threadhelp::threadmap_instance().Register( Pol::threadhelp::thread_pid(), "Main" );
+
 #ifdef _WIN32
   Clib::MiniDumper::Initialize();
   // Aug. 15, 2006 Austin
@@ -1051,6 +1099,9 @@ int xmain_inner( bool testing )
 
   Core::checkpoint( "initializing IPC structures" );
   Core::init_ipc_vars();
+  // Hand the crash report the world lock's owner. Only the server has one, so it is published
+  // from here rather than reached for from clib.
+  Clib::ExceptionParser::registerWorldLockOwner( &Core::locker );
   threadhelp::init_threadhelp();
 
 #ifdef _WIN32
@@ -1131,7 +1182,6 @@ int xmain_inner( bool testing )
   Core::CoreSetSysTrayToolTip( "Running", Core::ToolTipPrioritySystem );
 
   Core::restart_pol_clocks();
-  Core::polclock_checkin();
 
   // this is done right after reading globals from pol.txt:
   // checkpoint( "starting game clock" );

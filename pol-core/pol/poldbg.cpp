@@ -38,6 +38,7 @@
 #include "pol/polobject.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
+#include "pol/threadwatch.h"
 #include "pol/uoexec.h"
 
 
@@ -1375,8 +1376,12 @@ void DebugClientThread::run()
 
 void debug_listen_thread()
 {
+  // Watched only inside the guard: with no debug port configured this thread is started
+  // anyway and returns at once, so registering before the test would make "DbgListn is not
+  // running" the normal state on most shards.
   if ( Plib::systemstate.config.debug_port )
   {
+    watch_this_thread();
     Clib::SocketListener SL( Plib::systemstate.config.debug_port,
                              Plib::systemstate.config.debug_local_only );
     while ( !Clib::exit_signalled )

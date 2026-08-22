@@ -12,6 +12,7 @@
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
+#include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
@@ -63,15 +64,23 @@ void passert_failed( const char* expr, const char* file, unsigned line )
 
 void passert_failed( const char* expr, const std::string& reason, const char* file, unsigned line )
 {
-  // This line is the one that ends up quoted in bug reports, so it carries the
-  // thread itself rather than leaving it to the backtrace below -- which is not
-  // always printed, and on Windows goes to a separate minidump.
+  // These lines are the ones that end up quoted in bug reports, so they carry the thread and
+  // the script themselves rather than leaving it to the backtrace below -- which is not always
+  // printed, and on Windows goes to a separate minidump. Unlike the crash handlers this runs
+  // in ordinary context, not a signal handler, so reading the script status here costs nothing
+  // and risks nothing.
   if ( !reason.empty() )
     POLLOG_ERRORLN( "Assertion Failed in {}: {} ({}), {}, line {}",
                     threadhelp::current_thread_name(), expr, reason, file, line );
   else
     POLLOG_ERRORLN( "Assertion Failed in {}: {}, {}, line {}", threadhelp::current_thread_name(),
                     expr, file, line );
+  {
+    std::string script_name;
+    unsigned script_pc;
+    script_status.snapshot( script_name, script_pc );
+    POLLOG_ERRORLN( "Last Script: {} PC: {}", script_name, script_pc );
+  }
 
   if ( passert_dump_stack )
   {

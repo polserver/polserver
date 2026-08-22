@@ -396,6 +396,8 @@ set (pol_sources  # sorted !
   target.h
   tasks.cpp
   tasks.h
+  threadwatch.cpp
+  threadwatch.h
   testing/poltest.cpp
   testing/poltest.h
   testing/testclamp.cpp

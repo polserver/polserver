@@ -4,6 +4,7 @@
 #include "clib/rawtypes.h"
 #include "pol/globals/network.h"
 #include "pol/polsem.h"
+#include "pol/threadwatch.h"
 #include "pol/network/client.h"
 
 
@@ -41,6 +42,7 @@ ClientTransmit::TransmitData ClientTransmit::NextQueueEntry()
 
 void ClientTransmitThread()
 {
+  Core::watch_this_thread();
   ClientTransmit* transmit_instance = Core::networkManager.clientTransmit.get();
   while ( !Clib::exit_signalled )
   {

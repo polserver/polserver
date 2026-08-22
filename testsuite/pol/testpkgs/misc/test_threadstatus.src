@@ -7,6 +7,30 @@ program testthreadstatus()
   return 1;
 endprogram
 
+// Forces the thread status report and returns the log lines it produced.
+//
+// The ThreadStatus thread wakes once a second, so the report is not written by
+// the time internal() returns. Poll rather than sleep a fixed time: the
+// sanitizer builds are slow enough that any single sleep would be either flaky
+// there or wasteful everywhere else.
+function dump_thread_status( mark )
+  PolCore().internal( 10 );
+
+  var lines;
+  var i;
+  for ( i := 1; i <= 60; ++i )
+    lines := log_since( mark );
+    if ( lines == error )
+      return lines;
+    endif
+    if ( log_find( lines, "*Thread Info*" ) )
+      return lines;
+    endif
+    SleepMS( 250 );
+  endfor
+  return ret_error( "thread status report never appeared" );
+endfunction
+
 // The stuck-thread report is the one diagnostic in the server that reads state
 // belonging to every other thread, and until this test it only ever ran on a
 // shard that was already wedged -- so nothing under CI, and in particular
@@ -23,30 +47,17 @@ exported function thread_status_report_prints()
     return mark;
   endif
 
-  PolCore().internal( 10 );
-
-  // The ThreadStatus thread wakes once a second, so the report is not written
-  // by the time internal() returns. Poll rather than sleep a fixed time: the
-  // sanitizer builds are slow enough that any single sleep would be either
-  // flaky there or wasteful everywhere else.
-  var lines;
-  var i;
-  for ( i := 1; i <= 60; ++i )
-    lines := log_since( mark );
-    if ( lines == error )
-      return lines;
-    endif
-    if ( log_find( lines, "*Thread Info*" ) )
-      break;
-    endif
-    SleepMS( 250 );
-  endfor
+  var lines := dump_thread_status( mark );
+  if ( lines == error )
+    return lines;
+  endif
 
   var res := assert_log_contains( lines,
                                   array{ "*Thread Info*", "Semaphore TID:",
                                          "Scripts Thread Checkpoint:", "Last Script:",
                                          "Escript Instruction Cycles:", "Tasks Thread Checkpoint:",
                                          "Active Client Thread Checkpoint:", "Current Threads:",
+                                         "Watched threads:",
                                          "Child threads (child_threads):",
                                          "Registered threads (ThreadMap):" },
                                   "thread status report" );
@@ -62,6 +73,126 @@ exported function thread_status_report_prints()
   if ( !log_find( lines, "Number of clients:" ) &&
        !log_find( lines, "Clients: (world lock held for" ) )
     return ret_error( "thread status report: neither the client list nor the lock-held note" );
+  endif
+
+  return 1;
+endfunction
+
+// A thread that dies leaves the shard running with a subsystem missing, and the
+// clock watchdog could not see it: that deadline used to be shared between four
+// threads, so any one of them still running kept it fresh for all of them. Two
+// checks replace it. Is each thread we expect still registered, which catches
+// one that has died; and, for those whose loop runs unconditionally, did it get
+// back to work by the time it said it would, which catches one that is alive but
+// stuck.
+//
+// All three assertions here run in one function on purpose. The first is the one
+// that would go unnoticed if it broke, and it is only meaningful before the fakes
+// below exist -- exported functions are called in whatever order the compiler
+// lists them, so it cannot be left in a function of its own and assumed to run
+// first.
+//
+// That first assertion is also what pins down the harder half of the design.
+// Most watched threads block indefinitely when idle -- a listener in accept(),
+// the transmit thread on its queue -- so a detector built on "has it made
+// progress lately" would report a healthy shard as full of dead threads. Those
+// threads are therefore watched for presence only, and the ones that do report
+// in publish their own deadline: the sleep they are about to take plus a grace
+// period, since a decay pass sleeps 30ms and an idle scripts thread sleeps a
+// full minute and no single window suits both.
+exported function watched_threads_reported()
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  var lines := dump_thread_status( mark );
+  if ( lines == error )
+    return lines;
+  endif
+  if ( !log_find( lines, "all running" ) )
+    return ret_error( "a healthy shard reported a stopped thread" );
+  endif
+
+  // Watch a thread id that cannot be found, which is exactly what a thread that
+  // has died looks like. Killing a real one would end the test run rather than
+  // test it.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  PolCore().internal( 11 );
+
+  var i;
+  var announced := 0;
+  for ( i := 1; i <= 60; ++i )
+    lines := log_since( mark );
+    if ( lines == error )
+      return lines;
+    endif
+    if ( log_find( lines, "Thread 'TestAbsentThread' has stopped" ) )
+      announced := 1;
+      break;
+    endif
+    SleepMS( 250 );
+  endfor
+  if ( !announced )
+    return ret_error( "a stopped thread was never announced" );
+  endif
+
+  // Announced once, but listed for as long as it is missing: an operator who
+  // runs the report after the fact still has to be able to see it.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  lines := dump_thread_status( mark );
+  if ( lines == error )
+    return lines;
+  endif
+  if ( !log_find( lines, "STOPPED: TestAbsentThread" ) )
+    return ret_error( "the report stopped listing a thread that is still missing" );
+  endif
+
+  // The other failure: still registered, still there, but past the deadline it
+  // published for itself. Faking it is what keeps this test cheap -- wedging a
+  // real thread would test the length of the grace period rather than the check,
+  // and would cost every run those thirty seconds.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  PolCore().internal( 12 );
+
+  var stalled := 0;
+  for ( i := 1; i <= 60; ++i )
+    lines := log_since( mark );
+    if ( lines == error )
+      return lines;
+    endif
+    if ( log_find( lines, "Thread 'TestStalledThread' is running but has not got back to work" ) )
+      stalled := 1;
+      break;
+    endif
+    SleepMS( 250 );
+  endfor
+  if ( !stalled )
+    return ret_error( "a stalled thread was never announced" );
+  endif
+
+  // Named once, listed for as long as it is late, and distinguished from a
+  // thread that has stopped: the two want different answers from whoever reads
+  // the report.
+  mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+  lines := dump_thread_status( mark );
+  if ( lines == error )
+    return lines;
+  endif
+  if ( !log_find( lines, "LATE: TestStalledThread" ) )
+    return ret_error( "the report stopped listing a thread that is still late" );
   endif
 
   return 1;
