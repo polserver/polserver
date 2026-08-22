@@ -29,6 +29,13 @@ error now.</change>
 		</entry>
 		<entry>
 			<date>08-23-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">inconsistency of ghost speech</change>
+			<change type="Fixed">client.clientinfo it was partially garbage</change>
+			<change type="Fixed">a one byte packet (0xFA) disconnected the client on some platforms</change>
+		</entry>
+		<entry>
+			<date>08-23-2026</date>
 			<author>AsYlum:</author>
 			<change type="Fixed">uo::Accessible() returned 0 for the contents of a container opened with<br/>
 uo::SendOpenSpecialContainer(), a bank box for instance.</change>
@@ -76,13 +83,6 @@ symbol pool were not counted at all) and for regular expressions.</change>
 global and local variable names and the source filenames - and did the same for the<br/>
 element names of an array and for the keys of the script storage index, while missing<br/>
 the names of a script's exported and debug functions altogether.</change>
-		</entry>
-		<entry>
-			<date>08-22-2026</date>
-			<author>Turley:</author>
-			<change type="Fixed">inconsistency of ghost speech</change>
-			<change type="Fixed">client.clientinfo it was partially garbage</change>
-			<change type="Fixed">a one byte packet (0xFA) disconnected the client on some platforms</change>
 		</entry>
 		<entry>
 			<date>08-18-2026</date>
