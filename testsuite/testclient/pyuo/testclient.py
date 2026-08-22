@@ -457,7 +457,7 @@ class PolServer:
   def _accept(self, gameport):
     started = time.monotonic()
     shard_seen = False
-    while time.monotonic() - started < HARD_DEADLINE_SECS:
+    while True:
       try:
         conn, _ = self.s.accept()
         return conn
@@ -466,7 +466,11 @@ class PolServer:
           shard_seen = True
         elif shard_seen:
           raise ShardGone('shard stopped without connecting a test client')
-    raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
+        # The deadline only ends a wait for a shard that never turned up, as the comment
+        # above says: once one has been seen this waits as long as the run takes, because
+        # the package that drives this client can be minutes in.
+        elif time.monotonic() - started >= HARD_DEADLINE_SECS:
+          raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
 
   def run(self):
     while True:

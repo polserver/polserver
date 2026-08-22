@@ -45,7 +45,7 @@ import time
 # not show up as a startup error -- it shows up as slowreader failing to get a listener.
 CONTROL_PORT = 5013
 GAME_PORT = 5003  # testsuite/pol/config/servers.cfg, and testclient.cfg
-HARD_DEADLINE_SECS = 540  # backstop if the shard never appears; ctest allows 600s
+HARD_DEADLINE_SECS = 540  # backstop for a shard that never appears, see main()
 
 # How long to wait for the shard to drop the connection before calling it OPEN.
 # Generous: the verdict is about whether it *ever* closes, not how fast.
@@ -191,7 +191,7 @@ def main():
 
     started = time.monotonic()
     shard_seen = False
-    while time.monotonic() - started < HARD_DEADLINE_SECS:
+    while True:
         try:
             control, _ = listener.accept()
         except socket.timeout:
@@ -200,10 +200,16 @@ def main():
             elif shard_seen and threading.active_count() == 1:
                 log("shard gone, exiting")
                 return
+            # The deadline only ends a wait for a shard that never turned up. Once one has
+            # been seen this helper waits for it to go, however long the run takes: a
+            # deadline that also applies then takes the helper away part way through, and
+            # every test that needs it afterwards fails to connect. The run itself is
+            # bounded by ctest.
+            if not shard_seen and time.monotonic() - started >= HARD_DEADLINE_SECS:
+                log("hard deadline reached without a shard, exiting")
+                return
             continue
         threading.Thread(target=handle, args=(control,), daemon=True).start()
-
-    log("hard deadline reached, exiting")
 
 
 if __name__ == "__main__":
