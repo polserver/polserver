@@ -30,7 +30,7 @@ PolCore().internal(2), (5) and (6). sections is an optional array of section nam
 skip the parts you are not chasing - walking every object in the world and every<br/>
 zone of every realm is the expensive part, and the server is stopped throughout.<br/>
 The Performance Guide lists what each section covers and costs. The old selectors<br/>
-still work and log a deprecation notice naming the replacement.</change>
+PolCore().internal(2), (5) and (6) have been removed.</change>
 			<change type="Changed">the two per-script memory reports now write one timestamped file per call under<br/>
 log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-&lt;script&gt;-YYYYMMDD-HHMMSS.log)<br/>
 instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A<br/>
@@ -54,6 +54,10 @@ held by the debugger.</change>
 loop - recursed until the stack overflowed and took the server down.</change>
 			<change type="Fixed">memory estimates were too low for packets, for compiled scripts (the bytecode and<br/>
 symbol pool were not counted at all) and for regular expressions.</change>
+			<change type="Fixed">memory estimates counted every string of a compiled script's debug data twice - the<br/>
+global and local variable names and the source filenames - and did the same for the<br/>
+element names of an array and for the keys of the script storage index, while missing<br/>
+the names of a script's exported and debug functions altogether.</change>
 		</entry>
 		<entry>
 			<date>08-16-2026</date>

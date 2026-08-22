@@ -7,8 +7,8 @@ program testpolcore()
   return 1;
 endprogram
 
-// The named memory reports, and the numeric selectors they replaced. Only that they run and
-// answer truthy is checked here - what they write goes to log files nothing reads back.
+// The named memory reports. Only that they run and answer truthy is checked here - what they
+// write goes to log files nothing reads back.
 exported function polcore_memory()
   var core := PolCore();
   var bad := {};
@@ -26,11 +26,6 @@ exported function polcore_memory()
   if ( core.log_script_variables( "scripts/tests.ecl" ) != 1 )
     bad.append( "log_script_variables answered falsy" );
   endif
-
-  // The deprecated selectors still have to work.
-  PolCore().internal( 2 ); // memory estimation log
-  PolCore().internal( 5 ); // memory estimation log (scriptscheduler)
-  PolCore().internal( 6, "scripts/tests.ecl" ); // memory estimation log (script)
 
   if ( bad.size() )
     return ret_error( $"{bad}" );
@@ -316,9 +311,12 @@ exported function polcore_methods( unused resmngr )
   if ( res.errortext != "polcore.internal(value) requires 1 parameter." )
     bad.append( $"internal with no parameter answered {res}" );
   endif
-  // Selector 6 is the only one that reads a second parameter, with the same hazard.
-  if ( core.internal( 6 ) != 0 )
-    bad.append( "internal( 6 ) with no script name should answer 0" );
+  // No selector reads a second parameter any more, so two of them is an error rather than a
+  // silently ignored argument. Selector 2 is gone and does nothing, which keeps this harmless
+  // even if the guard ever stops firing.
+  res := core.internal( 2, "extra" );
+  if ( res.errortext != "polcore.internal(value) requires 1 parameter." )
+    bad.append( $"internal with two parameters answered {res}" );
   endif
 
   // A method nothing knows falls off the end of the dispatch and reads as uninit.

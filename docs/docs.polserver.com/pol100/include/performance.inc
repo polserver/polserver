@@ -353,7 +353,6 @@ PolCore().log_script_variables( "scripts/ai/spellkillpcs.ecl" );
 
 	The sizes are estimates, not allocator truth. They count what the core knows a structure holds, so they undercount anything held by a library the core cannot measure, and an object referred to from several places is counted once per reference. Treat them as a way to compare snapshots and rank suspects, not as an accounting of the heap.<br /><br />
 
-	These three replace the old <code>PolCore().internal(2)</code>, <code>internal(5)</code> and <code>internal(6)</code> selectors, which still work but log a deprecation notice.
 </p>
 
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />

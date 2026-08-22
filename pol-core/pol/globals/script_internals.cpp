@@ -71,10 +71,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   usage.script_size = sizeof( int )            /*priority_divide*/
                       + sizeof( unsigned int ) /*next_pid*/
                       + Clib::memsize( pidlist );
+  // memsize() of a map keyed by string already counts each key's capacity.
   usage.scriptstorage_size = Clib::memsize( scrstore );
   for ( const auto& script : scrstore )
   {
-    usage.scriptstorage_size += script.first.capacity();
     if ( script.second.get() != nullptr )
       usage.scriptstorage_size += script.second->sizeEstimate();
   }

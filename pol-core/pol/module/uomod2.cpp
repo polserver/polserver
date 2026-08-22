@@ -35,7 +35,6 @@
 #include <ctype.h>
 #include <optional>
 #include <ranges>
-#include <set>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
@@ -1944,18 +1943,6 @@ BObjectImp* GetPktStatusObj()
   return pkts.release();
 }
 
-// Once per selector per run: these get called on a timer, and a line every time would drown
-// the log.
-void warn_deprecated_internal( int selector, const char* replacement )
-{
-  static std::set<int> warned;
-  if ( warned.insert( selector ).second )
-  {
-    POLLOG_INFOLN( "PolCore().internal({}) is deprecated, use PolCore().{} instead.", selector,
-                   replacement );
-  }
-}
-
 BObjectImp* GetCoreVariable( const char* corevar )
 {
 #define LONG_COREVAR( name, expr )      \
@@ -2116,7 +2103,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
   }
   else if ( stricmp( methodname, "internal" ) == 0 )  // Just for internal Development...
   {
-    if ( ex.numParams() != 1 && ex.numParams() != 2 )
+    if ( ex.numParams() != 1 )
       return new BError( "polcore.internal(value) requires 1 parameter." );
     int type;
     if ( ex.getParam( 0, type ) )
@@ -2139,12 +2126,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 #ifdef ESCRIPT_PROFILE
       DEBUGLOGLN( EscriptProfiler::result() );
 #endif
-      if ( type == 2 )
-      {
-        warn_deprecated_internal( 2, "log_memory_usage()" );
-        Core::MemoryUsage::log();
-      }
-      else if ( type == 3 )
+      if ( type == 3 )
       {
         POLLOG_ERRORLN( "Forcing crash" );
         int* i = nullptr;
@@ -2154,20 +2136,6 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       {
         POLLOG_ERRORLN( "Forcing assert crash" );
         passert_always( false );
-      }
-      else if ( type == 5 )
-      {
-        warn_deprecated_internal( 5, "log_script_memory()" );
-        Core::scriptScheduler.estimateSize( true );
-      }
-      else if ( type == 6 )
-      {
-        warn_deprecated_internal( 6, "log_script_variables(script)" );
-        const String* script;
-        if ( ex.numParams() != 2 || !ex.getStringParam( 1, script ) )
-          return new BLong( 0 );
-        Core::scriptScheduler.logScriptVariables( script->data() );
-        return new BLong( 1 );
       }
       else if ( type == 7 )
       {

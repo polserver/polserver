@@ -19,7 +19,7 @@
            skip the parts you are not chasing - walking every object in the world and every
            zone of every realm is the expensive part, and the server is stopped throughout.
            The Performance Guide lists what each section covers and costs. The old selectors
-           still work and log a deprecation notice naming the replacement.
+           PolCore().internal(2), (5) and (6) have been removed.
     Changed: the two per-script memory reports now write one timestamped file per call under
              log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-<script>-YYYYMMDD-HHMMSS.log)
              instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A
@@ -43,6 +43,10 @@
            loop - recursed until the stack overflowed and took the server down.
     Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
            symbol pool were not counted at all) and for regular expressions.
+    Fixed: memory estimates counted every string of a compiled script's debug data twice - the
+           global and local variable names and the source filenames - and did the same for the
+           element names of an array and for the keys of the script storage index, while missing
+           the names of a script's exported and debug functions altogether.
 08-16-2026 Nando:
     Changed: when a C++ exception ends a script, the log now carries the eScript call
              stack and the C++ call stack of the throw, instead of only the message and
