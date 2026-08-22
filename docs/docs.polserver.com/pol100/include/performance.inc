@@ -341,6 +341,8 @@ PolCore().log_memory_usage( { "scripts", "process" } );
 
 	Once <code>ScriptSize</code> is the column that is growing, <code>log_script_memory()</code> says which script it is. It writes the estimated size of every running script, grouped by scheduler queue (<code>runlist</code>, <code>ranlist</code>, <code>holdlist</code>, <code>notimeoutholdlist</code>, <code>debuggerholdlist</code>), to <code>log/memory/scripts-YYYYMMDD-HHMMSS.log</code>.<br /><br />
 
+	The last line of that file carries the totals, <code>&lt;n&gt; scripts, &lt;n&gt; bytes; &lt;n&gt; cached programs, &lt;n&gt; bytes</code>. Do not expect the per-script lines to add up to either: the script total also covers the scheduler queues and the pid list, and the cached-program store - the compiled bytecode the core keeps for every script it has loaded, whether or not one is running - is not itemized anywhere. A gap between the two is normal; a gap that grows is worth chasing.<br /><br />
+
 	And once you know the script, <code>log_script_variables( script )</code> says which variable. It writes the name, type and estimated size of every global and of every local in every stack frame, for every running instance of that script, to <code>log/memory/vars-&lt;script&gt;-YYYYMMDD-HHMMSS.log</code>. The script has to have been compiled with debugging information - <code>GenerateDebugInfo</code> in ecompile.cfg, or the <code>-x</code> flag - or there are no variable names to report.<br /><br />
 
 	Those last two get a file per call rather than appending to one, because a single snapshot of either runs to megabytes on a busy shard. Clear out <code>log/memory/</code> between investigations.<br /><br />

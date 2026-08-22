@@ -7,8 +7,31 @@ program testpolcore()
   return 1;
 endprogram
 
-// The named memory reports. Only that they run and answer truthy is checked here - what they
-// write goes to log files nothing reads back.
+// The newest log/memory/<prefix>*.log, as a line array. The name carries a
+// YYYYMMDD-HHMMSS stamp, so the last one sorted is the one just written.
+function newest_report( prefix )
+  var names := ListDirectory( "::log/memory", ".log" );
+  if ( names == error )
+    return ret_error( $"Could not list log/memory: {names}" );
+  endif
+  var newest := "";
+  foreach name in ( names )
+    if ( name[1, prefix.length()] == prefix && name > newest )
+      newest := name;
+    endif
+  endforeach
+  if ( !newest )
+    return ret_error( $"No log/memory/{prefix}*.log was written" );
+  endif
+  var lines := ReadFile( $"::log/memory/{newest}" );
+  if ( lines == error || !lines.size() )
+    return ret_error( $"Could not read log/memory/{newest}: {lines}" );
+  endif
+  return lines;
+endfunction
+
+// The named memory reports: that they run, and that the totals line the log analyzers
+// read is still where they expect it. The rest of what they write is not read back.
 exported function polcore_memory()
   var core := PolCore();
   var bad := {};
@@ -25,6 +48,26 @@ exported function polcore_memory()
   endif
   if ( core.log_script_variables( "scripts/tests.ecl" ) != 1 )
     bad.append( "log_script_variables answered falsy" );
+  endif
+
+  // The report ends with totals the itemized lines do not add up to, and the log
+  // analyzers read them. Nothing else checks what these reports actually contain, so a
+  // change to the format would otherwise only surface as a blank column in a tool.
+  var report := newest_report( "scripts-" );
+  if ( report.?errortext )
+    bad.append( report.errortext );
+  else
+    // "<n> scripts, <n> bytes; <n> cached programs, <n> bytes". Searched for rather than
+    // taken from the end: the report is written with a trailing blank line.
+    var found := 0;
+    foreach line in ( report )
+      if ( line.find( " bytes; " ) && line.find( " cached program" ) )
+        found := 1;
+      endif
+    endforeach
+    if ( !found )
+      bad.append( "log_script_memory wrote no totals line" );
+    endif
   endif
 
   if ( bad.size() )

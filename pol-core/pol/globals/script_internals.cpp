@@ -94,7 +94,7 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
       size_t size = exec->sizeEstimate();
       usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {} \n", exec->scriptname(), size );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(), size );
     }
   }
   usage.script_count += runlist.size();
@@ -161,6 +161,15 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   usage.script_count += debuggerholdlist.size();
   if ( verbose )
   {
+    // The lines above add up to neither total, so state both rather than leaving a reader
+    // to sum the report and wonder. script_size also covers the queues themselves and the
+    // pid list; the cached-program store is not itemized at all.
+    fmt::format_to( std::back_inserter( verbose_w ),
+                    "{} script{}, {} bytes; {} cached program{}, {} bytes\n", usage.script_count,
+                    usage.script_count == 1 ? "" : "s", usage.script_size,
+                    usage.scriptstorage_count, usage.scriptstorage_count == 1 ? "" : "s",
+                    usage.scriptstorage_size );
+
     auto path = MemoryUsage::reportPath( "scripts" );
     auto log = OPEN_FLEXLOG( path.c_str(), false );
     FLEXLOGLN( log, verbose_w );  // extra newline at the end,seperates the old from the new entry

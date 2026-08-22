@@ -25,6 +25,11 @@ snapshot, since it is a time series meant to be graphed; columns outside the<br/
 requested sections are written empty rather than dropped, because its header is<br/>
 written once and has to keep describing the file - so an empty field means &quot;not<br/>
 measured&quot;, which is not the same as a measured zero.</change>
+			<change type="Changed">PolCore().log_script_memory() ends its report with a totals line - &quot;&lt;n&gt; scripts,<br/>
+&lt;n&gt; bytes; &lt;n&gt; cached programs, &lt;n&gt; bytes&quot;. The per-script lines above it add up<br/>
+to neither figure: the script total also covers the scheduler queues and the pid<br/>
+list, and the cached-program store is not itemized at all, so summing the report<br/>
+understated both.</change>
 			<change type="Changed">the memory reports do less redundant work, which matters because they block the<br/>
 server while they run. The object walk no longer counts the object hash in a<br/>
 separate pass over it, and the per-script report measures each script once rather<br/>
