@@ -1,17 +1,5 @@
 -- POL100.3.0 --
-08-18-2026 Nando:
-    Added: The core now names a thread it depends on that has stopped, or that is still
-           running but no longer getting anywhere. Each thread that reports in publishes
-           when it expects to be back - the sleep it is about to take, plus 30 seconds - so
-           it is judged against its own schedule. When all of them are late at once the core
-           says so once and names the thread holding the world lock, instead of blaming each
-           in turn.
-  Changed: The thread status report gives the number of threads being watched and names any
-           that have stopped or are late.
-  Removed: The "No clock movement in 30 seconds" check. Its deadline was shared between four
-           threads, so any one of them still running kept it fresh for the rest, and a
-           stopped thread among live ones stayed invisible. The checks above replace it.
-08-17-2026 AsYlum:
+08-22-2026 AsYlum:
     Added: PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()
            and PolCore().log_script_variables( script ), the memory reports that used to be
            PolCore().internal(2), (5) and (6). sections is an optional array of section names
@@ -47,6 +35,18 @@
            global and local variable names and the source filenames - and did the same for the
            element names of an array and for the keys of the script storage index, while missing
            the names of a script's exported and debug functions altogether.
+08-18-2026 Nando:
+    Added: The core now names a thread it depends on that has stopped, or that is still
+           running but no longer getting anywhere. Each thread that reports in publishes
+           when it expects to be back - the sleep it is about to take, plus 30 seconds - so
+           it is judged against its own schedule. When all of them are late at once the core
+           says so once and names the thread holding the world lock, instead of blaming each
+           in turn.
+  Changed: The thread status report gives the number of threads being watched and names any
+           that have stopped or are late.
+  Removed: The "No clock movement in 30 seconds" check. Its deadline was shared between four
+           threads, so any one of them still running kept it fresh for the rest, and a
+           stopped thread among live ones stayed invisible. The checks above replace it.
 08-16-2026 Nando:
     Changed: when a C++ exception ends a script, the log now carries the eScript call
              stack and the C++ call stack of the throw, instead of only the message and
