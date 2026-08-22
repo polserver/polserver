@@ -145,6 +145,32 @@ class Packet():
       raise ValueError('Length must be a multiple of 2')
     return self.varUStrFlipped(self.rpb(length))
 
+  def dcstring(self):
+    ''' Returns the next null terminated string from the receive buffer '''
+    out = b''
+    while True:
+      c = self.rpb(1)
+      if c == b'\x00':
+        break
+      out += c
+    return self.varStr(out)
+
+  def ducstringz(self, limit=None, flipped=False):
+    '''! Returns the next null terminated unicode string
+    @param limit: the packet length, when the string is the last thing in it and
+                  may not be terminated at all - reading stops there either way
+    @param flipped: True for a string the core wrote in host order rather than
+                    network order. Both happen: a character profile is written
+                    with WriteFlipped and a buff argument with plain Write.
+    '''
+    out = b''
+    while limit is None or self.readCount < limit:
+      c = self.rpb(2)
+      if c == b'\x00\x00':
+        break
+      out += c
+    return self.varUStrFlipped(out) if flipped else self.varUStr(out)
+
   def dip(self):
     ''' Returns next string ip address from the receive buffer '''
     return struct.unpack('BBBB', self.rpb(4))
@@ -2971,6 +2997,59 @@ class HealthBarStatusUpdate(Packet):
     self.flags = self.duchar()
 
 
+class DamagePacket(Packet):
+  ''' How much damage was just taken, see SendDamagePkt in the core
+
+  Sent to the attacker, and to the defender when they are not the same. The core
+  only sends it when combat.cfg SendDamagePacket says so.
+  '''
+
+  cmd = 0x0b
+  length = 7
+
+  def decodeChild(self):
+    self.serial = self.duint()
+    self.damage = self.dushort()
+
+
+class BuffPacket(Packet):
+  ''' A buff or debuff icon appearing or going away, see send_buff_message
+
+  The removal form is the first eight bytes and nothing else; everything the icon
+  is drawn with only comes with the form that adds one.
+  '''
+
+  cmd = 0xdf
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.icon = self.dushort()
+    self.show = bool(self.dushort())
+    self.duration = 0
+    self.cl_name = 0
+    self.cl_descr = 0
+    self.name_arguments = ''
+    self.desc_arguments = ''
+    if not self.show:
+      return
+    self.duint()                     # unknown, always 0
+    self.dushort()                   # the icon again
+    self.dushort()                   # unknown, always 1
+    self.duint()                     # unknown, always 0
+    self.duration = self.dushort()
+    self.dushort()                   # unknown, always 0
+    self.duchar()                    # unknown, always 0
+    self.cl_name = self.duint()
+    self.cl_descr = self.duint()
+    self.duint()                     # a third cliloc the core never fills in
+    # each argument says its own length in characters, terminator included
+    self.name_arguments = self.ducstringflipped(self.dushort() * 2).rstrip('\x00')
+    self.desc_arguments = self.ducstringflipped(self.dushort() * 2).rstrip('\x00')
+    self.dushort()                   # third argument length, always 1
+    self.dushort()                   # its empty text
+
+
 class AsciiSpeechRequestPacket(Packet):
   ''' Client speech from before unicode, see PKTIN_03 in the core
 
@@ -3047,8 +3126,13 @@ class RenameCharPacket(Packet):
     self.estring(self.name, 30)
 
 
-class CharProfileRequestPacket(Packet):
-  ''' Reads or writes a character profile, see PKTBI_B8 in the core '''
+class CharProfilePacket(Packet):
+  ''' A character profile, see PKTBI_B8 in the core
+
+  The client asks with this packet and is answered with it: the request carries a
+  serial and, when it is writing, the new text; the answer carries the title and
+  the two texts, the second of which the client may edit.
+  '''
 
   ## Ask for a profile
   MODE_READ = 0
@@ -3078,6 +3162,18 @@ class CharProfileRequestPacket(Packet):
       self.eushort(0)
       self.eushort(len(self.text))
       self.estring(self.text, len(self.text), True)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    # a cp1252 title, then two unicode texts, each ending at its own terminator.
+    # The packet's own length is what says where the last one stops.
+    self.title = self.dcstring()
+    self.utext = self.ducstringz(self.length)
+    self.etext = self.ducstringz(self.length) if self.readCount < self.length else ''
+    # whatever is left, which is a terminator the core did not write
+    if self.readCount < self.length:
+      self.rpb(self.length - self.readCount)
 
 
 class ChatButtonPacket(Packet):

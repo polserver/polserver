@@ -22,6 +22,22 @@ const EVT_OBJ_REVISION := "obj_revision";
 // between two objects says where the client draws it, not merely which objects it
 // is about. "cmd" is 0x70 or the extended 0xC7, "kind" the effect type below.
 const EVT_EFFECT := "effect";
+// A sound played at a place, and the music a client is told to start. Both carry only what the
+// packet does: a sound has coordinates, music has an id and nothing else.
+const EVT_SOUND := "sound";
+const EVT_MUSIC := "music";
+// How much damage a client is shown, the buff icons it is told to draw, and a character profile
+// answered back to it.
+const EVT_DAMAGE := "damage";
+const EVT_BUFF := "buff";
+const EVT_CHAR_PROFILE := "char_profile";
+// What the "kind" of an effect says the client should draw. Named for the field rather than for
+// the effect, because eScript identifiers are case insensitive and a case called
+// effect_stationary would collide with a constant called EFFECT_STATIONARY.
+const EFFECTKIND_MOVING := 0;
+const EFFECTKIND_LIGHTNING := 1;
+const EFFECTKIND_STATIONARY := 2;
+const EFFECTKIND_FOLLOW := 3;
 const EFFECT_KIND_MOVING := 0;
 const EFFECT_KIND_LIGHTNING := 1;
 const EFFECT_KIND_FIXEDXYZ := 2;

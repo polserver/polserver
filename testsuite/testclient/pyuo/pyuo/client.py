@@ -1036,14 +1036,48 @@ class Client(threading.Thread):
       # Both endpoints come with their own coordinates: an effect between two
       # objects is drawn where the packet says, not where the client last saw
       # the objects, so this is the whole of what the client is told.
-      self.brain.event(brain.Event(brain.Event.EVT_EFFECT, cmd=pkt.cmd,
-          kind=pkt.direction, serial=pkt.serial, target=pkt.target,
-          graphic=pkt.graphic, x=pkt.x, y=pkt.y, z=pkt.z,
-          tx=pkt.tx, ty=pkt.ty, tz=pkt.tz))
+      # The Ex packet carries everything the plain one does and then what only it
+      # can say - a hue, a render mode, the 3d effect ids and a layer. Both are
+      # reported the same way, with the Ex-only fields left out of the plain one,
+      # so a case can tell which packet it was told by and check what it asked for.
+      effect = dict(cmd=pkt.cmd, kind=pkt.direction, serial=pkt.serial,
+          target=pkt.target, graphic=pkt.graphic, x=pkt.x, y=pkt.y, z=pkt.z,
+          tx=pkt.tx, ty=pkt.ty, tz=pkt.tz, speed=pkt.speed, duration=pkt.duration,
+          adjust=pkt.adjust, explode=pkt.explode)
+      if isinstance(pkt, packets.GraphicalEffectExPacket):
+        effect.update(hue=pkt.hue, rendermode=pkt.rendermode, effect3d=pkt.effect3d,
+            effect3dexplode=pkt.effect3dexplode, effect3dsound=pkt.effect3dsound,
+            itemid=pkt.itemid, layer=pkt.layer)
+      self.brain.event(brain.Event(brain.Event.EVT_EFFECT, **effect))
 
     elif isinstance(pkt, packets.PlaySoundPacket):
       assert self.lc
-      self.log.info('Ignoring sound packet')
+      # mode 0 is the only one the core sends; the coordinates are where it is
+      # played, which is what tells a private sound from one played at a place
+      self.brain.event(brain.Event(brain.Event.EVT_SOUND, mode=pkt.mode,
+          sound=pkt.model, x=pkt.x, y=pkt.y, z=pkt.z))
+
+    elif isinstance(pkt, packets.PlayMidiPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_MUSIC, music=pkt.music))
+
+    elif isinstance(pkt, packets.DamagePacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_DAMAGE, serial=pkt.serial,
+          damage=pkt.damage))
+
+    elif isinstance(pkt, packets.BuffPacket):
+      assert self.lc
+      # the removal form carries nothing but the icon it takes away
+      self.brain.event(brain.Event(brain.Event.EVT_BUFF, serial=pkt.serial,
+          icon=pkt.icon, show=pkt.show, duration=pkt.duration, cl_name=pkt.cl_name,
+          cl_descr=pkt.cl_descr, name_arguments=pkt.name_arguments,
+          desc_arguments=pkt.desc_arguments))
+
+    elif isinstance(pkt, packets.CharProfilePacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_CHAR_PROFILE, serial=pkt.serial,
+          title=pkt.title, utext=pkt.utext, etext=pkt.etext))
 
     elif isinstance(pkt, packets.SetWeatherPacket):
       self.log.info('Ignoring weather packet')
@@ -1663,7 +1697,7 @@ class Client(threading.Thread):
   @logincomplete
   def charProfile(self, serial, text=None):
     '''! Reads a character profile, or writes one when given a text (0xB8) '''
-    po = packets.CharProfileRequestPacket()
+    po = packets.CharProfilePacket()
     po.fill(serial, text)
     self.queue(po)
 
