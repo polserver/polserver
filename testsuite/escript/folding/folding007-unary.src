@@ -1,0 +1,33 @@
+// The unary operators, folded and unfolded. `!` on a Real literal used to fold to a Real zero
+// while the VM produces an Integer, which is the kind of divergence that survives every test
+// that only ever looks at one of the two forms. See specs/escript/03.
+
+var i := 2;
+var d := 2.1;
+var z := 0.0;
+var s := "abc";
+var t := true;
+var f := false;
+var min := -2147483647-1;
+
+print( "!int      " + CStr( !2 ) + " " + CStr( !i ) );
+print( "!real     " + CStr( !2.1 ) + " " + CStr( !d ) );
+print( "!zeroreal " + CStr( !0.0 ) + " " + CStr( !z ) );
+print( "!string   " + CStr( !"abc" ) + " " + CStr( !s ) );
+print( "!true     " + CStr( !true ) + " " + CStr( !t ) );
+print( "!false    " + CStr( !false ) + " " + CStr( !f ) );
+
+print( "-int      " + CStr( -( 2 ) ) + " " + CStr( -i ) );
+print( "-real     " + CStr( -( 2.1 ) ) + " " + CStr( -d ) );
+print( "-INT_MIN  " + CStr( -( -2147483647-1 ) ) + " " + CStr( -min ) );
+
+print( "~int      " + CStr( ~( 2 ) ) + " " + CStr( ~i ) );
+print( "~INT_MIN  " + CStr( ~( -2147483647-1 ) ) + " " + CStr( ~min ) );
+
+print( "++int     " + CStr( ++( 2 ) ) + " " + CStr( ++i ) );
+print( "--real    " + CStr( --( 2.1 ) ) + " " + CStr( --d ) );
+
+// TypeOf must match too: a fold that returns the right number of the wrong type still changes
+// what a script sees.
+print( "types     " + TypeOf( !2.1 ) + " " + TypeOf( !d ) + " " + TypeOf( -( 2 ) ) +
+       " " + TypeOf( -2 ) );

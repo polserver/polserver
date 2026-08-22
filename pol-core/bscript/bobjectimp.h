@@ -1,5 +1,6 @@
 #pragma once
 
+#include "bscript/tokens.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
 
@@ -306,6 +307,22 @@ inline BObjectImp::BObjectType BObjectImp::type() const
 {
   return type_;
 }
+
+/**
+ * Decides what a binary operator means for an operand pair that no type implemented a rule for,
+ * i.e. one where the dispatch came back empty. See specs/escript/15.
+ *
+ * A Boolean counts as 1 or 0 in arithmetic, so the operation is retried through the numeric rules
+ * rather than restated here; `+` with a String on either side concatenates, which is what a String
+ * on the left already did on its own. Anything else has no meaning, and the result is an error
+ * naming the operator and both types.
+ *
+ * `no_rule_message` is filled in only when that error branch was taken, and is left empty
+ * otherwise, so the caller can both test it and report it in its own idiom: a compile-time warning
+ * from the optimizer, a log line naming script and PC from the VM. The policy stays in one place.
+ */
+BObjectImp* apply_operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right,
+                                     std::string* no_rule_message );
 
 namespace
 {

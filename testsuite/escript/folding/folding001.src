@@ -1,0 +1,34 @@
+// Constant folding must agree with the VM. Every line below is the same expression twice: once
+// with literal operands, which the optimizer folds at compile time, and once through variables,
+// which the VM evaluates. The two halves of a line must always match.
+//
+// These are the comparisons that used to disagree: the folder compared int-to-float and
+// float-to-float with a tolerance while BLong::operator== compared exactly, and `<` excluded
+// no tolerance at all, so `==` and `>=` could contradict each other. See specs/escript/03.
+
+var two := 2;
+var over := 2.000000001;
+var under := 1.999999999;
+var twof := 2.0;
+
+print( "int==float   " + ( 2 == 2.000000001 ) + ( two == over ) );
+print( "int!=float   " + ( 2 != 2.000000001 ) + ( two != over ) );
+print( "int<=float   " + ( 2 <= 1.999999999 ) + ( two <= under ) );
+print( "int>=float   " + ( 2 >= 2.000000001 ) + ( two >= over ) );
+print( "int<float    " + ( 2 < 2.000000001 ) + ( two < over ) );
+print( "int>float    " + ( 2 > 1.999999999 ) + ( two > under ) );
+
+print( "float==int   " + ( 2.000000001 == 2 ) + ( over == two ) );
+print( "float>int    " + ( 2.000000001 > 2 ) + ( over > two ) );
+print( "float>=int   " + ( 1.999999999 >= 2 ) + ( under >= two ) );
+
+print( "float==float " + ( 2.0 == 2.000000001 ) + ( twof == over ) );
+print( "float<float  " + ( 2.0 < 2.000000001 ) + ( twof < over ) );
+print( "float>=float " + ( 2.0 >= 2.000000001 ) + ( twof >= over ) );
+print( "float>float  " + ( 2.0 > 1.999999999 ) + ( twof > under ) );
+
+// Equality must not depend on which side the integer is on.
+print( "symmetric==  " + ( 2 == 2.000000001 ) + ( 2.000000001 == 2 ) );
+
+// Outside the tolerance nothing changes.
+print( "far apart    " + ( 2 == 2.1 ) + ( 2 < 2.1 ) + ( 2 > 2.1 ) );

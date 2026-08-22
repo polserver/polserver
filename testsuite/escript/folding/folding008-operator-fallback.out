@@ -1,0 +1,25 @@
+int+bool   3 3
+bool+int   3 3
+int-bool   1 1
+bool-int   -1 -1
+int*bool   2 2
+real+bool  3.5 3.5
+bool+real  3.5 3.5
+bool+bool  2 2
+false+int  2 2
+bool|int   3 3
+bool<<int  4 4
+-bool      -1 -1
+~bool      -2 -2
+-false     0 0
+str+bool   abctrue abctrue
+bool+str   trueabc trueabc
+int+str    2abc 2abc
+error{ errortext = "Operator + not supported for Integer and Error" }
+error{ errortext = "Operator + not supported for Integer and Uninit" }
+error{ errortext = "Operator + not supported for Integer and Array" }
+error{ errortext = "Operator - not supported for Integer and Array" }
+error{ errortext = "Operator << not supported for String and Integer" }
+Operator + not supported for Integer and Error
+int+=bool  3
+error{ errortext = "Operator + not supported for Integer and Uninit" }

@@ -9,7 +9,7 @@
 16: "bitnot int -6" (string)
 18: -6 (integer)
 20: "not dbl 0" (string)
-22: 0 (float)
+22: 0 (integer)
 24: "minus dbl -2.1" (string)
 26: -2.1 (float)
 28: "plusplus dbl 3.1" (string)

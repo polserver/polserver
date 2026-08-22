@@ -1,0 +1,67 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+
+program testoperatorreport()
+  return 1;
+endprogram
+
+// An operator applied to an operand pair no type has a rule for reports itself to pol.log, once,
+// with the script and PC. See specs/escript/15.
+//
+// The once is the point: POL's log queue is unbounded, so a no-rule operator inside a loop would
+// otherwise flood it. The report is deduplicated per compiled script, which is why this is the
+// only function in this file that provokes one -- a second one here would find nothing left to
+// report and would fail for a reason that has nothing to do with what it was testing.
+exported function no_rule_operator_reported_once()
+  var mark := log_mark();
+  if ( mark == error )
+    return mark;
+  endif
+
+  var uninitialized;
+  var first := 1 + uninitialized;
+  var second := 1 + uninitialized;
+
+  var expected := "Operator + not supported for Integer and Uninit";
+  if ( first.errortext != expected )
+    return $"expected an error naming the operator and types, got {first}";
+  endif
+  if ( second.errortext != expected )
+    return $"the second evaluation disagreed with the first: {second}";
+  endif
+
+  var res := flush_log();
+  if ( res == error )
+    return res;
+  endif
+
+  var lines := log_since( mark );
+  if ( lines == error )
+    return lines;
+  endif
+
+  var reports := array;
+  var i;
+  for ( i := 1; i <= lines.size(); ++i )
+    if ( lines[i].find( expected ) )
+      reports.append( lines[i] );
+    endif
+  endfor
+
+  if ( reports.size() != 1 )
+    return $"expected exactly one report, found {reports.size()}";
+  endif
+
+  // The report has to say where, or nobody can act on it.
+  if ( !reports[1].find( "test_operator_report" ) )
+    return $"report does not name the script: {reports[1]}";
+  endif
+  if ( !reports[1].find( "PC=" ) )
+    return $"report does not carry a PC: {reports[1]}";
+  endif
+
+  return 1;
+endfunction

@@ -8,6 +8,7 @@
 #ifndef BSCRIPT_EPROG_H
 #define BSCRIPT_EPROG_H
 
+#include <atomic>
 #include <iosfwd>
 #include <map>
 #include <stdio.h>
@@ -141,6 +142,9 @@ class EScriptProgram : public ref_counted
 public:
   EScriptProgram();
   unsigned nglobals;
+  // Set once when an operator with no rule for its operand pair is first reported from this
+  // program, so a no-rule operator inside a loop cannot flood the log.
+  std::atomic<bool> reported_operator_fallback{ false };
   unsigned expectedArgs;
   bool haveProgram;
   boost_utils::script_name_flystring name;

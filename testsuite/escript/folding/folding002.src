@@ -1,0 +1,44 @@
+// Integer arithmetic has no undefined cases: overflow wraps, shift counts are masked to 0-31,
+// and INT_MIN / -1 is INT_MIN rather than a hardware trap. Folding `(-2147483647-1) / -1` used
+// to crash ecompile outright, and evaluating it killed the running script. See specs/escript/03.
+//
+// As in folding001, each line is the folded form followed by the same expression through
+// variables.
+
+var min := -2147483647-1;
+var max := 2147483647;
+var mone := -1;
+var two := 2;
+var one := 1;
+
+print( "INT_MIN / -1  " + ( (-2147483647-1) / -1 ) + " " + ( min / mone ) );
+print( "INT_MIN % -1  " + ( (-2147483647-1) % -1 ) + " " + ( min % mone ) );
+print( "-INT_MIN      " + ( -(-2147483647-1) ) + " " + ( -min ) );
+print( "INT_MAX + 1   " + ( 2147483647 + 1 ) + " " + ( max + one ) );
+print( "INT_MIN - 1   " + ( (-2147483647-1) - 1 ) + " " + ( min - one ) );
+print( "INT_MAX * 2   " + ( 2147483647 * 2 ) + " " + ( max * two ) );
+
+var sixtyfour := 64;
+var thirtytwo := 32;
+var thirtyone := 31;
+var forty := 40;
+
+print( "64 << 32      " + ( 64 << 32 ) + " " + ( sixtyfour << thirtytwo ) );
+print( "64 >> 32      " + ( 64 >> 32 ) + " " + ( sixtyfour >> thirtytwo ) );
+print( "1 << 31       " + ( 1 << 31 ) + " " + ( one << thirtyone ) );
+print( "-1 >> 40      " + ( -1 >> 40 ) + " " + ( mone >> forty ) );
+print( "64 << -1      " + ( 64 << -1 ) + " " + ( sixtyfour << mone ) );
+
+// Dividing by a non-literal zero is still an error object, not a crash.
+var zero := 0;
+print( one / zero );
+print( one % zero );
+
+// The compound assignments go through a second set of operator overloads -- the ones that write
+// back into the left operand rather than returning a new object -- so they are covered separately.
+var a := -2147483647-1; a /= -1;         print( "INT_MIN /= -1 " + a );
+var b := -2147483647-1; b %= -1;         print( "INT_MIN %= -1 " + b );
+var c := 2147483647;    c += 1;          print( "INT_MAX += 1  " + c );
+var d := -2147483647-1; d -= 1;          print( "INT_MIN -= 1  " + d );
+var e := 2147483647;    e *= 2;          print( "INT_MAX *= 2  " + e );
+var g := 5;             g /= 0;          print( g );

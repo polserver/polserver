@@ -1,0 +1,3 @@
+// A literal division by zero is diagnosed, not folded: the VM answers it with an error object,
+// which has no literal form, and a script that spells it out cannot have meant it.
+print( 1 / 0 );
