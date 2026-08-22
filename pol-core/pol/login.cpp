@@ -230,7 +230,7 @@ void handle_A4( Network::Client* /*client*/, PKTIN_A4* /*msg*/ ) {}
 
 void handle_D9( Network::Client* client, PKTIN_D9* msg )
 {
-  PKTIN_D9 _msg;  // got crashes here under *nix -> modify a new local instance
+  PKTIN_D9 _msg = *msg;
   // Transform Little-Endian <-> Big-Endian
   _msg.instance = cfBEu32( msg->instance );              // Unique Instance ID of UO
   _msg.os_major = cfBEu32( msg->os_major );              // OS Major

@@ -78,6 +78,12 @@ element names of an array and for the keys of the script storage index, while mi
 the names of a script's exported and debug functions altogether.</change>
 		</entry>
 		<entry>
+			<date>08-22-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">inconsistency of ghost speech</change>
+			<change type="Fixed">client.clientinfo it was partially garbage</change>
+		</entry>
+		<entry>
 			<date>08-18-2026</date>
 			<author>Nando:</author>
 			<change type="Added">The core now names a thread it depends on that has stopped, or that is still<br/>
