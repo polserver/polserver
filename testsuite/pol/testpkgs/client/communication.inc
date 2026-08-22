@@ -31,6 +31,11 @@ const EVT_MUSIC := "music";
 const EVT_DAMAGE := "damage";
 const EVT_BUFF := "buff";
 const EVT_CHAR_PROFILE := "char_profile";
+// An animation played on a mobile. "cmd" says which of the two packets carried it: the older
+// 0x6E, or the 0xE2 that is the only one a 7.0.9.0 client is sent.
+const EVT_ANIMATION := "animation";
+const ANIM_PKT_OLD := 0x6E;
+const ANIM_PKT_NEW := 0xE2;
 // What the "kind" of an effect says the client should draw. Named for the field rather than for
 // the effect, because eScript identifiers are case insensitive and a case called
 // effect_stationary would collide with a constant called EFFECT_STATIONARY.

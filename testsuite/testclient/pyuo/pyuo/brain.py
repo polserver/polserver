@@ -222,6 +222,7 @@ class Event:
   EVT_DAMAGE = 125
   EVT_BUFF = 126
   EVT_CHAR_PROFILE = 127
+  EVT_ANIMATION = 128
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -270,6 +271,8 @@ class Event:
       return "buff"
     elif self.type==Event.EVT_CHAR_PROFILE:
       return "char_profile"
+    elif self.type==Event.EVT_ANIMATION:
+      return "animation"
     elif self.type==Event.EVT_CLOSE_WINDOW:
       return "close_window"
     elif self.type==Event.EVT_GUMP_REPLY:
