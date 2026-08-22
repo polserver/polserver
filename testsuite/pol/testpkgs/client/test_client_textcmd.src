@@ -1,0 +1,400 @@
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+// Built-in text commands. Anything a client says that begins with "." or "=" goes to
+// process_command, which first looks for a command script in the caller's command level and in
+// every level below it, and only then in the table of commands the core registers itself. Every
+// answer is an ordinary system message, so the whole conversation arrives as client speech.
+//
+// The built-in table is gated on the caller being within one command level of the highest one
+// defined, and config/cmds.cfg defines exactly two here, so every client qualifies without any
+// privilege setup. ".shutdown" is in that table as well and is never to be typed.
+
+var char;
+var char2;
+var clientcon := getClientConnection();
+
+program textcmdtests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Types a command at the shard as client 0. The queue is emptied first so nothing older can be
+// mistaken for an answer to it.
+function type_cmd( cmd )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := cmd, id := 0 } );
+  return 1;
+endfunction
+
+// Waits for a system message client 0 was sent, matched by its opening - most of them end in a
+// number or a name that is not worth pinning.
+function wait_sysmsg( prefix, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != 0 or ev.msg.find( prefix ) != 1 )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"the client was never told anything starting with \"{prefix}\"" );
+endfunction
+
+// Waits for such a message and answers whether it came, for the cases that have nothing to read
+// out of it.
+function expect_sysmsg( prefix )
+  var ev := wait_sysmsg( prefix );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+// Types a command and waits for what it answers with.
+function cmd_answers( cmd, prefix )
+  type_cmd( cmd );
+  return expect_sysmsg( prefix );
+endfunction
+
+// Types a command that answers nothing and asserts it was recognized all the same: refusing a
+// command is the one thing every route through process_command has in common.
+function cmd_accepted( cmd )
+  type_cmd( cmd );
+  var res := no_speech_for( 0, $"Unknown command: {cmd}" );
+  if ( !res )
+    return ret_error( $"\"{cmd}\" was not recognized" );
+  endif
+  return 1;
+endfunction
+
+// Hands a cursor the object it asked for.
+function target_serial( serial )
+  clientcon.sendevent( struct{ todo := "target", arg := struct{ serial := serial }, id := 0 } );
+  return 1;
+endfunction
+
+exported function textcmd_unknown()
+  // Both prefixes reach process_command, and what it could not place is quoted back whole.
+  var res := cmd_answers( ".nosuchcommand", "Unknown command: .nosuchcommand" );
+  if ( !res )
+    return res;
+  endif
+  return cmd_answers( "=nosuchcommand", "Unknown command: =nosuchcommand" );
+endfunction
+
+exported function textcmd_procs()
+  var res := cmd_answers( ".procs", "Process Information:" );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "Running: " );
+  if ( !res )
+    return res;
+  endif
+  return expect_sysmsg( "Blocked: " );
+endfunction
+
+exported function textcmd_orphans()
+  var res := cmd_answers( ".orphans", "Unreaped orphans: " );
+  if ( !res )
+    return res;
+  endif
+  return expect_sysmsg( "EChrRef count: " );
+endfunction
+
+exported function textcmd_threads()
+  return cmd_answers( ".threads", "Child threads: " );
+endfunction
+
+exported function textcmd_constat()
+  // One line per client the shard is holding, numbered from zero - so there is always at least
+  // the line for the client that asked.
+  var res := cmd_answers( ".constat", "Connection statuses:" );
+  if ( !res )
+    return res;
+  endif
+  return expect_sysmsg( "0: " );
+endfunction
+
+exported function textcmd_armor()
+  // One line per armor zone of config/armrzone.cfg, naming what covers it or "Nothing".
+  var res := cmd_answers( ".armor", "Your armor coverage:" );
+  if ( !res )
+    return res;
+  endif
+  return expect_sysmsg( "Body: " );
+endfunction
+
+exported function textcmd_integrity()
+  // The item checks answer with their verdict; the character check only writes to the log.
+  var res := cmd_answers( ".integ_item", "Item integrity checks out OK!" );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_answers( ".i_s_item_integ", "Item integrity checks out OK!" );
+  if ( !res )
+    return res;
+  endif
+  return cmd_accepted( ".integ_chr" );
+endfunction
+
+exported function textcmd_log_profile()
+  var res := cmd_answers( ".log_profile", "Script profile written to logfile" );
+  if ( !res )
+    return res;
+  endif
+  return cmd_answers( ".log_profile_clear", "Script profile written to logfile and cleared" );
+endfunction
+
+exported function textcmd_silent_commands()
+  // Everything else in the table writes to the log, or sends packets that are not messages, and
+  // says nothing to the client.
+  var res := cmd_accepted( ".list_scripts" );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_accepted( ".list_crit" );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_accepted( ".heapcheck" );
+  if ( !res )
+    return res;
+  endif
+  // resends every character in visual range to the client, which already knows all of them
+  return cmd_accepted( ".resendchars" );
+endfunction
+
+exported function textcmd_ident( resmgr )
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"failed to create the item: {it}" );
+  endif
+  // the client can only answer a cursor with an object it has been told about
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".t_ident", "Select something to identify." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( it.serial );
+  var ev := wait_sysmsg( "Serial: 0x" );
+  if ( !ev )
+    return ev;
+  endif
+  // the serial twice, as upper case hex and as a signed decimal, then the graphic the client
+  // named - which is zero here, because a test client answers a cursor with the serial alone
+  if ( !ev.msg.find( $", {it.serial}, ObjType 0x" ) )
+    return ret_error( $"identifying 0x{it.serial:x} answered \"{ev.msg}\"" );
+  endif
+  return 1;
+endfunction
+
+exported function textcmd_repdata()
+  // Everything the reputation system holds about a mobile, in one listing.
+  char2.setcriminal( 1 );
+  char2.setaggressorto( char );
+  char2.setlawfullydamagedto( char );
+
+  var res := cmd_answers( ".i_repdata", "Please target a mobile to display repdata for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( char2.serial );
+
+  res := expect_sysmsg( "Mobile is criminal for " );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"Aggressor to {char.name} for " );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"Lawfully Damaged {char.name} for " );
+  if ( !res )
+    return res;
+  endif
+  // making a mobile criminal schedules the task that will clear it again
+  res := expect_sysmsg( "Repsys task is active, runs in " );
+
+  char2.clearaggressorto();
+  char2.clearlawfullydamagedto();
+  char2.setcriminal( 0 );
+  return res;
+endfunction
+
+exported function textcmd_repdata_murderer()
+  // A murderer is reported as one and its criminal standing is not mentioned at all.
+  char2.setmurderer( 1 );
+  char2.setcriminal( 1 );
+
+  var res := cmd_answers( ".i_repdata", "Please target a mobile to display repdata for." );
+  if ( !res )
+    char2.setmurderer( 0 );
+    char2.setcriminal( 0 );
+    return res;
+  endif
+  target_serial( char2.serial );
+  res := expect_sysmsg( "Mobile is a murderer." );
+
+  char2.setmurderer( 0 );
+  char2.setcriminal( 0 );
+  return res;
+endfunction
+
+exported function textcmd_packetlog_self()
+  // Without the plogany privilege both commands work on the caller's own client, and each of
+  // them answers differently the second time it is given.
+  var res := cmd_answers( ".startlog", "I/O log file opened." );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_answers( ".startlog", "I/O log was already open." );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_answers( ".stoplog", "I/O log file closed." );
+  if ( !res )
+    return res;
+  endif
+  return cmd_answers( ".stoplog", "Packet Logging not enabled." );
+endfunction
+
+exported function textcmd_packetlog_target( resmgr )
+  // With it, both ask for a target instead and work on whoever is picked.
+  var res := resmgr.GrantPrivilege( char, "plogany" );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".startlog", "Please target a player to start packet logging for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( char2.serial );
+  res := expect_sysmsg( $"I/O log file opened for {char2.name}" );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".startlog", "Please target a player to start packet logging for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( char2.serial );
+  res := expect_sysmsg( $"I/O log was already open for {char2.name}" );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".stoplog", "Please target a player to stop packet logging for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( char2.serial );
+  res := expect_sysmsg( $"I/O log file closed for {char2.name}" );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".stoplog", "Please target a player to stop packet logging for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( char2.serial );
+  return expect_sysmsg( $"Packet Logging not enabled for {char2.name}" );
+endfunction
+
+exported function textcmd_packetlog_offline( resmgr )
+  // A mobile with no client is picked up by the cursor and then quietly dropped: only a
+  // connected one has packets to log.
+  var res := resmgr.GrantPrivilege( char, "plogany" );
+  if ( !res )
+    return res;
+  endif
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y + 2, char.z );
+  if ( !npc )
+    return npc;
+  endif
+  res := client_finds_obj( clientcon, 0, npc.serial );
+  if ( !res )
+    return res;
+  endif
+
+  res := cmd_answers( ".startlog", "Please target a player to start packet logging for." );
+  if ( !res )
+    return res;
+  endif
+  target_serial( npc.serial );
+  return no_speech_for( 0, $"I/O log file opened for {npc.name}" );
+endfunction
+
+exported function textcmd_script()
+  // A command script is looked for before the built-in table. It is handed the character that
+  // typed the command, everything typed after the command name, and the language code the
+  // client's speech carried.
+  var res := cmd_answers( ".tc_echo hello world", "tc_echo [hello world] [ENU]" );
+  if ( !res )
+    return res;
+  endif
+  // no text after the name is an empty string, not a missing parameter
+  res := cmd_answers( ".tc_echo", "tc_echo [] [ENU]" );
+  if ( !res )
+    return res;
+  endif
+  // a script without a program block is started all the same and does nothing
+  return cmd_accepted( ".tc_quiet" );
+endfunction
+
+exported function textcmd_script_refusals()
+  // Names that could name a device rather than a file are refused before the search, and so are
+  // names holding a character a filename may not have. Neither is in the built-in table either,
+  // so both come back as unknown commands.
+  var res := cmd_answers( ".aux", "Unknown command: .aux" );
+  if ( !res )
+    return res;
+  endif
+  res := cmd_answers( ".con", "Unknown command: .con" );
+  if ( !res )
+    return res;
+  endif
+  return cmd_answers( ".tc*echo", "Unknown command: .tc*echo" );
+endfunction
+
+exported function textcmd_script_cmdlevel()
+  // A character searches its own command level and every level below it, so a command script one
+  // level up is out of reach until the caller is raised to it.
+  var res := cmd_answers( ".tc_level", "Unknown command: .tc_level" );
+  if ( !res )
+    return res;
+  endif
+
+  char.cmdlevel := 1;
+  res := cmd_answers( ".tc_level", "tc_level ran" );
+  char.cmdlevel := 0;
+  return res;
+endfunction

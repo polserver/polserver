@@ -88,6 +88,16 @@ const DIALOG_TEXTENTRY := "textentry";
 const DIALOG_POPUP := "popup";
 const DIALOG_COLOR := "color";
 const DIALOG_RESURRECT := "resurrect";
+// The ack of the client_packet and raw_packet todos: the packet is on its way down the game
+// socket. What sends them is clientpkt.inc.
+const EVT_PACKET_SENT := "packet_sent";
+// One mobile's name, which is what the all names request of a 0x98 packet is answered with.
+const EVT_ALL_NAMES := "all_names";
+// Where the rest of the party or the guild is, answering a worldmap query. Carries which of the
+// two it is, whether positions came with it, and the members themselves.
+const EVT_WORLDMAP := "worldmap";
+const WORLDMAP_PARTY := 0x01;
+const WORLDMAP_GUILD := 0x02;
 // The dialogs themselves, as the client sees them arrive. Each blocks the script that opened
 // it until the client answers, so the client always answers - see the arming todo above for
 // saying what with.

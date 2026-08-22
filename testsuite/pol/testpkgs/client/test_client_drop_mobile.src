@@ -1,0 +1,163 @@
+use os;
+use uo;
+
+include "trade";
+
+// Dropping an item onto a mobile, which is two different things depending on what the mobile is.
+// Onto a player it opens a trade window, and the trade tests take that from there; onto an NPC it
+// is a gift, which the core puts away in a storage container of its own and tells the NPC's script
+// about. What is left here is the gift half and the three refusals in front of both.
+
+// The NPC that takes what it is given says this back, see ai_given.src.
+function given_text( item, giver )
+  return $"given 0x{item.serial:x} by {giver.name}";
+endfunction
+
+// Waits for anything the given client hears from a mobile, whatever it says.
+function wait_heard_from( id, serial, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or CInt( ev.serial ) != serial )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} heard nothing from 0x{serial:x} within {timeout}s" );
+endfunction
+
+// Puts an item in client 0's hand, ready to be dropped somewhere.
+function held_item( resmgr, objtype := 0xE75 )
+  var item := resmgr.CreateItemInContainer( char.backpack, objtype );
+  if ( !item )
+    return ret_error( $"failed to create the item: {item}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, item.serial, char.backpack.serial );
+  if ( !res )
+    return res;
+  endif
+  res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  return item;
+endfunction
+
+program dropmobiletests()
+  return trade_setup();
+endprogram
+
+exported function drop_on_npc_is_a_gift( resmgr )
+  // A gift goes into a container the core makes for it - one of five hundred it keeps under a
+  // "GivenItems" storage area - and the NPC's script is told who handed it over.
+  //
+  // What happens next is the event's doing rather than the drop's: an AI script that does nothing
+  // with the item is taken to have refused it, and when the event is let go the core wipes the
+  // three properties it stamped on the item and puts it back in the giver's pack.
+  var npc := resmgr.CreateNPCFromTemplate( ":testclient:test_taker", char.x + 1, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+  var item := held_item( resmgr );
+  if ( !item )
+    return item;
+  endif
+
+  var res := drop_on_mobile( item.serial, npc.serial );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_heard_from( 0, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.msg != given_text( item, char ) )
+    return ret_error( $"the npc said \"{ev.msg}\"" );
+  endif
+
+  // the npc kept nothing, so the item finds its way home
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( item.container and item.container.serial == char.backpack.serial )
+      break;
+    endif
+    Sleepms( 100 );
+  endwhile
+  if ( !item.container or item.container.serial != char.backpack.serial )
+    return ret_error( $"the item ended up in {item.container}" );
+  endif
+  // and the marks the core put on it while the script had it are gone again
+  if ( GetObjProperty( item, "GivenBy" ) )
+    return ret_error( "GivenBy outlived the event" );
+  endif
+  return 1;
+endfunction
+
+exported function drop_on_npc_that_wants_nothing( resmgr )
+  // An NPC whose script never asked for the event is not given anything: the drop is refused and
+  // the item stays where it was.
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x + 1, char.y + 1, char.z );
+  if ( !npc )
+    return npc;
+  endif
+  var item := held_item( resmgr );
+  if ( !item )
+    return item;
+  endif
+
+  var res := drop_on_mobile_rejected( item.serial, npc.serial );
+  if ( !res )
+    return res;
+  endif
+  if ( GetObjProperty( item, "GivenTo" ) )
+    return ret_error( "the item was given away all the same" );
+  endif
+  return 1;
+endfunction
+
+exported function drop_on_nobody( resmgr )
+  // A serial no mobile has. The client is told the move failed and nothing else happens.
+  var item := held_item( resmgr );
+  if ( !item )
+    return item;
+  endif
+  return drop_on_mobile_rejected( item.serial, 0x7FFFFFF0 );
+endfunction
+
+exported function drop_on_mobile_out_of_reach( resmgr )
+  // Two tiles is as far as an arm reaches, and the check is the server's - the client is free to
+  // ask for anything.
+  var npc := resmgr.CreateNPCFromTemplate( ":testclient:test_taker", char.x + 6, char.y, char.z );
+  if ( !npc )
+    return npc;
+  endif
+  var item := held_item( resmgr );
+  if ( !item )
+    return item;
+  endif
+
+  var res := drop_on_mobile_rejected( item.serial, npc.serial );
+  if ( !res )
+    return res;
+  endif
+
+  // and the same npc takes it once it is standing next to the character. The refused drop put the
+  // item back where it came from, so it has to be picked up again.
+  MoveObjectToLocation( npc, char.x + 1, char.y, char.z, flags := MOVEOBJECT_FORCELOCATION );
+  res := lift_item( item.serial );
+  if ( !res )
+    return res;
+  endif
+  res := drop_on_mobile( item.serial, npc.serial );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_heard_from( 0, npc.serial );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.msg != given_text( item, char ) )
+    return ret_error( $"the npc said \"{ev.msg}\"" );
+  endif
+  return 1;
+endfunction

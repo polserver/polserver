@@ -1,0 +1,9 @@
+use os;
+use uo;
+
+// The core starts this when a client presses the quest button. It is handed the character that
+// pressed it and nothing else, and answers that character so a test can see the button arrived.
+
+program questbutton( who )
+  SendSysMessage( who, "questbutton ran" );
+endprogram

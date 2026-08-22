@@ -13,6 +13,7 @@ import collections
 
 from pyuo import client
 from pyuo import brain
+from pyuo import packets
 from pyuo.brain import Event
 
 class TestBrain(brain.Brain):
@@ -53,6 +54,97 @@ class TestBrain(brain.Brain):
     here is the only reason its main loop ever has to wake up early'''
     with self.todosLock:
       return len(self.todos) > 0
+
+  def sendClientPacket(self, arg):
+    '''! Sends one packet the client knows how to build
+    @param arg: what to send. "packet" names it, the rest are that packet's own
+                fields. Everything here is a well formed packet: a deliberately
+                wrong one goes out through the raw_packet todo instead.
+    '''
+    name = arg['packet']
+    if name == "say_ascii":
+      # a text carried as bytes is how a case says something no string would hold
+      self.client.sayAscii(arg['raw'] if 'raw' in arg else arg['text'],
+        int(arg.get('type', 0)), int(arg.get('color', 50)), int(arg.get('font', 3)))
+    elif name == "bulletin_board":
+      self.client.bulletinBoard(int(arg['sub']), arg.get('body', []))
+    elif name == "rename":
+      self.client.renameChar(int(arg['serial']), arg['name'])
+    elif name == "all_names":
+      self.client.requestAllNames(int(arg['serial']))
+    elif name == "char_profile":
+      self.client.charProfile(int(arg['serial']), arg.get('text', None))
+    elif name == "chat_button":
+      self.client.chatButton(arg.get('name', ''))
+    elif name == "ultima_messenger":
+      self.client.ultimaMessenger(int(arg['serial']), int(arg.get('serial2', 0)))
+    elif name == "unknown_c4":
+      self.client.unknownC4(int(arg['serial']), int(arg.get('intensity', 0)))
+    elif name == "uo_store":
+      self.client.openUOStore()
+    elif name == "public_house":
+      self.client.publicHouseContent(int(arg.get('flag', 1)))
+    elif name == "client_type":
+      self.client.announceClientType(int(arg['type']))
+    elif name == "seed":
+      self.client.sendSeed(arg.get('version', None))
+    elif name == "worldmap":
+      locations = arg.get('locations', None)
+      self.client.worldmapQuery(int(arg['sub']),
+        None if locations is None else int(locations))
+    elif name == "tooltips":
+      self.client.requestTooltips([int(s) for s in arg['serials']])
+    elif name == "popup_request":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_POPUP_REQUEST,
+        int(arg['serial']))
+    elif name == "object_cache":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_MEGACLILOC,
+        int(arg['serial']), 0)
+    elif name == "house_design":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_HOUSE_DESIGN,
+        int(arg['serial']))
+    elif name == "stat_lock":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_STATLOCK,
+        int(arg['stat']), int(arg['mode']))
+    elif name == "close_status":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_CLOSESTATUS,
+        int(arg['serial']))
+    elif name == "screen_size":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_SCREENSIZE,
+        int(arg['width']), int(arg['height']))
+    elif name == "se_spam":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_SESPAM, int(arg['flag']))
+    elif name == "flying":
+      self.client.generalInfo(packets.GeneralInfoPacket.SUB_TOGGLE_FLYING)
+    elif name == "answer_target":
+      # eScript ints are signed, so a cursor id with its top bit set arrives negative
+      self.client.answerTarget(int(arg['serial']), int(arg['cursorid']) & 0xffffffff,
+        int(arg.get('type', 0)))
+    elif name == "version":
+      # the text of a version, which the core reads again every time it arrives
+      self.client.sendVersion(arg['text'])
+    elif name == "house_command":
+      # The 0xD7 family: a serial and a subcommand, then whatever that
+      # subcommand carries, in the order the packet wants it - a graphic and an
+      # offset, then a z, or a floor number on its own. A serial that is not the
+      # sender's own is how a case drives the spoof check the family shares.
+      args = []
+      if arg.get('graphic', None) is not None:
+        args.append(int(arg['graphic']))
+        args.append(int(arg['x']))
+        args.append(int(arg['y']))
+      if arg.get('z', None) is not None:
+        args.append(int(arg['z']))
+      if arg.get('floor', None) is not None:
+        args.append(int(arg['floor']))
+      serial = arg.get('serial', None)
+      self.client.houseCommand(int(arg['sub']), *args,
+        serial = None if serial is None else int(serial))
+    elif name == "general_info":
+      # a subcommand nothing handles, which the core still has to read past
+      self.client.generalInfo(int(arg['sub']), arg.get('body', []))
+    else:
+      raise RuntimeError("unknown client packet '{}'".format(name))
 
   def processTodos(self):
     with self.todosLock:
@@ -231,21 +323,6 @@ class TestBrain(brain.Brain):
         if arg.get('canloot', None) is not None:
           args.append(int(arg['canloot']))
         self.client.party(int(arg['partycmd']), *args)
-      elif todo=="house":
-        # the arguments a house command takes, in the order the packet wants
-        # them: a graphic, an offset, then a z, or a floor number on its own
-        args=[]
-        if arg.get('graphic', None) is not None:
-          args.append(int(arg['graphic']))
-          args.append(int(arg['x']))
-          args.append(int(arg['y']))
-        if arg.get('z', None) is not None:
-          args.append(int(arg['z']))
-        if arg.get('floor', None) is not None:
-          args.append(int(arg['floor']))
-        serial=arg.get('serial', None)
-        self.client.houseCommand(int(arg['sub']), *args,
-          serial = None if serial is None else int(serial))
       elif todo=="cast":
         # a book serial picks the "cast out of this book" form of the text
         # command, and select the spellbook gump's route instead of either
@@ -258,8 +335,29 @@ class TestBrain(brain.Brain):
       elif todo=="map_pin":
         self.client.mapPin(int(arg['serial']), int(arg['action']),
           int(arg.get('pinidx', 0)), int(arg.get('x', 0)), int(arg.get('y', 0)))
-      elif todo=="client_version":
-        self.client.sendVersion(arg)
+      elif todo=="client_packet":
+        # One packet the client knows how to build, named by what it is. Acked,
+        # because the test has to know it is on its way before it asserts what it
+        # did - the todo travels the test connection while the packet goes down
+        # the game socket. A caller already expecting something back asks for no
+        # ack, and none is raised: an unwanted one would be thrown away in front
+        # of what the case is really waiting for.
+        self.sendClientPacket(arg)
+        if arg.get('ack', 1):
+          self.server.addevent(
+            brain.Event(brain.Event.EVT_PACKET_SENT,
+              clientid = self.id
+              ))
+      elif todo=="raw_packet":
+        # Caller supplied bytes on the authenticated game socket, for a packet that
+        # is deliberately wrong - one cut short, or one whose fields say something
+        # it does not carry. A packet that is merely one the client has no method
+        # for belongs in client_packet above.
+        self.client.rawPacket(arg)
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_PACKET_SENT,
+            clientid = self.id
+            ))
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -289,8 +387,6 @@ class TestBrain(brain.Brain):
             res = res is not None))
       elif todo=="disable_item_logging":
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
-      elif todo=="aos_tooltip":
-        self.client.getAOSTooltip(arg[0],arg[1])
       elif todo=="auto_delete_objs":
         self.client.auto_delete_objs = arg
         self.server.addevent(
@@ -640,8 +736,16 @@ class PolServer:
       else:
         res['commands']=ev.commands
         res['texts']=ev.texts
-    elif ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY:
+    elif (ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY or
+        ev.type==Event.EVT_PACKET_SENT):
       pass
+    elif ev.type==Event.EVT_WORLDMAP:
+      res['subcmd']=ev.subcmd
+      res['locations']=1 if ev.locations else 0
+      res['members']=ev.members
+    elif ev.type==Event.EVT_ALL_NAMES:
+      res['serial']=ev.serial
+      res['name']=ev.name
     elif ev.type==Event.EVT_VENDOR_SELL_LIST:
       res['serial']=ev.serial
       res['items']=ev.items
@@ -677,6 +781,7 @@ class PolServer:
       res['windowtype']=ev.windowtype
       res['serial']=ev.serial
     elif ev.type==Event.EVT_AOS_TOOLTIP:
+      res['serial']=ev.serial
       res['text']=ev.text
     elif ev.type==Event.EVT_OPEN_PAPERDOLL:
       res['serial']=ev.serial

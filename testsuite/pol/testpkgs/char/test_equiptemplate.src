@@ -1,0 +1,94 @@
+use os;
+use uo;
+
+include "testutil";
+
+// EquipFromTemplate: the only script route into the equipment templates of config/equip.cfg. A
+// template lists item graphics under any of Equip, Weapon and Armor, each of them optionally
+// followed by a colour, and whatever the character cannot wear is destroyed rather than dropped.
+
+program equiptemplate()
+  return 1;
+endprogram
+
+exported function equip_template_dresses( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 43, 43, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := EquipFromTemplate( npc, "StartingEquipment" );
+  if ( res != 1 )
+    return ret_error( $"dressing an npc answered {res}" );
+  endif
+  // shirt, pants and hair, on the layers the generated tiledata gives those graphics
+  foreach layer in ( { 5, 4, 11 } )
+    var worn := GetEquipmentByLayer( npc, layer );
+    if ( !worn )
+      return ret_error( $"layer {layer} is empty after the template ran" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+exported function equip_template_variants( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 44, 44, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := EquipFromTemplate( npc, "TestEquipment" );
+  if ( res != 1 )
+    return ret_error( $"the mixed template answered {res}" );
+  endif
+
+  var shirt := GetEquipmentByLayer( npc, 5 );
+  if ( !shirt )
+    return ret_error( "the Equip line put nothing on the shirt layer" );
+  endif
+  if ( shirt.color != 0x21 )
+    return ret_error( $"the shirt was created in color 0x{shirt.color:x}, expected 0x21" );
+  endif
+  // Weapon and Armor are read the same way Equip is
+  if ( !GetEquipmentByLayer( npc, 1 ) )
+    return ret_error( "the Weapon line put nothing on the hand layer" );
+  endif
+  if ( !GetEquipmentByLayer( npc, 3 ) )
+    return ret_error( "the Armor line put nothing on the shoe layer" );
+  endif
+
+  // Every layer is taken now, so a second run can wear none of it and destroys the lot: the
+  // character is left exactly as it was.
+  res := EquipFromTemplate( npc, "TestEquipment" );
+  if ( res != 1 )
+    return ret_error( $"the second run answered {res}" );
+  endif
+  if ( GetEquipmentByLayer( npc, 5 ).serial != shirt.serial )
+    return ret_error( "the second run replaced what the character was already wearing" );
+  endif
+  return 1;
+endfunction
+
+exported function equip_template_refusals( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 45, 45, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := EquipFromTemplate( npc, "NoSuchTemplate" );
+  if ( res )
+    return ret_error( "a template that does not exist was accepted" );
+  endif
+  if ( res.errortext != "Equipment template not found" )
+    return ret_error( $"unexpected error for an unknown template: {res.errortext}" );
+  endif
+
+  res := EquipFromTemplate( "blubb", "StartingEquipment" );
+  if ( res )
+    return ret_error( "succeeded given a string instead of a character" );
+  endif
+  if ( res.errortext != "Invalid parameter" )
+    return ret_error( $"unexpected error for a string: {res.errortext}" );
+  endif
+  return 1;
+endfunction

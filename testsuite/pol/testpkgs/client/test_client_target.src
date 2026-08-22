@@ -1,0 +1,201 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+include "communication";
+include "clientpkt";
+
+// The target cursor from the client's side: what the core does with the 0x6C a client answers a
+// cursor with. The cursor itself is opened from a script, so what these cases are about is
+// everything the core refuses to act on - a cursor that is not the one it is waiting for, and the
+// states a character may not target from.
+
+var char;
+var char2;
+var clientcon := getClientConnection();
+
+program targettests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Opens a cursor from a script, which is where every cursor a client sees comes from: Target()
+// parks the script that calls it, so the cursor needs one of its own. Hands back that script.
+function start_target()
+  // a case that failed with its cursor still open leaves the character unable to be given another
+  CancelTarget( char );
+  Clear_Event_Queue();
+  var script := Start_Script( ":testclient:targetwaiter", GetProcess() );
+  if ( !script )
+    return ret_error( $"could not start the target script: {script}" );
+  endif
+
+  // It says when it is about to ask for the cursor - it cannot say so afterwards, because Target()
+  // parks it until the cursor is answered - and the client's own events share this queue. What
+  // says the cursor is really out there is the character carrying one, so that is what is waited
+  // for: answering a cursor the core has not sent yet is read as an out of sequence one and
+  // silently dropped.
+  var deadline := ReadMillisecondClock() + 10000;
+  var announced := 0;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !announced )
+      var ev := Wait_For_Event( 1 );
+      if ( ev and ev.type == "cursor_sent" )
+        announced := 1;
+      endif
+      continue;
+    endif
+    if ( char.cursor )
+      return script;
+    endif
+    Sleepms( 50 );
+  endwhile
+  script.kill();
+  return ret_error( "the target script never opened a cursor" );
+endfunction
+
+// Asks the client to answer whatever cursor is open with the given object. Nothing is waited for
+// here on purpose: the ack, the refusal and the target script's result all arrive in this one
+// queue, so they are collected together below.
+function answer_cursor( serial )
+  clientcon.sendevent( struct{ todo := "target", arg := struct{ serial := serial }, id := 0 } );
+  return 1;
+endfunction
+
+// Collects everything a refused answer produces, in one loop: the client's ack that it answered,
+// the message the core says out loud, and the result the target script was handed back. A wait for
+// any one of them throws the other two away.
+//
+// The script really is woken by the refusal - the core cancels the cursor, which informs the
+// cursor's owner with nothing - so a case can insist on all three.
+function collect_refusal( prefix := "", timeout := 15 )
+  var acked := 0;
+  var said := 0;
+  var answered := 0;
+  var res := 0;
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev )
+      continue;
+    endif
+    if ( ev.type == "targeted" )
+      answered := 1;
+      res := ev.res;
+    elseif ( ev.type == EVT_TARGET and CInt( ev.id ) == 0 )
+      acked := 1;
+    elseif ( prefix and ev.type == EVT_SPEECH and CInt( ev.id ) == 0 and ev.msg.find( prefix ) == 1 )
+      said := 1;
+    endif
+    if ( acked and answered and ( said or !prefix ) )
+      return struct{ res := res };
+    endif
+  endwhile
+  if ( !acked )
+    return ret_error( "the client never answered the cursor" );
+  endif
+  if ( !answered )
+    return ret_error( "the target script was left waiting for its cursor" );
+  endif
+  return ret_error( $"the client was never told \"{prefix}\"" );
+endfunction
+
+// Waits for the character to have no cursor left, which is what a refused answer does to it.
+function cursor_is_closed( timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !char.cursor )
+      return 1;
+    endif
+    Sleepms( 50 );
+  endwhile
+  return ret_error( "the cursor is still open" );
+endfunction
+
+// Takes the target script away again, whatever the case had to say.
+function drop_target( script, res )
+  CancelTarget( char );
+  script.kill();
+  return res;
+endfunction
+
+exported function target_out_of_sequence()
+  // A 0x6C carrying a cursor id the core is not waiting for is read as a cancel, and the cursor is
+  // closed.
+  //
+  // Whether the script that asked for the cursor is woken as well is not asserted here, and that
+  // is deliberate: an answer that arrives while the core has no cursor registered at all is
+  // dropped by the dispatcher before any cursor object sees it, and the two cases are told apart
+  // only by timing. The refusals below, which happen with the cursor registered, do wake it.
+  var script := start_target();
+  if ( !script )
+    return script;
+  endif
+
+  var res := send_client_packet( clientcon, 0, struct{ packet := "answer_target",
+                                                       serial := char2.serial,
+                                                       cursorid := 0xDEADBEEF } );
+  if ( !res )
+    return drop_target( script, res );
+  endif
+  return drop_target( script, cursor_is_closed() );
+endfunction
+
+exported function target_while_paralyzed()
+  // A paralyzed character may not target anything: it is told so above its own head, the cursor is
+  // closed, and the script that asked for it is woken with nothing.
+  var script := start_target();
+  if ( !script )
+    return script;
+  endif
+
+  char.setparalyzed( 1 );
+  answer_cursor( char2.serial );
+  var got := collect_refusal( "I am paralyzed and cannot do that." );
+  char.setparalyzed( 0 );
+  if ( !got )
+    return drop_target( script, got );
+  endif
+  if ( got.res )
+    return drop_target( script, ret_error( "the cursor was answered all the same" ) );
+  endif
+  return drop_target( script, cursor_is_closed() );
+endfunction
+
+exported function target_while_frozen()
+  // The same for a frozen one, which is a different flag and a different message.
+  var script := start_target();
+  if ( !script )
+    return script;
+  endif
+
+  char.frozen := 1;
+  answer_cursor( char2.serial );
+  var got := collect_refusal( "I am frozen and cannot do that." );
+  char.frozen := 0;
+  if ( !got )
+    return drop_target( script, got );
+  endif
+  if ( got.res )
+    return drop_target( script, ret_error( "the cursor was answered all the same" ) );
+  endif
+  return drop_target( script, cursor_is_closed() );
+endfunction
