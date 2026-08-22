@@ -1,0 +1,41 @@
+// Class instances are reference types, so one can reach itself. The size walk has no other
+// stop condition, so without a cycle guard it recurses until the stack overflows - and SizeOf
+// is reachable from any script, so that would be a way to take a shard down.
+
+// the estimate is platform dependent, so only that it terminates and is positive is assertable
+
+// the short loop: a member pointing straight back at the instance holding it
+class Node()
+  function Node( this )
+    this.self := this;
+  endfunction
+endclass
+
+print( SizeOf( Node() ) > 0 );
+
+// the long way round: two instances referring to each other
+class Pair()
+  function Pair( this )
+    this.other := uninit;
+  endfunction
+
+  function link( this, other )
+    this.other := other;
+  endfunction
+endclass
+
+var a := Pair();
+var b := Pair();
+a.link( b );
+b.link( a );
+print( SizeOf( a ) > 0 );
+
+// an instance reached twice down the same walk is not a cycle and must still be measured
+class Holder()
+  function Holder( this, left, right )
+    this.left := left;
+    this.right := right;
+  endfunction
+endclass
+
+print( SizeOf( Holder( Pair(), Pair() ) ) > 0 );

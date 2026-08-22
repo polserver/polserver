@@ -67,11 +67,8 @@ size_t ObjArray::sizeEstimate() const
   {
     size += elem.sizeEstimate();
   }
+  // memsize() of a container of strings already counts each string's capacity.
   size += Clib::memsize( name_arr );
-  for ( const auto& elem : name_arr )
-  {
-    size += elem.capacity();
-  }
   return size;
 }
 

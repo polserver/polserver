@@ -8,6 +8,7 @@
 #include "clib/scriptstatus.h"
 #include "clib/stlutil.h"
 #include "plib/systemstate.h"
+#include "pol/globals/memoryusage.h"
 #include "pol/globals/state.h"
 #include "pol/polsig.h"
 #include "pol/uoexec.h"
@@ -65,16 +66,15 @@ void ScriptScheduler::deinitialize()
 
 ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
 {
-  Memory usage;
-  memset( &usage, 0, sizeof( usage ) );
+  Memory usage{};
 
   usage.script_size = sizeof( int )            /*priority_divide*/
                       + sizeof( unsigned int ) /*next_pid*/
                       + Clib::memsize( pidlist );
+  // memsize() of a map keyed by string already counts each key's capacity.
   usage.scriptstorage_size = Clib::memsize( scrstore );
   for ( const auto& script : scrstore )
   {
-    usage.scriptstorage_size += script.first.capacity();
     if ( script.second.get() != nullptr )
       usage.scriptstorage_size += script.second->sizeEstimate();
   }
@@ -90,10 +90,11 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( exec != nullptr )
     {
-      usage.script_size += exec->sizeEstimate();
+      // Measured once and reused: sizeEstimate() walks the executor's whole object graph.
+      size_t size = exec->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {} \n", exec->scriptname(),
-                        exec->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(), size );
     }
   }
   usage.script_count += runlist.size();
@@ -105,10 +106,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( exec != nullptr )
     {
-      usage.script_size += exec->sizeEstimate();
+      size_t size = exec->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(),
-                        exec->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", exec->scriptname(), size );
     }
   }
   usage.script_count += ranlist.size();
@@ -120,10 +121,11 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold.second != nullptr )
     {
-      usage.script_size += hold.second->sizeEstimate();
+      size_t size = hold.second->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
         fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold.second->scriptname(),
-                        hold.second->sizeEstimate() );
+                        size );
     }
   }
   usage.script_count += holdlist.size();
@@ -135,10 +137,10 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate();
+      size_t size = hold->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
-                        hold->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(), size );
     }
   }
   usage.script_count += notimeoutholdlist.size();
@@ -150,16 +152,26 @@ ScriptScheduler::Memory ScriptScheduler::estimateSize( bool verbose ) const
   {
     if ( hold != nullptr )
     {
-      usage.script_size += hold->sizeEstimate();
+      size_t size = hold->sizeEstimate();
+      usage.script_size += size;
       if ( verbose )
-        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(),
-                        hold->sizeEstimate() );
+        fmt::format_to( std::back_inserter( verbose_w ), "{} {}\n", hold->scriptname(), size );
     }
   }
   usage.script_count += debuggerholdlist.size();
   if ( verbose )
   {
-    auto log = OPEN_FLEXLOG( "log/memoryusagescripts.log", false );
+    // The lines above add up to neither total, so state both rather than leaving a reader
+    // to sum the report and wonder. script_size also covers the queues themselves and the
+    // pid list; the cached-program store is not itemized at all.
+    fmt::format_to( std::back_inserter( verbose_w ),
+                    "{} script{}, {} bytes; {} cached program{}, {} bytes\n", usage.script_count,
+                    usage.script_count == 1 ? "" : "s", usage.script_size,
+                    usage.scriptstorage_count, usage.scriptstorage_count == 1 ? "" : "s",
+                    usage.scriptstorage_size );
+
+    auto path = MemoryUsage::reportPath( "scripts" );
+    auto log = OPEN_FLEXLOG( path.c_str(), false );
     FLEXLOGLN( log, verbose_w );  // extra newline at the end,seperates the old from the new entry
 
     CLOSE_FLEXLOG( log );
@@ -404,14 +416,21 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
     if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
       scripts.push_back( exec );
   }
+  // estimateSize counts this queue too
+  for ( const auto& exec : debuggerholdlist )
+  {
+    if ( exec != nullptr && stricmp( exec->scriptname().c_str(), name.c_str() ) == 0 )
+      scripts.push_back( exec );
+  }
   for ( const auto& exec : scripts )
   {
     fmt::format_to( std::back_inserter( log ), "Size: {}", exec->sizeEstimate() );
     auto prog = const_cast<Bscript::EScriptProgram*>( exec->prog() );
     if ( prog->read_dbg_file() != 0 )
     {
+      // continue, not break: the other matched instances are still reportable
       log += " failed to load debug info\n";
-      break;
+      continue;
     }
     size_t i = 0;
     log += "\nGlobals\n";
@@ -421,7 +440,7 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
           std::back_inserter( log ), "  {} ({}) {}\n",
           prog->globalvarnames.size() > i ? prog->globalvarnames[i] : std::to_string( i ),
           global->impref().typeOf(), global->impref().sizeEstimate() );
-          ++i;
+      ++i;
     }
     log += "Locals\n";
     auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )
@@ -441,7 +460,8 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
         const Bscript::EPDbgBlock& progblock = prog->blocks[block];
         size_t varidx = left - 1 - progblock.parentvariables;
         left--;
-        Bscript::BObjectImp* ptr = ( *locals )[varidx]->impptr();
+        // varidx indexes the block's own names; the value lives at the frame-wide slot
+        Bscript::BObjectImp* ptr = ( *locals )[left]->impptr();
         fmt::format_to( std::back_inserter( log ), "  {} ({}) {}\n",
                         progblock.localvarnames[varidx], ptr->typeOf(), ptr->sizeEstimate() );
       }
@@ -453,7 +473,8 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
     }
   }
-  auto logf = OPEN_FLEXLOG( "log/scriptmemory.log", false );
+  auto path = MemoryUsage::reportPath( "vars-" + MemoryUsage::sanitizeForFilename( name ) );
+  auto logf = OPEN_FLEXLOG( path.c_str(), false );
   FLEXLOGLN( logf, log );
   CLOSE_FLEXLOG( logf );
   return true;

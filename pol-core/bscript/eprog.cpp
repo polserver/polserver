@@ -67,15 +67,21 @@ size_t EScriptProgram::sizeEstimate() const
 {
   using namespace Clib;
   size_t size = sizeof( EScriptProgram );
-  size += memsize( globalvarnames );
-  for ( const auto& l : globalvarnames )
-    size += l.capacity();
-  size += memsize( dbg_filenames );
-  for ( const auto& l : dbg_filenames )
-    size += l.capacity();
-  size += memsize( dbg_filenum ) + memsize( dbg_linenum ) + memsize( dbg_ins_blocks ) +
-          memsize( dbg_ins_statementbegin ) + memsize( modules ) + memsize( exported_functions ) +
-          memsize( instr ) + memsize( blocks ) + memsize( dbg_functions );
+  // memsize() of a container of strings already counts each string's capacity.
+  size += memsize( globalvarnames ) + memsize( dbg_filenames ) + memsize( dbg_filenum ) +
+          memsize( dbg_linenum ) + memsize( dbg_ins_blocks ) + memsize( dbg_ins_statementbegin ) +
+          memsize( modules ) + memsize( instr );
+
+  // The bulk of a compiled script, and memsize() cannot see it: both hold a raw buffer.
+  size += tokens.allocated() + symbols.allocated();
+
+  // A string or a vector nested inside an element is invisible to memsize() as well, so these
+  // three say what one element costs.
+  size += memsize( exported_functions,
+                   []( const auto& f ) { return sizeof( f ) + f.name.capacity(); } );
+  size += memsize( dbg_functions, []( const auto& f ) { return sizeof( f ) + f.name.capacity(); } );
+  size +=
+      memsize( blocks, []( const auto& b ) { return sizeof( b ) + memsize( b.localvarnames ); } );
 
   return size;
 }

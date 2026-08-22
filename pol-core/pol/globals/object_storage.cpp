@@ -38,15 +38,15 @@ ObjectStorageManager::MemoryUsage ObjectStorageManager::estimateSize() const
   ObjectHash::OH_const_iterator hs_citr = objStorageManager.objecthash.begin(),
                                 hs_cend = objStorageManager.objecthash.end();
 
-  MemoryUsage usage;
-  memset( &usage, 0, sizeof( usage ) );
+  MemoryUsage usage{};
 
-  usage.objcount = std::distance( hs_citr, hs_cend );
+  // Counted in the loop: the hash is a std::map, so std::distance would walk it a second time.
   for ( ; hs_citr != hs_cend; ++hs_citr )
   {
     const UObjectRef& ref = ( *hs_citr ).second;
     auto size = ref->estimatedSize();
     usage.objsize += size;
+    usage.objcount++;
     if ( ref->isa( UOBJ_CLASS::CLASS_ITEM ) )
     {
       usage.obj_item_size += size;

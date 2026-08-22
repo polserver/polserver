@@ -136,7 +136,9 @@ public:
   void deinitialize();
   struct Memory;
 
-  Memory estimateSize() const;
+  /// Walking the realms means walking every zone of the grid, so a caller that does not need
+  /// realm_size can leave it out and still get the rest.
+  Memory estimateSize( bool include_realms = true ) const;
 
   CmdLevels cmdlevels;
 

@@ -7,10 +7,72 @@ program testpolcore()
   return 1;
 endprogram
 
+// The newest log/memory/<prefix>*.log, as a line array. The name carries a
+// YYYYMMDD-HHMMSS stamp, so the last one sorted is the one just written.
+function newest_report( prefix )
+  var names := ListDirectory( "::log/memory", ".log" );
+  if ( names == error )
+    return ret_error( $"Could not list log/memory: {names}" );
+  endif
+  var newest := "";
+  foreach name in ( names )
+    if ( name[1, prefix.length()] == prefix && name > newest )
+      newest := name;
+    endif
+  endforeach
+  if ( !newest )
+    return ret_error( $"No log/memory/{prefix}*.log was written" );
+  endif
+  var lines := ReadFile( $"::log/memory/{newest}" );
+  if ( lines == error || !lines.size() )
+    return ret_error( $"Could not read log/memory/{newest}: {lines}" );
+  endif
+  return lines;
+endfunction
+
+// The named memory reports: that they run, and that the totals line the log analyzers
+// read is still where they expect it. The rest of what they write is not read back.
 exported function polcore_memory()
-  PolCore().internal( 2 ); // memory estimation log
-  PolCore().internal( 5 ); // memory estimation log (scriptscheduler)
-  PolCore().internal( 6, "scripts/tests.ecl" ); // memory estimation log (script)
+  var core := PolCore();
+  var bad := {};
+
+  if ( core.log_memory_usage() != 1 )
+    bad.append( "log_memory_usage answered falsy" );
+  endif
+  // A subset costs less than the whole census; both have to be accepted.
+  if ( core.log_memory_usage( { "scripts", "process" } ) != 1 )
+    bad.append( "log_memory_usage with sections answered falsy" );
+  endif
+  if ( core.log_script_memory() != 1 )
+    bad.append( "log_script_memory answered falsy" );
+  endif
+  if ( core.log_script_variables( "scripts/tests.ecl" ) != 1 )
+    bad.append( "log_script_variables answered falsy" );
+  endif
+
+  // The report ends with totals the itemized lines do not add up to, and the log
+  // analyzers read them. Nothing else checks what these reports actually contain, so a
+  // change to the format would otherwise only surface as a blank column in a tool.
+  var report := newest_report( "scripts-" );
+  if ( report.?errortext )
+    bad.append( report.errortext );
+  else
+    // "<n> scripts, <n> bytes; <n> cached programs, <n> bytes". Searched for rather than
+    // taken from the end: the report is written with a trailing blank line.
+    var found := 0;
+    foreach line in ( report )
+      if ( line.find( " bytes; " ) && line.find( " cached program" ) )
+        found := 1;
+      endif
+    endforeach
+    if ( !found )
+      bad.append( "log_script_memory wrote no totals line" );
+    endif
+  endif
+
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
   return 1;
 endfunction
 
@@ -251,15 +313,53 @@ exported function polcore_methods( unused resmngr )
     bad.append( $"log_profile with no parameter answered {res}" );
   endif
 
+  // The memory reports. Their successful calls live in polcore_memory(); here only the
+  // arguments they refuse.
+  res := core.log_memory_usage( 1, 2 );
+  if ( res.errortext != "polcore.log_memory_usage(sections) takes at most 1 parameter." )
+    bad.append( $"log_memory_usage with two parameters answered {res}" );
+  endif
+  res := core.log_memory_usage( 1 );
+  if ( !res.errortext.find( "Invalid parameter type" ) )
+    bad.append( $"log_memory_usage with a non-array answered {res}" );
+  endif
+  res := core.log_memory_usage( { "not_a_section" } );
+  if ( !res.errortext.find( "Unknown memory section" ) )
+    bad.append( $"log_memory_usage with a bad section answered {res}" );
+  endif
+  res := core.log_memory_usage( {} );
+  if ( res.errortext != "polcore.log_memory_usage(sections) wants at least one section." )
+    bad.append( $"log_memory_usage with an empty array answered {res}" );
+  endif
+  res := core.log_memory_usage( { 1 } );
+  if ( res.errortext != "polcore.log_memory_usage(sections) wants an array of strings." )
+    bad.append( $"log_memory_usage with a non-string section answered {res}" );
+  endif
+  res := core.log_script_memory( 1 );
+  if ( res.errortext != "polcore.log_script_memory() doesn't take parameters." )
+    bad.append( $"log_script_memory with a parameter answered {res}" );
+  endif
+  res := core.log_script_variables();
+  if ( res.errortext != "polcore.log_script_variables(script) requires 1 parameter." )
+    bad.append( $"log_script_variables with no parameter answered {res}" );
+  endif
+  res := core.log_script_variables( 1 );
+  if ( !res.errortext.find( "Invalid parameter type" ) )
+    bad.append( $"log_script_variables with a non-string answered {res}" );
+  endif
+
   // internal() used to read parameter 0 without checking that there was one, which is an
   // assertion failure inside the executor and takes the shard down rather than erroring.
   res := core.internal();
   if ( res.errortext != "polcore.internal(value) requires 1 parameter." )
     bad.append( $"internal with no parameter answered {res}" );
   endif
-  // Selector 6 is the only one that reads a second parameter, with the same hazard.
-  if ( core.internal( 6 ) != 0 )
-    bad.append( "internal( 6 ) with no script name should answer 0" );
+  // No selector reads a second parameter any more, so two of them is an error rather than a
+  // silently ignored argument. Selector 2 is gone and does nothing, which keeps this harmless
+  // even if the guard ever stops firing.
+  res := core.internal( 2, "extra" );
+  if ( res.errortext != "polcore.internal(value) requires 1 parameter." )
+    bad.append( $"internal with two parameters answered {res}" );
   endif
 
   // A method nothing knows falls off the end of the dispatch and reads as uninit.

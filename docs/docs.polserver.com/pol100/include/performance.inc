@@ -9,7 +9,7 @@
 <h2>Table of Contents:</h2>
 <ul>
 	<li><a href="#runaway">Runaway scripts</a></li>
-	<li><a href="#polcore">polcore()</a></li>
+	<li><a href="#polcore">PolCore()</a></li>
 	<li><a href="#scriptopts">Runtime script options</a></li>
 </ul>
 <hr />
@@ -108,58 +108,58 @@ sum := sum + 1;
 <hr />
 <br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 
-<a name="polcore"></a><h2>polcore()</h2>
+<a name="polcore"></a><h2>PolCore()</h2>
 <br />
 <p>
-	This section is about the polcore() commands, most of them are only listed with name + a short description, but they're all used in <a href="_tmp_fix">this example code</a>.<br />
+	This section is about the PolCore() commands, most of them are only listed with name + a short description, but they're all used in <a href="_tmp_fix">this example code</a>.<br />
 </p>
 
 <p>
 	<b>
-		polcore().uptime<br />
+		PolCore().uptime<br />
 	</b>
   Returns the system uptime in seconds. Only really useful for checking how long the system takes to start up really, since ReadGameClock should be used to measure intervals
 </p>
 
 <p>
 	<b>
-		polcore().sysload<br />
-		polcore().sysload_severity<br />
+		PolCore().sysload<br />
+		PolCore().sysload_severity<br />
 	</b>
 		Returns the sysload as a percentage (0-100) or as severity (raw number, 0->). Good to check every couple of minutes, so you can tell if something's very wrong. The percentage value is more useful since actual load is hard to tell from the raw value.
 </p>
 
 <p>
 	<b>
-		polcore().bytes_sent<br />
-		polcore().bytes_received<br />
+		PolCore().bytes_sent<br />
+		PolCore().bytes_received<br />
 	</b>
 		Returns the number of bytes sent/received. Good to know if you have enough bandwidth (store the old value and display the difference every minute). Can also let you know if someone's trying to flood you, though it doesn't tell you who.
 </p>
 
 <p>
 	<b>
-		polcore().itemcount<br />
-		polcore().mobilecount<br />
+		PolCore().itemcount<br />
+		PolCore().mobilecount<br />
 	</b>
 		Returns total number of items/mobiles. Could check that items dont increase too fast, and that the number of mobiles stays apporoximately the same.
 </p>
 
 <p>
 	<b>
-		polcore().instr_per_min<br />
-		polcore().events_per_min<br />
-		polcore().combat_operations_per_min<br />
-		polcore().skill_checks_per_min<br />
+		PolCore().instr_per_min<br />
+		PolCore().events_per_min<br />
+		PolCore().combat_operations_per_min<br />
+		PolCore().skill_checks_per_min<br />
 	</b>
 		Returns the total number of instructions/events/combat operations/skill checks on the shard during the last minute. This can vary quite a lot, but doesn't hurt to check
 </p>
 
 <p>
 	<b>
-		polcore().script_profiles<br />
-		polcore().log_profile(clear)<br />
-		polcore().clear_script_profile_counters()<br />
+		PolCore().script_profiles<br />
+		PolCore().log_profile(clear)<br />
+		PolCore().clear_script_profile_counters()<br />
 	</b>
 		Now we get to the interesting part :)<br />
 		clear_script_profile_counters reset the counters, and log_profile also clears after dumping if clear is set. To see what the pol.log dump from .log_profile looks like, click <a name="logprofileref" href="#logprofile">here</a><br />
@@ -192,7 +192,7 @@ sum := sum + 1;
 <pre>
 program view_script_profiles(who)
 	SendSysMessage(who, "Scripts that run a lot:");
-	var vscript_profiles := polcore().script_profiles;
+	var vscript_profiles := PolCore().script_profiles;
 	foreach script in vscript_profiles
 		if (script.instr_percent > 5)
 			SendSysMessage(who, script.name + " has run " + script.instr +
@@ -208,8 +208,8 @@ endprogram
 
 <p>
 	<b>
-		polcore().running_scripts<br />
-		polcore().all_scripts<br />
+		PolCore().running_scripts<br />
+		PolCore().all_scripts<br />
 	</b>
 		Returns the scripts that are currently in effect. running_scripts only returns the ones that aren't sleeping or waiting for events.<br />
 		The return value is an array of ScriptExRef's, which can be used like normal structs to get information:<br />
@@ -249,7 +249,7 @@ endprogram
 <pre>
 program view_script_status(who)
 	SendSysMessage(who, "Loaded scripts:");
-	var vall_script := polcore().all_scripts;
+	var vall_script := PolCore().all_scripts;
 	foreach script in vall_scripts
 		SendSysMessage(who, scripts.pid + ": " + script.name + " has run " +
 			script.instr_cycles + " (" + script.consec_cycles + ", " +
@@ -257,6 +257,103 @@ program view_script_status(who)
 	endforeach
 endprogram
 </pre></div>
+
+</p>
+
+<p>
+	<b>
+		PolCore().memory_usage<br />
+		PolCore().log_memory_usage( sections := uninit )<br />
+		PolCore().log_script_memory()<br />
+		PolCore().log_script_variables( script )<br />
+	</b>
+	These are the tools for working out where a shard's memory is going. <code>memory_usage</code> is the cheap one: the resident size of the process in KB, as the operating system reports it. Read it every few minutes and you will see <i>that</i> memory is growing. The other three tell you <i>what</i> is growing.<br /><br />
+
+	<b>A word of warning first.</b> Scripts run on the server's main thread, so while one of these reports is being built nothing else happens - no packets, no tasks, no decay. <code>log_memory_usage()</code> visits every item, container and mobile in the world, and every zone of every realm, which is a fixed six-figure count no matter how quiet the shard is. Call these deliberately - from an admin command, or a task on an interval measured in minutes - and never in a hot path or an event handler.<br /><br />
+
+	<code>log_memory_usage()</code> appends one semicolon-separated line to <code>log/memoryusage.log</code>, writing a header row the first time it creates the file. That one stays a single growing file on purpose: it is a time series meant to be graphed, and a leak shows up as one column climbing while the others stay flat. Comparing <code>ProcessSize</code> against the sum of the rest also tells you whether the leak is in something the core measures at all.<br /><br />
+
+	Pass an array of section names to measure only part of it. This is the difference between a report you can afford every minute and one you can afford every hour:<br />
+<div class="doc-guide-pre">
+<pre>
+// everything - the full world walk
+PolCore().log_memory_usage();
+
+// just the scripts, which skips the object hash and the realm grids
+PolCore().log_memory_usage( { "scripts", "process" } );
+</pre></div>
+	An unknown name is an error listing the valid ones. These are the sections, and what each one costs:<br />
+	<table>
+		<tr>
+			<td><code>process</code></td>
+			<td>Resident size as the operating system reports it. Free, and the only figure here that is measured rather than estimated.</td>
+		</tr>
+		<tr>
+			<td><code>objects</code></td>
+			<td>Every item, container, mobile and multi in the world, split into the <code>Obj*</code> columns. One of the two expensive ones: it visits every object you have.</td>
+		</tr>
+		<tr>
+			<td><code>realms</code></td>
+			<td>The zone grid of every realm. The other expensive one, and a fixed cost - a Britannia-sized map is some 390,000 cells whether the shard is full or empty.</td>
+		</tr>
+		<tr>
+			<td><code>scripts</code></td>
+			<td>Running scripts and the compiled-script cache. Cost grows with how much your scripts hold, since it walks the globals and locals of each one.</td>
+		</tr>
+		<tr>
+			<td><code>gamestate</code></td>
+			<td>Accounts, guilds, parties, storage, NPC templates and the other global tables. Moderate.</td>
+		</tr>
+		<tr>
+			<td><code>config</code></td>
+			<td>Cached cfg files and datastores.</td>
+		</tr>
+		<tr>
+			<td><code>network</code></td>
+			<td>Connected clients, listening servers and packet hooks. Cheap.</td>
+		</tr>
+		<tr>
+			<td><code>systemstate</code></td>
+			<td>Tile data and packages.</td>
+		</tr>
+		<tr>
+			<td><code>multis</code></td>
+			<td>The multi definition buffer.</td>
+		</tr>
+		<tr>
+			<td><code>settings</code></td>
+			<td>pol.cfg settings. Cheap and effectively constant.</td>
+		</tr>
+		<tr>
+			<td><code>state</code></td>
+			<td>A fixed size rather than a walk, so this column never moves. Cheap.</td>
+		</tr>
+		<tr>
+			<td><code>cprops</code></td>
+			<td>The CProp profiler, which only holds anything when <code>ProfileCProps</code> is enabled.</td>
+		</tr>
+		<tr>
+			<td><code>allocators</code></td>
+			<td>The pools eScript objects are handed out of. Cheap to read, but mind that these <i>overlap</i> <code>scripts</code> rather than adding to it - the pools contain the very objects <code>ScriptSize</code> already counted, so do not add the two together. They also only ever grow, so they are a high-water mark of churn rather than current usage.</td>
+		</tr>
+	</table>
+	The columns you left out are still written, but empty, because the header is only written once and has to keep describing the file - so an empty field means "not measured", which is not the same as a measured zero.<br /><br />
+
+	Once <code>ScriptSize</code> is the column that is growing, <code>log_script_memory()</code> says which script it is. It writes the estimated size of every running script, grouped by scheduler queue (<code>runlist</code>, <code>ranlist</code>, <code>holdlist</code>, <code>notimeoutholdlist</code>, <code>debuggerholdlist</code>), to <code>log/memory/scripts-YYYYMMDD-HHMMSS.log</code>.<br /><br />
+
+	The last line of that file carries the totals, <code>&lt;n&gt; scripts, &lt;n&gt; bytes; &lt;n&gt; cached programs, &lt;n&gt; bytes</code>. Do not expect the per-script lines to add up to either: the script total also covers the scheduler queues and the pid list, and the cached-program store - the compiled bytecode the core keeps for every script it has loaded, whether or not one is running - is not itemized anywhere. A gap between the two is normal; a gap that grows is worth chasing.<br /><br />
+
+	And once you know the script, <code>log_script_variables( script )</code> says which variable. It writes the name, type and estimated size of every global and of every local in every stack frame, for every running instance of that script, to <code>log/memory/vars-&lt;script&gt;-YYYYMMDD-HHMMSS.log</code>. The script has to have been compiled with debugging information - <code>GenerateDebugInfo</code> in ecompile.cfg, or the <code>-x</code> flag - or there are no variable names to report.<br /><br />
+
+	Those last two get a file per call rather than appending to one, because a single snapshot of either runs to megabytes on a busy shard. Clear out <code>log/memory/</code> between investigations.<br /><br />
+
+	The three narrow down in that order: <code>log_memory_usage()</code> tells you which column is growing, <code>log_script_memory()</code> which script, <code>log_script_variables()</code> which variable. Take the first two a handful of times while the shard is up, far enough apart to show a trend, then use the third once you have a suspect. The name to pass is the one the other two reports print - the compiled script's path as the core knows it, matched without regard to case - so copy it straight out of the <code>scripts-*.log</code> report:<br />
+<div class="doc-guide-pre">
+<pre>
+PolCore().log_script_variables( "scripts/ai/spellkillpcs.ecl" );
+</pre></div>
+
+	The sizes are estimates, not allocator truth. They count what the core knows a structure holds, so they undercount anything held by a library the core cannot measure, and an object referred to from several places is counted once per reference. Treat them as a way to compare snapshots and rank suspects, not as an accounting of the heap.<br /><br />
 
 </p>
 

@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>08/15/2026</datemodified>
+<datemodified>08/22/2026</datemodified>
 </fileheader>
 
 
@@ -588,7 +588,24 @@
 <method proto="log_profile(bool clear)" returns="true/false">Writes the script profile to the log, optionally clearing it after.</method>
 <method proto="set_priority_divide(int divide)" returns="true/false">Sets the priority divide to 'divide'</method>
 <method proto="clear_script_profile_counters()" returns="true/false">Clears the script profile counters</method>
-<method proto="internal(integer)" returns="unspecified">developer methods, not officially published</method>
+<method proto="log_memory_usage( sections := uninit )" returns="true/error">Appends one line of memory totals to <code>log/memoryusage.log</code>, creating the file with a header row the first time. <code>sections</code> is an array of section names limiting what is measured; omit it for all of them:<br/>
+<code>process</code> - resident size as the OS reports it<br/>
+<code>objects</code> - every item, container, mobile and multi in the world; expensive<br/>
+<code>realms</code> - the zone grid of every realm; expensive, and a fixed cost whether the shard is busy or idle<br/>
+<code>scripts</code> - running scripts and the compiled-script cache<br/>
+<code>gamestate</code> - accounts, guilds, parties, storage, NPC templates and the other global tables<br/>
+<code>config</code> - cached cfg files and datastores<br/>
+<code>network</code> - connected clients, listening servers and packet hooks<br/>
+<code>systemstate</code> - tile data and packages<br/>
+<code>multis</code> - the multi definition buffer<br/>
+<code>settings</code> - pol.cfg settings<br/>
+<code>state</code> - a fixed size rather than a walk, so this column never moves<br/>
+<code>cprops</code> - the CProp profiler, which only holds anything when <code>ProfileCProps</code> is enabled<br/>
+<code>allocators</code> - the pools eScript objects are handed out of; these overlap <code>scripts</code> rather than adding to it, so do not sum the two<br/>
+An unknown name is an error listing the valid ones. Columns outside the requested sections are written empty so the header stays valid. Measuring runs on the scripts thread and blocks the whole server for its duration - <code>objects</code> walks every object in the world and <code>realms</code> every zone of every realm - so call it on an interval, never in a hot path. See the Performance Guide for what each section covers and costs.</method>
+<method proto="log_script_memory()" returns="true/error">Writes the estimated size of every running script, grouped by scheduler queue, to its own timestamped file <code>log/memory/scripts-YYYYMMDD-HHMMSS.log</code>. One file per snapshot, because a single one of these runs to megabytes on a busy shard. The last line gives the totals - <code>&lt;n&gt; scripts, &lt;n&gt; bytes; &lt;n&gt; cached programs, &lt;n&gt; bytes</code> - which the per-script lines do not add up to: the script total also covers the scheduler queues and the pid list, and the cached-program store is not itemized at all.</method>
+<method proto="log_script_variables( string script )" returns="true/error">Writes the name, type and estimated size of every global and local of every running instance of <code>script</code> to its own timestamped file <code>log/memory/vars-&lt;script&gt;-YYYYMMDD-HHMMSS.log</code>. <code>script</code> is the compiled script's path as the core reports it, matched without regard to case - the same form <code>log_script_memory()</code> prints, e.g. <code>"pkg/mobiles/oldAI/ai/spellkillpcs.ecl"</code>. The script must have been compiled with debugging information (ecompile.cfg <code>GenerateDebugInfo</code>, or the <code>-x</code> flag) for variable names to be available.</method>
+<method proto="internal(integer)" returns="unspecified">developer methods, not officially published.</method>
 </class>
 
 <class name="Datafile">

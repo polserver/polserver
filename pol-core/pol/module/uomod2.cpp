@@ -2050,9 +2050,60 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
     clear_script_profile_counters();
     return new BLong( 1 );
   }
+  else if ( stricmp( methodname, "log_memory_usage" ) == 0 )
+  {
+    if ( ex.numParams() > 1 )
+      return new BError( "polcore.log_memory_usage(sections) takes at most 1 parameter." );
+
+    // No argument, or an uninit one, means everything.
+    unsigned sections = MemoryUsage::SECTION_ALL;
+    if ( ex.numParams() == 1 && !ex.getParamImp( 0 )->isa( BObjectImp::OTUninit ) )
+    {
+      ObjArray* arr;
+      if ( !ex.getObjArrayParam( 0, arr ) )
+        return new BError( "Invalid parameter type" );
+
+      sections = 0;
+      for ( const auto& ref : arr->ref_arr )
+      {
+        BObject* bo = ref.get();
+        if ( bo == nullptr || !bo->isa( BObjectImp::OTString ) )
+          return new BError( "polcore.log_memory_usage(sections) wants an array of strings." );
+
+        unsigned flag;
+        const std::string& section = bo->impptr<String>()->value();
+        if ( !MemoryUsage::sectionByName( section, &flag ) )
+          return new BError( fmt::format( "Unknown memory section '{}'. Known sections: {}.",
+                                          section, MemoryUsage::sectionNames() ) );
+        sections |= flag;
+      }
+      if ( sections == 0 )
+        return new BError( "polcore.log_memory_usage(sections) wants at least one section." );
+    }
+    Core::MemoryUsage::log( sections );
+    return new BLong( 1 );
+  }
+  else if ( stricmp( methodname, "log_script_memory" ) == 0 )
+  {
+    if ( ex.numParams() > 0 )
+      return new BError( "polcore.log_script_memory() doesn't take parameters." );
+    Core::scriptScheduler.estimateSize( true );
+    return new BLong( 1 );
+  }
+  else if ( stricmp( methodname, "log_script_variables" ) == 0 )
+  {
+    if ( ex.numParams() != 1 )
+      return new BError( "polcore.log_script_variables(script) requires 1 parameter." );
+    const String* script;
+    // getStringParam raises no error of its own, so nullptr here would surface as uninit.
+    if ( !ex.getStringParam( 0, script ) )
+      return new BError( "Invalid parameter type" );
+    Core::scriptScheduler.logScriptVariables( script->data() );
+    return new BLong( 1 );
+  }
   else if ( stricmp( methodname, "internal" ) == 0 )  // Just for internal Development...
   {
-    if ( ex.numParams() != 1 && ex.numParams() != 2 )
+    if ( ex.numParams() != 1 )
       return new BError( "polcore.internal(value) requires 1 parameter." );
     int type;
     if ( ex.getParam( 0, type ) )
@@ -2075,11 +2126,7 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
 #ifdef ESCRIPT_PROFILE
       DEBUGLOGLN( EscriptProfiler::result() );
 #endif
-      if ( type == 2 )
-      {
-        Core::MemoryUsage::log();
-      }
-      else if ( type == 3 )
+      if ( type == 3 )
       {
         POLLOG_ERRORLN( "Forcing crash" );
         int* i = nullptr;
@@ -2089,18 +2136,6 @@ BObjectImp* PolCore::call_polmethod( const char* methodname, UOExecutor& ex )
       {
         POLLOG_ERRORLN( "Forcing assert crash" );
         passert_always( false );
-      }
-      else if ( type == 5 )
-      {
-        Core::scriptScheduler.estimateSize( true );
-      }
-      else if ( type == 6 )
-      {
-        const String* script;
-        if ( ex.numParams() != 2 || !ex.getStringParam( 1, script ) )
-          return new BLong( 0 );
-        Core::scriptScheduler.logScriptVariables( script->data() );
-        return new BLong( 1 );
       }
       else if ( type == 7 )
       {

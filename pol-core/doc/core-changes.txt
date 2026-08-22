@@ -1,4 +1,45 @@
 -- POL100.3.0 --
+08-22-2026 AsYlum:
+    Added: PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()
+           and PolCore().log_script_variables( script ), the memory reports that used to be
+           PolCore().internal(2), (5) and (6). sections is an optional array of section names
+           ("objects", "scripts", "realms", ...) limiting what is measured, so a report can
+           skip the parts you are not chasing - walking every object in the world and every
+           zone of every realm is the expensive part, and the server is stopped throughout.
+           The Performance Guide lists what each section covers and costs. The old selectors
+           PolCore().internal(2), (5) and (6) have been removed.
+    Changed: the two per-script memory reports now write one timestamped file per call under
+             log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-<script>-YYYYMMDD-HHMMSS.log)
+             instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A
+             single snapshot of either runs to megabytes on a busy shard, so the old files
+             grew unusable within a day. log/memoryusage.log still accumulates one line per
+             snapshot, since it is a time series meant to be graphed; columns outside the
+             requested sections are written empty rather than dropped, because its header is
+             written once and has to keep describing the file - so an empty field means "not
+             measured", which is not the same as a measured zero.
+    Changed: PolCore().log_script_memory() ends its report with a totals line - "<n> scripts,
+             <n> bytes; <n> cached programs, <n> bytes". The per-script lines above it add up
+             to neither figure: the script total also covers the scheduler queues and the pid
+             list, and the cached-program store is not itemized at all, so summing the report
+             understated both.
+    Changed: the memory reports do less redundant work, which matters because they block the
+             server while they run. The object walk no longer counts the object hash in a
+             separate pass over it, and the per-script report measures each script once rather
+             than twice. The reported numbers are unchanged.
+    Fixed: PolCore().log_script_variables() reported each local variable's name next to a
+           different local's type and size, so the breakdown was misleading rather than just
+           coarse. The debugger's stacktrace command had the same fault.
+    Fixed: PolCore().log_script_variables() stopped at the first instance whose debug info
+           could not be loaded instead of skipping just that one, and never looked at scripts
+           held by the debugger.
+    Fixed: SizeOf() on a class instance that refers to itself - directly, or around a longer
+           loop - recursed until the stack overflowed and took the server down.
+    Fixed: memory estimates were too low for packets, for compiled scripts (the bytecode and
+           symbol pool were not counted at all) and for regular expressions.
+    Fixed: memory estimates counted every string of a compiled script's debug data twice - the
+           global and local variable names and the source filenames - and did the same for the
+           element names of an array and for the keys of the script storage index, while missing
+           the names of a script's exported and debug functions altogether.
 08-18-2026 Nando:
     Added: The core now names a thread it depends on that has stopped, or that is still
            running but no longer getting anywhere. Each thread that reports in publishes

@@ -2,9 +2,53 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-18-2026</datemodified>
+		<datemodified>08-22-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-22-2026</date>
+			<author>AsYlum:</author>
+			<change type="Added">PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()<br/>
+and PolCore().log_script_variables( script ), the memory reports that used to be<br/>
+PolCore().internal(2), (5) and (6). sections is an optional array of section names<br/>
+(&quot;objects&quot;, &quot;scripts&quot;, &quot;realms&quot;, ...) limiting what is measured, so a report can<br/>
+skip the parts you are not chasing - walking every object in the world and every<br/>
+zone of every realm is the expensive part, and the server is stopped throughout.<br/>
+The Performance Guide lists what each section covers and costs. The old selectors<br/>
+PolCore().internal(2), (5) and (6) have been removed.</change>
+			<change type="Changed">the two per-script memory reports now write one timestamped file per call under<br/>
+log/memory/ (scripts-YYYYMMDD-HHMMSS.log and vars-&lt;script&gt;-YYYYMMDD-HHMMSS.log)<br/>
+instead of appending to log/memoryusagescripts.log and log/scriptmemory.log. A<br/>
+single snapshot of either runs to megabytes on a busy shard, so the old files<br/>
+grew unusable within a day. log/memoryusage.log still accumulates one line per<br/>
+snapshot, since it is a time series meant to be graphed; columns outside the<br/>
+requested sections are written empty rather than dropped, because its header is<br/>
+written once and has to keep describing the file - so an empty field means &quot;not<br/>
+measured&quot;, which is not the same as a measured zero.</change>
+			<change type="Changed">PolCore().log_script_memory() ends its report with a totals line - &quot;&lt;n&gt; scripts,<br/>
+&lt;n&gt; bytes; &lt;n&gt; cached programs, &lt;n&gt; bytes&quot;. The per-script lines above it add up<br/>
+to neither figure: the script total also covers the scheduler queues and the pid<br/>
+list, and the cached-program store is not itemized at all, so summing the report<br/>
+understated both.</change>
+			<change type="Changed">the memory reports do less redundant work, which matters because they block the<br/>
+server while they run. The object walk no longer counts the object hash in a<br/>
+separate pass over it, and the per-script report measures each script once rather<br/>
+than twice. The reported numbers are unchanged.</change>
+			<change type="Fixed">PolCore().log_script_variables() reported each local variable's name next to a<br/>
+different local's type and size, so the breakdown was misleading rather than just<br/>
+coarse. The debugger's stacktrace command had the same fault.</change>
+			<change type="Fixed">PolCore().log_script_variables() stopped at the first instance whose debug info<br/>
+could not be loaded instead of skipping just that one, and never looked at scripts<br/>
+held by the debugger.</change>
+			<change type="Fixed">SizeOf() on a class instance that refers to itself - directly, or around a longer<br/>
+loop - recursed until the stack overflowed and took the server down.</change>
+			<change type="Fixed">memory estimates were too low for packets, for compiled scripts (the bytecode and<br/>
+symbol pool were not counted at all) and for regular expressions.</change>
+			<change type="Fixed">memory estimates counted every string of a compiled script's debug data twice - the<br/>
+global and local variable names and the source filenames - and did the same for the<br/>
+element names of an array and for the keys of the script storage index, while missing<br/>
+the names of a script's exported and debug functions altogether.</change>
+		</entry>
 		<entry>
 			<date>08-18-2026</date>
 			<author>Nando:</author>

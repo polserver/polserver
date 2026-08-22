@@ -205,9 +205,47 @@ BClassInstanceRef::BClassInstanceRef( BClassInstance* inst )
 {
 }
 
+namespace
+{
+// Class instances are reference types, so one can reach itself and the walk below has no
+// other stop condition. Unguarded it recurses until the stack overflows, from any script
+// through SizeOf().
+thread_local std::set<const BClassInstance*> size_estimate_visiting;
+
+class VisitGuard
+{
+public:
+  explicit VisitGuard( const BClassInstance* inst )
+      : inst_( inst ), entered_( size_estimate_visiting.insert( inst ).second )
+  {
+  }
+  ~VisitGuard()
+  {
+    if ( entered_ )
+      size_estimate_visiting.erase( inst_ );
+  }
+  VisitGuard( const VisitGuard& ) = delete;
+  VisitGuard& operator=( const VisitGuard& ) = delete;
+
+  bool entered() const { return entered_; }
+
+private:
+  const BClassInstance* inst_;
+  bool entered_;
+};
+}  // namespace
+
 size_t BClassInstanceRef::sizeEstimate() const
 {
-  return sizeof( BClassInstanceRef ) + class_instance_->sizeEstimate();
+  const BClassInstance* inst = class_instance_.get();
+  if ( inst == nullptr )
+    return sizeof( BClassInstanceRef );
+
+  VisitGuard guard( inst );
+  if ( !guard.entered() )
+    return sizeof( BClassInstanceRef );  // already being measured further up: a cycle
+
+  return sizeof( BClassInstanceRef ) + inst->sizeEstimate();
 }
 
 const char* BClassInstanceRef::typeOf() const
