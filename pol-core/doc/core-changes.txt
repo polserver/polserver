@@ -83,6 +83,22 @@
     Fixed: `<`, `<=`, `>` and `>=` on Booleans compared the addresses of the two objects
            rather than their values, so `true < true` was as likely to be 1 as 0. false now
            orders below true, and below any other value that is true.
+08-19-2026 Nando:
+    Fixed: An arithmetic or bitwise operator applied to an operand pair that neither type had a
+           rule for returned the left operand unchanged, silently. `2 + true` was 2 and
+           `true + 2` was true, so the answer depended on which side a value was written on, and
+           `2 + error{...}` was 2 - addition destroyed the error. Every such pair now produces an
+           error naming the operator and both types, and the first one in a script is written to
+           pol.log with the script and PC.
+    Fixed: A Boolean now counts as 1 or 0 in arithmetic, as it does in C, Python and JavaScript,
+           so `2 + true`, `true + 2` and `true + true` are 3, 3 and 2. `-true` is -1 and `~true`
+           is -2, where they were an uninitialized value and `true` itself.
+   Changed: `+` with a String on either side concatenates and spells the Boolean "true" or
+            "false", so `"abc" + true` stays "abctrue" and `true + "abc"` is now "trueabc"
+            instead of evaluating to `true` and dropping the string.
+    Added: The compiler warns when both operands of an operator are literals and no rule exists
+           for the pair, so the ones that can be seen at build time are reported before the shard
+           runs at all.
 08-18-2026 Nando:
     Added: The core now names a thread it depends on that has stopped, or that is still
            running but no longer getting anywhere. Each thread that reports in publishes

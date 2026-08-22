@@ -1,6 +1,8 @@
-// The bit and arithmetic operators have a fallback for every operand type that cannot
-// take part in them. None of these combinations raises an error: the fallback hands back
-// a copy of one of the operands, and this pins which one.
+// The bit and arithmetic operators applied to operand pairs that cannot take part in them.
+// Every one of these used to hand back a copy of one of the operands -- silently, and always the
+// left one, so `s & i` and `i & s` gave different answers and `err & i` destroyed the error.
+// They now report which operator and which two types had no rule between them. See
+// specs/escript/15.
 var i := 5;
 var d := 1.5;
 var s := "abc";
@@ -16,7 +18,7 @@ print( st << i );
 print( dict >> i );
 print( err & i );
 
-// The same pairs with the operands the other way round.
+// The same pairs with the operands the other way round. The answer no longer depends on the order.
 print( i & s );
 print( i | d );
 print( i ^ arr );

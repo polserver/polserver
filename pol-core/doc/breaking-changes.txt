@@ -11,6 +11,35 @@
     reports without saying so. internal(6,script) does fail, because internal() no longer
     takes a second parameter at all - it answers the error "polcore.internal(value)
     requires 1 parameter.".
+08-22-2026 Nando:
+    eScript operators now report an operand pair they have no rule for, instead of silently
+    evaluating to the left operand.
+
+    Previously `"abc" & 1` was "abc", `1.5 | 1` was 1.5, and `2 + error{...}` was 2: the
+    operator returned its left operand and the script carried on. Any such pair now evaluates
+    to an error{} naming the operator and both types, which shows up wherever that value is
+    then used. Compound assignment (`x |= y`) is affected the same way. Bitwise operators on a
+    Real are the likeliest to bite - a variable that picked up a Real, say from a division, and
+    is then masked will now produce an error where it used to pass through unchanged.
+
+    To find them: the core writes the first occurrence in each script to pol.log with the
+    script name and PC, and ecompile warns at build time for any such pair written out as
+    literals. The fix is normally an explicit CInt()/CDbl()/CStr() on the operand whose type is
+    not what the expression assumes.
+
+    Also changed, each of which can alter the result of a working script:
+
+      - `2 + true` is 3 and `true + true` is 2, where both were the left operand. `-true` is -1
+        and `~true` is -2, where they were an uninitialized value and `true` itself.
+      - `true + "abc"` is "trueabc". It was `true`, with the string dropped.
+      - `2 == 2.000000001` is now true. The documented tolerance of 0.00000001 had applied only
+        when the Real was on the left, so the comparison answered differently depending on which
+        side each operand was written on.
+      - `false` orders below `true` for `<`, `<=`, `>` and `>=`. These compared the addresses of
+        the two objects before, so sorting an array containing Booleans could come out in any
+        order, and may come out differently now.
+      - A constant expression is folded with the VM's own arithmetic, so any expression whose
+        literal form disagreed with its variable form now gives the variable form's answer.
 08-14-2026 Nando:
     pol.cfg LoginServerDisconnectUnknownPkts now defaults to 1 instead of 0, so during
     login a connection sending an unknown or non-allowed message type is dropped rather

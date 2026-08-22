@@ -25,8 +25,9 @@ print( "false<1      " + ( false < 1 ) + ( f < one ) );
 print( "false==0     " + ( false == 0 ) + ( f == zero ) );
 print( "false>=''    " + ( false >= "" ) + ( f >= empty ) );
 
-// A boolean has no concatenation: the VM keeps the boolean and drops the string, and the folder
-// now says the same thing rather than producing a string.
+// `+` with a String concatenates whichever side the Boolean is on. Both orders used to
+// disagree: a String on the left concatenated, a Boolean on the left kept the Boolean and
+// dropped the string. See specs/escript/15.
 var abc := "abc";
 print( "true+'abc'   " + CStr( true + "abc" ) + " " + CStr( t + abc ) );
 print( "'abc'+true   " + ( "abc" + true ) + " " + ( abc + t ) );

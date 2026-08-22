@@ -1,6 +1,7 @@
 #include "bscript/bboolean.h"
 
 #include "bscript/berror.h"
+#include "bscript/blong.h"
 
 #include <fmt/compile.h>
 #include <fmt/format.h>
@@ -57,6 +58,16 @@ bool BBoolean::operator==( const BObjectImp& objimp ) const
 bool BBoolean::operator<( const BObjectImp& objimp ) const
 {
   return !bval_ && objimp.isTrue();
+}
+
+BObjectImp* BBoolean::inverse() const
+{
+  return new BLong( bval_ ? -1 : 0 );
+}
+
+BObjectImp* BBoolean::bitnot() const
+{
+  return new BLong( bval_ ? ~1 : ~0 );
 }
 
 std::string BBoolean::getStringRep() const

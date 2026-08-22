@@ -1,5 +1,7 @@
 #include "bscript/bobjectimp.h"
 
+#include <fmt/format.h>
+
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"
 #include "bscript/bcontiter.h"
@@ -7,6 +9,7 @@
 #include "bscript/bdouble.h"
 #include "bscript/berror.h"
 #include "bscript/blong.h"
+#include "bscript/bobject.h"
 #include "bscript/bstring.h"
 #include "bscript/bstruct.h"
 #include "bscript/buninit.h"
@@ -280,6 +283,107 @@ BObjectRef BObjectImp::OperMultiSubscriptAssign( std::stack<BObjectRef>& indices
   return BObjectRef( new BError( "Multiple subscript assignment not supported for this type" ) );
 }
 
+namespace
+{
+/// The operand as the number it stands for, or an independent copy of it if it is not a Boolean.
+/// Copying the non-Boolean side keeps ownership uniform on a path that only ever runs once.
+BObjectImp* as_number( BObjectImp& imp )
+{
+  if ( imp.isa( BObjectImp::OTBoolean ) )
+    return new BLong( imp.isTrue() ? 1 : 0 );
+  return imp.copy();
+}
+
+/// Applies one arithmetic or bitwise operator, exactly as the matching Executor::ins_* member
+/// does -- note the dispatch through the *right* operand, which is what resolves the double
+/// dispatch. Returns null when no type in the pair had a rule. Comparisons are absent on purpose:
+/// they are total and never reach the fallback.
+BObjectImp* apply_arithmetic( BTokenId token_id, BObjectImp& left, BObjectImp& right )
+{
+  switch ( token_id )
+  {
+  case TOK_ADD:
+    return right.selfPlusObjImp( left );
+  case TOK_SUBTRACT:
+    return right.selfMinusObjImp( left );
+  case TOK_MULT:
+    return right.selfTimesObjImp( left );
+  case TOK_DIV:
+    return right.selfDividedByObjImp( left );
+  case TOK_MODULUS:
+    return right.selfModulusObjImp( left );
+  case TOK_BSRIGHT:
+    return right.selfBitShiftRightObjImp( left );
+  case TOK_BSLEFT:
+    return right.selfBitShiftLeftObjImp( left );
+  case TOK_BITAND:
+    return right.selfBitAndObjImp( left );
+  case TOK_BITOR:
+    return right.selfBitOrObjImp( left );
+  case TOK_BITXOR:
+    return right.selfBitXorObjImp( left );
+  default:
+    return nullptr;
+  }
+}
+
+const char* operator_name( BTokenId token_id )
+{
+  switch ( token_id )
+  {
+  case TOK_ADD:
+    return "+";
+  case TOK_SUBTRACT:
+    return "-";
+  case TOK_MULT:
+    return "*";
+  case TOK_DIV:
+    return "/";
+  case TOK_MODULUS:
+    return "%";
+  case TOK_BSRIGHT:
+    return ">>";
+  case TOK_BSLEFT:
+    return "<<";
+  case TOK_BITAND:
+    return "&";
+  case TOK_BITOR:
+    return "|";
+  case TOK_BITXOR:
+    return "^";
+  default:
+    return "?";
+  }
+}
+}  // namespace
+
+BObjectImp* apply_operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right,
+                                     std::string* no_rule_message )
+{
+  no_rule_message->clear();
+
+  // `+` with a String on either side concatenates. A String on the *left* already did this through
+  // its own generic overload and never reaches here, so this is what makes the two orders agree --
+  // and it is why the Boolean is spelled "true" here rather than coerced to 1 below.
+  if ( token_id == TOK_ADD &&
+       ( left.isa( BObjectImp::OTString ) || right.isa( BObjectImp::OTString ) ) )
+    return new String( left.getStringRep() + right.getStringRep() );
+
+  // A Boolean is 1 or 0 in arithmetic. Retry through the numeric rules rather than restating them
+  // here, so this can never drift from what the same expression on Integers does.
+  if ( left.isa( BObjectImp::OTBoolean ) || right.isa( BObjectImp::OTBoolean ) )
+  {
+    BObject as_left( as_number( left ) );
+    BObject as_right( as_number( right ) );
+    if ( BObjectImp* result = apply_arithmetic( token_id, as_left.impref(), as_right.impref() ) )
+      return result;
+  }
+
+  *no_rule_message = fmt::format( "Operator {} not supported for {} and {}",
+                                  operator_name( token_id ), left.typeOf(), right.typeOf() );
+  return new BError( *no_rule_message );
+}
+
 BObjectImp* BObjectImp::selfIsObjImp( const BObjectImp& objimp ) const
 {
   return objimp.selfIsObj( *this );
@@ -296,47 +400,52 @@ BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfPlusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfPlusObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfPlusObj( const Double& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfPlusObj( const String& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfPlusObj( const ObjArray& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 void BObjectImp::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfPlusObj( *this, obj );
 }
-void BObjectImp::selfPlusObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfPlusObj( BObjectImp& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_ADD, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfPlusObj( BLong& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfPlusObj( BLong& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_ADD, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfPlusObj( Double& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfPlusObj( Double& objimp, BObject& obj )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_ADD, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfPlusObj( String& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfPlusObj( String& objimp, BObject& obj )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_ADD, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfPlusObj( ObjArray& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfPlusObj( ObjArray& objimp, BObject& obj )
 {
-  // obj.setimp( selfPlusObj(objimp) );
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_ADD, *this, objimp, &no_rule_message ) );
 }
 
 BObjectImp* BObjectImp::selfMinusObjImp( const BObjectImp& objimp ) const
@@ -345,39 +454,43 @@ BObjectImp* BObjectImp::selfMinusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfMinusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfMinusObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfMinusObj( const Double& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfMinusObj( const String& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 void BObjectImp::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfMinusObj( *this, obj );
 }
-void BObjectImp::selfMinusObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfMinusObj( BObjectImp& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_SUBTRACT, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfMinusObj( BLong& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfMinusObj( BLong& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_SUBTRACT, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfMinusObj( Double& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfMinusObj( Double& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_SUBTRACT, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfMinusObj( String& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfMinusObj( String& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_SUBTRACT, *this, objimp, &no_rule_message ) );
 }
 
 BObjectImp* BObjectImp::selfTimesObjImp( const BObjectImp& objimp ) const
@@ -386,31 +499,34 @@ BObjectImp* BObjectImp::selfTimesObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfTimesObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfTimesObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfTimesObj( const Double& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 void BObjectImp::selfTimesObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfTimesObj( *this, obj );
 }
-void BObjectImp::selfTimesObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfTimesObj( BObjectImp& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MULT, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfTimesObj( BLong& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfTimesObj( BLong& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MULT, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfTimesObj( Double& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfTimesObj( Double& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MULT, *this, objimp, &no_rule_message ) );
 }
 
 BObjectImp* BObjectImp::selfDividedByObjImp( const BObjectImp& objimp ) const
@@ -419,31 +535,34 @@ BObjectImp* BObjectImp::selfDividedByObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfDividedByObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfDividedByObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfDividedByObj( const Double& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 void BObjectImp::selfDividedByObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfDividedByObj( *this, obj );
 }
-void BObjectImp::selfDividedByObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfDividedByObj( BObjectImp& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_DIV, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfDividedByObj( BLong& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfDividedByObj( BLong& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_DIV, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfDividedByObj( Double& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfDividedByObj( Double& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_DIV, *this, objimp, &no_rule_message ) );
 }
 
 BObjectImp* BObjectImp::selfModulusObjImp( const BObjectImp& objimp ) const
@@ -452,31 +571,34 @@ BObjectImp* BObjectImp::selfModulusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfModulusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfModulusObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfModulusObj( const Double& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 void BObjectImp::selfModulusObjImp( BObjectImp& objimp, BObject& obj )
 {
   objimp.selfModulusObj( *this, obj );
 }
-void BObjectImp::selfModulusObj( BObjectImp& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfModulusObj( BObjectImp& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MODULUS, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfModulusObj( BLong& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfModulusObj( BLong& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MODULUS, *this, objimp, &no_rule_message ) );
 }
-void BObjectImp::selfModulusObj( Double& /*objimp*/, BObject& /*obj*/ )
+void BObjectImp::selfModulusObj( Double& objimp, BObject& obj )
 {
-  //
+  std::string no_rule_message;
+  obj.setimp( apply_operator_fallback( TOK_MODULUS, *this, objimp, &no_rule_message ) );
 }
 
 BObjectImp* BObjectImp::selfBitShiftRightObjImp( const BObjectImp& objimp ) const
@@ -485,11 +607,11 @@ BObjectImp* BObjectImp::selfBitShiftRightObjImp( const BObjectImp& objimp ) cons
 }
 BObjectImp* BObjectImp::selfBitShiftRightObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitShiftRightObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 {
@@ -497,11 +619,11 @@ BObjectImp* BObjectImp::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitAndObjImp( const BObjectImp& objimp ) const
 {
@@ -509,11 +631,11 @@ BObjectImp* BObjectImp::selfBitAndObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitAndObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitAndObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitOrObjImp( const BObjectImp& objimp ) const
 {
@@ -521,11 +643,11 @@ BObjectImp* BObjectImp::selfBitOrObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitOrObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitOrObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitXorObjImp( const BObjectImp& objimp ) const
 {
@@ -533,11 +655,11 @@ BObjectImp* BObjectImp::selfBitXorObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitXorObj( const BObjectImp& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::selfBitXorObj( const BLong& /*objimp*/ ) const
 {
-  return copy();
+  return nullptr;  // no rule for this pair; see specs/escript/15
 }
 BObjectImp* BObjectImp::bitnot() const
 {
