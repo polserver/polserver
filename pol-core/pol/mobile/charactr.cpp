@@ -1173,9 +1173,11 @@ bool Character::can_access( const Items::Item* item, int range ) const
   if ( range == -1 )
     range = Core::settingsManager.ssopt.default_accessible_range;
 
-  const bool within_range =
-      ( range < -1 ) || item->in_range( this, Clib::clamp_convert<u16>( range ) );
-  if ( within_range && ( find_legal_item( this, item->serial ) != nullptr ) )
+  // Being shown a container is what puts its contents in reach, and a bank box is the case that
+  // matters: it stands nowhere, so a plain distance test refuses it on the realm comparison before
+  // any coordinate is measured. Same question the lift, drop and double-click paths ask.
+  const bool within_reach = ( range < -1 ) || can_reach( item, Clib::clamp_convert<u16>( range ) );
+  if ( within_reach && ( find_legal_item( this, item->serial ) != nullptr ) )
     return true;
 
   return false;

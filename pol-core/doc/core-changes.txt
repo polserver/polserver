@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+08-23-2026 AsYlum:
+    Fixed: uo::Accessible() returned 0 for the contents of a container opened with
+           uo::SendOpenSpecialContainer(), a bank box for instance.
 08-22-2026 AsYlum:
     Added: PolCore().log_memory_usage( sections := uninit ), PolCore().log_script_memory()
            and PolCore().log_script_variables( script ), the memory reports that used to be

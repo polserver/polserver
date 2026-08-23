@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>08/09/2026</datemodified>
+    <datemodified>08/23/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -1216,7 +1216,7 @@ const TE_STYLE_NUMERICAL:= 2;</code></explain>
   <explain>An item on the ground, within "range" squares (defaults to "DefaultAccessibleRange" from servspecopt). Use ACCESSIBLE_IGNOREDISTANCE to avoid this check. </explain>
   <explain>An item equipped by the character </explain>
   <explain>An item inside the character's backpack </explain>
-  <explain>A temporarily accessible item </explain>
+  <explain>A temporarily accessible item: one inside a container the character was shown with SendOpenSpecialContainer(), a bank box for instance. Such a container stands nowhere, so no distance is measured against it - having been shown it is what puts its contents in reach, and that ends as soon as the character moves. </explain>
   <explain>Notes: Does not check that character has line-of-sight to item. </explain>
   <return>0 if item does not fall into one of the above categories, 1 if the item does. </return>
   <error>none</error>
