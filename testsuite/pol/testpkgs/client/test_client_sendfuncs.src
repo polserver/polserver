@@ -1,0 +1,433 @@
+use os;
+use uo;
+use unicode;
+
+include "testutil";
+include "communication";
+
+// The uo.em functions that put a packet on a client's socket and nothing else. Every one of them
+// was uncalled: they are the shard telling a client something, so nothing without a client could
+// reach them, and the packages that do have clients had no reason to.
+//
+// Three of the packets here had no decoder in the test client at all, which is why they could not
+// be called even by accident: an unknown packet id ends the client's connection.
+
+const TIP_TEXT := "a tip nobody asked for";
+const SEASON_DESOLATION := 4;
+const ARROW_X := 120;
+const ARROW_Y := 60;
+const ARROW_ID := 0x1234;
+const MENU_NAME := "TestMenuMain";
+// A house the shard knows, for the placement cursor: the core refuses an objtype that is neither
+// a house nor a boat before it sends anything.
+const PLACE_HOUSE := 0x12000;
+const PLACE_X := 118;
+const PLACE_Y := 72;
+const MENU_TITLE := "Test Main Menu";
+
+// A sound packet as the bytes it is, for SendPacket: type, mode, the sound, two unread bytes and
+// the place. 0x1F3 is what the shard puts on the wire for sound 0x1F4.
+const RAW_SOUND := "5401" + "01F3" + "0000" + "0064" + "0032" + "0000";
+const RAW_SOUND_ID := 0x1F3;
+
+const HOME_X := 100;
+const HOME_Y := 50;
+
+var char;
+var char2;
+
+// takes ownership of the client events, which is what puts them in this script's queue
+var clientcon := getClientConnection();
+
+program test_client_sendfuncs()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, HOME_X + 1, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Waits for one event of the given type told to the given client.
+function wait_event( id, type, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != type or CInt( ev.id ) != id )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} was never sent a {type}" );
+endfunction
+
+exported function sendfuncs_send_packet()
+  // Bytes handed over as hex reach the client as they are, which is the whole of what this does.
+  drain_events();
+  var res := SendPacket( char, RAW_SOUND );
+  if ( !res )
+    return ret_error( $"the packet was refused: {res}" );
+  endif
+  var ev := wait_event( 0, EVT_SOUND );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.sound ) != RAW_SOUND_ID )
+    return ret_error( $"the client heard 0x{ev.sound:x}, expected 0x{RAW_SOUND_ID:x}" );
+  endif
+
+  // half a byte is no byte: the string has to be whole pairs
+  res := SendPacket( char, "540" );
+  if ( res )
+    return ret_error( "a packet of odd length was accepted" );
+  endif
+  if ( res.errortext != "Invalid packet string length." )
+    return ret_error( $"it was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_tip_window()
+  // The tip window carries its text counted rather than terminated, and an id the client uses to
+  // ask for the same tip again.
+  drain_events();
+  var res := SendStringAsTipWindow( char, TIP_TEXT );
+  if ( !res )
+    return ret_error( $"the tip was refused: {res}" );
+  endif
+  var ev := wait_event( 0, EVT_TIP_WINDOW );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.text != TIP_TEXT )
+    return ret_error( $"the tip read \"{ev.text}\"" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_skill_window()
+  // The skill window is every skill the character has, sent as one list.
+  drain_events();
+  var res := SendSkillWindow( char, char );
+  if ( !res )
+    return ret_error( $"the skill window was refused: {res}" );
+  endif
+  var ev := wait_event( 0, EVT_SKILLS );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.skills ) < 1 )
+    return ret_error( "the window listed no skills at all" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_overall_season()
+  // The season reaches every client, not just one, and carries whether to start its music.
+  drain_events();
+  var res := SendOverallSeason( SEASON_DESOLATION, 0 );
+  if ( !res )
+    return ret_error( $"the season was refused: {res}" );
+  endif
+
+  // both clients are told, in either order
+  var deadline := ReadMillisecondClock() + 10000;
+  var seen := array{ 0, 0 };
+  while ( ReadMillisecondClock() < deadline and ( !seen[1] or !seen[2] ) )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SEASON )
+      continue;
+    endif
+    if ( CInt( ev.season ) != SEASON_DESOLATION )
+      return ret_error( $"client {ev.id} was told season {ev.season}" );
+    endif
+    seen[CInt( ev.id ) + 1] := ev;
+  endwhile
+  if ( !seen[1] or !seen[2] )
+    return ret_error( "the season did not reach both clients" );
+  endif
+
+  // put the shard back to the season everything else runs in
+  SendOverallSeason( 0, 0 );
+  return 1;
+endfunction
+
+exported function sendfuncs_quest_arrow( resmgr )
+  // The arrow is raised at a place and taken away again; the packet is the same one either way,
+  // and a flag says which.
+  drain_events();
+  var res := SendQuestArrow( char, ARROW_X, ARROW_Y, ARROW_ID );
+  if ( !res )
+    return ret_error( $"the arrow was refused: {res}" );
+  endif
+  var ev := wait_event( 0, EVT_QUEST_ARROW );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.active ) )
+    return ret_error( "the arrow arrived switched off" );
+  endif
+  if ( CInt( ev.pos[1] ) != ARROW_X or CInt( ev.pos[2] ) != ARROW_Y )
+    return ret_error( $"it points at {ev.pos[1]},{ev.pos[2]}" );
+  endif
+  if ( CInt( ev.arrowid ) != ARROW_ID )
+    return ret_error( $"it carries id 0x{ev.arrowid:x}, expected 0x{ARROW_ID:x}" );
+  endif
+
+  // no place at all takes it away
+  drain_events();
+  res := SendQuestArrow( char, arrowid := ARROW_ID );
+  if ( !res )
+    return ret_error( $"the arrow could not be taken away: {res}" );
+  endif
+  ev := wait_event( 0, EVT_QUEST_ARROW );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.active ) )
+    return ret_error( "the arrow was not taken away" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_menu()
+  // An old style menu, named by the entry in menus.cfg. Its entries come with it, so this is also
+  // what says the sub menu is an entry like any other.
+  drain_events();
+  var res := SelectMenuItem2( char, MENU_NAME );
+  if ( res == error )
+    return ret_error( $"the menu was refused: {res}" );
+  endif
+  var ev := wait_event( 0, EVT_MENU );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.title != MENU_TITLE )
+    return ret_error( $"the menu is titled \"{ev.title}\"" );
+  endif
+  if ( ev.entries.size() != 2 )
+    return ret_error( $"it carries {ev.entries.size()} entries, expected 2" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_multi_placement()
+  // The cursor for placing a house arrives in a packet of its own, and is answered with the
+  // ordinary target reply. The call suspends the script until then, so the client is told to
+  // answer *before* the cursor is raised.
+  drain_events();
+  clientcon.sendevent( struct{ todo := "place_multi",
+                               arg := struct{ x := PLACE_X, y := PLACE_Y, z := 0 },
+                               id := 0 } );
+
+  var where := TargetMultiPlacement( char, PLACE_HOUSE );
+  if ( where == error )
+    return ret_error( $"the placement was refused: {where}" );
+  endif
+  if ( where.x != PLACE_X or where.y != PLACE_Y )
+    return ret_error( $"the client placed it at {where.x},{where.y}" );
+  endif
+
+  // and the client really was shown a cursor carrying the multi
+  var deadline := ReadMillisecondClock() + 10000;
+  var shown := 0, placed := 0;
+  while ( ReadMillisecondClock() < deadline and ( !shown or !placed ) )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( ev.type == EVT_MULTI_PLACEMENT )
+      shown := ev;
+    elseif ( ev.type == EVT_MULTI_PLACED )
+      placed := ev;
+    endif
+  endwhile
+  if ( !shown )
+    return ret_error( "the client was never shown a placement cursor" );
+  endif
+  if ( !placed or !CInt( placed.res ) )
+    return ret_error( "the client never answered the placement cursor" );
+  endif
+  if ( !CInt( shown.multiid ) )
+    return ret_error( $"the cursor carried multi 0x{shown.multiid:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_multi_placement_bad()
+  // An objtype that is no multi at all never reaches the client.
+  var res := TargetMultiPlacement( char, 0xE75 );
+  if ( res )
+    return ret_error( "a backpack was accepted as a multi" );
+  endif
+  if ( res.errortext != "Object Type is out of range for Multis" )
+    return ret_error( $"it was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// Waits for the client to be sent an object it already knows.
+function wait_refresh( id, serial, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_REFRESH_OBJ or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.serial ) != serial )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} was never sent 0x{serial:x} again" );
+endfunction
+
+exported function sendfuncs_update_item( resmgr )
+  // UpdateItem sends an item the client already has, again. Nothing about the item changes, which
+  // is the point: this is the re-send on its own, with no reason of its own to happen.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  drain_events();
+  res := UpdateItem( it );
+  if ( !res )
+    return ret_error( $"the update was refused: {res}" );
+  endif
+  var ev := wait_refresh( 0, it.serial );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.graphic ) != 0xE75 )
+    return ret_error( $"it was sent as graphic 0x{ev.graphic:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_update_mobile()
+  // The same for a mobile, in the packet a mobile is sent in.
+  drain_events();
+  var res := UpdateMobile( char2 );
+  if ( !res )
+    return ret_error( $"the update was refused: {res}" );
+  endif
+  var ev := wait_refresh( 0, char2.serial );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_single_click( resmgr )
+  // The script side of a single click: the client is told what it would have been told had the
+  // player clicked the thing itself, which for an item is its description.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y + 1, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  it.name := "clicked from a script";
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  drain_events();
+  res := SingleClick( char, it );
+  if ( !res )
+    return ret_error( $"the click was refused: {res}" );
+  endif
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( ev.msg.find( "clicked from a script" ) == 1 )
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the client was never told what was clicked" );
+endfunction
+
+// What the client is told to type into the prompt below.
+const PROMPT_ANSWER := "answered by the client";
+
+exported function sendfuncs_request_input_uc( resmgr )
+  // A unicode prompt: the character is asked for a line of text and the script is suspended until
+  // the client sends one back. The answer carries the language it was typed in as well as the
+  // text, which is the whole of what the unicode form adds.
+  //
+  // The item is a placeholder the core only takes a serial from - it names the prompt, and comes
+  // back to the client in the answer.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y + 2, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+
+  drain_events();
+  clientcon.sendevent( struct{ todo := "prompt_reply", arg := struct{
+                                                       text := PROMPT_ANSWER }, id := 0 } );
+  var armed := waitForClient( 0, { EVT_PACKET_SENT } );
+  if ( !armed )
+    return ret_error( "the client never acknowledged the armed reply" );
+  endif
+
+  var answer := RequestInputUC( char, it, "type something", "ENU" );
+  if ( answer == error )
+    return ret_error( $"the prompt was refused: {answer}" );
+  endif
+  if ( answer.text != PROMPT_ANSWER )
+    return ret_error( $"the client typed \"{answer.text}\"" );
+  endif
+  if ( answer.lang != "ENU" )
+    return ret_error( $"the answer came back in {answer.lang}" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_request_input_uc_bad( resmgr )
+  // The language code is three characters, and nothing else is accepted.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y + 3, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  var res := RequestInputUC( char, it, "type something", "ENGLISH" );
+  if ( res )
+    return ret_error( "a seven character language code was accepted" );
+  endif
+  if ( res.errortext != "langcode must be a 3-character code." )
+    return ret_error( $"it was refused with: {res.errortext}" );
+  endif
+
+  // and an offline character has no client to ask
+  var offline := createAccountWithChar( "promptoffline", "pass" );
+  if ( !offline )
+    return offline;
+  endif
+  res := RequestInputUC( offline, it, "type something", "ENU" );
+  if ( res )
+    return ret_error( "an offline character was prompted" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"it was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction

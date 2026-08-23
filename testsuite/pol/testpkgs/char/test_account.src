@@ -62,3 +62,27 @@ exported function account_copies_by_value( unused resmngr )
 
   return 1;
 endfunction
+
+// Every account the shard has. What comes back is the account *names*, not account objects, which
+// is the whole of what this reports.
+exported function account_list_all( unused resmngr )
+  var all := ListAccounts();
+  if ( !all )
+    return ret_error( $"no accounts were listed: {all}" );
+  endif
+  if ( !all.size() )
+    return ret_error( "the shard listed no accounts at all" );
+  endif
+
+  var found := 0;
+  foreach entry in ( all )
+    if ( entry == acct.name )
+      found := 1;
+      break;
+    endif
+  endforeach
+  if ( !found )
+    return ret_error( $"the account this file made is not in the list: {all}" );
+  endif
+  return 1;
+endfunction

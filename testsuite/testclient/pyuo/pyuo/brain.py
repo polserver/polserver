@@ -223,6 +223,15 @@ class Event:
   EVT_BUFF = 126
   EVT_CHAR_PROFILE = 127
   EVT_ANIMATION = 128
+  EVT_QUEST_ARROW = 129
+  EVT_MULTI_PLACEMENT = 130
+  EVT_MENU = 131
+  EVT_TIP_WINDOW = 132
+  EVT_SEASON = 133
+  EVT_SKILLS = 134
+  EVT_MULTI_PLACED = 135
+  EVT_REFRESH_OBJ = 136
+  EVT_PROMPT = 137
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -273,6 +282,24 @@ class Event:
       return "char_profile"
     elif self.type==Event.EVT_ANIMATION:
       return "animation"
+    elif self.type==Event.EVT_QUEST_ARROW:
+      return "quest_arrow"
+    elif self.type==Event.EVT_MULTI_PLACEMENT:
+      return "multi_placement"
+    elif self.type==Event.EVT_MENU:
+      return "menu"
+    elif self.type==Event.EVT_TIP_WINDOW:
+      return "tip_window"
+    elif self.type==Event.EVT_SEASON:
+      return "season"
+    elif self.type==Event.EVT_SKILLS:
+      return "skills"
+    elif self.type==Event.EVT_MULTI_PLACED:
+      return "multi_placed"
+    elif self.type==Event.EVT_REFRESH_OBJ:
+      return "refresh_obj"
+    elif self.type==Event.EVT_PROMPT:
+      return "prompt"
     elif self.type==Event.EVT_CLOSE_WINDOW:
       return "close_window"
     elif self.type==Event.EVT_GUMP_REPLY:

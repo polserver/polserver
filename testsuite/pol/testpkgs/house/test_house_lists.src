@@ -1,0 +1,81 @@
+use uo;
+use os;
+
+include "testutil";
+
+// What a house can be asked about its contents, and the statics a custom house puts under a
+// location. Both are answered by walking the house rather than by anything it keeps, which is why
+// neither is reached by simply making one.
+
+// SmallHouse, whose footprint is the multi's place plus and minus three, so its middle really is
+// inside it. The dirt holes the custom-house cases use have no interior to stand in.
+const SMALL_HOUSE := 0x12000;
+const HOUSE_X := 110;
+const HOUSE_Y := 75;
+
+program test_house_lists()
+  return 1;
+endprogram
+
+exported function house_mobiles_list( resources )
+  // .mobiles is every mobile standing in the house, and nothing else: the items inside it are a
+  // list of their own, and a mobile outside is not in either.
+  var multi := resources.CreateMultiAtLocation( HOUSE_X, HOUSE_Y, 0, SMALL_HOUSE );
+  if ( !multi )
+    return multi;
+  endif
+  if ( multi.mobiles.size() )
+    return ret_error( $"a new house already holds {multi.mobiles.size()} mobiles" );
+  endif
+
+  var npc := resources.CreateNPCFromTemplate( ":testnpc:probe_npc", multi.x, multi.y, multi.z );
+  if ( !npc )
+    return ret_error( $"could not create the npc: {npc}" );
+  endif
+  var inside := multi.mobiles;
+  if ( inside.size() != 1 )
+    return ret_error( $"the house holds {inside.size()} mobiles, expected 1" );
+  endif
+  if ( inside[1].serial != npc.serial )
+    return ret_error( $"it holds 0x{inside[1].serial:x}, expected 0x{npc.serial:x}" );
+  endif
+
+  // an item in the house is not a mobile
+  var it := resources.CreateItemAtLocation( multi.x, multi.y, multi.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  if ( multi.mobiles.size() != 1 )
+    return ret_error( $"an item was counted as a mobile: {multi.mobiles.size()}" );
+  endif
+
+  // and a mobile that walks out is gone from the list
+  MoveObjectToLocation( npc, HOUSE_X + 20, HOUSE_Y + 20, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( multi.mobiles.size() )
+    return ret_error( "a mobile outside the house is still on its list" );
+  endif
+  return 1;
+endfunction
+
+exported function house_method_script( resources )
+  // A method the house class does not know is passed to the script the itemdesc names, and what
+  // that script returns is the answer.
+  var multi := resources.CreateMultiAtLocation( HOUSE_X + 30, HOUSE_Y, 0, 0x12004 );
+  if ( !multi )
+    return multi;
+  endif
+  var res := multi.housemethod( 1, 2 );
+  if ( res.errortext )
+    return ret_error( $"the method script refused it: {res.errortext}" );
+  endif
+  if ( res[1] != "house" or res[3] != 3 )
+    return ret_error( $"the script answered {res}" );
+  endif
+
+  // one it does not know either is refused, and the refusal is the script's
+  res := multi.nosuchmethod();
+  if ( !res.errortext )
+    return ret_error( "an unknown method was not refused" );
+  endif
+  return 1;
+endfunction

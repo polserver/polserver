@@ -27,7 +27,7 @@ program test_custom_house_parts()
 endprogram
 
 function make_custom_house( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -233,7 +233,7 @@ endfunction
 
 // none of the design surface answers on a house that was never made custom
 exported function test_customhouse_not_custom( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif

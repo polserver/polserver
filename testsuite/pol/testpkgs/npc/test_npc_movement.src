@@ -348,3 +348,44 @@ exported function wander_steps_once( resmngr )
 
   return 1;
 endfunction
+
+// SendEvent is the free function form of npc.process.sendevent(), which every other case here
+// uses: the same event, addressed to the NPC rather than to its script.
+exported function npc_send_event_function( resmngr )
+  var npc := make_remote_npc( resmngr, 100, 60, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var sent := SendEvent( npc, struct{ cmd := "position", args := 0 } );
+  if ( !sent )
+    return ret_error( $"the event was not taken: {sent}" );
+  endif
+
+  var deadline := ReadMillisecondClock() + RESULT_TIMEOUT_SEC * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := wait_for_event( 1 );
+    if ( ev && ev.type == "result" && ev.cmd == "position" )
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the AI script never answered the event" );
+endfunction
+
+// A player character has no AI script to send anything to.
+exported function npc_send_event_refusals( unused resmngr )
+  // A character of this package's own: the client characters belong to the client package's
+  // setup, which a filtered run of this package alone never executes.
+  var pc := createAccountWithChar( "npcsendevent", "pass" );
+  if ( !pc )
+    return ret_error( $"could not make a player character: {pc}" );
+  endif
+  var res := SendEvent( pc, struct{ cmd := "position" } );
+  if ( res )
+    return ret_error( "a player character accepted an npc event" );
+  endif
+  if ( res.errortext != "That mobile is not an NPC" )
+    return ret_error( $"it was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction

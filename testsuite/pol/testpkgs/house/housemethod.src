@@ -1,0 +1,9 @@
+// The method script of the MethodHouse itemdesc entry. The core looks for an exported function
+// named after the method the script called, and hands it the house as the first parameter.
+program housemethod()
+  return 1;
+endprogram
+
+exported function housemethod( house, first, second )
+  return array{ "house", house.multiid, first + second };
+endfunction

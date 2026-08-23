@@ -1,0 +1,155 @@
+// The target cursors the party system raises, and what a member's client going away does to the
+// party.
+//
+// A leader who asks to add or remove somebody without naming them is answered with a cursor
+// instead. The existing party tests raise those cursors and only ever cancel them, which is why
+// neither handler had run: what is new here is answering one.
+
+include "party";
+
+program test_party_cursor()
+  return party_setup();
+endprogram
+
+// Answers the cursor the core just raised with the given object. The client is armed first: the
+// todo waits up to five seconds of its own, and the cursor is already out by the time this is
+// called, so the two cannot race.
+function answer_cursor( id, serial )
+  clientcon.sendevent( struct{ todo := "target", arg := struct{ serial := serial }, id := id } );
+  var ev := waitForClient( id, { EVT_TARGET } );
+  if ( !ev )
+    return ret_error( $"client {id} never answered the cursor" );
+  endif
+  if ( !ev.res )
+    return ret_error( $"client {id} was shown no cursor" );
+  endif
+  return 1;
+endfunction
+
+exported function cursor_adds_a_member( unused resmgn )
+  // A leader asking to add nobody in particular is given a cursor, and whoever is picked with it
+  // is invited exactly as if they had been named.
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  // char2 is already in the party, so a third character is needed for the invitation to mean
+  // anything. There is none, so the party is taken apart first and rebuilt through the cursor.
+  res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_invite( 0, 0 );
+  res := collect_events( { want_cliloc( 0, CLP_WHO_TO_ADD ) } );
+  if ( !res )
+    return party_fail( $"the leader was not asked who to add: {res}" );
+  endif
+
+  res := answer_cursor( 0, char2.serial );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // the invitation reaches the other client the same way a named one does
+  res := collect_events( { want_party( 1, PARTYCMD_INVITE_MEMBER ) } );
+  if ( !res )
+    return party_fail( $"the picked character was never invited: {res}" );
+  endif
+  return party_finish( 1 );
+endfunction
+
+exported function cursor_removes_a_member( unused resmgn )
+  // A leader asking to remove a serial nothing has is given a cursor, and whoever is picked with
+  // it is thrown out.
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 0, 0x7FFFFFF0 );
+  res := collect_events( { want_cliloc( 0, CLP_WHO_TO_REMOVE ) } );
+  if ( !res )
+    return party_fail( $"the leader was not asked who to remove: {res}" );
+  endif
+
+  res := answer_cursor( 0, char2.serial );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // being removed leaves the member with a list holding nobody but itself
+  res := wait_for_party( 1, PARTYCMD_REMOVE );
+  if ( !res )
+    return party_fail( $"the picked member was never removed: {res}" );
+  endif
+  if ( char2.party )
+    return party_fail( "the removed member is still in a party" );
+  endif
+  return party_finish( 1 );
+endfunction
+
+exported function cursor_refuses_the_leader( unused resmgn )
+  // A leader may not remove himself with the cursor: that is the one way out of a party a leader
+  // does not have.
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 0, 0x7FFFFFF0 );
+  res := collect_events( { want_cliloc( 0, CLP_WHO_TO_REMOVE ) } );
+  if ( !res )
+    return party_fail( $"the leader was not asked who to remove: {res}" );
+  endif
+
+  res := answer_cursor( 0, char.serial );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  res := collect_events( { want_cliloc( 0, CLP_CANNOT_REMOVE_SELF ) } );
+  if ( !res )
+    return party_fail( $"the leader was not refused: {res}" );
+  endif
+  if ( !char2.party )
+    return party_fail( "the party fell apart when the leader picked himself" );
+  endif
+  return party_finish( 1 );
+endfunction
+
+exported function cursor_ignores_a_stranger( unused resmgn )
+  // Somebody who is not in the party is not removed from it, and nothing is said about it.
+  var res := build_party();
+  if ( !res )
+    return res;
+  endif
+  var npc := CreateNpcFromTemplate( ":testnpc:probe_npc", char.x, char.y + 2, char.z );
+  if ( !npc )
+    return party_fail( $"could not create the probe npc: {npc}" );
+  endif
+
+  Clear_Event_Queue();
+  send_party_remove( 0, 0x7FFFFFF0 );
+  res := collect_events( { want_cliloc( 0, CLP_WHO_TO_REMOVE ) } );
+  if ( !res )
+    npc.destroy();
+    return party_fail( $"the leader was not asked who to remove: {res}" );
+  endif
+
+  res := answer_cursor( 0, npc.serial );
+  npc.destroy();
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+
+  // the party is untouched
+  if ( !char2.party or !char.party )
+    return party_fail( "picking a stranger broke the party" );
+  endif
+  return party_finish( 1 );
+endfunction

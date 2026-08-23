@@ -45,7 +45,7 @@ function create_npc( resources, x, y, multi )
 endfunction
 
 exported function keep_components( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, "SmallHouse" );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, "SmallHouse" );
   if ( !multi )
     return multi;
   endif
@@ -73,7 +73,7 @@ exported function keep_components( resources )
 endfunction
 
 exported function recreate_components( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, "SmallHouse" );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, "SmallHouse" );
   if ( !multi )
     return multi;
   endif

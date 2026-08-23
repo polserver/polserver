@@ -635,6 +635,9 @@ class Client(threading.Thread):
 
     self.gumps=[] # open gumps
     self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
+    self.next_menu_choice=None # armed by the menu_choice todo, consumed by the next menu
+    self.multi_placement=None # the last multi placement cursor, answered by placeMulti()
+    self.next_prompt_reply=None # armed by the prompt_reply todo, consumed by the next prompt
     # armed by the dialog_reply todo, keyed by dialog kind, consumed by the next one of that kind
     self.next_dialog_reply={}
 
@@ -870,6 +873,9 @@ class Client(threading.Thread):
       assert self.lc
       self.objects[pkt.serial].update(pkt)
       self.log.info("Updated mobile: %s", self.objects[pkt.serial])
+      # same as a refreshed item: silent otherwise, and UpdateMobile() is the re-send
+      self.brain.event(brain.Event(brain.Event.EVT_REFRESH_OBJ, serial=pkt.serial,
+          graphic=pkt.graphic, color=self.objects[pkt.serial].color))
 
     elif isinstance(pkt, packets.DeleteObjectPacket):
       assert self.lc
@@ -958,6 +964,9 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.TipWindowPacket):
       assert self.lc
       self.log.info("Received tip: %s", pkt.msg.replace('\r','\n'))
+      # "flag" is 0 for a tip and 1 for a notice; the core only ever sends notices
+      self.brain.event(brain.Event(brain.Event.EVT_TIP_WINDOW, flag=pkt.flag,
+          tipid=pkt.tipid, text=pkt.msg))
 
     elif isinstance(pkt, packets.SendSpeechPacket) or isinstance(pkt, packets.UnicodeSpeechPacket):
       speech = Speech(self, pkt)
@@ -1004,6 +1013,51 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
           serial=pkt.serial, action=pkt.action, frames=pkt.frames, repeat=pkt.repeat,
           delay=pkt.delay))
+
+    elif isinstance(pkt, packets.UnicodePromptPacket):
+      assert self.lc
+      # RequestInputUC suspends the script that raised the prompt until this is answered,
+      # so the client always answers: what the prompt_reply todo armed, or a fixed line.
+      # An empty text is how a real client cancels.
+      reply = self.next_prompt_reply
+      self.next_prompt_reply = None
+      po = packets.UnicodePromptPacket()
+      po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
+      self.queue(po)
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+
+    elif isinstance(pkt, packets.QuestArrowPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_QUEST_ARROW, active=pkt.active,
+          x=pkt.x, y=pkt.y, arrowid=pkt.arrowid))
+
+    elif isinstance(pkt, packets.MultiPlacementPacket):
+      assert self.lc
+      # kept so placeMulti() can answer it: the script that asked for the cursor is
+      # suspended until a 0x6C carrying this same cursor id comes back
+      self.multi_placement = {'cursorid': pkt.cursorid, 'multiid': pkt.multiid}
+      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, cursorid=pkt.cursorid,
+          multiid=pkt.multiid, xoffset=pkt.xoffset, yoffset=pkt.yoffset, hue=pkt.hue))
+
+    elif isinstance(pkt, packets.MenuPacket):
+      assert self.lc
+      # A menu blocks the script that opened it until it is answered, so the client always
+      # answers: the first entry, or what the next_menu_choice todo armed. Nothing else in
+      # this client picks an entry, so an unanswered menu would park the script for good.
+      choice = self.next_menu_choice
+      self.next_menu_choice = None
+      po = packets.MenuResponsePacket()
+      po.fill(pkt.serial, pkt.menuid, 1 if choice is None else int(choice),
+              pkt.entries[0]['graphic'] if pkt.entries else 0)
+      self.queue(po)
+      self.brain.event(brain.Event(brain.Event.EVT_MENU, menuid=pkt.menuid,
+          title=pkt.title, entries=pkt.entries))
+
+    elif isinstance(pkt, packets.SeasonInfoPacket):
+      assert self.lc
+      # the packet calls them flag and sound: which season, and whether to start its music
+      self.brain.event(brain.Event(brain.Event.EVT_SEASON, season=pkt.flag,
+          playsound=pkt.sound))
 
     elif isinstance(pkt, packets.NewCharacterAnimationPacket):
       assert self.lc
@@ -1095,10 +1149,8 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.OverallLightLevelPacket):
       self.log.info('Ignoring light level packet')
 
-    elif isinstance(pkt, packets.SeasonInfoPacket):
-      self.log.info('Ignoring season packet')
     elif isinstance(pkt, packets.SendSkillsPacket):
-      self.log.info('Ignoring skills packet')
+      self.brain.event(brain.Event(brain.Event.EVT_SKILLS, skills=pkt.skills))
     elif isinstance(pkt, packets.NewSubServerPacket):
       self.brain.event(brain.Event(brain.Event.EVT_NEW_SUBSERVER))
       self.log.info('Ignoring new subserver packet')
@@ -1336,6 +1388,11 @@ class Client(threading.Thread):
       self.objects[pkt.serial].update(pkt)
       if not self.disable_item_logging:
         self.log.info("Refresh item: %s", self.objects[pkt.serial])
+      # An item the client already knows is updated in place and would otherwise be
+      # silent, so nothing could tell a re-send apart from never having been sent.
+      # UpdateItem() is exactly that re-send.
+      self.brain.event(brain.Event(brain.Event.EVT_REFRESH_OBJ, serial=pkt.serial,
+          graphic=pkt.graphic, color=self.objects[pkt.serial].color))
     else:
       item = Item(self, pkt)
       if not self.player.inRange(item):
@@ -1798,6 +1855,30 @@ class Client(threading.Thread):
     po = packets.AOSTooltipPacket()
     po.fill(serials)
     self.queue(po)
+
+  @logincomplete
+  def placeMulti(self, x, y, z=0, graphic=0, timeout=5):
+    '''! Answers a multi placement cursor with a place to put it
+    @param x int: where the multi goes
+    @param y int
+    @param z int
+    @param graphic int: what the client says it targeted. The core does not trust it
+                        and neither should a test.
+    @return True when a cursor was there to answer
+
+    The cursor arrives as a 0x99 of its own but is answered with the ordinary 0x6C,
+    carrying the cursor id the 0x99 brought. This waits for the cursor rather than
+    assuming it is already out: the script that raises it is suspended, so the todo
+    that answers has to be armed first.
+    '''
+    if not self.waitFor(lambda: self.multi_placement is not None, timeout):
+      return False
+    cursorid = self.multi_placement['cursorid']
+    self.multi_placement = None
+    po = packets.TargetCursorPacket()
+    po.fill(po.LOCATION, cursorid, po.NEUTRAL, 0, x, y, z, graphic)
+    self.queue(po)
+    return True
 
   @logincomplete
   def answerTarget(self, serial, cursorid, type=0):

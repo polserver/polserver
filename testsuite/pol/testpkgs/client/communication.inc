@@ -36,6 +36,22 @@ const EVT_CHAR_PROFILE := "char_profile";
 const EVT_ANIMATION := "animation";
 const ANIM_PKT_OLD := 0x6E;
 const ANIM_PKT_NEW := 0xE2;
+// What the shard tells one client and nothing else: the arrow pointing at a place, the cursor for
+// placing a multi, an old style menu, a tip window, the season, and the skill list.
+const EVT_QUEST_ARROW := "quest_arrow";
+const EVT_MULTI_PLACEMENT := "multi_placement";
+// The ack of the place_multi todo: whether a placement cursor was there to answer.
+const EVT_MULTI_PLACED := "multi_placed";
+// An object the client already knew, sent to it again. It is updated in place and says nothing
+// otherwise, so this is the only way to see that a re-send happened at all.
+const EVT_REFRESH_OBJ := "refresh_obj";
+// The prompt RequestInputUC raises. The client always answers one, because the script that raised
+// it is suspended until then; the prompt_reply todo says what with.
+const EVT_PROMPT := "prompt";
+const EVT_MENU := "menu";
+const EVT_TIP_WINDOW := "tip_window";
+const EVT_SEASON := "season";
+const EVT_SKILLS := "skills";
 // What the "kind" of an effect says the client should draw. Named for the field rather than for
 // the effect, because eScript identifiers are case insensitive and a case called
 // effect_stationary would collide with a constant called EFFECT_STATIONARY.
@@ -182,6 +198,7 @@ const CLP_PLAYER_REMOVED := 1005452;
 const CLP_ADD_NO_LEADER := 1005453;
 const CLP_WHO_TO_ADD := 1005454;
 const CLP_WHO_TO_REMOVE := 1005455;
+const CLP_CANNOT_REMOVE_SELF := 1005446;
 const CLP_INVITE := 1008089;
 const CLP_INVITED := 1008090;
 const CLP_NOTIFY_DECLINE := 1008091;

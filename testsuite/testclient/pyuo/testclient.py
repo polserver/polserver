@@ -335,6 +335,21 @@ class TestBrain(brain.Brain):
       elif todo=="map_pin":
         self.client.mapPin(int(arg['serial']), int(arg['action']),
           int(arg.get('pinidx', 0)), int(arg.get('x', 0)), int(arg.get('y', 0)))
+      elif todo=="prompt_reply":
+        # armed before the script raises the prompt, because that call suspends it
+        self.client.next_prompt_reply=arg.get('text', '')
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_PACKET_SENT,
+            clientid = self.id
+            ))
+      elif todo=="place_multi":
+        # armed before the script raises the cursor, because that call suspends it
+        placed=self.client.placeMulti(int(arg['x']), int(arg['y']), int(arg.get('z', 0)),
+          int(arg.get('graphic', 0)))
+        self.server.addevent(
+          brain.Event(brain.Event.EVT_MULTI_PLACED,
+            clientid = self.id,
+            res = placed))
       elif todo=="client_packet":
         # One packet the client knows how to build, named by what it is. Acked,
         # because the test has to know it is on its way before it asserts what it
@@ -457,7 +472,11 @@ class PolServer:
   def _accept(self, gameport):
     started = time.monotonic()
     shard_seen = False
-    while True:
+    # Bounded, unlike the waits in deafclient.py and rawpeer.py: those serve requests all run
+    # long and must outlive nothing but the shard, while this one is the pipeline's first
+    # stage and holds the whole run open. A filtered run that selects no client test is never
+    # asked to connect at all, and only this deadline ends it.
+    while time.monotonic() - started < HARD_DEADLINE_SECS:
       try:
         conn, _ = self.s.accept()
         return conn
@@ -466,11 +485,7 @@ class PolServer:
           shard_seen = True
         elif shard_seen:
           raise ShardGone('shard stopped without connecting a test client')
-        # The deadline only ends a wait for a shard that never turned up, as the comment
-        # above says: once one has been seen this waits as long as the run takes, because
-        # the package that drives this client can be minutes in.
-        elif time.monotonic() - started >= HARD_DEADLINE_SECS:
-          raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
+    raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
 
   def run(self):
     while True:
@@ -696,6 +711,38 @@ class PolServer:
       res["cl_descr"]=ev.cl_descr
       res["name_arguments"]=ev.name_arguments
       res["desc_arguments"]=ev.desc_arguments
+    elif ev.type==Event.EVT_QUEST_ARROW:
+      res["active"]=1 if ev.active else 0
+      res["pos"]=[ev.x, ev.y]
+      res["arrowid"]=ev.arrowid
+    elif ev.type==Event.EVT_PROMPT:
+      res["serial"]=ev.serial
+      res["msgid"]=ev.msgid
+    elif ev.type==Event.EVT_REFRESH_OBJ:
+      res["serial"]=ev.serial
+      res["graphic"]=ev.graphic
+      res["color"]=ev.color
+    elif ev.type==Event.EVT_MULTI_PLACED:
+      res["res"]=1 if ev.res else 0
+    elif ev.type==Event.EVT_MULTI_PLACEMENT:
+      res["cursorid"]=ev.cursorid
+      res["multiid"]=ev.multiid
+      res["xoffset"]=ev.xoffset
+      res["yoffset"]=ev.yoffset
+      res["hue"]=ev.hue
+    elif ev.type==Event.EVT_MENU:
+      res["menuid"]=ev.menuid
+      res["title"]=ev.title
+      res["entries"]=ev.entries
+    elif ev.type==Event.EVT_TIP_WINDOW:
+      res["flag"]=ev.flag
+      res["tipid"]=ev.tipid
+      res["text"]=ev.text
+    elif ev.type==Event.EVT_SEASON:
+      res["season"]=ev.season
+      res["playsound"]=ev.playsound
+    elif ev.type==Event.EVT_SKILLS:
+      res["skills"]=len(ev.skills)
     elif ev.type==Event.EVT_ANIMATION:
       res["cmd"]=ev.cmd
       res["serial"]=ev.serial

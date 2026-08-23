@@ -2997,6 +2997,132 @@ class HealthBarStatusUpdate(Packet):
     self.flags = self.duchar()
 
 
+class UnicodePromptPacket(Packet):
+  ''' The prompt a script raises with RequestInputUC, see PKTBI_C2 in the core
+
+  The server form is 21 bytes and says nothing but which object the prompt belongs
+  to; the answer carries the text, and the same packet id is used both ways.
+  '''
+
+  cmd = 0xc2
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.msgid = self.duint()
+    self.rpb(self.length - 11)     # ten unknown bytes from the server, the text from a client
+
+  def fill(self, serial, msgid, text, lang='ENU'):
+    '''!
+    @param text: what was typed, or an empty string for a cancel
+    '''
+    self.serial = serial
+    self.msgid = msgid
+    self.text = text
+    self.lang = lang
+    # header, the two ids, the unknown, the language, then the text. The core works the length
+    # out from the packet's own and says "note NO terminator", so none is written.
+    self.length = 3 + 4 + 4 + 4 + 4 + len(text) * 2
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.euint(self.msgid)
+    self.euint(1)                  # what a real client sends here
+    self.estring(self.lang, 4)
+    # host order, not network order: the core reads wtext straight out of the packet without
+    # converting it, unlike the character profile, which it writes flipped
+    self.buf += self.text.encode('utf_16_le')
+
+
+class QuestArrowPacket(Packet):
+  ''' The arrow pointing at a place, see mf_SendQuestArrow in the core
+
+  Sent both to raise the arrow and to take it away; "active" is which. The
+  coordinates are meaningless when it is being taken away - the core writes zeros
+  there - and the id is only present for a client new enough to track several
+  arrows at once.
+  '''
+
+  cmd = 0xba
+  length = 10
+
+  def decodeChild(self):
+    self.active = bool(self.duchar())
+    self.x = self.dushort()
+    self.y = self.dushort()
+    # the id is the one field the core writes in host order rather than network order,
+    # so it is read back the same way
+    self.arrowid = struct.unpack('<I', self.rpb(4))[0]
+
+
+class MultiPlacementPacket(Packet):
+  ''' A cursor for placing a multi, see MultiPlacementCursor in the core
+
+  The offsets say where the multi sits relative to the tile the cursor is over,
+  and the hue is only written for a client that can be sent one.
+  '''
+
+  cmd = 0x99
+  length = 30
+
+  def decodeChild(self):
+    self.allow = bool(self.duchar())
+    self.cursorid = self.duint()
+    self.rpb(12)                      # unknown, never written by the core
+    self.multiid = self.dushort()
+    self.xoffset = self.dsshort()
+    self.yoffset = self.dsshort()
+    self.rpb(2)                       # maybe a z offset, never written
+    self.hue = self.duint()
+
+
+class MenuResponsePacket(Packet):
+  ''' Which entry of an old-style menu was picked, see PKTIN_7D in the core
+
+  A menu blocks the script that opened it until this arrives, so the client always
+  answers one. Choice 0 is the cancel.
+  '''
+
+  cmd = 0x7d
+  length = 13
+
+  def fill(self, serial, menuid, choice, graphic=0):
+    self.serial = serial
+    self.menuid = menuid
+    self.choice = choice
+    self.graphic = graphic
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.eushort(self.menuid)
+    self.eushort(self.choice)
+    self.eushort(self.graphic)
+    self.eushort(0)
+
+
+class MenuPacket(Packet):
+  ''' An old-style menu, see send_menu in the core
+
+  Every text is counted rather than terminated, the count coming first as a
+  single byte, and the title is counted the same way.
+  '''
+
+  cmd = 0x7c
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.menuid = self.dushort()
+    self.title = self.dstring(self.duchar())
+    self.entries = []
+    for _ in range(self.duchar()):
+      graphic = self.dushort()
+      color = self.dushort()
+      self.entries.append({'graphic': graphic, 'color': color,
+                           'title': self.dstring(self.duchar())})
+
+
 class NewCharacterAnimationPacket(Packet):
   ''' Play an animation for a character, the form a 7.0.9.0 client is sent
 
