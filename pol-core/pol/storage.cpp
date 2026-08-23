@@ -265,6 +265,10 @@ void Storage::print_unit( const PrintUnit& unit, Clib::StreamWriter& sw )
 std::vector<Storage::PrintUnit> Storage::collect_print_units() const
 {
   std::vector<PrintUnit> units;
+  size_t count = areas.size();  // one unit opens each area
+  for ( const auto& area : areas )
+    count += area.second->root_item_count();
+  units.reserve( count );
   for ( const auto& area : areas )
   {
     units.push_back( { &area.first, nullptr } );

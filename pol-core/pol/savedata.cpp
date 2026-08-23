@@ -29,6 +29,7 @@
 #include "plib/systemstate.h"
 #include "pol/accounts/accounts.h"
 #include "pol/globals/object_storage.h"
+#include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
@@ -251,6 +252,12 @@ struct MobileSnapshot
 MobileSnapshot collect_mobiles()
 {
   MobileSnapshot mobiles;
+  // An NPC counts as a character too, so the players are the characters left over. Both are an
+  // upper bound - orphans and NPCs that are not saved drop out below - so the vectors are sized
+  // once instead of growing a pointer at a time.
+  const int npc_count = stateManager.uobjcount.npc_count;
+  mobiles.pcs.reserve( std::max( 0, stateManager.uobjcount.ucharacter_count - npc_count ) );
+  mobiles.npcs.reserve( npc_count );
   objStorageManager.objecthash.for_each_character(
       [&mobiles]( UObject* obj )
       {
@@ -271,6 +278,7 @@ MobileSnapshot collect_mobiles()
 std::vector<Items::Item*> collect_toplevel_items()
 {
   std::vector<Items::Item*> items;
+  items.reserve( get_toplevel_item_count() );
   for ( const auto& realm : gamestate.Realms )
   {
     for ( const auto& p : realm->gridarea() )

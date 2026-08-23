@@ -52,6 +52,7 @@ public:
 
   /// Visit each root item with the key it is filed under, which is not always its current name.
   void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
+  size_t root_item_count() const { return _items.size(); }
 
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
