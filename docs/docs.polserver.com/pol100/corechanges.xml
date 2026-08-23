@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-22-2026</datemodified>
+		<datemodified>08-23-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-23-2026</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">uo::Accessible() returned 0 for the contents of a container opened with<br/>
+uo::SendOpenSpecialContainer(), a bank box for instance.</change>
+		</entry>
 		<entry>
 			<date>08-22-2026</date>
 			<author>AsYlum:</author>

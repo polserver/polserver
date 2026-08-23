@@ -235,6 +235,76 @@ exported function bankbox_needs_no_position()
   return res;
 endfunction
 
+// Accessible() is the script-side form of the same question, and it has to answer the same way as
+// the paths a client takes. A bank box stands nowhere, so measuring a distance to it says it is
+// impossibly far -- realms first, since it is in none. The answer used to come out right only
+// because opening the box wrote the character's own coordinates onto it; being shown it is what
+// puts its contents in reach now.
+exported function bankbox_contents_are_accessible()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "accessbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    var home := struct{ x := char.x, y := char.y, z := char.z, realm := char.realm };
+    do
+      // Nothing has been shown yet, so the box is out of reach however close its owner stands.
+      if ( Accessible( char, item ) != 0 )
+        res := ret_error( "the contents of an unopened bank box are accessible" );
+        break;
+      endif
+
+      var opened := SendOpenSpecialContainer( char, cont );
+      if ( !opened )
+        res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+        break;
+      endif
+
+      if ( Accessible( char, item ) != 1 )
+        res := ret_error( "the contents of an open bank box are not accessible" );
+        break;
+      endif
+      if ( Accessible( char, cont ) != 1 )
+        res := ret_error( "an open bank box is not accessible" );
+        break;
+      endif
+      // The one range that never asked where anything was, so it has to keep working as well.
+      if ( Accessible( char, item, ACCESSIBLE_IGNOREDISTANCE ) != 1 )
+        res := ret_error( "ACCESSIBLE_IGNOREDISTANCE did not reach into an open bank box" );
+        break;
+      endif
+
+      // Membership rather than a standing grant: moving ends it, which is what stops a bank box
+      // from being reachable from the far side of the shard.
+      MoveObjectToLocation( char, 100, 100, 0, realm := "britannia2",
+                            flags := MOVEOBJECT_FORCELOCATION );
+      if ( Accessible( char, item ) != 0 )
+        res := ret_error( "the bank box was still accessible after the character moved away" );
+      endif
+    dowhile ( false );
+
+    MoveObjectToLocation( char, home.x, home.y, home.z, realm := home.realm,
+                          flags := MOVEOBJECT_FORCELOCATION );
+    DestroyItem( item );
+  endif
+
+  DestroyRootItemInStorageArea( area, "accessbox" );
+  return res;
+endfunction
+
 // The other half of standing nowhere: being told about it. When something a client can see changes
 // its name, the core announces the new revision so the client drops its cached tooltip. It finds
 // who to tell by walking the region the object stands in - which answers nobody for a bank box, so
