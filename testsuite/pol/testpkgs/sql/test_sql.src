@@ -125,3 +125,85 @@ exported function sql_escape_string()
   endif
   return 1;
 endfunction
+
+// How many rows a statement changed, which is what a SELECT has none of: it reports the rows it
+// returned instead, so the two are told apart by the statement rather than by the result.
+exported function sqlquery_affected_rows()
+  // The shard runs this suite twice in one ctest invocation, on the same database, so the rows
+  // this case adds are cleared before it adds them as well as after: a second pass would
+  // otherwise insert a key that is already there.
+  mysql_query( conn, "DELETE FROM db_test WHERE `key` > 2" );
+
+  var res := mysql_query( conn, "INSERT INTO db_test VALUES (3,'three'), (4,'four');" );
+  if ( !res )
+    return ret_error( $"failed to insert: {res}" );
+  endif
+  var affected := mysql_affected_rows( res );
+  if ( affected != 2 )
+    return ret_error( $"the insert reported {affected} affected rows, expected 2" );
+  endif
+
+  res := mysql_query( conn, "UPDATE db_test SET val='THREE' WHERE `key`=3" );
+  if ( !res )
+    return ret_error( $"failed to update: {res}" );
+  endif
+  affected := mysql_affected_rows( res );
+  if ( affected != 1 )
+    return ret_error( $"the update reported {affected} affected rows, expected 1" );
+  endif
+
+  // put the table back the way the other cases expect it
+  mysql_query( conn, "DELETE FROM db_test WHERE `key` > 2" );
+  return 1;
+endfunction
+
+// The columns a result carries, and their names. Both are read off the result rather than the
+// connection, so they only mean anything for a statement that returned columns.
+exported function sqlquery_fields()
+  var res := mysql_query( conn, "SELECT `key`, `val` FROM db_test" );
+  if ( !res )
+    return ret_error( $"failed to select: {res}" );
+  endif
+  var fields := mysql_num_fields( res );
+  if ( fields != 2 )
+    return ret_error( $"the select carried {fields} fields, expected 2" );
+  endif
+
+  // the columns are counted from one, in the order they were asked for
+  var first := mysql_field_name( res, 1 );
+  if ( first != "key" )
+    return ret_error( $"the first column is named \"{first}\", expected key" );
+  endif
+  var second := mysql_field_name( res, 2 );
+  if ( second != "val" )
+    return ret_error( $"the second column is named \"{second}\", expected val" );
+  endif
+  return 1;
+endfunction
+
+// A column index outside the result, at either end.
+exported function sqlquery_field_refusals()
+  var res := mysql_query( conn, "SELECT `key` FROM db_test" );
+  if ( !res )
+    return ret_error( $"failed to select: {res}" );
+  endif
+
+  // zero is refused as a parameter rather than as a missing column: the check for it comes
+  // before the result is asked anything
+  var bad := mysql_field_name( res, 0 );
+  if ( bad )
+    return ret_error( "column 0 was answered with a name" );
+  endif
+  if ( bad.errortext != "Invalid parameters" )
+    return ret_error( $"column 0 was refused with: {bad.errortext}" );
+  endif
+
+  bad := mysql_field_name( res, 2 );
+  if ( bad )
+    return ret_error( "a column past the end was answered with a name" );
+  endif
+  if ( bad.errortext != "Column does not exist" )
+    return ret_error( $"a column past the end was refused with: {bad.errortext}" );
+  endif
+  return 1;
+endfunction
