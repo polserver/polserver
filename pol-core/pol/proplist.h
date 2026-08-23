@@ -15,6 +15,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "clib/boostutils.h"
@@ -154,10 +155,38 @@ public:
   PropertyList& operator-( const std::set<std::string>& );  // dave added 1/26/3
   void operator-=( const std::set<std::string>& );          // dave added 1/26/3
 protected:
-  using Properties =
-      std::map<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>;
+  /**
+   * The properties, sorted by name.
+   *
+   * A vector rather than a tree: objects carry a handful of properties, so a binary search over
+   * contiguous memory beats a node allocation each. Sorted order is load-bearing -- the save file
+   * is written in it -- and a save written in this order reloads as a run of appends.
+   */
+  using Property =
+      std::pair<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>;
+  using Properties = std::vector<Property>;
+
+  /// Orders by name alone; the value takes no part in the ordering.
+  struct ByName
+  {
+    bool operator()( const Property& a, const Property& b ) const { return a.first < b.first; }
+    bool operator()( const Property& a, const boost_utils::cprop_name_flystring& b ) const
+    {
+      return a.first < b;
+    }
+    bool operator()( const boost_utils::cprop_name_flystring& a, const Property& b ) const
+    {
+      return a < b.first;
+    }
+  };
 
   Properties properties;
+
+private:
+  /// The slot this name occupies, or where it would go. Second is whether it is already there.
+  std::pair<Properties::iterator, bool> locate( const boost_utils::cprop_name_flystring& name );
+  std::pair<Properties::const_iterator, bool> locate(
+      const boost_utils::cprop_name_flystring& name ) const;
 
 private:
   // not implemented

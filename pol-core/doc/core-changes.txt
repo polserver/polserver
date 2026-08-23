@@ -1,4 +1,14 @@
 -- POL100.3.0 --
+09-13-2026 AsYlum:
+ Improved: world data load speed - startup is around 20-30% faster, though the gain varies with
+           the shard. The more objects the data files hold, the more there is to win.
+     Note: nothing about the data files changes and nothing about what is loaded from them - the
+           same objects come back with the same properties, in the same order.
+ Improved: the memory an object's custom properties need, which on a shard carrying millions of
+           them is a noticeable part of what all its objects use.
+    Added: pol.cfg LogWorldLoadDetails (default 0) logs where reading each world data file spent
+           its time - parsing the file, creating the objects, reading their properties, placing
+           them in the world - as a total and per element. Off it reads no clock at all.
 09-13-2026 Turley:
     Fixed: The tip window showed the name of the file the tip came from instead of what was
            written in it, and before that showed nothing at all.
