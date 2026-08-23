@@ -370,7 +370,11 @@ void PropertyList::setprop( const std::string& propname, const std::string& prop
   if ( Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().cpropWrite( this, propname );
 
-  properties[boost_utils::cprop_name_flystring( propname )] = propvalue;
+  // insert_or_assign, not operator[]: the mapped type is a flyweight, so operator[] default
+  // constructs one - which interns the empty string, taking the flyweight's global lock - and
+  // then throws that handle away when the real value is assigned over it. Two interns where one
+  // will do, on a path a world load walks nearly seven million times.
+  properties.insert_or_assign( boost_utils::cprop_name_flystring( propname ), propvalue );
 }
 
 void PropertyList::eraseprop( const std::string& propname )

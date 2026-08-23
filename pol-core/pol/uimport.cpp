@@ -46,6 +46,7 @@
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/loaddata.h"
+#include "pol/loadstats.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
 #include "pol/multi/house.h"
@@ -83,20 +84,32 @@ void read_guilds_dat();
 // Dave changed 3/8/3 to use objecthash
 void read_character( Clib::ConfigElem& elem )
 {
-  CharacterRef chr( new Mobile::Character( elem.remove_ushort( "OBJTYPE" ) ) );
+  const u16 objtype = elem.remove_ushort( "OBJTYPE" );
+  LoadPhase create_phase( &worldLoadStats.create_ns );
+  CharacterRef chr( new Mobile::Character( objtype ) );
+  create_phase.stop();
 
   try
   {
-    // note chr->logged_in is true..
-    chr->readProperties( elem );
+    {
+      // note chr->logged_in is true..
+      LoadPhase phase( &worldLoadStats.props_ns );
+      chr->readProperties( elem );
+    }
 
     // Allows the realm to recognize this char as offline
-    chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    {
+      LoadPhase phase( &worldLoadStats.place_ns );
+      chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    }
 
     chr->clear_dirty();
 
     // readProperties gets the serial, so we can't add to the objecthash until now.
-    objStorageManager.objecthash.Insert( chr.get() );
+    {
+      LoadPhase phase( &worldLoadStats.create_ns );
+      objStorageManager.objecthash.Insert( chr.get() );
+    }
   }
   catch ( std::exception& )
   {
@@ -109,17 +122,29 @@ void read_character( Clib::ConfigElem& elem )
 // Dave changed 3/8/3 to use objecthash
 void read_npc( Clib::ConfigElem& elem )
 {
-  NpcRef npc( new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
+  const u16 objtype = elem.remove_ushort( "OBJTYPE" );
+  LoadPhase create_phase( &worldLoadStats.create_ns );
+  NpcRef npc( new Mobile::NPC( objtype, elem ) );
+  create_phase.stop();
 
   try
   {
-    npc->readProperties( elem );
+    {
+      LoadPhase phase( &worldLoadStats.props_ns );
+      npc->readProperties( elem );
+    }
 
-    SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
+    {
+      LoadPhase phase( &worldLoadStats.place_ns );
+      SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
+    }
     npc->clear_dirty();
 
     ////HASH
-    objStorageManager.objecthash.Insert( npc.get() );
+    {
+      LoadPhase phase( &worldLoadStats.create_ns );
+      objStorageManager.objecthash.Insert( npc.get() );
+    }
     ////
   }
   catch ( std::exception& )
@@ -171,10 +196,16 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Item (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return nullptr;
   }
-  if ( gamestate.old_objtype_conversions.count( objtype ) )
-    objtype = gamestate.old_objtype_conversions[objtype];
+  // One lookup: it runs per item, almost always to find there is no conversion for this objtype.
+  if ( const auto itr = gamestate.old_objtype_conversions.find( objtype );
+       itr != gamestate.old_objtype_conversions.end() )
+    objtype = itr->second;
 
-  Items::Item* item = Items::Item::create( objtype, serial );
+  Items::Item* item = nullptr;
+  {
+    LoadPhase phase( &worldLoadStats.create_ns );
+    item = Items::Item::create( objtype, serial );
+  }
   if ( item == nullptr )
   {
     ERROR_PRINTLN( "Unable to create item: objtype={:#x}, serial={:#x}", objtype, serial );
@@ -182,7 +213,10 @@ Items::Item* read_item( Clib::ConfigElem& elem )
       throw std::runtime_error( "Item::create failed!" );
     return nullptr;
   }
-  item->readProperties( elem );
+  {
+    LoadPhase phase( &worldLoadStats.props_ns );
+    item->readProperties( elem );
+  }
 
   item->clear_dirty();
 
@@ -208,6 +242,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   }
 
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  LoadPhase phase( &worldLoadStats.place_ns );
   if ( container_serial == 0 )
   {
     // The multi registration relocate() does is a no-op here: multis.txt is read after items.txt,
@@ -317,18 +352,29 @@ void read_multi( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Multi (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return;
   }
-  if ( gamestate.old_objtype_conversions.count( objtype ) )
-    objtype = gamestate.old_objtype_conversions[objtype];
+  if ( const auto itr = gamestate.old_objtype_conversions.find( objtype );
+       itr != gamestate.old_objtype_conversions.end() )
+    objtype = itr->second;
 
-  Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
+  Multi::UMulti* multi = nullptr;
+  {
+    LoadPhase phase( &worldLoadStats.create_ns );
+    multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
+  }
   if ( multi == nullptr )
   {
     ERROR_PRINTLN( "Unable to create multi: objtype={:#x}, serial={:#x}", objtype, serial );
     throw std::runtime_error( "Multi::create failed!" );
   }
-  multi->readProperties( elem );
+  {
+    LoadPhase phase( &worldLoadStats.props_ns );
+    multi->readProperties( elem );
+  }
 
-  add_multi_to_world( multi );
+  {
+    LoadPhase phase( &worldLoadStats.place_ns );
+    add_multi_to_world( multi );
+  }
 }
 
 std::string elapsed( clock_t start, clock_t end )
@@ -350,8 +396,14 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     Tools::Timer<> timer;
 
     unsigned int nobjects = 0;
-    while ( cf.read( elem ) )
+    worldLoadStats.reset();
+    for ( ;; )
     {
+      {
+        LoadPhase phase( &worldLoadStats.parse_ns );
+        if ( !cf.read( elem ) )
+          break;
+      }
       if ( --num_until_dot == 0 )
       {
         INFO_PRINT( "." );
@@ -395,6 +447,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     timer.stop();
 
     INFO_PRINTLN( " {} elements in {} ms.", nobjects, timer.ellapsed() );
+    worldLoadStats.log( filename, nobjects );
   }
 }
 
@@ -586,6 +639,7 @@ int read_data()
   std::string storagendtfile = Plib::systemstate.config.world_data_path + "storage.ndt";
 
   stateManager.gflag_in_system_load = true;
+  worldLoadStats.enabled = Plib::systemstate.config.log_worldload_details;
   if ( Clib::FileExists( storagendtfile ) )
   {
     ERROR_PRINTLN(
@@ -643,6 +697,7 @@ int read_data()
   }
 
   stateManager.gflag_in_system_load = false;
+  worldLoadStats.enabled = false;
   return 0;
 }
 

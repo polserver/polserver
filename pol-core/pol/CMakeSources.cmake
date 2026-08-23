@@ -144,6 +144,8 @@ set (pol_sources  # sorted !
   listenpt.h
   loaddata.cpp
   loaddata.h
+  loadstats.cpp
+  loadstats.h
   loadunld.cpp
   loadunld.h
   lockable.cpp
