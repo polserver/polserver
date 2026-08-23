@@ -59,7 +59,7 @@ endfunction
 //
 // guild.inc's notoriety_of does the same thing, but the standing has to survive
 // the round trip it takes - and an aggressor flag does not: AggressorFlagTimeout
-// is 3 seconds on this shard, less than the two settles and two moves cost. So
+// is 2 seconds on this shard, less than the two settles and two moves cost. So
 // the trip is driven in halves here and `prepare` runs in the gap, with the
 // mobile already out of sight and the packet that carries the byte still to come.
 function noto_after( id, chr, x, y, prepare )

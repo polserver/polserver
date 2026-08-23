@@ -16,8 +16,8 @@ use uo;
 include "testutil";
 include "repsys";
 
-const REP_CRIMINAL_SECS := 5;
-const REP_AGGRESSOR_SECS := 3;
+const REP_CRIMINAL_SECS := 3;
+const REP_AGGRESSOR_SECS := 2;
 
 // enough for the deadline plus the task that follows it, well short of the ten
 // seconds a stalled case would otherwise sit here
@@ -108,8 +108,10 @@ endfunction
 exported function timer_criminal_level( unused resmgn )
   reset_all();
 
+  // between one interval and two: long enough that a level 1 flag would be gone, short enough
+  // that a level 2 one cannot be
   amy.setcriminal( 2 );
-  sleepms( REP_CRIMINAL_SECS * 1000 + 1500 );
+  sleepms( REP_CRIMINAL_SECS * 1000 + 1000 );
 
   if ( !amy.criminal )
     return ret_error( "a level 2 criminal flag lapsed after one interval" );
@@ -126,7 +128,7 @@ exported function timer_murderer_does_not_expire( unused resmgn )
   reset_all();
 
   amy.setmurderer( 1 );
-  sleepms( REP_CRIMINAL_SECS * 1000 + 1500 );
+  sleepms( REP_CRIMINAL_SECS * 1000 + 1000 );
 
   if ( !amy.murderer )
     return ret_error( "the murderer flag lapsed" );
