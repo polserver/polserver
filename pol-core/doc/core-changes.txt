@@ -1,4 +1,14 @@
 -- POL100.3.0 --
+09-20-2026 AsYlum:
+ Improved: world data load speed - startup is around 20-30% faster, though the gain varies with
+           the shard. The more objects the data files hold, the more there is to win.
+     Note: nothing about the data files changes and nothing about what is loaded from them - the
+           same objects come back with the same properties, in the same order.
+ Improved: the memory an object's custom properties need, which on a shard carrying millions of
+           them is a noticeable part of what all its objects use.
+    Added: pol.cfg LogWorldLoadDetails (default 0) logs where reading each world data file spent
+           its time - parsing the file, creating the objects, reading their properties, placing
+           them in the world - as a total and per element. Off it reads no clock at all.
 09-19-2026 AsYlum:
     Added: ecompile -p replaces the line-per-script output with a single line that is redrawn in
            place, and prints the compilation summary at the end. Its count covers every script
