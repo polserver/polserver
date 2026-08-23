@@ -1,5 +1,21 @@
 -- POL100.3.0 --
 08-23-2026 AsYlum:
+ Improved: world save performance. Mostly affects bigger shards, where a save can be three to
+           six times faster; small shards will notice little.
+     Note: the save files are unchanged - byte for byte what earlier versions wrote - so there is
+           nothing to convert and anything that reads them keeps working.
+    Added: pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and how many
+           bytes it wrote - how long the world was stopped, how long flushing and committing
+           took, what each part of the save cost, and the size of every data file written.
+    Added: pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses.
+           0 picks a number from the cpus the server is actually allowed to use, which inside a
+           container is not the same as the number the machine has - POL used to count the
+           machine's, and starting more save threads than the container may run makes saves
+           slower rather than faster. The startup log prints the threads chosen next to both
+           cpu counts, so a bad guess is easy to spot.
+  Changed: uo::SaveWorldState() returns three more timings - ElapsedMillisecondsWriting,
+           ElapsedMillisecondsFlush and ElapsedMillisecondsCommit - plus a "Files" struct of
+           bytes written per data file and a "Tasks" struct of what each part of the save cost.
     Fixed: uo::Accessible() returned 0 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance.
 08-22-2026 AsYlum:

@@ -633,21 +633,21 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       unsigned ones = av.base() / 10;
       unsigned tenths = av.base() % 10;
 
-      auto val = fmt::format( FMT_COMPILE( "{}" ), ones );
+      sw.key( pAttr->name );
+      sw.raw( FMT_COMPILE( "{}" ), ones );
       if ( tenths )
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), tenths );
+        sw.raw( FMT_COMPILE( ".{}" ), tenths );
       if ( cap != pAttr->default_cap )
       {
         unsigned cap_ones = cap / 10;
         unsigned cap_tenths = cap % 10;
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ":{}" ), cap_ones );
+        sw.raw( FMT_COMPILE( ":{}" ), cap_ones );
         if ( cap_tenths )
-          fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), cap_tenths );
+          sw.raw( FMT_COMPILE( ".{}" ), cap_tenths );
       }
       if ( lock )
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ";{}" ), lock );
-
-      sw.add( pAttr->name, val );
+        sw.raw( FMT_COMPILE( ";{}" ), lock );
+      sw.eol();
     }
   }
 
@@ -716,7 +716,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "PartyCanLoot", party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add( "Reportable", fmt::format( FMT_COMPILE( "{:#x} {}" ), rt.serial, rt.polclock ) );
+    sw.add( "Reportable", Clib::hexintv( rt.serial ), rt.polclock );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
@@ -763,6 +763,13 @@ void Character::printOn( Clib::StreamWriter& sw ) const
 void Character::printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const
 {
   wornitems->print( sw_pc, sw_equip );
+}
+
+void Character::printForSave( Clib::StreamWriter& sw_mobile, Clib::StreamWriter& sw_equip ) const
+{
+  printOn( sw_mobile );
+  clear_dirty();
+  printWornItems( sw_mobile, sw_equip );
 }
 
 Plib::MOVEMODE Character::decode_movemode( const std::string& str )

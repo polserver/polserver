@@ -16,6 +16,8 @@ StreamWriter::StreamWriter( const std::string& path ) : _file( fopen( path.c_str
   setbuf( _file, nullptr );  // disable buffer
 }
 
+StreamWriter::StreamWriter() : _file( nullptr ) {}
+
 StreamWriter::~StreamWriter() noexcept( false )
 {
   auto stack_unwinding = std::uncaught_exceptions();
@@ -31,17 +33,29 @@ StreamWriter::~StreamWriter() noexcept( false )
   }
 }
 
+void StreamWriter::write_block( const std::string_view& text )
+{
+  if ( text.empty() )
+    return;
+  auto size = fwrite( text.data(), sizeof( char ), text.size(), _file );
+  if ( size < text.size() )
+    throw std::runtime_error{ "failed to write" };
+  _bytes_written += text.size();
+  ++_flush_count;
+}
+
+void StreamWriter::flush()
+{
+  write_block( { _mbuff.data(), _mbuff.size() } );
+  _mbuff.clear();
+}
+
 void StreamWriter::flush_close()
 {
   if ( !_file )
     return;
   if ( _mbuff.size() )
-  {
-    auto size = fwrite( _mbuff.data(), sizeof( char ), _mbuff.size(), _file );
-    if ( size < _mbuff.size() )
-      throw std::runtime_error{ "failed to write" };
-  }
-  _mbuff.clear();
+    flush();
   fclose( _file );
   _file = nullptr;
 }

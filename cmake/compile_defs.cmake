@@ -35,10 +35,19 @@ function(set_compile_flags target is_executable)
   
   target_compile_options(${target} PRIVATE
     $<${linux}:
-      -fPIC
+      # -fPIE, not -fPIC: nothing here is built as a shared library, and -fPIC on an executable
+      # costs a GOT indirection on every global and the general-dynamic model on every
+      # thread_local -- both of which the save path is full of. Position independence, and so
+      # ASLR, is unaffected.
+      -fPIE
       -W
       -Wall
       -Wextra
+    >
+
+    $<$<AND:$<BOOL:${DISABLE_HARDENING}>,${linux}>:
+      -fno-stack-protector
+      -U_FORTIFY_SOURCE
     >
     
     $<$<AND:${FORCE_ARCH_BITS},${linux}>:

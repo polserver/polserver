@@ -7,6 +7,9 @@ if (ENABLE_BENCHMARK)
   set(FETCHCONTENT_QUIET OFF)
   set(FETCHCONTENT_BASE_DIR ${EXT_DOWNLOAD_DIR})
   set(BENCHMARK_ENABLE_TESTING OFF)
+  # benchmark builds itself with warnings-as-errors, and its own headers do not survive the
+  # warning set of a current MSVC. Its warnings are not ours to fix.
+  set(BENCHMARK_ENABLE_WERROR OFF)
   FetchContent_Declare(
     google-benchmark
     GIT_REPOSITORY ${BENCH_REPO}

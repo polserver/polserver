@@ -66,6 +66,7 @@
 #include "bscript/escriptv.h"
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"
+#include "clib/clib.h"
 #include "clib/clib_endian.h"
 #include "clib/esignal.h"
 #include "clib/fileutil.h"
@@ -1014,11 +1015,6 @@ int xmain_inner( bool testing )
 #endif
 #endif
 
-  // problem with order of global construction, threads cannot be registered in the constructor of
-  // gamestate :(
-  Core::gamestate.task_thread_pool.init_pool(
-      std::max( 2u, std::thread::hardware_concurrency() / 2 ), "generic task" );
-
   // for profiling:
   // chdir( "d:\\pol" );
   // PrintAllocationData();
@@ -1050,9 +1046,6 @@ int xmain_inner( bool testing )
 #endif
   POLLOG_INFOLN( "" );
 #endif
-  POLLOG_INFOLN( "Using {} out of {} worldsave threads", Core::gamestate.task_thread_pool.size(),
-                 std::thread::hardware_concurrency() );
-
   Core::checkpoint( "installing signal handlers" );
   Core::install_signal_handlers();
 
@@ -1067,6 +1060,22 @@ int xmain_inner( bool testing )
   Core::checkpoint( "reading pol.cfg" );
   Plib::systemstate.config.read( true );
   Core::apply_polcfg( true );
+
+  // Started here rather than earlier because the width comes from pol.cfg. Nothing uses the pool
+  // before this point. Threads cannot be registered from gamestate's constructor, which is why
+  // this is not simply part of it.
+  // Half the cpus we may actually use, which in a container is not half of what the machine has
+  // -- see Clib::available_cpus(). pol.cfg WorldSaveThreads overrides the choice outright.
+  const unsigned int usable_cpus = Clib::available_cpus();
+  Core::gamestate.task_thread_pool.init_pool( Plib::systemstate.config.worldsave_threads
+                                                  ? Plib::systemstate.config.worldsave_threads
+                                                  : std::max( 2u, usable_cpus / 2 ),
+                                              "generic task" );
+  // Worth printing all three: a container that reports the host's cpu count while being allowed
+  // only a fraction of it is the usual reason a save takes far longer there than on bare metal.
+  POLLOG_INFOLN( "Using {} worldsave threads, {} usable cpus out of {} on the machine",
+                 Core::gamestate.task_thread_pool.size(), usable_cpus,
+                 std::thread::hardware_concurrency() );
 
   Core::checkpoint( "reading config/bannedips.cfg" );
   Network::read_bannedips_config( true );
@@ -1227,14 +1236,15 @@ int xmain_inner( bool testing )
     POLLOG_INFO( "Writing data files..." );
 
     Core::PolLock lck;
-    s64 elapsed_ms;
+    Core::SaveResult critical;
     Tools::Timer<> timer;
-    auto res_save = Core::write_data( {}, nullptr, nullptr, &elapsed_ms );
+    auto res_save = Core::write_data( {}, &critical );
     Core::SaveContext::ready();
     if ( !res_save || !( *res_save ) )
       POLLOG_INFOLN( "Data save failed!" );
     else
-      POLLOG_INFOLN( "Data save completed in {} ms. {} total.", elapsed_ms, timer.ellapsed() );
+      POLLOG_INFOLN( "Data save completed in {} ms. {} total.", critical.critical_ms,
+                     timer.ellapsed() );
   }
   else
   {

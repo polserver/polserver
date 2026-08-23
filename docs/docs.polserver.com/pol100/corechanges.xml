@@ -8,6 +8,22 @@
 		<entry>
 			<date>08-23-2026</date>
 			<author>AsYlum:</author>
+			<change type="Improved">world save performance. Mostly affects bigger shards, where a save can be three to<br/>
+six times faster; small shards will notice little.</change>
+			<change type="Note">the save files are unchanged - byte for byte what earlier versions wrote - so there is<br/>
+nothing to convert and anything that reads them keeps working.</change>
+			<change type="Added">pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and how many<br/>
+bytes it wrote - how long the world was stopped, how long flushing and committing<br/>
+took, what each part of the save cost, and the size of every data file written.</change>
+			<change type="Added">pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses.<br/>
+0 picks a number from the cpus the server is actually allowed to use, which inside a<br/>
+container is not the same as the number the machine has - POL used to count the<br/>
+machine's, and starting more save threads than the container may run makes saves<br/>
+slower rather than faster. The startup log prints the threads chosen next to both<br/>
+cpu counts, so a bad guess is easy to spot.</change>
+			<change type="Changed">uo::SaveWorldState() returns three more timings - ElapsedMillisecondsWriting,<br/>
+ElapsedMillisecondsFlush and ElapsedMillisecondsCommit - plus a &quot;Files&quot; struct of<br/>
+bytes written per data file and a &quot;Tasks&quot; struct of what each part of the save cost.</change>
 			<change type="Fixed">uo::Accessible() returned 0 for the contents of a container opened with<br/>
 uo::SendOpenSpecialContainer(), a bank box for instance.</change>
 		</entry>

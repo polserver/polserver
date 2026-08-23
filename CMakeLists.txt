@@ -34,7 +34,13 @@ option(USE_CCACHE "Use ccache if found" OFF)
 option(ENABLE_BENCHMARK "Enable benchmark support" OFF)
 option(ENABLE_FLYWEIGHT_REPORT "Enables flyweight memory report in memoryusage.log" OFF)
 option(GCOV "Build for coverage" OFF)
-mark_as_advanced(NO_PCH USE_CCACHE ENABLE_BENCHMARK ENABLE_FLYWEIGHT_REPORT GCOV)
+# Measurement aid only, and Linux only: turns off the distribution's stack protector and
+# _FORTIFY_SOURCE so their cost can be put a number on -- _FORTIFY_SOURCE instruments the memcpy
+# that formatting a save file spends its time in. Windows has always built without these
+# (compile_defs.cmake passes /GS-), so this is also how the two platforms are compared like for
+# like. Do not ship a server built with it.
+option(DISABLE_HARDENING "Build without stack protector and _FORTIFY_SOURCE (benchmarking)" OFF)
+mark_as_advanced(NO_PCH USE_CCACHE ENABLE_BENCHMARK ENABLE_FLYWEIGHT_REPORT GCOV DISABLE_HARDENING)
 
 option(ENABLE_ASAN "Enables Address sanitizer" OFF)
 option(ENABLE_USAN "Enables Undefined sanitizer" OFF)
