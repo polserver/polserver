@@ -15,6 +15,21 @@ program chrmethods()
   if ( !chr )
     return ret_error( "Could not find char at slot 1" );
   endif
+
+  // The account's character is made with addcharacter(), which gives it nothing to carry: two
+  // cases below need a backpack - one to put gold in, one to have something unattackable to point
+  // at. test_chr.src equips one and sorts before this file, so a whole run has it by the time
+  // this runs, but a run of this file alone does not. Make it here rather than depend on that.
+  if ( !chr.backpack )
+    var newpack := CreateItemAtLocation( 0, 0, 0, 0xE75 );
+    if ( !newpack )
+      return ret_error( $"could not make a backpack: {newpack}" );
+    endif
+    var res := EquipItem( chr, newpack );
+    if ( !res )
+      return ret_error( $"could not equip the backpack: {res}" );
+    endif
+  endif
   return 1;
 endprogram
 
@@ -54,11 +69,13 @@ endfunction
 // else counted from now.
 exported function chr_timed_states( unused resmngr )
   var bad := {};
+  var clock := ReadGameClock();
   if ( chr.squelch( -1 ) != -1 )
     bad.append( "squelch(-1) did not answer -1" );
   endif
-  if ( chr.squelch( 10 ) <= 0 )
-    bad.append( "squelch(10) did not answer a deadline" );
+  var answered := chr.squelch( 10 );
+  if ( answered <= 0 )
+    bad.append( $"squelch(10) answered {answered}, gameclock was {clock}" );
   endif
   if ( chr.squelch( 0 ) != 0 )
     bad.append( "squelch(0) did not clear" );
@@ -70,8 +87,9 @@ exported function chr_timed_states( unused resmngr )
   if ( chr.deaf( -1 ) != -1 )
     bad.append( "deaf(-1) did not answer -1" );
   endif
-  if ( chr.deaf( 10 ) <= 0 )
-    bad.append( "deaf(10) did not answer a deadline" );
+  answered := chr.deaf( 10 );
+  if ( answered <= 0 )
+    bad.append( $"deaf(10) answered {answered}, gameclock was {clock}" );
   endif
   if ( chr.deaf( 0 ) != 0 )
     bad.append( "deaf(0) did not clear" );
@@ -81,8 +99,9 @@ exported function chr_timed_states( unused resmngr )
   endif
 
   // this one counts in seconds from now and refuses to look backwards
-  if ( chr.disableskillsfor( 5 ) <= 0 )
-    bad.append( "disableskillsfor(5) did not answer a deadline" );
+  answered := chr.disableskillsfor( 5 );
+  if ( answered <= 0 )
+    bad.append( $"disableskillsfor(5) answered {answered}, gameclock was {clock}" );
   endif
   if ( chr.disableskillsfor( -1 ).errortext != "Duration must be >= 0" )
     bad.append( "disableskillsfor(-1) was not refused" );
@@ -107,8 +126,9 @@ exported function chr_light_and_season( unused resmngr )
   if ( chr.setlightlevel( 5, -1 ) != -1 )
     bad.append( "setlightlevel(5,-1) did not answer -1" );
   endif
-  if ( chr.setlightlevel( 5, 10 ) <= 0 )
-    bad.append( "setlightlevel(5,10) did not answer a deadline" );
+  var answered := chr.setlightlevel( 5, 10 );
+  if ( answered <= 0 )
+    bad.append( $"setlightlevel(5,10) answered {answered}, gameclock was {ReadGameClock()}" );
   endif
   if ( chr.setlightlevel( 5, 0 ) != 0 )
     bad.append( "setlightlevel(5,0) did not clear" );
