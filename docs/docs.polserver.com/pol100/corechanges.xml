@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-23-2026</datemodified>
+		<datemodified>08-25-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>08-25-2026</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">the shard could wedge when uo::SaveWorldState() was called again while the previous<br/>
+save was still finishing - two scripts saving in the same pass is enough to hit it.<br/>
+The script that asked for a save is revived under the world lock, and a new save<br/>
+waited for that to happen while holding it. Shutdown could hang the same way.</change>
+		</entry>
 		<entry>
 			<date>08-23-2026</date>
 			<author>AsYlum:</author>

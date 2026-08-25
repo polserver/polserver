@@ -1071,6 +1071,8 @@ int xmain_inner( bool testing )
                                                   ? Plib::systemstate.config.worldsave_threads
                                                   : std::max( 2u, usable_cpus / 2 ),
                                               "generic task" );
+  // One thread, and only ever the save-completion callback on it - see save_callback_pool.
+  Core::gamestate.save_callback_pool.init_pool( 1, "save callback" );
   // Worth printing all three: a container that reports the host's cpu count while being allowed
   // only a fraction of it is the usual reason a save takes far longer there than on bare metal.
   POLLOG_INFOLN( "Using {} worldsave threads, {} usable cpus out of {} on the machine",

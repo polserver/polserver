@@ -620,8 +620,16 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
         stats.dirty_writes = UObject::dirty_writes;
         if ( Plib::systemstate.config.log_worldsave_details )
           log_save_details( stats );
+        // Handed to another thread rather than run here, because the callback takes the world
+        // lock and SaveContext::finished must not span a lock acquisition: write_data is called
+        // from the scripts thread with that lock held, and opens by waiting on finished. Running
+        // the callback before finished is set would mean this thread waits for a lock the thread
+        // waiting for us is holding - the shard wedges, and back-to-back saves are how you get
+        // there. Nothing waits on the callback, so it is free to block for the lock.
         if ( callback )
-          callback( stats );
+          gamestate.save_callback_pool.push(
+              [callback = std::move( callback ), stats = std::move( stats )]() mutable
+              { callback( stats ); } );
       } );
   auto res = critical_future.get();  // wait for end of critical part
 

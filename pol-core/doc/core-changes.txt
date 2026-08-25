@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+08-25-2026 AsYlum:
+    Fixed: the shard could wedge when uo::SaveWorldState() was called again while the previous
+           save was still finishing - two scripts saving in the same pass is enough to hit it.
+           The script that asked for a save is revived under the world lock, and a new save
+           waited for that to happen while holding it. Shutdown could hang the same way.
 08-23-2026 AsYlum:
  Improved: world save performance. Mostly affects bigger shards, where a save can be three to
            six times faster; small shards will notice little.
