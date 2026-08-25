@@ -295,17 +295,18 @@ std::vector<Items::Item*> collect_toplevel_items()
 
 SavePart items_part( const std::vector<Items::Item*>& items, Clib::StreamWriter& sw )
 {
-  return { "items",
-           items.size(),
-           { &sw },
-           [&items]( size_t begin, size_t end, const std::vector<Clib::StreamWriter*>& out )
-           {
-             for ( size_t i = begin; i < end; ++i )
-             {
-               items[i]->printOn( *out[0] );
-               items[i]->clear_dirty();
-             }
-           } };
+  return {
+      .name = "items",
+      .count = items.size(),
+      .writers = { &sw },
+      .format = [&items]( size_t begin, size_t end, const std::vector<Clib::StreamWriter*>& out )
+      {
+        for ( size_t i = begin; i < end; ++i )
+        {
+          items[i]->printOn( *out[0] );
+          items[i]->clear_dirty();
+        }
+      } };
 }
 
 /// One mobile per piece, its worn items included. Both files it writes to are split the same way,
@@ -313,14 +314,15 @@ SavePart items_part( const std::vector<Items::Item*>& items, Clib::StreamWriter&
 SavePart mobiles_part( std::string name, const std::vector<Mobile::Character*>& mobiles,
                        Clib::StreamWriter& sw_mobiles, Clib::StreamWriter& sw_equip )
 {
-  return { std::move( name ),
-           mobiles.size(),
-           { &sw_mobiles, &sw_equip },
-           [&mobiles]( size_t begin, size_t end, const std::vector<Clib::StreamWriter*>& out )
-           {
-             for ( size_t i = begin; i < end; ++i )
-               mobiles[i]->printForSave( *out[0], *out[1] );
-           } };
+  return {
+      .name = std::move( name ),
+      .count = mobiles.size(),
+      .writers = { &sw_mobiles, &sw_equip },
+      .format = [&mobiles]( size_t begin, size_t end, const std::vector<Clib::StreamWriter*>& out )
+      {
+        for ( size_t i = begin; i < end; ++i )
+          mobiles[i]->printForSave( *out[0], *out[1] );
+      } };
 }
 
 /// Items on a player's cursor, written after all the top-level ones as they always have been.

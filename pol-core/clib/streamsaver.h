@@ -9,7 +9,9 @@
 #include <iterator>
 #include <stdio.h>
 #include <string>
+#include <string_view>
 #include <type_traits>
+#include <utility>
 
 namespace Pol::Clib
 {
@@ -26,7 +28,7 @@ public:
   StreamWriter& operator=( const StreamWriter& ) = delete;
 
   template <typename T>
-  void add( const std::string_view& key, T&& value )
+  void add( std::string_view key, T&& value )
   {
     using namespace fmt::literals;
     if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
@@ -39,16 +41,25 @@ public:
   /// a large shard writes millions per save: going through add( key, fmt::format( "{} {}", .. ) )
   /// instead allocates and copies a std::string for every one of them.
   template <typename A, typename B>
-  void add( const std::string_view& key, A&& a, B&& b )
+  void add( std::string_view key, A&& a, B&& b )
   {
     using namespace fmt::literals;
     fmt::format_to( std::back_inserter( _mbuff ), "\t{}\t{} {}\n"_cf, key, a, b );
     maybe_flush();
   }
+  /// A value formatted straight into the buffer, for the ones that would otherwise be built in a
+  /// temporary first: add_fmt( "Serial", FMT_COMPILE( "{:#x}" ), serial ).
+  template <typename S, typename... Args>
+  void add_fmt( std::string_view k, S&& formatstr, Args&&... args )
+  {
+    key( k );
+    raw( std::forward<S>( formatstr ), std::forward<Args>( args )... );
+    eol();
+  }
 
   /// Piecewise writing, for the properties whose value is assembled conditionally and so cannot
   /// be one format call: key() or key_fmt(), then any number of raw(), then eol().
-  void key( const std::string_view& k )
+  void key( std::string_view k )
   {
     using namespace fmt::literals;
     fmt::format_to( std::back_inserter( _mbuff ), "\t{}\t"_cf, k );
@@ -75,7 +86,7 @@ public:
   }
 
   template <typename... Args>
-  void comment( const std::string_view& formatstr, Args&&... args )
+  void comment( std::string_view formatstr, Args&&... args )
   {
     using namespace std::literals;
     _mbuff.append( "# "sv );
@@ -106,7 +117,7 @@ public:
   void flush_close();
 
   /// Append an already formatted block, eg. the buffer of a detached writer.
-  void append( const std::string_view& text )
+  void append( std::string_view text )
   {
     // A block that already exceeds the buffer would be copied in only to be written straight
     // back out, so hand it to the file directly. Over a save that is one full copy of every
@@ -141,21 +152,19 @@ protected:
   }
   void flush();
   /// Write one block straight to the file. Callers are responsible for the buffer being empty.
-  void write_block( const std::string_view& text );
+  void write_block( std::string_view text );
 
-  /// Inline capacity, which every live writer costs wherever it is allocated -- and a world save
-  /// holds thirteen of them at once. Kept small on purpose; the buffer grows on the heap.
-  static constexpr size_t INLINE_SIZE = 0x8000;
   /// How much text piles up before it is written. stdio buffering is off, so this is the size of
   /// the write() the kernel sees: a megabyte turns the hundreds of thousands of small writes a
-  /// large save used to make into a few hundred big ones.
+  /// large save used to make into a few hundred big ones. Every flush check fires above it, so it
+  /// is also where the buffer of a file-backed writer ends up -- see the constructor.
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
   FILE* _file;
   // formatting creates a temp buffer
   // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
   // the capacity
-  fmt::basic_memory_buffer<char, INLINE_SIZE> _mbuff;
+  fmt::basic_memory_buffer<char> _mbuff;
   size_t _bytes_written{ 0 };
   size_t _flush_count{ 0 };
 };

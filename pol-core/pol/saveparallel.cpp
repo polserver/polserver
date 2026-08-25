@@ -209,10 +209,13 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
   }
   pipe.launched = next;  // nothing else is running yet
 
-  std::thread writer;
+  // Joined explicitly on every path below rather than left to the destructor: drain() may only
+  // run once the writer has stopped, as both call get() on the same futures, and the destructor
+  // would fire after it.
+  std::jthread writer;
   try
   {
-    writer = std::thread( write_finished_chunks );
+    writer = std::jthread( write_finished_chunks );
     // Slot `next % window` last held chunk `next - window`, so it is free to reuse as soon as the
     // writer has dealt with that one. Waiting on that is what bounds the memory a save holds:
     // `window` chunks, whatever the size of the world.

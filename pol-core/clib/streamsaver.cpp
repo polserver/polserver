@@ -14,6 +14,11 @@ StreamWriter::StreamWriter( const std::string& path ) : _file( fopen( path.c_str
   if ( !_file )
     throw std::runtime_error{ fmt::format( "failed to open {}", path ) };
   setbuf( _file, nullptr );  // disable buffer
+  // Every flush check fires above the threshold, so this is where the buffer ends up regardless.
+  // Taking it in one allocation instead of growing into it saves a handful of reallocate-and-copy
+  // rounds per file. A detached writer gets no reserve: it never flushes, and grows to whatever
+  // one chunk needs.
+  _mbuff.reserve( FLUSH_THRESHOLD );
 }
 
 StreamWriter::StreamWriter() : _file( nullptr ) {}
@@ -33,7 +38,7 @@ StreamWriter::~StreamWriter() noexcept( false )
   }
 }
 
-void StreamWriter::write_block( const std::string_view& text )
+void StreamWriter::write_block( std::string_view text )
 {
   if ( text.empty() )
     return;

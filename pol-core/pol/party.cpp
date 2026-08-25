@@ -746,13 +746,13 @@ void Party::printOn( Clib::StreamWriter& sw ) const
     return;
 
   sw.begin( "Party" );
-  sw.add( "Leader", Clib::hexintv( _leaderserial ) );
+  sw.add_fmt( "Leader", FMT_COMPILE( "{:#x}" ), _leaderserial );
 
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
     if ( mem != nullptr )
-      sw.add( "Member", Clib::hexintv( mserial ) );
+      sw.add_fmt( "Member", FMT_COMPILE( "{:#x}" ), mserial );
   }
   _proplist.printProperties( sw );
   sw.end();

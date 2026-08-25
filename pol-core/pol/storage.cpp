@@ -291,11 +291,11 @@ SavePart Storage::save_part( Clib::StreamWriter& sw ) const
   // leave one thread with the whole file. Split it at root-item boundaries instead.
   auto units = collect_print_units();
   const size_t count = units.size();
-  return { "storage",
-           count,
-           { &sw },
-           [units = std::move( units )]( size_t begin, size_t end,
-                                         const std::vector<Clib::StreamWriter*>& out )
+  return { .name = "storage",
+           .count = count,
+           .writers = { &sw },
+           .format = [units = std::move( units )]( size_t begin, size_t end,
+                                                   const std::vector<Clib::StreamWriter*>& out )
            {
              for ( size_t u = begin; u < end; ++u )
                print_unit( units[u], *out[0] );

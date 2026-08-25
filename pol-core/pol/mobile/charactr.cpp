@@ -583,11 +583,11 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   {
     sw.add( "Concealed", int( concealed_ ) );
   }
-  sw.add( "TrueColor", Clib::hexintv( truecolor ) );
-  sw.add( "TrueObjtype", Clib::hexintv( trueobjtype ) );
+  sw.add_fmt( "TrueColor", FMT_COMPILE( "{:#x}" ), truecolor );
+  sw.add_fmt( "TrueObjtype", FMT_COMPILE( "{:#x}" ), trueobjtype );
 
   if ( registered_multi )
-    sw.add( "RegisteredMulti", Clib::hexintv( registered_multi ) );
+    sw.add_fmt( "RegisteredMulti", FMT_COMPILE( "{:#x}" ), registered_multi );
 
   sw.add( "Gender", static_cast<int>( gender ) );
   sw.add( "Race", static_cast<int>( race ) );
@@ -716,7 +716,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "PartyCanLoot", party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add( "Reportable", Clib::hexintv( rt.serial ), rt.polclock );
+    sw.add_fmt( "Reportable", FMT_COMPILE( "{:#x} {}" ), rt.serial, rt.polclock );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
