@@ -173,6 +173,7 @@ GameState::GameState()
       paramtextcmds(),
       uo_skills(),
       task_thread_pool(),
+      save_callback_pool(),
       decay(),
       max_update_range( 0 ),
       max_update_range_client( 0 ),
@@ -305,6 +306,8 @@ void GameState::deinitialize()
 
   tipfilenames.clear();
 
+  // Drained before the pool it reports on, so a callback still queued gets to run.
+  save_callback_pool.deinit_pool();
   task_thread_pool.deinit_pool();
 
   for ( ; !task_queue.empty(); task_queue.pop() )

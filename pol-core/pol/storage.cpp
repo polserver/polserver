@@ -10,6 +10,7 @@
 #include <exception>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
@@ -25,6 +26,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mkscrobj.h"
+#include "pol/saveparallel.h"
 #include "pol/ufunc.h"
 
 
@@ -246,15 +248,63 @@ void Storage::read( Clib::ConfigFile& cf )
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
-void Storage::print( Clib::StreamWriter& sw ) const
+void Storage::print_unit( const PrintUnit& unit, Clib::StreamWriter& sw )
 {
-  for ( const auto& area : areas )
+  if ( unit.area_name != nullptr )
   {
     sw.begin( "StorageArea" );
-    sw.add( "Name", area.first );
+    sw.add( "Name", *unit.area_name );
     sw.end();
-    area.second->print( sw );
   }
+  else if ( unit.item->saveonexit() )
+  {
+    unit.item->printOn( sw );
+  }
+}
+
+std::vector<Storage::PrintUnit> Storage::collect_print_units() const
+{
+  std::vector<PrintUnit> units;
+  size_t count = areas.size();  // one unit opens each area
+  for ( const auto& area : areas )
+    count += area.second->root_item_count();
+  units.reserve( count );
+  for ( const auto& area : areas )
+  {
+    units.push_back( { &area.first, nullptr } );
+    area.second->for_each_root_item( [&units]( const std::string&, Items::Item* item )
+                                     { units.push_back( { nullptr, item } ); } );
+  }
+  return units;
+}
+
+void Storage::print_single_threaded( Clib::StreamWriter& sw ) const
+{
+  for ( const auto& unit : collect_print_units() )
+    print_unit( unit, sw );
+}
+
+SavePart Storage::save_part( Clib::StreamWriter& sw ) const
+{
+  // Nearly all of a large shard's storage is a single area of player bank boxes -- thousands of
+  // root containers holding a few hundred items each -- so splitting the work per area would
+  // leave one thread with the whole file. Split it at root-item boundaries instead.
+  auto units = collect_print_units();
+  const size_t count = units.size();
+  return { .name = "storage",
+           .count = count,
+           .writers = { &sw },
+           .format = [units = std::move( units )]( size_t begin, size_t end,
+                                                   const std::vector<Clib::StreamWriter*>& out )
+           {
+             for ( size_t u = begin; u < end; ++u )
+               print_unit( units[u], *out[0] );
+           } };
+}
+
+void Storage::print( Clib::StreamWriter& sw ) const
+{
+  write_parallel( { save_part( sw ) } );
 }
 
 void Storage::clear()

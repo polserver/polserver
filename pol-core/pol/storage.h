@@ -10,8 +10,10 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "clib/maputil.h"
+#include "pol/saveparallel.h"
 
 namespace Pol
 {
@@ -50,6 +52,7 @@ public:
 
   /// Visit each root item with the key it is filed under, which is not always its current name.
   void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
+  size_t root_item_count() const { return _items.size(); }
 
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
@@ -76,11 +79,29 @@ public:
   void for_each_area( const std::function<void( StorageArea& )>& f ) const;
 
   void print( Clib::StreamWriter& sw ) const;
+  /// This file's contribution to a parallel save: its pieces, and how to format any range of
+  /// them. A world save folds this in with the other big files so they share the thread pool.
+  SavePart save_part( Clib::StreamWriter& sw ) const;
+  /// The same bytes print() writes, built on this thread alone. print() splits the work across
+  /// the task pool once a world is big enough to be worth it and falls back to this otherwise;
+  /// the test suite holds the two against each other.
+  void print_single_threaded( Clib::StreamWriter& sw ) const;
   void read( Clib::ConfigFile& cf );
   void clear();
   size_t estimateSize() const;
 
 private:
+  /// One indivisible piece of the storage file, in the order it has to be written: either the
+  /// header that opens an area, or one root item with everything inside it.
+  struct PrintUnit
+  {
+    const std::string* area_name;  // set on the unit that opens an area
+    const Items::Item* item;       // set on a root item unit
+  };
+  /// The whole file as an ordered list of pieces, which is what makes it splittable.
+  std::vector<PrintUnit> collect_print_units() const;
+  static void print_unit( const PrintUnit& unit, Clib::StreamWriter& sw );
+
   // TODO: investigate if this could store objects. Does find()
   // return object copies, or references?
   using AreaCont = std::map<std::string, StorageArea*>;

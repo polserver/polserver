@@ -37,27 +37,6 @@ std::string hexint( T integer )
   return fmt::format( "{:#x}"_cf, fmt::underlying( integer ) );
 }
 template <typename T>
-std::string_view hexintv( T integer )
-  requires std::is_integral<T>::value
-{
-  using namespace fmt::literals;
-  static thread_local fmt::memory_buffer buffer;
-  buffer.clear();
-  fmt::format_to( std::back_inserter( buffer ), "{:#x}"_cf, integer );
-  return std::string_view{ buffer.data(), buffer.size() };
-}
-template <typename T>
-std::string_view hexintv( T integer )
-  requires std::is_enum<T>::value
-{
-  using namespace fmt::literals;
-  static thread_local fmt::memory_buffer buffer;
-  buffer.clear();
-  fmt::format_to( std::back_inserter( buffer ), "{:#x}"_cf, fmt::underlying( integer ) );
-  return std::string_view{ buffer.data(), buffer.size() };
-}
-
-template <typename T>
 std::string tostring( const T& value )
   requires( !std::is_enum<T>::value )
 {

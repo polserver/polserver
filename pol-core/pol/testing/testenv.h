@@ -101,6 +101,8 @@ void location_test();
 void zone_bookkeeping_test();
 void place_at_test();
 void container_slot_test();
+void storage_print_test();
+void save_parallel_test();
 void clamp_test();
 void crypt_test();
 void webscript_test();
