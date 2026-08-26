@@ -350,6 +350,8 @@ set (pol_sources  # sorted !
   repsys.h
   repsys_cfg.h
   savedata.cpp
+  saveparallel.cpp
+  saveparallel.h
   savedata.h
   schedule.cpp
   schedule.h
@@ -421,6 +423,7 @@ set (pol_sources  # sorted !
   testing/testresolve.cpp
   testing/testskill.cpp
   testing/testslots.cpp
+  testing/testsaveparallel.cpp
   testing/testthreadpool.cpp
   testing/testtokens.cpp
   testing/testuop.cpp

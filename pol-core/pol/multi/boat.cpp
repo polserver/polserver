@@ -1441,14 +1441,14 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
     UObject* obj = travellerRef.get();
     if ( !obj->orphan() && on_ship( bc, obj ) )
     {
-      sw.add( "Traveller", Clib::hexintv( obj->serial ) );
+      sw.add_fmt( "Traveller", FMT_COMPILE( "{:#x}" ), obj->serial );
     }
   }
   for ( auto& component : Components )
   {
     if ( component != nullptr && !component->orphan() )
     {
-      sw.add( "Component", Clib::hexintv( component->serial ) );
+      sw.add_fmt( "Component", FMT_COMPILE( "{:#x}" ), component->serial );
     }
   }
 }

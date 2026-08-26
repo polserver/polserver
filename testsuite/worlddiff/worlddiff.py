@@ -20,7 +20,7 @@ import sys
 # Three things differ between two saves of the same world for reasons that have nothing to
 # do with what was persisted, so they are normalised away:
 #
-# 1. Block order, but only in OBJECTHASH_ORDERED below.  Every other file is compared in
+# 1. Block order, but only in UNORDERED below.  Every other file is compared in
 #    file order - see BLOCK ORDER.
 #
 # 2. The comment header, which carries the core version and object counts.
@@ -41,10 +41,12 @@ import sys
 # ListItemsNearLocation and friends. specs/items/08 reworks exactly those insert/erase
 # helpers, so this file is the one place that would notice it reordering them.
 #
-# The exception is the files written by walking objStorageManager.objecthash, an
-# unordered_map whose iteration order is an STL implementation detail. It was in fact stable
-# across every round trip measured here, but that is not a property worth asserting across
-# platforms and standard libraries, so those files are sorted by a stable key instead.
+# The exceptions are in UNORDERED below. Two reasons put a file there. The files written by
+# walking objStorageManager.objecthash have an unordered_map's iteration order, which is an STL
+# implementation detail - stable across every round trip measured here, but not a property worth
+# asserting across platforms and standard libraries. And storage.txt is appended to by several
+# threads at once, each handing over its pieces as it finishes them, so its block order varies
+# between two saves of the same world. Both are sorted by a stable key instead.
 #
 # Known soft spot, verified rather than assumed: ONE on-cursor item in the starting save is
 # enough to fail this test, legitimately. write_items appends gotten items after its zone
@@ -67,11 +69,29 @@ import sys
 # content as a set while every other block stays in file order. The contents do line up
 # across the two saves (WriteGottenItem writes the holder's coordinates, which is exactly
 # where the reloaded ground item sits), so a per-object exemption is enough.
-OBJECTHASH_ORDERED = {
+UNORDERED = {
+    # objecthash iteration order - see BLOCK ORDER above.
     "pcs.txt",
     "pcequip.txt",
     "npcs.txt",
     "npcequip.txt",
+    # Appended by several threads at once (saveparallel.cpp: write_parallel). Nothing
+    # downstream can tell: Storage::read files each item under the last StorageArea element
+    # before it, and StorageArea::_items is a map keyed by name, so the arrival order does not
+    # survive the load. The ordering that DOES matter here - an item following the area it
+    # belongs to - cannot be checked once the blocks are sorted; storage_print_test in
+    # testsaveparallel.cpp checks that instead.
+    "storage.txt",
+}
+
+# Files where one element may legitimately appear more than once. A piece of storage.txt opens
+# its own StorageArea rather than relying on another piece having opened it, so the file carries
+# one area element per piece - and the piece count follows the thread count, which is not a
+# property of the world. Reopening an area is a no-op on load (Storage::create_area returns the
+# existing area by name), so the duplicates are dropped before comparing. Presence is still
+# compared: an area that went missing entirely would still show up.
+DEDUPED_TYPES = {
+    "storage.txt": {"StorageArea"},
 }
 
 # Keys dropped from every block before comparing.
@@ -166,12 +186,20 @@ def parse(path):
 
 
 def canonical(path):
+    name = os.path.basename(path)
     blocks = parse(path)
-    if os.path.basename(path) in OBJECTHASH_ORDERED:
+    if name in UNORDERED:
         blocks.sort(key=Block.sort_key)
+    deduped = DEDUPED_TYPES.get(name, set())
     out = []
+    previous = None
     for block in blocks:
-        out.extend(block.render())
+        rendered = block.render()
+        # Sorting put identical blocks next to each other, so one look back is enough.
+        if block.type_line in deduped and rendered == previous:
+            continue
+        previous = rendered
+        out.extend(rendered)
     return out
 
 

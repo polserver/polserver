@@ -290,12 +290,12 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   if ( !name_.get().empty() )
     sw.add( "Name", name_.get() );
 
-  sw.add( "Serial", Clib::hexintv( serial ) );
-  sw.add( "ObjType", Clib::hexintv( objtype_ ) );
-  sw.add( "Graphic", Clib::hexintv( graphic ) );
+  sw.add_fmt( "Serial", FMT_COMPILE( "{:#x}" ), serial );
+  sw.add_fmt( "ObjType", FMT_COMPILE( "{:#x}" ), objtype_ );
+  sw.add_fmt( "Graphic", FMT_COMPILE( "{:#x}" ), graphic );
 
   if ( color != 0 )
-    sw.add( "Color", Clib::hexintv( color ) );
+    sw.add_fmt( "Color", FMT_COMPILE( "{:#x}" ), color );
 
   const Pos3d local = local_position();
   sw.add( "X", local.x() );

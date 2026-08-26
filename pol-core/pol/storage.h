@@ -10,8 +10,10 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "clib/maputil.h"
+#include "pol/saveparallel.h"
 
 namespace Pol
 {
@@ -50,6 +52,7 @@ public:
 
   /// Visit each root item with the key it is filed under, which is not always its current name.
   void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
+  size_t root_item_count() const { return _items.size(); }
 
   void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
@@ -76,11 +79,36 @@ public:
   void for_each_area( const std::function<void( StorageArea& )>& f ) const;
 
   void print( Clib::StreamWriter& sw ) const;
+  /// This file's contribution to a parallel save: its pieces, and how to format any range of
+  /// them. A world save folds this in with the other big files so they share the thread pool.
+  SavePart save_part( Clib::StreamWriter& sw ) const;
+  /// The same bytes print() writes, built on this thread alone. print() splits the work across
+  /// the task pool once a world is big enough to be worth it and falls back to this otherwise;
+  /// the test suite holds the two against each other.
+  void print_single_threaded( Clib::StreamWriter& sw ) const;
   void read( Clib::ConfigFile& cf );
   void clear();
   size_t estimateSize() const;
 
 private:
+  /// One indivisible piece of the storage file: one root item with everything inside it, or,
+  /// where `item` is null, an area that has no root items and would otherwise not be written at
+  /// all. `area_name` is always the area the piece belongs to.
+  struct PrintUnit
+  {
+    const std::string* area_name;
+    const Items::Item* item;
+  };
+  /// The whole file as a list of pieces, which is what makes it splittable.
+  std::vector<PrintUnit> collect_print_units() const;
+  /// Write one piece, opening its area first unless `open_area` says this writer is already
+  /// inside it. The loader files an item under the last StorageArea element it saw, so a piece
+  /// cannot rely on another piece having opened the area for it: pieces are written by several
+  /// threads at once and arrive in no particular order. Reopening an area is free - Storage::read
+  /// goes through create_area, which returns the area of that name if it already exists.
+  static void print_unit( const PrintUnit& unit, Clib::StreamWriter& sw,
+                          const std::string** open_area );
+
   // TODO: investigate if this could store objects. Does find()
   // return object copies, or references?
   using AreaCont = std::map<std::string, StorageArea*>;

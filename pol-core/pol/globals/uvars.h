@@ -250,6 +250,13 @@ public:
     size_t misc;
   };
   threadhelp::TaskThreadPool task_thread_pool;
+  /// Runs the completion callback of a finished world save, and nothing else.
+  ///
+  /// Deliberately not task_thread_pool: the callback takes the world lock, and the scripts
+  /// thread holds that lock while waiting on task_thread_pool for the objects of the *next*
+  /// save. Sharing the pool would let a blocked callback occupy the thread that wait depends
+  /// on, which with pol.cfg WorldSaveThreads=1 is the only one there is.
+  threadhelp::TaskThreadPool save_callback_pool;
 
   Decay decay;
 

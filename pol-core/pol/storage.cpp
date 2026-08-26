@@ -7,9 +7,11 @@
 
 #include "pol/storage.h"
 
+#include <algorithm>
 #include <exception>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
@@ -25,6 +27,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mkscrobj.h"
+#include "pol/saveparallel.h"
 #include "pol/ufunc.h"
 
 
@@ -246,15 +249,72 @@ void Storage::read( Clib::ConfigFile& cf )
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
-void Storage::print( Clib::StreamWriter& sw ) const
+void Storage::print_unit( const PrintUnit& unit, Clib::StreamWriter& sw,
+                          const std::string** open_area )
 {
-  for ( const auto& area : areas )
+  // Pointer comparison: every piece of one area carries the same pointer, into the area map's
+  // own key, which outlives the save.
+  if ( *open_area != unit.area_name )
   {
     sw.begin( "StorageArea" );
-    sw.add( "Name", area.first );
+    sw.add( "Name", *unit.area_name );
     sw.end();
-    area.second->print( sw );
+    *open_area = unit.area_name;
   }
+  if ( unit.item != nullptr && unit.item->saveonexit() )
+    unit.item->printOn( sw );
+}
+
+std::vector<Storage::PrintUnit> Storage::collect_print_units() const
+{
+  std::vector<PrintUnit> units;
+  size_t count = 0;
+  for ( const auto& area : areas )
+    count += std::max<size_t>( 1, area.second->root_item_count() );
+  units.reserve( count );
+  for ( const auto& area : areas )
+  {
+    const size_t before = units.size();
+    area.second->for_each_root_item( [&units, &area]( const std::string&, Items::Item* item )
+                                     { units.push_back( { &area.first, item } ); } );
+    // An area with nothing in it still has to be written, or it would not come back on load.
+    if ( units.size() == before )
+      units.push_back( { &area.first, nullptr } );
+  }
+  return units;
+}
+
+void Storage::print_single_threaded( Clib::StreamWriter& sw ) const
+{
+  const std::string* open_area = nullptr;
+  for ( const auto& unit : collect_print_units() )
+    print_unit( unit, sw, &open_area );
+}
+
+SavePart Storage::save_part( Clib::StreamWriter& sw ) const
+{
+  // Nearly all of a large shard's storage is a single area of player bank boxes -- thousands of
+  // root containers holding a few hundred items each -- so splitting the work per area would
+  // leave one thread with the whole file. Split it at root-item boundaries instead.
+  auto units = collect_print_units();
+  const size_t count = units.size();
+  return { .name = "storage",
+           .count = count,
+           .writers = { &sw },
+           .format = [units = std::move( units )]( size_t begin, size_t end,
+                                                   const std::vector<Clib::StreamWriter*>& out )
+           {
+             // Starts with no area open: whichever piece comes first in this range opens its own,
+             // because nothing can be assumed about what was written before it.
+             const std::string* open_area = nullptr;
+             for ( size_t u = begin; u < end; ++u )
+               print_unit( units[u], *out[0], &open_area );
+           } };
+}
+
+void Storage::print( Clib::StreamWriter& sw ) const
+{
+  write_parallel( { save_part( sw ) } );
 }
 
 void Storage::clear()
