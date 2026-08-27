@@ -7,11 +7,11 @@
 
 #include "pol/savedata.h"
 
+#include <algorithm>
 #include <cerrno>
 #include <exception>
 #include <filesystem>
 #include <fstream>
-#include <thread>
 
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"
@@ -27,6 +27,7 @@
 #include "plib/systemstate.h"
 #include "pol/accounts/accounts.h"
 #include "pol/globals/object_storage.h"
+#include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
@@ -38,6 +39,7 @@
 #include "pol/polsem.h"
 #include "pol/realms/realm.h"
 #include "pol/regions/resource.h"
+#include "pol/saveparallel.h"
 #include "pol/storage.h"
 #include "pol/ufunc.h"
 #include "pol/uobject.h"
@@ -50,7 +52,7 @@ namespace Pol
 namespace Module
 {
 void commit_datastore();
-void write_datastore( Clib::StreamWriter& sw );
+Core::SavePart datastore_part( Clib::StreamWriter& sw );
 }  // namespace Module
 namespace Core
 {
@@ -62,7 +64,6 @@ std::atomic<gameclock_t> SaveContext::last_worldsave_success = 0;
 
 SaveContext::SaveContext()
     : pol( Plib::systemstate.config.world_data_path + "pol.ndt" ),
-      objects( Plib::systemstate.config.world_data_path + "objects.ndt" ),
       pcs( Plib::systemstate.config.world_data_path + "pcs.ndt" ),
       pcequip( Plib::systemstate.config.world_data_path + "pcequip.ndt" ),
       npcs( Plib::systemstate.config.world_data_path + "npcs.ndt" ),
@@ -140,24 +141,32 @@ SaveContext::SaveContext()
   party.comment( "\n" );
 }
 
+std::array<std::pair<std::string_view, Clib::StreamWriter*>, 12> SaveContext::files()
+{
+  // Note that `party` commits as "parties".
+  return { { { "pol", &pol },
+             { "pcs", &pcs },
+             { "pcequip", &pcequip },
+             { "npcs", &npcs },
+             { "npcequip", &npcequip },
+             { "items", &items },
+             { "multis", &multis },
+             { "storage", &storage },
+             { "resource", &resource },
+             { "guilds", &guilds },
+             { "datastore", &datastore },
+             { "parties", &party } } };
+}
+
 SaveContext::~SaveContext() noexcept( false )
 {
   auto stack_unwinding = std::uncaught_exceptions();
   try
   {
-    pol.flush_close();
-    objects.flush_close();
-    pcs.flush_close();
-    pcequip.flush_close();
-    npcs.flush_close();
-    npcequip.flush_close();
-    items.flush_close();
-    multis.flush_close();
-    storage.flush_close();
-    resource.flush_close();
-    guilds.flush_close();
-    datastore.flush_close();
-    party.flush_close();
+    // A save that got this far has already flushed and closed everything itself, so that the i/o
+    // could be timed and kept out of the critical part. This is the cleanup path for the rest.
+    for ( auto& file : files() )
+      file.second->flush_close();
   }
   catch ( ... )
   {
@@ -213,6 +222,20 @@ void write_realms( Clib::StreamWriter& sw )
   }
 }
 
+/// pol.txt: the header a shard is identified by, plus the globals and the realm list.
+void write_pol_file( Clib::StreamWriter& sw )
+{
+  sw.comment( "" );
+  sw.comment( " Created by Version: {}", POL_VERSION_ID );
+  sw.comment( " Mobiles: {}", get_mobile_count() );
+  sw.comment( " Top-level Items: {}", get_toplevel_item_count() );
+  sw.comment( "\n" );
+
+  write_system_data( sw );
+  write_global_properties( sw );
+  write_realms( sw );
+}
+
 // Austin (Oct. 17, 2006)
 // Added to handle gotten item saving.
 void WriteGottenItem( Items::Item* item, Clib::StreamWriter& sw )
@@ -225,102 +248,112 @@ void WriteGottenItem( Items::Item* item, Clib::StreamWriter& sw )
   item->printOn( sw );
 }
 
-void write_characters( Core::SaveContext& sc )
+/// The mobiles a save has to write, in the order the object hash lists them.
+///
+/// Collected once and shared. The hash holds every item on the shard as well as every mobile, so
+/// on a large shard it is a tree of millions of nodes; write_characters, write_npcs and the
+/// gotten-item pass of write_items used to each walk all of it to find a few thousand mobiles.
+struct MobileSnapshot
 {
-  for ( const auto& objitr : objStorageManager.objecthash )
-  {
-    UObject* obj = objitr.second.get();
-    if ( obj->ismobile() && !obj->orphan() )
-    {
-      Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) )
+  std::vector<Mobile::Character*> pcs;
+  std::vector<Mobile::Character*> npcs;  // only the ones that get saved
+};
+
+MobileSnapshot collect_mobiles()
+{
+  MobileSnapshot mobiles;
+  // An NPC counts as a character too, so the players are the characters left over. Both are an
+  // upper bound - orphans and NPCs that are not saved drop out below - so the vectors are sized
+  // once instead of growing a pointer at a time.
+  const int npc_count = stateManager.uobjcount.npc_count;
+  mobiles.pcs.reserve( std::max( 0, stateManager.uobjcount.ucharacter_count - npc_count ) );
+  mobiles.npcs.reserve( npc_count );
+  objStorageManager.objecthash.for_each_character(
+      [&mobiles]( UObject* obj )
       {
-        chr->printOn( sc.pcs );
-        chr->clear_dirty();
-        chr->printWornItems( sc.pcs, sc.pcequip );
-      }
-    }
-  }
+        if ( !obj->ismobile() || obj->orphan() )
+          return;
+        Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
+        if ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) )
+          mobiles.pcs.push_back( chr );
+        else if ( chr->saveonexit() )
+          mobiles.npcs.push_back( chr );
+      } );
+  return mobiles;
 }
 
-void write_npcs( Core::SaveContext& sc )
+/// Every top-level item of every realm, flattened so that the file can be split. The filter is
+/// applied here rather than per piece, so that the pieces hold only items that get written and
+/// therefore carry comparable amounts of work.
+std::vector<Items::Item*> collect_toplevel_items()
 {
-  for ( const auto& objitr : objStorageManager.objecthash )
+  std::vector<Items::Item*> items;
+  items.reserve( get_toplevel_item_count() );
+  // Zone order, because file order becomes zone-vector order on load, which is the order
+  // WorldIterator hands to ListItemsNearLocation and friends. The whole realm is one box, so the
+  // iterator's own range check is always true -- it is here to walk the zones in the one order
+  // everything else in the core walks them in.
+  for ( auto* realm : gamestate.Realms )
   {
-    UObject* obj = objitr.second.get();
-    if ( obj->ismobile() && !obj->orphan() )
-    {
-      Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( chr->isa( UOBJ_CLASS::CLASS_NPC ) )
-      {
-        if ( chr->saveonexit() )
-        {
-          chr->printOn( sc.npcs );
-          chr->clear_dirty();
-          chr->printWornItems( sc.npcs, sc.npcequip );
-        }
-      }
-    }
+    WorldIterator<ItemFilter>::InBox( realm->area(), realm,
+                                      [&items]( Items::Item* item )
+                                      {
+                                        if ( item->itemdesc().save_on_exit && item->saveonexit() )
+                                          items.push_back( item );
+                                      } );
   }
+  return items;
 }
 
-void write_items( Clib::StreamWriter& sw_items )
+/// One top-level item per piece.
+void write_item( Items::Item* item, ChunkOut out )
 {
-  for ( const auto& realm : gamestate.Realms )
-  {
-    for ( const auto& p : realm->gridarea() )
-    {
-      for ( const auto& item : realm->getzone_grid( p ).items )
-      {
-        if ( item->itemdesc().save_on_exit && item->saveonexit() )
-        {
-          item->printOn( sw_items );
-          item->clear_dirty();
-        }
-      }
-    }
-  }
+  item->printOn( out.file );
+  item->clear_dirty();
+}
 
-  for ( const auto& objitr : objStorageManager.objecthash )
+/// One mobile per piece, its worn items included. Both files it writes to are split the same way,
+/// so each keeps the order a single thread would have given it.
+void write_mobile( Mobile::Character* chr, ChunkOut out )
+{
+  chr->printForSave( out.file, out.equip );
+}
+
+/// Items on a player's cursor, written after all the top-level ones as they always have been.
+/// There is one at most per player, so there is nothing here worth splitting.
+void write_gotten_items( Clib::StreamWriter& sw_items, const MobileSnapshot& mobiles )
+{
+  for ( Mobile::Character* chr : mobiles.pcs )
   {
-    UObject* obj = objitr.second.get();
-    if ( obj->ismobile() && !obj->orphan() )
-    {
-      Mobile::Character* chr = static_cast<Mobile::Character*>( obj );
-      if ( !chr->isa( UOBJ_CLASS::CLASS_NPC ) )
-      {
-        // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
-        if ( chr->has_gotten_item() )
-          WriteGottenItem( chr->gotten_item().item(), sw_items );
-      }
-    }
+    // Figure out where to save the 'gotten item' - Austin (Oct. 17, 2006)
+    if ( chr->has_gotten_item() )
+      WriteGottenItem( chr->gotten_item().item(), sw_items );
   }
 }
 
 void write_multis( Clib::StreamWriter& ofs )
 {
-  for ( const auto& realm : gamestate.Realms )
+  for ( auto* realm : gamestate.Realms )
   {
-    for ( const auto& p : realm->gridarea() )
-    {
-      for ( auto& multi : realm->getzone_grid( p ).multis )
-      {
-        if ( Clib::exit_signalled )  // drop waiting commit on shutdown
+    WorldIterator<MultiFilter>::InBox(
+        realm->area(), realm,
+        [&ofs]( Multi::UMulti* multi )
         {
-          Multi::UHouse* house = multi->as_house();
-          if ( house != nullptr )
+          if ( Clib::exit_signalled )  // drop waiting commit on shutdown
           {
-            if ( house->IsCustom() )
+            Multi::UHouse* house = multi->as_house();
+            if ( house != nullptr )
             {
-              if ( house->IsWaitingForAccept() )
-                house->AcceptHouseCommit( nullptr, false );
+              if ( house->IsCustom() )
+              {
+                if ( house->IsWaitingForAccept() )
+                  house->AcceptHouseCommit( nullptr, false );
+              }
             }
           }
-        }
-        multi->printOn( ofs );
-        multi->clear_dirty();
-      }
-    }
+          multi->printOn( ofs );
+          multi->clear_dirty();
+        } );
   }
 }
 bool should_write_data()
@@ -356,8 +389,37 @@ bool commit( const std::string& basename )
   return true;
 }
 
-std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callback,
-                                u32* dirty_writes, u32* clean_writes, s64* elapsed_ms )
+namespace
+{
+/// Break a finished save down into where its time and its bytes went, slowest and biggest first.
+void log_save_details( const SaveResult& stats )
+{
+  auto tasks = stats.tasks;
+  std::sort( tasks.begin(), tasks.end(),
+             []( const auto& a, const auto& b ) { return a.elapsed_ms > b.elapsed_ms; } );
+  auto files = stats.files;
+  std::sort( files.begin(), files.end(),
+             []( const auto& a, const auto& b ) { return a.bytes > b.bytes; } );
+
+  fmt::memory_buffer buffer;
+  auto out = std::back_inserter( buffer );
+  fmt::format_to( out,
+                  "Worldsave {}: {} ms world stopped ({} ms of it writing), {} ms flushing, {} ms "
+                  "committing",
+                  stats.success ? "ok" : "FAILED", stats.critical_ms, stats.write_ms,
+                  stats.flush_ms, stats.commit_ms );
+  fmt::format_to( out, "\n  parts (work, summed over the threads that shared it):" );
+  for ( const auto& task : tasks )
+    fmt::format_to( out, "\n    {:<10} {:>7} ms", task.name, task.elapsed_ms );
+  fmt::format_to( out, "\n  files:" );
+  for ( const auto& file : files )
+    fmt::format_to( out, "\n    {:<10} {:>13} bytes", file.name, file.bytes );
+  POLLOG_INFOLN( "{}", std::string_view( buffer.data(), buffer.size() ) );
+}
+}  // namespace
+
+std::optional<bool> write_data( std::function<void( const SaveResult& )> callback,
+                                SaveResult* critical_result )
 {
   SaveContext::ready();  // allow only one active
   if ( !should_write_data() )
@@ -366,18 +428,17 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
   UObject::dirty_writes = 0;
   UObject::clean_writes = 0;
 
-  Tools::Timer<> timer;
   // launch complete save as seperate thread
   // but wait till the first critical part is finished
-  // which means all objects got written into a format object
+  // which means all objects got written and the world is free to run again
   // the remaining operations are only pure buffered i/o
-  auto critical_promise = std::promise<bool>();
+  auto critical_promise = std::promise<SaveResult>();
   auto critical_future = critical_promise.get_future();
-  auto set_promise = []( auto& promise, bool result )
+  auto set_promise = []( auto& promise, SaveResult result )
   {
     try  // guard to be able to try to set it twice (exceptions)
     {
-      promise.set_value( result );
+      promise.set_value( std::move( result ) );
     }
     catch ( ... )
     {
@@ -389,119 +450,132 @@ std::optional<bool> write_data( std::function<void( bool, u32, u32, s64 )> callb
        callback = std::move( callback )]() mutable
       {
         Tools::Timer<> blocking_timer;
-        std::atomic<bool> result( true );
+        bool result = true;
+        SaveResult stats;
         try
         {
           SaveContext sc;
-          std::vector<std::future<bool>> critical_parts;
-          auto save = [&]( auto func, std::string name )
+          try
           {
-            critical_parts.push_back( gamestate.task_thread_pool.checked_push(
-                [&, name, func = std::move( func )]() mutable
-                {
-                  try
-                  {
-                    func();
-                  }
-                  catch ( const std::exception& error )
-                  {
-                    POLLOG_ERRORLN( "failed to store {} datafile! {}\n{}", name, error.what(),
-                                    Clib::ExceptionParser::getTrace() );
-                    result = false;
-                  }
-                  catch ( ... )
-                  {
-                    POLLOG_ERRORLN( "failed to store {} datafile!\n{}", name,
-                                    Clib::ExceptionParser::getTrace() );
-                    result = false;
-                  }
-                } ) );
-          };
+            // Working out what there is to write, before any of it is formatted. Building the
+            // part list is the whole of it: each part is handed the objects it will write.
+            Tools::Timer<> scan_timer;
+            auto mobiles = collect_mobiles();
+            // Ordered longest-piece-first, because a worker claims chunks in list order and the
+            // save cannot finish before its longest single piece does. The files that are one
+            // piece are all tiny but indivisible, so they lead; the cut-up ones follow, datastore
+            // ahead of the rest because it has the fewest pieces to spread its work over.
+            auto parts = std::vector<SavePart>{
+                whole_file_part( "accounts",
+                                 [&]()
+                                 {
+                                   if ( Plib::systemstate.accounts_txt_dirty )
+                                     Accounts::write_account_data();
+                                 } ),
+                whole_file_part( "pol", [&]() { write_pol_file( sc.pol ); } ),
+                whole_file_part( "multis", [&]() { write_multis( sc.multis ); } ),
+                whole_file_part( "resource", [&]() { write_resources_dat( sc.resource ); } ),
+                whole_file_part( "guilds", [&]() { write_guilds( sc.guilds ); } ),
+                whole_file_part( "parties", [&]() { write_party( sc.party ); } ),
+                Module::datastore_part( sc.datastore ), gamestate.storage.save_part( sc.storage ),
+                object_part( "items", collect_toplevel_items(), &sc.items, nullptr, write_item ),
+                // pcs is copied rather than moved: the gotten-item pass below needs it again.
+                object_part( "character", mobiles.pcs, &sc.pcs, &sc.pcequip, write_mobile ),
+                object_part( "npcs", std::move( mobiles.npcs ), &sc.npcs, &sc.npcequip,
+                             write_mobile ) };
+            const auto scan_ms = scan_timer.ellapsed();
 
-          // ordered roughly by "usual" size, so that the biggest files will be written first
-          save( [&]() { write_items( sc.items ); }, "items" );
-          save( [&]() { gamestate.storage.print( sc.storage ); }, "storage" );
-          save( [&]() { write_characters( sc ); }, "character" );
-          save( [&]() { write_npcs( sc ); }, "npcs" );
-          save(
-              [&]()
-              {
-                if ( Plib::systemstate.accounts_txt_dirty )
-                  Accounts::write_account_data();
-              },
-              "accounts" );
-          save(
-              [&]()
-              {
-                sc.pol.comment( "" );
-                sc.pol.comment( " Created by Version: {}", POL_VERSION_ID );
-                sc.pol.comment( " Mobiles: {}", get_mobile_count() );
-                sc.pol.comment( " Top-level Items: {}", get_toplevel_item_count() );
-                sc.pol.comment( "\n" );
+            auto work = write_parallel( parts );
+            write_gotten_items( sc.items, mobiles );
+            // Atomically (hopefully) perform the switch. Retiring a datafile's previous
+            // generation has to wait until every datafile has written its new one.
+            Module::commit_datastore();
 
-                write_system_data( sc.pol );
-                write_global_properties( sc.pol );
-                write_realms( sc.pol );
-              },
-              "pol" );
-          save( [&]() { write_multis( sc.multis ); }, "multis" );
-          save( [&]() { write_resources_dat( sc.resource ); }, "resource" );
-          save( [&]() { write_guilds( sc.guilds ); }, "guilds" );
-          save(
-              [&]()
-              {
-                Module::write_datastore( sc.datastore );
-                // Atomically (hopefully) perform the switch.
-                Module::commit_datastore();
-              },
-              "datastore" );
-          save( [&]() { write_party( sc.party ); }, "party" );
+            stats.write_ms = work.write_ms;
+            stats.tasks = std::move( work.work );
+            stats.tasks.push_back( { "scan", scan_ms } );
+          }
+          catch ( const std::exception& error )
+          {
+            POLLOG_ERRORLN( "failed to store the world datafiles! {}\n{}", error.what(),
+                            Clib::ExceptionParser::getTrace() );
+            result = false;
+          }
+          catch ( ... )
+          {
+            POLLOG_ERRORLN( "failed to store the world datafiles!\n{}",
+                            Clib::ExceptionParser::getTrace() );
+            result = false;
+          }
 
-          for ( auto& task : critical_parts )
-            task.wait();
+          // Counted before the final flush: bytes_written() includes the buffered tail, so this is
+          // the whole payload each file received while the world was stopped.
+          for ( const auto& file : sc.files() )
+            stats.files.push_back( { file.first, file.second->bytes_written() } );
 
-          set_promise( critical_promise, result );  // critical part end
           blocking_timer.stop();
-        }  // deconstructor of the SaveContext flushes and joins the queues
+          stats.critical_ms = blocking_timer.ellapsed();
+          stats.success = result;
+          set_promise( critical_promise, stats );  // critical part end
+
+          // The world runs again from here on. Draining the buffers and closing the files no
+          // longer touches any object.
+          Tools::Timer<> flush_timer;
+          for ( auto& file : sc.files() )
+            file.second->flush_close();
+          stats.flush_ms = flush_timer.ellapsed();
+        }  // deconstructor of the SaveContext closes whatever is left open
         catch ( std::ios_base::failure& e )
         {
           POLLOG_ERRORLN( "failed to save datafiles! {}:{}\n{}", e.what(), std::strerror( errno ),
                           Clib::ExceptionParser::getTrace() );
 
           result = false;
-          set_promise( critical_promise, result );
+          stats.success = false;
+          set_promise( critical_promise, stats );
         }
         catch ( ... )
         {
           POLLOG_ERRORLN( "failed to save datafiles!\n{}", Clib::ExceptionParser::getTrace() );
           result = false;
-          set_promise( critical_promise, result );
+          stats.success = false;
+          set_promise( critical_promise, stats );
         }
         if ( result )
         {
-          auto files = { "pol",      "objects",   "pcs",    "pcequip", "npcs",
-                         "npcequip", "items",     "multis", "storage", "resource",
-                         "guilds",   "datastore", "parties" };
-          result =
-              std::all_of( files.begin(), files.end(), []( auto file ) { return commit( file ); } );
+          Tools::Timer<> commit_timer;
+          result = std::all_of( stats.files.begin(), stats.files.end(), []( const auto& file )
+                                { return commit( std::string( file.name ) ); } );
+          stats.commit_ms = commit_timer.ellapsed();
           if ( result )
             SaveContext::last_worldsave_success = read_gameclock();
         }
+        stats.success = result;
+        stats.clean_writes = UObject::clean_writes;
+        stats.dirty_writes = UObject::dirty_writes;
+        if ( Plib::systemstate.config.log_worldsave_details )
+          log_save_details( stats );
+        // Handed to another thread rather than run here, because the callback takes the world
+        // lock and SaveContext::finished must not span a lock acquisition: write_data is called
+        // from the scripts thread with that lock held, and opens by waiting on finished. Running
+        // the callback before finished is set would mean this thread waits for a lock the thread
+        // waiting for us is holding - the shard wedges, and back-to-back saves are how you get
+        // there. Nothing waits on the callback, so it is free to block for the lock.
         if ( callback )
-          callback( result.load(), UObject::clean_writes, UObject::dirty_writes,
-                    blocking_timer.ellapsed() );
+          gamestate.save_callback_pool.push(
+              [callback = std::move( callback ), stats = std::move( stats )]() mutable
+              { callback( stats ); } );
       } );
   auto res = critical_future.get();  // wait for end of critical part
 
   objStorageManager.objecthash.ClearDeleted();
 
-  if ( clean_writes )
-    *clean_writes = UObject::clean_writes;
-  if ( dirty_writes )
-    *dirty_writes = UObject::dirty_writes;
-  if ( elapsed_ms )
-    *elapsed_ms = timer.ellapsed();
-  return res;
+  res.clean_writes = UObject::clean_writes;
+  res.dirty_writes = UObject::dirty_writes;
+  const bool success = res.success;
+  if ( critical_result )
+    *critical_result = std::move( res );
+  return success;
 }
 
 }  // namespace Core

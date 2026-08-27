@@ -89,6 +89,10 @@ exported function polcore_save()
   if ( PolCore().worldsaved_at == time )
     return ret_error( "last save time didnt change" );
   endif
+  var bad := check_save_report( res );
+  if ( bad )
+    return ret_error( $"non async save: {bad}" );
+  endif
   // unable to suspend, perform only the blocking part
   Set_Critical( 1 );
   res := SaveWorldState();
@@ -96,7 +100,49 @@ exported function polcore_save()
   if ( res.?ElapsedMillisecondsTotal )
     return ret_error( $"async save: {res}" );
   endif
+  bad := check_save_report( res );
+  if ( bad )
+    return ret_error( $"async save: {bad}" );
+  endif
   return 1;
+endfunction
+
+// The breakdown a save reports about itself, the same numbers pol.cfg LogWorldSaveDetails
+// logs. A timing may legitimately be 0 on a world this small, so check the type, not the value.
+// Note that struct.?name is an existence test answering 0/1, so the type check reads the member.
+function check_save_report( res )
+  var bad := {};
+  if ( TypeOf( res.DirtyObjects ) != "Integer" )
+    bad.append( $"DirtyObjects is {TypeOf( res.DirtyObjects )}" );
+  endif
+  if ( TypeOf( res.CleanObjects ) != "Integer" )
+    bad.append( $"CleanObjects is {TypeOf( res.CleanObjects )}" );
+  endif
+  if ( TypeOf( res.ElapsedMilliseconds ) != "Integer" )
+    bad.append( $"ElapsedMilliseconds is {TypeOf( res.ElapsedMilliseconds )}" );
+  endif
+  if ( TypeOf( res.ElapsedMillisecondsFlush ) != "Integer" )
+    bad.append( $"ElapsedMillisecondsFlush is {TypeOf( res.ElapsedMillisecondsFlush )}" );
+  endif
+  if ( TypeOf( res.ElapsedMillisecondsCommit ) != "Integer" )
+    bad.append( $"ElapsedMillisecondsCommit is {TypeOf( res.ElapsedMillisecondsCommit )}" );
+  endif
+
+  // One entry per output file, holding the bytes it received. storage is always written.
+  if ( TypeOf( res.Files ) != "Struct" )
+    bad.append( $"Files is {TypeOf( res.Files )}" );
+  elseif ( TypeOf( res.Files.storage ) != "Integer" )
+    bad.append( $"Files.storage is {TypeOf( res.Files.storage )}" );
+  endif
+
+  // One entry per parallel part of the save, holding how long it ran.
+  if ( TypeOf( res.Tasks ) != "Struct" )
+    bad.append( $"Tasks is {TypeOf( res.Tasks )}" );
+  elseif ( TypeOf( res.Tasks.storage ) != "Integer" )
+    bad.append( $"Tasks.storage is {TypeOf( res.Tasks.storage )}" );
+  endif
+
+  return bad.size() ? bad : 0;
 endfunction
 
 // The core variables that answer with a list or a struct rather than a number. Every one of

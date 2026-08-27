@@ -23,7 +23,7 @@
 
 namespace Pol::Core
 {
-ObjectHash::ObjectHash() : hash(), reap_iterator( hash.end() ){};
+ObjectHash::ObjectHash() : hash(), reap_iterator( hash.end() ) {};
 
 ObjectHash::~ObjectHash() = default;
 
@@ -89,6 +89,13 @@ u32 ObjectHash::GetNextUnusedItemSerial()
   }
   return tempserial;
 };
+
+void ObjectHash::for_each_character( const std::function<void( UObject* )>& f ) const
+{
+  const auto stop = hash.upper_bound( CHARACTERSERIAL_END );
+  for ( auto itr = hash.begin(); itr != stop; ++itr )
+    f( itr->second.get() );
+}
 
 u32 ObjectHash::GetNextUnusedCharSerial()
 {

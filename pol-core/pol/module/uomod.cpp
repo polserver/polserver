@@ -2870,6 +2870,39 @@ BObjectImp* UOExecutorModule::mf_SystemFindObjectBySerial()
   return new BError( "Invalid parameter type" );
 }
 
+namespace
+{
+/// The script-visible report of a world save. `Files` and `Tasks` are what pol.cfg
+/// LogWorldSaveDetails logs, so a shard can chart its own save instead of grepping the log.
+Bscript::BStruct* save_result_struct( const Core::SaveResult& result )
+{
+  auto* ret = new Bscript::BStruct();
+  ret->addMember( "DirtyObjects", new Bscript::BLong( result.dirty_writes ) );
+  ret->addMember( "CleanObjects", new Bscript::BLong( result.clean_writes ) );
+  ret->addMember( "ElapsedMilliseconds",
+                  new Bscript::BLong( Clib::clamp_convert<int>( result.critical_ms ) ) );
+  ret->addMember( "ElapsedMillisecondsWriting",
+                  new Bscript::BLong( Clib::clamp_convert<int>( result.write_ms ) ) );
+  ret->addMember( "ElapsedMillisecondsFlush",
+                  new Bscript::BLong( Clib::clamp_convert<int>( result.flush_ms ) ) );
+  ret->addMember( "ElapsedMillisecondsCommit",
+                  new Bscript::BLong( Clib::clamp_convert<int>( result.commit_ms ) ) );
+
+  auto* files = new Bscript::BStruct();
+  for ( const auto& file : result.files )
+    files->addMember( std::string( file.name ).c_str(),
+                      new Bscript::BLong( Clib::clamp_convert<int>( file.bytes ) ) );
+  ret->addMember( "Files", files );
+
+  auto* tasks = new Bscript::BStruct();
+  for ( const auto& task : result.tasks )
+    tasks->addMember( task.name.c_str(),
+                      new Bscript::BLong( Clib::clamp_convert<int>( task.elapsed_ms ) ) );
+  ret->addMember( "Tasks", tasks );
+  return ret;
+}
+}  // namespace
+
 BObjectImp* UOExecutorModule::mf_SaveWorldState()
 {
   update_gameclock();
@@ -2881,19 +2914,15 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
   {
     Tools::Timer<> total_timer;
     auto res = write_data(
-        [uoexec = uoexec().weakptr.non_owning(), total_timer = std::move( total_timer )](
-            bool result, u32 clean_writes, u32 dirty_writes, s64 ellapsed ) mutable
+        [uoexec = uoexec().weakptr.non_owning(),
+         total_timer = std::move( total_timer )]( const Core::SaveResult& result ) mutable
         {
           Core::PolLock lck;
           if ( !uoexec.exists() )
             return;
-          if ( result )
+          if ( result.success )
           {
-            auto* ret = new Bscript::BStruct();
-            ret->addMember( "DirtyObjects", new Bscript::BLong( dirty_writes ) );
-            ret->addMember( "CleanObjects", new Bscript::BLong( clean_writes ) );
-            ret->addMember( "ElapsedMilliseconds",
-                            new Bscript::BLong( Clib::clamp_convert<int>( ellapsed ) ) );
+            auto* ret = save_result_struct( result );
             ret->addMember(
                 "ElapsedMillisecondsTotal",
                 new Bscript::BLong( Clib::clamp_convert<int>( total_timer.ellapsed() ) ) );
@@ -2918,19 +2947,12 @@ BObjectImp* UOExecutorModule::mf_SaveWorldState()
   }
 
   // non waiting version
-  u32 dirty, clean;
-  s64 elapsed_ms;
-  auto res = write_data( {}, &dirty, &clean, &elapsed_ms );
+  Core::SaveResult critical;
+  auto res = write_data( {}, &critical );
   if ( !res )
     return new BError( "pol.cfg has InhibitSaves=1" );
   if ( *res )
-  {
-    BStruct* ret = new BStruct();
-    ret->addMember( "DirtyObjects", new BLong( dirty ) );
-    ret->addMember( "CleanObjects", new BLong( clean ) );
-    ret->addMember( "ElapsedMilliseconds", new BLong( Clib::clamp_convert<int>( elapsed_ms ) ) );
-    return ret;
-  }
+    return save_result_struct( critical );
   return new BError( "Failed to save world" );
 }
 
