@@ -420,7 +420,7 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "Cursed", cursed() );
 
   if ( const Core::UContainer* cont = container(); cont != nullptr )
-    sw.add( "Container", Clib::hexintv( cont->serial ) );
+    sw.add_fmt( "Container", FMT_COMPILE( "{:#x}" ), cont->serial );
 
   if ( !on_use_script_.get().empty() )
     sw.add( "OnUseScript", on_use_script_.get() );

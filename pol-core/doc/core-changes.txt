@@ -1,5 +1,31 @@
 -- POL100.3.0 --
+08-25-2026 AsYlum:
+    Fixed: the shard could wedge when uo::SaveWorldState() was called again while the previous
+           save was still finishing - two scripts saving in the same pass is enough to hit it.
+           The script that asked for a save is revived under the world lock, and a new save
+           waited for that to happen while holding it. Shutdown could hang the same way.
 08-23-2026 AsYlum:
+ Improved: world save performance. Mostly affects bigger shards, where a save can be three to
+           six times faster; small shards will notice little.
+     Note: the save files are unchanged - byte for byte what earlier versions wrote - so there is
+           nothing to convert and anything that reads them keeps working.
+    Added: pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and how many
+           bytes it wrote - how long the world was stopped, how long flushing and committing
+           took, what each part of the save cost, and the size of every data file written.
+    Added: pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses.
+           0 picks a number from the cpus the server is actually allowed to use, which inside a
+           container is not the same as the number the machine has - POL used to count the
+           machine's, and starting more save threads than the container may run makes saves
+           slower rather than faster. The startup log prints the threads chosen next to both
+           cpu counts, so a bad guess is easy to spot.
+  Removed: objects.txt. A save has been writing that file empty, and the load reading it back
+           empty, since the world was split into the files that replaced it long ago. Nothing
+           writes or reads it now, and an existing one is left where it is - a world last saved
+           by a version old enough to have put data in it has to be loaded by such a version
+           once before this one will see that data.
+  Changed: uo::SaveWorldState() returns three more timings - ElapsedMillisecondsWriting,
+           ElapsedMillisecondsFlush and ElapsedMillisecondsCommit - plus a "Files" struct of
+           bytes written per data file and a "Tasks" struct of what each part of the save cost.
     Fixed: uo::Accessible() returned 0 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance.
 08-22-2026 AsYlum:

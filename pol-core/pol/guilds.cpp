@@ -33,7 +33,7 @@ void SerialSet::writeOn( Clib::StreamWriter& sw, const char* tag ) const
 {
   for ( unsigned int citr : *this )
   {
-    sw.add( tag, Clib::hexintv( citr ) );
+    sw.add_fmt( tag, FMT_COMPILE( "{:#x}" ), citr );
   }
 }
 

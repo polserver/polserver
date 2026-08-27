@@ -472,8 +472,10 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
         {
           for ( const auto& ele : column )
           {
-            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), ele.graphic, ele.xoffset,
-                                         ele.yoffset, (u16)ele.z ) );
+            sw.key( prefix );
+            sw.raw( FMT_COMPILE( "{} {} {} {}" ), ele.graphic, ele.xoffset, ele.yoffset,
+                    (u16)ele.z );
+            sw.eol();
           }
         }
       }

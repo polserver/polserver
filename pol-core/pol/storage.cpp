@@ -10,6 +10,7 @@
 #include <exception>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
@@ -25,6 +26,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mkscrobj.h"
+#include "pol/saveparallel.h"
 #include "pol/ufunc.h"
 
 
@@ -246,15 +248,44 @@ void Storage::read( Clib::ConfigFile& cf )
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
-void Storage::print( Clib::StreamWriter& sw ) const
+void Storage::print_piece( const StoragePiece& piece, Clib::StreamWriter& sw )
 {
-  for ( const auto& area : areas )
+  if ( piece.area_name != nullptr )
   {
     sw.begin( "StorageArea" );
-    sw.add( "Name", area.first );
+    sw.add( "Name", *piece.area_name );
     sw.end();
-    area.second->print( sw );
   }
+  else if ( piece.root_item->saveonexit() )
+  {
+    piece.root_item->printOn( sw );
+  }
+}
+
+std::vector<Storage::StoragePiece> Storage::collect_pieces() const
+{
+  std::vector<StoragePiece> pieces;
+  size_t count = areas.size();  // one piece opens each area
+  for ( const auto& area : areas )
+    count += area.second->root_item_count();
+  pieces.reserve( count );
+  for ( const auto& area : areas )
+  {
+    pieces.push_back( { &area.first, nullptr } );
+    area.second->for_each_root_item( [&pieces]( const std::string&, Items::Item* item )
+                                     { pieces.push_back( { nullptr, item } ); } );
+  }
+  return pieces;
+}
+
+SavePart Storage::save_part( Clib::StreamWriter& sw ) const
+{
+  // Nearly all of a large shard's storage is a single area of player bank boxes -- thousands of
+  // root containers holding a few hundred items each -- so splitting the work per area would
+  // leave one thread with the whole file. Split it at root-item boundaries instead.
+  return object_part( "storage", collect_pieces(), &sw, nullptr,
+                      []( const StoragePiece& piece, ChunkOut out )
+                      { print_piece( piece, out.file ); } );
 }
 
 void Storage::clear()

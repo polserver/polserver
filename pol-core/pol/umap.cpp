@@ -108,8 +108,9 @@ void Map::printPinPoints( Clib::StreamWriter& sw ) const
 
   for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw.add( fmt::format( FMT_COMPILE( "Pin{}" ), i ),
-            fmt::format( FMT_COMPILE( "{},{}" ), itr->x(), itr->y() ) );
+    sw.key_fmt( FMT_COMPILE( "Pin{}" ), i );
+    sw.raw( FMT_COMPILE( "{},{}" ), itr->x(), itr->y() );
+    sw.eol();
   }
 }
 
