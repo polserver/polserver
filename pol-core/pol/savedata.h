@@ -40,10 +40,13 @@ struct SaveResult
   s64 critical_ms{ 0 };
   /// Draining the write buffers and closing the files, after the world is running again.
   s64 flush_ms{ 0 };
-  /// Handing formatted text to the files, summed over the threads that did it. A file takes one
-  /// block at a time, but different files do not wait for each other, so this is an upper bound
-  /// on what the writing added to the save rather than a share of it.
+  /// Writing formatted text into the files, summed over the threads that did it and measured with
+  /// the file's lock already held. Different files do not wait for each other, so this is an upper
+  /// bound on what the writing added to the save rather than a share of it.
   s64 write_ms{ 0 };
+  /// Waiting for a file, summed the same way: one file takes one block at a time, so this is what
+  /// the threads sharing a part queued behind each other for.
+  s64 wait_ms{ 0 };
   /// The .ndt -> .txt renames.
   s64 commit_ms{ 0 };
   std::vector<SaveFileStat> files;

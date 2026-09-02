@@ -70,27 +70,33 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
   std::vector<std::atomic<size_t>> biggest_piece( parts.size() );
   std::vector<std::mutex> locks( parts.size() );  // one per part, guarding its files
   std::atomic<s64> append_us( 0 );
+  std::atomic<s64> wait_us( 0 );
   std::atomic<bool> failed( false );
   std::mutex failure_mutex;
   std::exception_ptr failure;
 
   // Give the file what this worker has formatted for it, and take the buffers back empty.
   // reset_buffer() keeps the capacity, so only the first run of a save allocates.
-  auto hand_over = [&append_us]( const SavePart& part, std::mutex& lock, Clib::StreamWriter& buffer,
-                                 Clib::StreamWriter& equip_buffer )
+  auto hand_over = [&append_us, &wait_us]( const SavePart& part, std::mutex& lock,
+                                           Clib::StreamWriter& buffer,
+                                           Clib::StreamWriter& equip_buffer )
   {
     // A part with no file of its own wrote wherever it wanted to and has nothing to hand over -
     // see whole_file_part.
     if ( part.file != nullptr )
     {
-      Tools::HighPerfTimer append_timer;
+      // Timed either side of the lock, because the two answer different questions: what the
+      // writing costs, and what the threads of this part queue behind each other for.
+      Tools::HighPerfTimer wait_timer;
       {
         std::lock_guard<std::mutex> guard( lock );
+        wait_us += wait_timer.ellapsed().count();
+        Tools::HighPerfTimer write_timer;
         part.file->append( buffer.buffer() );
         if ( part.equip != nullptr )
           part.equip->append( equip_buffer.buffer() );
+        append_us += write_timer.ellapsed().count();
       }
-      append_us += append_timer.ellapsed().count();
     }
     buffer.reset_buffer();
     equip_buffer.reset_buffer();
@@ -187,6 +193,7 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
 
   SaveParallelResult result;
   result.write_ms = ( append_us.load() + 500 ) / 1000;
+  result.wait_ms = ( wait_us.load() + 500 ) / 1000;
   result.work.reserve( parts.size() );
   for ( size_t p = 0; p < parts.size(); ++p )
     result.work.push_back( { .name = parts[p].name,

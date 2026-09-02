@@ -426,16 +426,16 @@ void log_save_details( const SaveResult& stats )
   fmt::memory_buffer buffer;
   auto out = std::back_inserter( buffer );
   fmt::format_to( out,
-                  "Worldsave {}: {} ms world stopped, {} ms writing summed over the threads, {} ms "
-                  "flushing, {} ms committing",
-                  stats.success ? "ok" : "FAILED", stats.critical_ms, stats.write_ms,
+                  "Worldsave {}: {} ms world stopped, {} ms writing and {} ms waiting for a file "
+                  "summed over the threads, {} ms flushing, {} ms committing",
+                  stats.success ? "ok" : "FAILED", stats.critical_ms, stats.write_ms, stats.wait_ms,
                   stats.flush_ms, stats.commit_ms );
   fmt::format_to( out, "\n  parts (work, summed over the threads that shared it):" );
   for ( const auto& task : tasks )
   {
     fmt::format_to( out, "\n    {:<10} {:>7} ms", task.name, task.elapsed_ms );
     if ( task.pieces != 0 )  // "scan" is not a part and was not cut into any
-      fmt::format_to( out, " {:>10} pieces", task.pieces );
+      fmt::format_to( out, " {:>10} {}", task.pieces, task.pieces == 1 ? "piece" : "pieces" );
     if ( task.biggest_piece != 0 )  // a part that writes its own file measures nothing
       fmt::format_to( out, ", biggest {} KB",
                       ( task.biggest_piece + 1023 ) / 1024 );  // rounded up, never a bare 0
@@ -522,6 +522,7 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
             Module::commit_datastore();
 
             stats.write_ms = work.write_ms;
+            stats.wait_ms = work.wait_ms;
             stats.tasks = std::move( work.work );
             // Not a part: no pieces, and nothing of it passed through a buffer.
             stats.tasks.push_back( { .name = "scan", .elapsed_ms = scan_ms } );
