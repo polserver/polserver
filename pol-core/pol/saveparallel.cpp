@@ -19,20 +19,55 @@
 
 namespace Pol::Core
 {
+namespace
+{
+/// The longest run of pieces a worker takes off a part in one claim.
+///
+/// A claim is an atomic read-modify-write on a counter every thread is hammering, so the cacheline
+/// it lives on has to travel between cores once per claim and those trips cannot overlap. Claiming
+/// one piece at a time would spend more on that than on formatting a piece; a run of this length
+/// pushes it out of the picture. It is all a claim decides - the buffer is handed over between
+/// pieces, so how heavy a part's pieces are does not come into it.
+constexpr size_t MAX_SAVE_CLAIM = 64;
+
+/// How many pieces of a part a worker takes at a time. A part with few pieces is claimed in
+/// shorter runs, or the first worker to reach it walks off with the whole file and the others find
+/// nothing left; eight runs per worker is enough for an uneven part to even out between them.
+size_t claim_for( size_t count, size_t workers )
+{
+  return std::clamp( count / ( workers * 8 ), size_t( 1 ), MAX_SAVE_CLAIM );
+}
+
+/// Raise `highest` to `value` if it is not already at least that. std::atomic has no max of its
+/// own; a failed exchange leaves what it found in `seen`, so the retry compares against whatever
+/// the other thread put there.
+void raise_to( std::atomic<size_t>& highest, size_t value )
+{
+  size_t seen = highest.load();
+  while ( seen < value )
+  {
+    if ( highest.compare_exchange_weak( seen, value ) )
+      break;
+  }
+}
+}  // namespace
+
 SavePart whole_file_part( std::string name, std::function<void()> write )
 {
   return { .name = std::move( name ),
            .count = 1,
            .file = nullptr,
-           .format = [write = std::move( write )]( size_t, size_t, ChunkOut ) { write(); } };
+           .format = [write = std::move( write )]( size_t, ChunkOut ) { write(); } };
 }
 
 SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
 {
   auto& pool = gamestate.task_thread_pool;
+  const size_t worker_count = pool.size() + 1;  // the calling thread formats alongside the pool
 
   std::vector<std::atomic<size_t>> claimed( parts.size() );  // next piece of each part
   std::vector<std::atomic<s64>> format_us( parts.size() );
+  std::vector<std::atomic<size_t>> biggest_piece( parts.size() );
   std::vector<std::mutex> locks( parts.size() );  // one per part, guarding its files
   std::atomic<s64> append_us( 0 );
   std::atomic<bool> failed( false );
@@ -74,26 +109,51 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
       if ( !part.count )
         continue;
       bool took_any = false;
+      size_t biggest = 0;  // this worker's heaviest piece of this part
       try
       {
+        const size_t claim = claim_for( part.count, worker_count );
         while ( !failed )
         {
-          const size_t begin = claimed[p].fetch_add( part.claim );
+          const size_t begin = claimed[p].fetch_add( claim );
           if ( begin >= part.count )
             break;
           took_any = true;
+          const size_t end = std::min( begin + claim, part.count );
+          // The pieces of this run follow each other in the buffer; the first does not follow the
+          // run before it, which some other worker may have claimed and which is not the piece
+          // before it anyway.
+          bool starts_block = true;
           Tools::HighPerfTimer format_timer;
-          part.format( begin, std::min( begin + part.claim, part.count ),
-                       ChunkOut{ buffer, equip_buffer } );
+          for ( size_t piece = begin; piece < end; ++piece )
+          {
+            const size_t before = buffer.buffer().size() + equip_buffer.buffer().size();
+            part.format( piece, ChunkOut{ buffer, equip_buffer, starts_block } );
+            starts_block = false;
+            const size_t held = buffer.buffer().size();
+            const size_t equip_held = equip_buffer.buffer().size();
+            // Nothing is handed over inside a piece, so the buffers only grow across one.
+            biggest = std::max( biggest, held + equip_held - before );
+            // Handed over at exactly the size the file flushes at, so append() writes the block
+            // straight out instead of copying it into a buffer that is about to be written anyway.
+            // Between pieces rather than at the end of the run, so a part whose pieces are a whole
+            // bank box each costs a worker no more memory than one whose piece is a single item.
+            if ( held >= Clib::StreamWriter::FLUSH_THRESHOLD ||
+                 equip_held >= Clib::StreamWriter::FLUSH_THRESHOLD )
+            {
+              format_us[p] += format_timer.ellapsed().count();
+              hand_over( part, locks[p], buffer, equip_buffer );
+              starts_block = true;  // what follows opens a block of its own
+              format_timer = Tools::HighPerfTimer();
+            }
+          }
           format_us[p] += format_timer.ellapsed().count();
-          // Handed over at exactly the size the file flushes at, so append() writes the block
-          // straight out instead of copying it into a buffer that is about to be written anyway.
-          if ( buffer.buffer().size() >= Clib::StreamWriter::FLUSH_THRESHOLD ||
-               equip_buffer.buffer().size() >= Clib::StreamWriter::FLUSH_THRESHOLD )
-            hand_over( part, locks[p], buffer, equip_buffer );
         }
         if ( took_any )  // the tail, and what a part smaller than one run wrote
           hand_over( part, locks[p], buffer, equip_buffer );
+        // Once per part per worker rather than per piece, which is what keeps the piece loop off
+        // a counter the other threads are on.
+        raise_to( biggest_piece[p], biggest );
       }
       catch ( ... )
       {
@@ -129,7 +189,10 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
   result.write_ms = ( append_us.load() + 500 ) / 1000;
   result.work.reserve( parts.size() );
   for ( size_t p = 0; p < parts.size(); ++p )
-    result.work.push_back( { parts[p].name, ( format_us[p].load() + 500 ) / 1000 } );
+    result.work.push_back( { .name = parts[p].name,
+                             .elapsed_ms = ( format_us[p].load() + 500 ) / 1000,
+                             .pieces = parts[p].count,
+                             .biggest_piece = biggest_piece[p].load() } );
   return result;
 }
 }  // namespace Pol::Core

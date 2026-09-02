@@ -426,13 +426,20 @@ void log_save_details( const SaveResult& stats )
   fmt::memory_buffer buffer;
   auto out = std::back_inserter( buffer );
   fmt::format_to( out,
-                  "Worldsave {}: {} ms world stopped ({} ms of it writing), {} ms flushing, {} ms "
-                  "committing",
+                  "Worldsave {}: {} ms world stopped, {} ms writing summed over the threads, {} ms "
+                  "flushing, {} ms committing",
                   stats.success ? "ok" : "FAILED", stats.critical_ms, stats.write_ms,
                   stats.flush_ms, stats.commit_ms );
   fmt::format_to( out, "\n  parts (work, summed over the threads that shared it):" );
   for ( const auto& task : tasks )
+  {
     fmt::format_to( out, "\n    {:<10} {:>7} ms", task.name, task.elapsed_ms );
+    if ( task.pieces != 0 )  // "scan" is not a part and was not cut into any
+      fmt::format_to( out, " {:>10} pieces", task.pieces );
+    if ( task.biggest_piece != 0 )  // a part that writes its own file measures nothing
+      fmt::format_to( out, ", biggest {} KB",
+                      ( task.biggest_piece + 1023 ) / 1024 );  // rounded up, never a bare 0
+  }
   fmt::format_to( out, "\n  files:" );
   for ( const auto& file : files )
     fmt::format_to( out, "\n    {:<10} {:>13} bytes", file.name, file.bytes );
@@ -500,17 +507,12 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
                 whole_file_part( "guilds", [&]() { write_guilds( sc.guilds ); } ),
                 whole_file_part( "parties", [&]() { write_party( sc.parties ); } ),
                 Module::datastore_part( sc.datastore ), gamestate.storage.save_part( sc.storage ),
-                // A custom house writes its entire design in one piece, so multis are claimed a
-                // few at a time. A top-level item carries its whole subtree with it and a large
-                // share of them are containers, so items are claimed in shorter runs than a part
-                // whose piece really is one object.
-                object_part( "multis", collect_multis(), &sc.multis, nullptr, write_multi, 8 ),
-                object_part( "items", collect_toplevel_items(), &sc.items, nullptr, write_item,
-                             128 ),
+                object_part( "multis", collect_multis(), &sc.multis, nullptr, write_multi ),
+                object_part( "items", collect_toplevel_items(), &sc.items, nullptr, write_item ),
                 // pcs is copied rather than moved: the gotten-item pass below needs it again.
-                object_part( "character", mobiles.pcs, &sc.pcs, &sc.pcequip, write_mobile, 256 ),
+                object_part( "character", mobiles.pcs, &sc.pcs, &sc.pcequip, write_mobile ),
                 object_part( "npcs", std::move( mobiles.npcs ), &sc.npcs, &sc.npcequip,
-                             write_mobile, 256 ) };
+                             write_mobile ) };
             const auto scan_ms = scan_timer.ellapsed();
 
             auto work = write_parallel( parts );
@@ -521,7 +523,8 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
 
             stats.write_ms = work.write_ms;
             stats.tasks = std::move( work.work );
-            stats.tasks.push_back( { "scan", scan_ms } );
+            // Not a part: no pieces, and nothing of it passed through a buffer.
+            stats.tasks.push_back( { .name = "scan", .elapsed_ms = scan_ms } );
           }
           catch ( const std::exception& error )
           {

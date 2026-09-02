@@ -238,15 +238,17 @@ void Storage::read( Clib::ConfigFile& cf )
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
-void Storage::print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool first_of_run,
+void Storage::print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool starts_block,
                            Clib::StreamWriter& sw )
 {
   const auto& piece = pieces[i];
-  // Storage::read files every Item under the last StorageArea element it read, and the runs of a
-  // split file reach that file in whatever order the threads finish them. So a run names the area
-  // it is writing into before it writes anything, and again wherever it crosses into another one.
+  // Storage::read files every Item under the last StorageArea element it read, and the blocks of a
+  // split file reach that file in whatever order the threads finish them. So a block names the
+  // area it is writing into before it writes anything, and again wherever it crosses into another
+  // one. Only the piece that opens a block may look at the piece before it: everywhere else in the
+  // buffer, the text in front of this one is a run claimed from somewhere else entirely.
   // create_area is find-or-create, so a repeated header selects the same area a single one would.
-  if ( first_of_run || piece.area != pieces[i - 1].area )
+  if ( starts_block || piece.area != pieces[i - 1].area )
   {
     sw.begin( "StorageArea" );
     sw.add( "Name", *piece.area );
@@ -279,19 +281,12 @@ SavePart Storage::save_part( Clib::StreamWriter& sw ) const
   // leave one thread with the whole file. Split it at root-item boundaries instead.
   auto pieces = collect_pieces();
   const size_t count = pieces.size();
-  // A piece here is a whole bank box - a root container with everything inside it - so it weighs
-  // tens of kilobytes where an items piece weighs hundreds of bytes. Claiming few at a time is
-  // what keeps a worker's buffer, which holds a whole run, off the world-stopped memory bill.
   return { .name = "storage",
            .count = count,
-           .claim = 32,
            .file = &sw,
            .equip = nullptr,
-           .format = [pieces = std::move( pieces )]( size_t begin, size_t end, ChunkOut out )
-           {
-             for ( size_t i = begin; i < end; ++i )
-               print_piece( pieces, i, i == begin, out.file );
-           } };
+           .format = [pieces = std::move( pieces )]( size_t piece, ChunkOut out )
+           { print_piece( pieces, piece, out.starts_block, out.file ); } };
 }
 
 void Storage::clear()
