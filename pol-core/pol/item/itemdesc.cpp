@@ -1336,8 +1336,8 @@ void read_itemdesc_file( const char* filename, Plib::Package* pkg = nullptr )
 
 void load_package_itemdesc( Plib::Package* pkg )
 {
-  std::string filename = GetPackageCfgPath( pkg, "itemdesc.cfg" );
-  if ( Clib::FileExists( filename.c_str() ) )
+  std::vector<std::string> filenames = Plib::GetPackageCfgPaths( pkg, "itemdesc.cfg" );
+  for ( auto& filename : filenames )
   {
     read_itemdesc_file( filename.c_str(), pkg );
   }
@@ -1403,8 +1403,12 @@ void write_objtypes_txt()
 
 void load_itemdesc()
 {
-  if ( Clib::FileExists( "config/itemdesc.cfg" ) )
-    read_itemdesc_file( "config/itemdesc.cfg" );
+  std::vector<std::string> filenames = Plib::GetPackageCfgPaths( nullptr, "itemdesc.cfg" );
+  for ( auto& filename : filenames )
+  {
+    read_itemdesc_file( filename.c_str() );
+  }
+
   for ( auto& pkg : Plib::systemstate.packages )
     load_package_itemdesc( pkg );
 

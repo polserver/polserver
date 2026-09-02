@@ -103,6 +103,10 @@ BObjectRef PackageObjImp::get_member( const char* membername )
   }
   if ( stricmp( membername, "npcdesc" ) == 0 )
   {
+    // TODO: what to do here?
+    // - do we care only about npcdesc.cfg in root or the prefixed/nested ones as well?
+    // - what's even the point of this member and if there is one why there isn't itemdesc.cfg one
+    //   as well?
     const Plib::Package* pkg = value().Ptr();
     std::string filepath = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
     return BObjectRef( new BLong( Clib::FileExists( filepath ) ) );

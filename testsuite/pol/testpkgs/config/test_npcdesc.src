@@ -1,0 +1,44 @@
+use uo;
+use os;
+
+include "testutil";
+
+program test_npcdesc()
+  return 1;
+endprogram
+
+exported function create_npcs( resources )
+  var templates := array{
+    ":config:config_root_npc",
+    ":config:config_root_prefixed_npc",
+    ":config:config_nested_npc",
+    ":config:config_nested_prefixed_npc"
+  };
+
+  foreach template in templates
+    var npc := resources.CreateNPCFromTemplate( template, 52, 100, 0 );
+    if ( !npc )
+      return ret_error( "Could not create NPC " + template + ": " + npc );
+    endif
+  endforeach
+
+  return 1;
+endfunction
+
+exported function create_items( resources )
+  var objtypes := array{
+    0x202001,
+    0x202002,
+    0x202003,
+    0x202004
+  };
+
+  foreach objtype in objtypes
+    var item := resources.CreateItemAtLocation( 0, 0, 0, objtype );
+    if ( !item )
+      return ret_error( "Could not create item " + objtype + ": " + item );
+    endif
+  endforeach
+
+  return 1;
+endfunction
