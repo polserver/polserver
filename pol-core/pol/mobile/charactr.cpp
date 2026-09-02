@@ -565,6 +565,7 @@ int Character::charindex() const
 
 void Character::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   using namespace fmt;
 
   if ( acct != nullptr )
@@ -583,11 +584,11 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   {
     sw.add( "Concealed", int( concealed_ ) );
   }
-  sw.add( "TrueColor", Clib::hexintv( truecolor ) );
-  sw.add( "TrueObjtype", Clib::hexintv( trueobjtype ) );
+  sw.add_fmt( "TrueColor", "{:#x}"_cf, truecolor );
+  sw.add_fmt( "TrueObjtype", "{:#x}"_cf, trueobjtype );
 
   if ( registered_multi )
-    sw.add( "RegisteredMulti", Clib::hexintv( registered_multi ) );
+    sw.add_fmt( "RegisteredMulti", "{:#x}"_cf, registered_multi );
 
   sw.add( "Gender", static_cast<int>( gender ) );
   sw.add( "Race", static_cast<int>( race ) );
@@ -633,21 +634,21 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
       unsigned ones = av.base() / 10;
       unsigned tenths = av.base() % 10;
 
-      auto val = fmt::format( FMT_COMPILE( "{}" ), ones );
+      sw.key( pAttr->name );
+      sw.raw( "{}"_cf, ones );
       if ( tenths )
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), tenths );
+        sw.raw( ".{}"_cf, tenths );
       if ( cap != pAttr->default_cap )
       {
         unsigned cap_ones = cap / 10;
         unsigned cap_tenths = cap % 10;
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ":{}" ), cap_ones );
+        sw.raw( ":{}"_cf, cap_ones );
         if ( cap_tenths )
-          fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ".{}" ), cap_tenths );
+          sw.raw( ".{}"_cf, cap_tenths );
       }
       if ( lock )
-        fmt::format_to( std::back_inserter( val ), FMT_COMPILE( ";{}" ), lock );
-
-      sw.add( pAttr->name, val );
+        sw.raw( ";{}"_cf, lock );
+      sw.eol();
     }
   }
 
@@ -716,7 +717,7 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
     sw.add( "PartyCanLoot", party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add( "Reportable", fmt::format( FMT_COMPILE( "{:#x} {}" ), rt.serial, rt.polclock ) );
+    sw.add_fmt( "Reportable", "{:#x} {}"_cf, rt.serial, rt.polclock );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
@@ -763,6 +764,13 @@ void Character::printOn( Clib::StreamWriter& sw ) const
 void Character::printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const
 {
   wornitems->print( sw_pc, sw_equip );
+}
+
+void Character::printForSave( Clib::StreamWriter& sw_mobile, Clib::StreamWriter& sw_equip ) const
+{
+  printOn( sw_mobile );
+  clear_dirty();
+  printWornItems( sw_mobile, sw_equip );
 }
 
 Plib::MOVEMODE Character::decode_movemode( const std::string& str )

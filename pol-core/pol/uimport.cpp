@@ -442,12 +442,6 @@ void read_pol_dat()
   }
 }
 
-void read_objects_dat()
-{
-  slurp( ( Plib::systemstate.config.world_data_path + "objects.txt" ).c_str(),
-         "CHARACTER NPC ITEM GLOBALPROPERTIES" );
-}
-
 void read_pcs_dat()
 {
   slurp( ( Plib::systemstate.config.world_data_path + "pcs.txt" ).c_str(), "CHARACTER ITEM",
@@ -596,7 +590,6 @@ void rndat( const std::string& basename )
 void rename_dat_files()
 {
   rndat( "pol" );
-  rndat( "objects" );
   rndat( "pcs" );
   rndat( "pcequip" );
   rndat( "npcs" );
@@ -611,21 +604,9 @@ void rename_dat_files()
 
 int read_data()
 {
-  std::string objectsndtfile = Plib::systemstate.config.world_data_path + "objects.ndt";
   std::string storagendtfile = Plib::systemstate.config.world_data_path + "storage.ndt";
 
   stateManager.gflag_in_system_load = true;
-  if ( Clib::FileExists( objectsndtfile ) )
-  {
-    // Display reads "Reading data files..."
-    ERROR_PRINTLN(
-        "Error!\n"
-        "'{} exists.  This probably means the system\n"
-        "exited while writing its state.  To avoid loss of data,\n"
-        "forcing human intervention.",
-        objectsndtfile );
-    throw std::runtime_error( "Human intervention required." );
-  }
   if ( Clib::FileExists( storagendtfile ) )
   {
     ERROR_PRINTLN(
@@ -645,7 +626,6 @@ int read_data()
   start_gameclock();
   SaveContext::last_worldsave_success = read_gameclock();  // set last success to load time
 
-  read_objects_dat();
   read_pcs_dat();
   read_pcequip_dat();
   read_npcs_dat();

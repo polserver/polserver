@@ -133,6 +133,12 @@ public:
   size_t estimateSize() const;
   bool loaded() const;
   void load();
+  /// Create the ds/ subdirectory this file's generations live in, if it is not there yet.
+  ///
+  /// Separate from save() because two datafiles of one package share a directory, and a world
+  /// save formats the datafiles on several threads at once - std::filesystem::create_directories
+  /// is not something to race on the same path.
+  void ensure_directory() const;
   void save() const;
   std::string filename() const;
   std::string filename( unsigned ver ) const;
