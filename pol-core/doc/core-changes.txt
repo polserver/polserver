@@ -1,4 +1,19 @@
 -- POL100.3.0 --
+08-29-2026 AsYlum:
+    Fixed: the shard could wedge when uo::SaveWorldState() was called again while the previous
+           save was still finishing - two scripts saving in the same pass is enough.
+    Added: pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses; 0 counts
+           the cpus the server may actually use rather than the ones the machine has.
+    Added: pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and what each
+           data file received.
+  Removed: objects.txt, written empty and read back empty since the world was split into the files
+           that replaced it.
+ Improved: world save speed - every data file is cut into pieces that share the save threads, so
+           no one file decides how long the world is stopped. Also a megabyte write buffer, and
+           save values formatted straight into it instead of through a std::string per property.
+     Note: the data files hold the same data, but the elements inside storage.txt, items.txt,
+           multis.txt, datastore.txt, pcs.txt, npcs.txt and the equip files are no longer written
+           in a fixed order - two saves of an unchanged world can differ in block order.
 09-05-2026 Nando:
     Added: The compiler warns when both operands of an operator are literals and no rule exists
            for the pair, so the ones that can be seen at build time are reported before the shard

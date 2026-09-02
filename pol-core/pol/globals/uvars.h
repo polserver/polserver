@@ -22,11 +22,13 @@
 #include "clib/threadhelp.h"
 #include "plib/clidata.h"
 #include "pol/action.h"
+#include "pol/base/vector.h"
 #include "pol/cmdlevel.h"
 #include "pol/decay.h"
 #include "pol/layers.h"
 #include "pol/menu.h"
 #include "pol/reftypes.h"
+#include "pol/regions/region.h"
 #include "pol/schedule.h"
 #include "pol/storage.h"
 #include "pol/syshook.h"
@@ -34,8 +36,6 @@
 #include "pol/tasks.h"
 #include "pol/textcmd.h"
 #include "pol/uoskills.h"
-#include "pol/base/vector.h"
-#include "pol/regions/region.h"
 
 namespace Pol
 {
@@ -250,6 +250,13 @@ public:
     size_t misc;
   };
   threadhelp::TaskThreadPool task_thread_pool;
+  /// Runs the completion callback of a finished world save, and nothing else.
+  ///
+  /// Deliberately not task_thread_pool: the callback takes the world lock, and the scripts
+  /// thread holds that lock while waiting on task_thread_pool for the objects of the *next*
+  /// save. Sharing the pool would let a blocked callback occupy the thread that wait depends
+  /// on, which with pol.cfg WorldSaveThreads=1 is the only one there is.
+  threadhelp::TaskThreadPool save_callback_pool;
 
   Decay decay;
 
