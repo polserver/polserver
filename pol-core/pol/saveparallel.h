@@ -20,14 +20,6 @@ class StreamWriter;
 
 namespace Pol::Core
 {
-/// Pieces a worker takes off a part in one claim, when the part does not say otherwise.
-///
-/// The claim is an atomic read-modify-write on a counter every thread is hammering, so the
-/// cacheline it lives on has to travel between cores once per claim and those trips cannot
-/// overlap. Claiming one piece at a time would spend more on that than on the formatting of a
-/// piece; a run of this length pushes it out of the picture.
-constexpr size_t DEFAULT_SAVE_CLAIM = 64;
-
 /// Where one piece of a part formats to: a buffer per file the part writes.
 struct ChunkOut
 {
@@ -35,6 +27,12 @@ struct ChunkOut
   /// The second file of a part that writes a pair - pcs.txt with pcequip.txt, npcs.txt with
   /// npcequip.txt. The parts that write a single file leave it alone.
   Clib::StreamWriter& equip;
+  /// Nothing this piece can lean on precedes it in the buffer: it is the first piece of a claimed
+  /// run, or the first since the buffer was handed to the file. A worker's buffer holds the runs
+  /// it happened to claim, which are not adjacent pieces, so this is the only thing a piece may
+  /// read anything into. A piece that has to tell the loader something - which storage area it
+  /// belongs to, say - says it whenever this is set.
+  bool starts_block;
 };
 
 /// One data file of a save - or a pair of them written together, like pcs.txt and pcequip.txt -
@@ -50,23 +48,18 @@ struct SavePart
   std::string name;
   /// How many independent pieces it has. Zero is allowed and writes nothing.
   size_t count = 0;
-  /// How many pieces a worker takes at a time, which a part sizes to how heavy its pieces are.
-  ///
-  /// A run is formatted whole before any of it is handed over - format() is opaque to the
-  /// scheduler, so it cannot be interrupted partway - which makes this what bounds a worker's
-  /// buffer. A part whose piece is a bank box wants far fewer of them at a time than one whose
-  /// piece is a single item.
-  size_t claim = DEFAULT_SAVE_CLAIM;
   /// The file its pieces are appended to. Null for a part that writes its own file directly and
   /// hands nothing back - see whole_file_part.
   Clib::StreamWriter* file = nullptr;
   /// The second file, for the parts that write a pair. Null for the rest.
   Clib::StreamWriter* equip = nullptr;
-  /// Format pieces [begin, end) into `out`.
+  /// Format one piece into `out`.
   ///
-  /// Called on an arbitrary thread, concurrently with the other ranges of this part and of every
-  /// other part, so it must touch nothing that another range touches.
-  std::function<void( size_t begin, size_t end, ChunkOut out )> format;
+  /// Called on an arbitrary thread, concurrently with the other pieces of this part and of every
+  /// other part, so it must touch nothing another piece touches. A piece is where the scheduler
+  /// is free to hand the buffer to the file, so what a piece may assume about the text in front
+  /// of it is exactly `out.starts_block`.
+  std::function<void( size_t piece, ChunkOut out )> format;
 };
 
 /// A part made of one indivisible piece per element of `objects`, which is the shape of every big
@@ -74,21 +67,15 @@ struct SavePart
 /// so nothing the caller holds has to outlive the save.
 template <typename T, typename WriteOne>
 SavePart object_part( std::string name, std::vector<T> objects, Clib::StreamWriter* file,
-                      Clib::StreamWriter* equip, WriteOne write_one,
-                      size_t claim = DEFAULT_SAVE_CLAIM )
+                      Clib::StreamWriter* equip, WriteOne write_one )
 {
   const size_t count = objects.size();
   return { .name = std::move( name ),
            .count = count,
-           .claim = claim,
            .file = file,
            .equip = equip,
-           .format =
-               [objects = std::move( objects ), write_one]( size_t begin, size_t end, ChunkOut out )
-           {
-             for ( size_t i = begin; i < end; ++i )
-               write_one( objects[i], out );
-           } };
+           .format = [objects = std::move( objects ), write_one]( size_t piece, ChunkOut out )
+           { write_one( objects[piece], out ); } };
 }
 
 /// A file that is written whole by one thread: either because it has no StreamWriter to hand
@@ -106,7 +93,16 @@ SavePart whole_file_part( std::string name, std::function<void()> write );
 struct SaveTaskStat
 {
   std::string name;
-  s64 elapsed_ms;
+  s64 elapsed_ms = 0;
+  /// How many pieces it was cut into. A save cannot finish before its longest single piece does,
+  /// so a part with few pieces against the width of the pool is where a slow save's long pole
+  /// hides; with the bytes its files received, this also says how heavy a piece of it is.
+  size_t pieces = 0;
+  /// The most text any one piece of it produced. A part of many small pieces and one enormous one
+  /// finishes when that one does, which is what the piece count and an average over it cannot
+  /// say. Zero for a part that writes its own file, since nothing it produces passes through a
+  /// buffer to be measured.
+  size_t biggest_piece = 0;
 };
 
 struct SaveParallelResult
@@ -122,10 +118,11 @@ struct SaveParallelResult
 /// single pool of work.
 ///
 /// Every part offers its pieces to the same threads, so no one file is the long pole. A worker
-/// claims a run of pieces off the part's counter, formats them into a buffer of its own, and
-/// hands that buffer to the file under the part's lock once it has grown past a megabyte. It
-/// holds one buffer pair whatever the size of the world, and formatting after the first run
-/// allocates nothing.
+/// claims a run of pieces off the part's counter, formats them one at a time into a buffer of its
+/// own, and hands that buffer to the file under the part's lock once it has grown past a
+/// megabyte. The check falls between pieces, so a worker holds one piece more than the threshold
+/// however uneven the pieces of a part are, whatever the size of the world - and formatting after
+/// the first megabyte allocates nothing.
 ///
 /// Nothing waits on anything here: a worker that has claimed a run owes no other worker a turn,
 /// which is what keeps a failure from stranding the rest. The first piece to throw brings the
