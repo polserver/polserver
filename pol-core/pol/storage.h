@@ -10,8 +10,10 @@
 #include <functional>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "clib/maputil.h"
+#include "pol/saveparallel.h"
 
 namespace Pol
 {
@@ -50,8 +52,8 @@ public:
 
   /// Visit each root item with the key it is filed under, which is not always its current name.
   void for_each_root_item( const std::function<void( const std::string&, Items::Item* )>& f ) const;
+  size_t root_item_count() const { return _items.size(); }
 
-  void print( Clib::StreamWriter& sw ) const;
   void load_item( Clib::ConfigElem& elem );
   size_t estimateSize() const;
 
@@ -75,12 +77,27 @@ public:
 
   void for_each_area( const std::function<void( StorageArea& )>& f ) const;
 
-  void print( Clib::StreamWriter& sw ) const;
+  /// This file's contribution to a parallel save: its pieces, and how to format any range of
+  /// them. A world save folds this in with the other big files so they share the thread pool.
+  SavePart save_part( Clib::StreamWriter& sw ) const;
   void read( Clib::ConfigFile& cf );
   void clear();
   size_t estimateSize() const;
 
 private:
+  /// One indivisible piece of the storage file: a root item with everything inside it, or - with
+  /// no item - the piece that exists only so an empty area still names itself in the file.
+  struct StoragePiece
+  {
+    const std::string* area;
+    const Items::Item* item;
+  };
+  /// The whole file as a list of pieces, areas grouped, which is what makes it splittable.
+  std::vector<StoragePiece> collect_pieces() const;
+  /// Write piece `i`, opening its storage area first where the loader needs to be told.
+  static void print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool first_of_run,
+                           Clib::StreamWriter& sw );
+
   // TODO: investigate if this could store objects. Does find()
   // return object copies, or references?
   using AreaCont = std::map<std::string, StorageArea*>;

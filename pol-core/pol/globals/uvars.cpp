@@ -31,6 +31,12 @@
 #include "pol/accounts/accounts.h"
 #include "pol/checkpnt.h"
 #include "pol/console.h"
+#include "pol/globals/multidefs.h"
+#include "pol/globals/network.h"
+#include "pol/globals/object_storage.h"
+#include "pol/globals/script_internals.h"
+#include "pol/globals/settings.h"
+#include "pol/globals/ucfg.h"
 #include "pol/guilds.h"
 #include "pol/item/equipmnt.h"
 #include "pol/item/itemdesc.h"
@@ -45,6 +51,11 @@
 #include "pol/objecthash.h"
 #include "pol/party.h"
 #include "pol/polsem.h"
+#include "pol/realms/realm.h"
+#include "pol/regions/guardrgn.h"
+#include "pol/regions/miscrgn.h"
+#include "pol/regions/musicrgn.h"
+#include "pol/regions/resource.h"
 #include "pol/scrstore.h"
 #include "pol/spells.h"
 #include "pol/startloc.h"
@@ -54,17 +65,6 @@
 #include "pol/uoskills.h"
 #include "pol/uworld.h"
 #include "pol/vital.h"
-#include "pol/globals/multidefs.h"
-#include "pol/globals/network.h"
-#include "pol/globals/object_storage.h"
-#include "pol/realms/realm.h"
-#include "pol/regions/guardrgn.h"
-#include "pol/regions/miscrgn.h"
-#include "pol/regions/musicrgn.h"
-#include "pol/regions/resource.h"
-#include "pol/globals/script_internals.h"
-#include "pol/globals/settings.h"
-#include "pol/globals/ucfg.h"
 
 #ifdef _MSC_VER
 #pragma warning( \
@@ -173,6 +173,7 @@ GameState::GameState()
       paramtextcmds(),
       uo_skills(),
       task_thread_pool(),
+      save_callback_pool(),
       decay(),
       max_update_range( 0 ),
       max_update_range_client( 0 ),
@@ -305,6 +306,8 @@ void GameState::deinitialize()
 
   tipfilenames.clear();
 
+  // Drained before the pool it reports on, so a callback still queued gets to run.
+  save_callback_pool.deinit_pool();
   task_thread_pool.deinit_pool();
 
   for ( ; !task_queue.empty(); task_queue.pop() )

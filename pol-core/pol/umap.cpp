@@ -103,13 +103,15 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   int i = 0;
   sw.add( "NumPins", pin_points.size() );
 
   for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw.add( fmt::format( FMT_COMPILE( "Pin{}" ), i ),
-            fmt::format( FMT_COMPILE( "{},{}" ), itr->x(), itr->y() ) );
+    sw.key_fmt( "Pin{}"_cf, i );
+    sw.raw( "{},{}"_cf, itr->x(), itr->y() );
+    sw.eol();
   }
 }
 

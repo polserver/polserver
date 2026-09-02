@@ -285,17 +285,18 @@ UFACING UObject::direction_away( const Pos2d& other ) const
 
 void UObject::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   using namespace fmt;
 
   if ( !name_.get().empty() )
     sw.add( "Name", name_.get() );
 
-  sw.add( "Serial", Clib::hexintv( serial ) );
-  sw.add( "ObjType", Clib::hexintv( objtype_ ) );
-  sw.add( "Graphic", Clib::hexintv( graphic ) );
+  sw.add_fmt( "Serial", "{:#x}"_cf, serial );
+  sw.add_fmt( "ObjType", "{:#x}"_cf, objtype_ );
+  sw.add_fmt( "Graphic", "{:#x}"_cf, graphic );
 
   if ( color != 0 )
-    sw.add( "Color", Clib::hexintv( color ) );
+    sw.add_fmt( "Color", "{:#x}"_cf, color );
 
   const Pos3d local = local_position();
   sw.add( "X", local.x() );

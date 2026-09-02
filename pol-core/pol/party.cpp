@@ -740,19 +740,20 @@ void Party::send_member_msg_private( Mobile::Character* chr, Mobile::Character* 
 
 void Party::printOn( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   if ( _member_serials.size() <= 1 )
     return;
   if ( system_find_mobile( _leaderserial ) == nullptr )
     return;
 
   sw.begin( "Party" );
-  sw.add( "Leader", Clib::hexintv( _leaderserial ) );
+  sw.add_fmt( "Leader", "{:#x}"_cf, _leaderserial );
 
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
     if ( mem != nullptr )
-      sw.add( "Member", Clib::hexintv( mserial ) );
+      sw.add_fmt( "Member", "{:#x}"_cf, mserial );
   }
   _proplist.printProperties( sw );
   sw.end();

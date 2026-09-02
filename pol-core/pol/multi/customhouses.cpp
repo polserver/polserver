@@ -462,6 +462,7 @@ void CustomHouseDesign::readProperties( Clib::ConfigElem& elem, const std::strin
 
 void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::string& prefix ) const
 {
+  using namespace fmt::literals;
   if ( !IsEmpty() )
   {
     for ( const auto& element : Elements )
@@ -472,8 +473,9 @@ void CustomHouseDesign::printProperties( Clib::StreamWriter& sw, const std::stri
         {
           for ( const auto& ele : column )
           {
-            sw.add( prefix, fmt::format( FMT_COMPILE( "{} {} {} {}" ), ele.graphic, ele.xoffset,
-                                         ele.yoffset, (u16)ele.z ) );
+            sw.key( prefix );
+            sw.raw( "{} {} {} {}"_cf, ele.graphic, ele.xoffset, ele.yoffset, (u16)ele.z );
+            sw.eol();
           }
         }
       }

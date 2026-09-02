@@ -681,6 +681,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
 
 void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   base::printProperties( sw );
 
   for ( const auto& component : components_ )
@@ -688,7 +689,7 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
     Items::Item* item = component.get();
     if ( item != nullptr && !item->orphan() )
     {
-      sw.add( "Component", Clib::hexintv( item->serial ) );
+      sw.add_fmt( "Component", "{:#x}"_cf, item->serial );
     }
   }
   sw.add( "Custom", custom );

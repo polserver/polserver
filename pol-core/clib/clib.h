@@ -52,6 +52,17 @@ int forspec( const char* spec, void ( *func )( const char* pathname ) );
 /// returns the current process size in bytes
 size_t getCurrentMemoryUsage();
 
+/// How many cpus this process may actually run on at once.
+///
+/// std::thread::hardware_concurrency() answers how many the machine has, which in a container is
+/// not the same question: on Linux it reads the host's cpu count and ignores both the cgroup cpu
+/// quota and the affinity mask. Sizing a thread pool from it inside a container creates more
+/// workers than the cgroup can run, and once the quota is spent the whole group stalls until the
+/// next period -- which turns a burst of parallel work, like a world save, into a long one.
+///
+/// Never answers zero.
+unsigned int available_cpus();
+
 
 template <typename T>
 void sanitize_upperlimit( T* value, const T max )
