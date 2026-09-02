@@ -4,6 +4,7 @@
  */
 
 #include <algorithm>
+#include <map>
 #include <memory>
 #include <stdexcept>
 #include <string>
@@ -127,7 +128,9 @@ void storage_print_test()
   Clib::StreamWriter reference;
   Clib::StreamWriter unused;
   const auto serial_part = Core::gamestate.storage.save_part( reference );
-  serial_part.format( 0, serial_part.count, Core::ChunkOut{ reference, unused } );
+  // One thread, one block: only the first piece opens it.
+  for ( size_t piece = 0; piece < serial_part.count; ++piece )
+    serial_part.format( piece, Core::ChunkOut{ reference, unused, piece == 0 } );
   const auto expected = written( reference );
 
   Clib::StreamWriter parallel;
@@ -151,6 +154,34 @@ void storage_print_test()
             "a split storage file holds as many items as an unsplit one" );
   UnitTest( [&]() { return actual_items == expected_items; }, true,
             "every one of them the same item, filed under the same area" );
+
+  // What a worker's buffer holds is the runs it claimed, which are not adjacent pieces: a run of
+  // one area can follow a run of another with nothing handed to the file in between. So only the
+  // piece that opens a run may read anything into the piece before it in the vector - anywhere
+  // else, what precedes it in the file is the last piece of some other run entirely. The pieces
+  // are laid out area by area, aaa_small_area's three roots first, so a run inside bbb_bank
+  // followed by a run inside aaa_small_area is that case.
+  std::map<std::string, std::string> area_of;
+  for ( const auto& [area, block] : expected_items )
+    area_of[block] = area;
+
+  Clib::StreamWriter mixed;
+  for ( const auto& [from, to] : { std::pair<size_t, size_t>{ 10, 13 }, { 1, 4 } } )
+  {
+    for ( size_t piece = from; piece < to; ++piece )
+      serial_part.format( piece, Core::ChunkOut{ mixed, unused, piece == from } );
+  }
+  const auto mixed_items = items_by_area( written( mixed ) );
+  // Three roots per run, each writing itself and its contents.
+  UnitTest( [&]() { return mixed_items.size(); }, size_t( 2 * 3 * ( 1 + ITEMS_PER_ROOT ) ),
+            "two runs of three root items each" );
+  UnitTest(
+      [&]()
+      {
+        return std::all_of( mixed_items.begin(), mixed_items.end(), [&area_of]( const auto& entry )
+                            { return area_of[entry.second] == entry.first; } );
+      },
+      true, "a run of one area following a run of another is still filed under its own" );
 }
 
 /// write_parallel cuts several files into pieces and hands them to arbitrary threads. Nothing may
@@ -170,34 +201,28 @@ void save_parallel_test()
   // is where a mistake in what a handover carries would show up.
   auto one_file = []( const char* tag, size_t count )
   {
-    return [tag, count]( size_t begin, size_t end, Core::ChunkOut out )
+    return [tag, count]( size_t i, Core::ChunkOut out )
     {
-      for ( size_t i = begin; i < end; ++i )
-      {
-        out.file.begin( tag );
-        out.file.add( "Index", i );
-        out.file.add( "Total", count );
-        out.file.end();
-      }
+      out.file.begin( tag );
+      out.file.add( "Index", i );
+      out.file.add( "Total", count );
+      out.file.end();
     };
   };
   auto two_files = []( const char* tag )
   {
-    return [tag]( size_t begin, size_t end, Core::ChunkOut out )
+    return [tag]( size_t i, Core::ChunkOut out )
     {
-      for ( size_t i = begin; i < end; ++i )
+      out.file.begin( tag );
+      out.file.add( "Index", i );
+      out.file.end();
+      // Two entries in the second file per piece, so a swap between the files cannot pass.
+      for ( int half = 0; half < 2; ++half )
       {
-        out.file.begin( tag );
-        out.file.add( "Index", i );
-        out.file.end();
-        // Two entries in the second file per piece, so a swap between the files cannot pass.
-        for ( int half = 0; half < 2; ++half )
-        {
-          out.equip.begin( "Equipment" );
-          out.equip.add( "Owner", i );
-          out.equip.add( "Half", half );
-          out.equip.end();
-        }
+        out.equip.begin( "Equipment" );
+        out.equip.add( "Owner", i );
+        out.equip.add( "Half", half );
+        out.equip.end();
       }
     };
   };
@@ -249,9 +274,9 @@ void save_parallel_test()
     {
       Clib::StreamWriter unused;
       for ( const auto& part : parts )
-        part.format(
-            0, part.count,
-            Core::ChunkOut{ part.file ? *part.file : unused, part.equip ? *part.equip : unused } );
+        for ( size_t piece = 0; piece < part.count; ++piece )
+          part.format( piece, Core::ChunkOut{ part.file ? *part.file : unused,
+                                              part.equip ? *part.equip : unused, piece == 0 } );
     }
     for ( const auto& writer : writers )
       text.push_back( written( *writer ) );
@@ -293,16 +318,13 @@ void save_parallel_failure_test()
   const Core::SavePart part{ .name = "fails",
                              .count = MANY,
                              .file = &file,
-                             .format = []( size_t begin, size_t end, Core::ChunkOut out )
+                             .format = []( size_t i, Core::ChunkOut out )
                              {
-                               if ( begin == 0 )
+                               if ( i == 0 )
                                  throw std::runtime_error( "no space left on device" );
-                               for ( size_t i = begin; i < end; ++i )
-                               {
-                                 out.file.begin( "Late" );
-                                 out.file.add( "Index", i );
-                                 out.file.end();
-                               }
+                               out.file.begin( "Late" );
+                               out.file.add( "Index", i );
+                               out.file.end();
                              } };
 
   std::string reported;

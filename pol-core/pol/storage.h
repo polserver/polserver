@@ -95,7 +95,7 @@ private:
   /// The whole file as a list of pieces, areas grouped, which is what makes it splittable.
   std::vector<StoragePiece> collect_pieces() const;
   /// Write piece `i`, opening its storage area first where the loader needs to be told.
-  static void print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool first_of_run,
+  static void print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool starts_block,
                            Clib::StreamWriter& sw );
 
   // TODO: investigate if this could store objects. Does find()
