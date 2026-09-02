@@ -108,10 +108,14 @@ struct SaveTaskStat
 struct SaveParallelResult
 {
   std::vector<SaveTaskStat> work;
-  /// Time spent handing formatted text to the files, summed over the threads that did it. A file
-  /// takes one block at a time, but different files do not wait for each other, so this is an
-  /// upper bound on what the writing added to the save rather than a share of it.
+  /// Time spent writing formatted text into the files, summed over the threads that did it and
+  /// measured with the file's lock already held. Different files do not wait for each other, so
+  /// this is an upper bound on what the writing added to the save rather than a share of it.
   s64 write_ms = 0;
+  /// Time spent waiting for a file, summed the same way: one file takes one block at a time, so
+  /// this is what the threads of a part queued behind each other for. Next to write_ms it says
+  /// whether a file's single lock is costing the save anything.
+  s64 wait_ms = 0;
 };
 
 /// Write every file of a save at once, cut into pieces and spread over the task thread pool as a
