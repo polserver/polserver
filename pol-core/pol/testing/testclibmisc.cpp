@@ -324,9 +324,9 @@ void test_streamwriter()
           sw.comment( "a bare comment" );
           sw.comment( "a formatted comment: {}", 42 );
           sw.begin( "Element" );
-          sw.add( "Key", "value" );
-          sw.add( "Number", 7 );
-          sw.add( "Flag", true );
+          sw.add<"Key">( "value" );
+          sw.add<"Number">( 7 );
+          sw.add<"Flag">( true );
           sw.end();
           sw.begin( "Element", "Named" );
           sw.end();

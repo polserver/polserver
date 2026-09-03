@@ -27,6 +27,7 @@
 #include <memory>
 #include <stddef.h>
 #include <string>
+#include <string_view>
 
 #include "bscript/bobject.h"
 #include "clib/boostutils.h"
@@ -120,7 +121,7 @@ public:
                         Core::ExportScript** hook, unsigned int* PC ) const override;
 
 protected:
-  const char* classname() const override;
+  std::string_view classname() const override;
   void printOn( Clib::StreamWriter& sw ) const override;
   void printSelfOn( Clib::StreamWriter& sw ) const override;
   void printProperties( Clib::StreamWriter& sw ) const override;

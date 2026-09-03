@@ -251,7 +251,7 @@ void Storage::print_piece( const std::vector<StoragePiece>& pieces, size_t i, bo
   if ( starts_block || piece.area != pieces[i - 1].area )
   {
     sw.begin( "StorageArea" );
-    sw.add( "Name", *piece.area );
+    sw.add<"Name">( *piece.area );
     sw.end();
   }
   if ( piece.item != nullptr && piece.item->saveonexit() )
