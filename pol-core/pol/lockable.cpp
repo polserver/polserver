@@ -30,7 +30,7 @@ void ULockable::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
 
   if ( locked() )
-    sw.add( "Locked", locked() );
+    sw.add<"Locked">( locked() );
 }
 
 // dave 12-20

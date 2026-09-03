@@ -23,10 +23,10 @@
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
-#include "pol/syshookscript.h"
-#include "pol/uobjcnt.h"
 #include "pol/multi/multi.h"
 #include "pol/multi/multidef.h"
+#include "pol/syshookscript.h"
+#include "pol/uobjcnt.h"
 
 
 namespace Pol::Multi
@@ -69,7 +69,7 @@ void UMulti::register_object( UObject* /*obj*/ ) {}
 
 void UMulti::unregister_object( UObject* /*obj*/ ) {}
 
-const char* UMulti::classname() const
+std::string_view UMulti::classname() const
 {
   return "MULTI";
 }
@@ -176,9 +176,9 @@ void UMulti::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
 
-  sw.add( "MultiID", multiid_ );
+  sw.add<"MultiID">( multiid_ );
   if ( static_cast<const Items::MultiDesc&>( itemdesc() ).items_decay != items_decay_ )
-    sw.add( "ItemsDecay", items_decay_ );
+    sw.add<"ItemsDecay">( items_decay_ );
 }
 
 void UMulti::items_decay( bool decay )

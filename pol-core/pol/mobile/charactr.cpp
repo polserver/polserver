@@ -570,55 +570,55 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
 
   if ( acct != nullptr )
   {
-    sw.add( "Account", acct->name() );
-    sw.add( "CharIdx", charindex() );
+    sw.add<"Account">( acct->name() );
+    sw.add<"CharIdx">( charindex() );
   }
 
   base::printProperties( sw );
 
   if ( cmdlevel_ )
   {
-    sw.add( "CmdLevel", Core::gamestate.cmdlevels[cmdlevel_].name );
+    sw.add<"CmdLevel">( Core::gamestate.cmdlevels[cmdlevel_].name );
   }
   if ( concealed_ )
   {
-    sw.add( "Concealed", int( concealed_ ) );
+    sw.add<"Concealed">( int( concealed_ ) );
   }
-  sw.add_fmt( "TrueColor", "{:#x}"_cf, truecolor );
-  sw.add_fmt( "TrueObjtype", "{:#x}"_cf, trueobjtype );
+  sw.add_hex<"TrueColor">( truecolor );
+  sw.add_hex<"TrueObjtype">( trueobjtype );
 
   if ( registered_multi )
-    sw.add_fmt( "RegisteredMulti", "{:#x}"_cf, registered_multi );
+    sw.add_hex<"RegisteredMulti">( registered_multi );
 
-  sw.add( "Gender", static_cast<int>( gender ) );
-  sw.add( "Race", static_cast<int>( race ) );
+  sw.add<"Gender">( static_cast<int>( gender ) );
+  sw.add<"Race">( static_cast<int>( race ) );
 
   if ( dead() )
-    sw.add( "Dead", dead() );
+    sw.add<"Dead">( dead() );
 
   if ( mountedsteps_ )
-    sw.add( "MountedSteps", mountedsteps_ );
+    sw.add<"MountedSteps">( mountedsteps_ );
 
   if ( hidden() )
-    sw.add( "Hidden", hidden() );
+    sw.add<"Hidden">( hidden() );
 
   if ( frozen() )
-    sw.add( "Frozen", frozen() );
+    sw.add<"Frozen">( frozen() );
 
   if ( has_movement_cost() )
   {
     auto movecost_value = movement_cost();
     if ( movecost_value.walk != Core::MovementCostMod::DEFAULT.walk )
-      sw.add( "MovementWalkMod", movecost_value.walk );
+      sw.add<"MovementWalkMod">( movecost_value.walk );
     if ( movecost_value.run != Core::MovementCostMod::DEFAULT.run )
-      sw.add( "MovementRunMod", movecost_value.run );
+      sw.add<"MovementRunMod">( movecost_value.run );
     if ( movecost_value.walk_mounted != Core::MovementCostMod::DEFAULT.walk_mounted )
-      sw.add( "MovementWalkMountedMod", movecost_value.walk_mounted );
+      sw.add<"MovementWalkMountedMod">( movecost_value.walk_mounted );
     if ( movecost_value.run_mounted != Core::MovementCostMod::DEFAULT.run_mounted )
-      sw.add( "MovementRunMountedMod", movecost_value.run_mounted );
+      sw.add<"MovementRunMountedMod">( movecost_value.run_mounted );
   }
   if ( has_carrying_capacity_mod() )
-    sw.add( "CarryingCapacityMod", carrying_capacity_mod() );
+    sw.add<"CarryingCapacityMod">( carrying_capacity_mod() );
 
 
   // output Attributes
@@ -666,63 +666,63 @@ void Character::printProperties( Clib::StreamWriter& sw ) const
   {
     auto cap_value = skillstatcap();
     if ( cap_value.statcap != Core::SkillStatCap::DEFAULT.statcap )
-      sw.add( "Statcap", cap_value.statcap );
+      sw.add<"Statcap">( cap_value.statcap );
     if ( cap_value.skillcap != Core::SkillStatCap::DEFAULT.skillcap )
-      sw.add( "Skillcap", cap_value.skillcap );
+      sw.add<"Skillcap">( cap_value.skillcap );
   }
 
   if ( has_followers() )
   {
     auto followers_value = followers();
     if ( followers_value.followers_max != Core::ExtStatBarFollowers::DEFAULT.followers_max )
-      sw.add( "FollowersMax", static_cast<int>( followers_value.followers_max ) );
+      sw.add<"FollowersMax">( static_cast<int>( followers_value.followers_max ) );
     if ( followers_value.followers != Core::ExtStatBarFollowers::DEFAULT.followers )
-      sw.add( "Followers", static_cast<int>( followers_value.followers ) );
+      sw.add<"Followers">( static_cast<int>( followers_value.followers ) );
   }
   if ( has_tithing() )
-    sw.add( "Tithing", tithing() );
+    sw.add<"Tithing">( tithing() );
 
 
   if ( movemode != Plib::MOVEMODE_LAND )
-    sw.add( "MoveMode", encode_movemode( movemode ) );
+    sw.add<"MoveMode">( encode_movemode( movemode ) );
 
   if ( !privs.empty() )
   {
-    sw.add( "Privs", privs.extract() );
+    sw.add<"Privs">( privs.extract() );
   }
   if ( !settings.empty() )
   {
-    sw.add( "Settings", settings.extract() );
+    sw.add<"Settings">( settings.extract() );
   }
 
-  sw.add( "CreatedAt", created_at );
+  sw.add<"CreatedAt">( created_at );
 
   if ( has_squelched_until() )
-    sw.add( "SquelchedUntil", squelched_until() );
+    sw.add<"SquelchedUntil">( squelched_until() );
   if ( has_deafened_until() )
-    sw.add( "DeafenedUntil", deafened_until() );
+    sw.add<"DeafenedUntil">( deafened_until() );
 
   if ( has_title_prefix() )
-    sw.add( "TitlePrefix", Clib::getencodedquotedstring( title_prefix() ) );
+    sw.add<"TitlePrefix">( Clib::getencodedquotedstring( title_prefix() ) );
   if ( has_title_suffix() )
-    sw.add( "TitleSuffix", Clib::getencodedquotedstring( title_suffix() ) );
+    sw.add<"TitleSuffix">( Clib::getencodedquotedstring( title_suffix() ) );
   if ( has_title_guild() )
-    sw.add( "TitleGuild", Clib::getencodedquotedstring( title_guild() ) );
+    sw.add<"TitleGuild">( Clib::getencodedquotedstring( title_guild() ) );
   if ( has_title_race() )
-    sw.add( "TitleRace", Clib::getencodedquotedstring( title_race() ) );
+    sw.add<"TitleRace">( Clib::getencodedquotedstring( title_race() ) );
 
   if ( is_murderer() )
-    sw.add( "Murderer", is_murderer() );
+    sw.add<"Murderer">( is_murderer() );
   if ( party_can_loot() )
-    sw.add( "PartyCanLoot", party_can_loot() );
+    sw.add<"PartyCanLoot">( party_can_loot() );
   for ( const auto& rt : reportable_ )
   {
-    sw.add_fmt( "Reportable", "{:#x} {}"_cf, rt.serial, rt.polclock );
+    sw.add_fmt<"Reportable">( "{:#x} {}"_cf, rt.serial, rt.polclock );
   }
 
   Core::UCorpse* corpse_obj = static_cast<Core::UCorpse*>( Core::system_find_item( last_corpse ) );
   if ( corpse_obj != nullptr && !corpse_obj->orphan() )
-    sw.add( "LastCorpse", last_corpse );
+    sw.add<"LastCorpse">( last_corpse );
 }
 
 Character::DisplayedTitle Character::displayed_title( bool with_guild ) const
@@ -747,7 +747,7 @@ void Character::printDebugProperties( Clib::StreamWriter& sw ) const
   base::printDebugProperties( sw );
 }
 
-const char* Character::classname() const
+std::string_view Character::classname() const
 {
   return "Character";
 }

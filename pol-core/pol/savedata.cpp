@@ -187,11 +187,11 @@ void SaveContext::ready()
 void write_system_data( Clib::StreamWriter& sw )
 {
   sw.begin( "System" );
-  sw.add( "CoreVersion", POL_VERSION_STR );
-  sw.add( "CoreVersionString", POL_VERSION_STR );
-  sw.add( "CompileDateTime", Clib::ProgramConfig::build_datetime() );
-  sw.add( "LastItemSerialNumber", GetCurrentItemSerialNumber() );
-  sw.add( "LastCharSerialNumber", GetCurrentCharSerialNumber() );
+  sw.add<"CoreVersion">( POL_VERSION_STR );
+  sw.add<"CoreVersionString">( POL_VERSION_STR );
+  sw.add<"CompileDateTime">( Clib::ProgramConfig::build_datetime() );
+  sw.add<"LastItemSerialNumber">( GetCurrentItemSerialNumber() );
+  sw.add<"LastCharSerialNumber">( GetCurrentCharSerialNumber() );
   sw.end();
 }
 
@@ -209,14 +209,14 @@ void write_realms( Clib::StreamWriter& sw )
     sw.begin( "Realm" );
     if ( !realm->is_shadowrealm )
     {
-      sw.add( "Name", realm->name() );
+      sw.add<"Name">( realm->name() );
     }
     else
     {
-      sw.add( "Name", realm->shadowname );
-      sw.add( "BaseRealm", realm->baserealm->name() );
+      sw.add<"Name">( realm->shadowname );
+      sw.add<"BaseRealm">( realm->baserealm->name() );
     }
-    sw.add( "HasDecay", realm->has_decay );
+    sw.add<"HasDecay">( realm->has_decay );
     sw.end();
   }
 }

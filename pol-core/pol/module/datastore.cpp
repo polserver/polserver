@@ -604,15 +604,15 @@ DataStoreFile::~DataStoreFile()
 void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
 {
   sw.begin( "DataFile" );
-  sw.add( "Descriptor", descriptor );
-  sw.add( "Name", name );
+  sw.add<"Descriptor">( descriptor );
+  sw.add<"Name">( name );
 
   if ( !pkgname.empty() )
-    sw.add( "Package", pkgname );
+    sw.add<"Package">( pkgname );
 
-  sw.add( "Flags", flags );
-  sw.add( "Version", version );
-  sw.add( "OldVersion", oldversion );
+  sw.add<"Flags">( flags );
+  sw.add<"Version">( version );
+  sw.add<"OldVersion">( oldversion );
   sw.end();
 }
 

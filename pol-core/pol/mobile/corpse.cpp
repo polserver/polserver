@@ -105,9 +105,9 @@ void UCorpse::spill_contents()
 void UCorpse::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
-  sw.add( "CorpseType", corpsetype );
-  sw.add( "OwnerSerial", ownerserial );
-  sw.add( "TakeContentsToGrave", take_contents_to_grave() );
+  sw.add<"CorpseType">( corpsetype );
+  sw.add<"OwnerSerial">( ownerserial );
+  sw.add<"TakeContentsToGrave">( take_contents_to_grave() );
 }
 
 void UCorpse::readProperties( Clib::ConfigElem& elem )

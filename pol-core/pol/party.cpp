@@ -747,13 +747,13 @@ void Party::printOn( Clib::StreamWriter& sw ) const
     return;
 
   sw.begin( "Party" );
-  sw.add_fmt( "Leader", "{:#x}"_cf, _leaderserial );
+  sw.add_hex<"Leader">( _leaderserial );
 
   for ( const auto& mserial : _member_serials )
   {
     Mobile::Character* mem = system_find_mobile( mserial );
     if ( mem != nullptr )
-      sw.add_fmt( "Member", "{:#x}"_cf, mserial );
+      sw.add_hex<"Member">( mserial );
   }
   _proplist.printProperties( sw );
   sw.end();
