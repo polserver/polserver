@@ -7,6 +7,17 @@
 
 #include "clib/streamsaver.h"
 
+#ifdef POL_SAVE_POSITIONED_WRITES
+#include <algorithm>
+#include <cerrno>
+#ifdef _WIN32
+#include <io.h>
+#include <windows.h>
+#else
+#include <unistd.h>
+#endif
+#endif
+
 namespace Pol::Clib
 {
 StreamWriter::StreamWriter( const std::string& path ) : _file( fopen( path.c_str(), "wb+" ) )
@@ -53,6 +64,82 @@ void StreamWriter::flush()
   write_block( { _mbuff.data(), _mbuff.size() } );
   _mbuff.clear();
 }
+
+#ifdef POL_SAVE_POSITIONED_WRITES
+void StreamWriter::begin_positioned()
+{
+  if ( !_file )
+    return;
+  if ( _mbuff.size() )
+    flush();  // whatever is buffered belongs in the file ahead of any reserved range
+#ifdef _WIN32
+  const auto at = _ftelli64( _file );
+#else
+  const auto at = ftello( _file );
+#endif
+  if ( at < 0 )
+    throw std::runtime_error{ "failed to find the end of the file" };
+  _next_offset = static_cast<uint64_t>( at );
+}
+
+void StreamWriter::append_at( std::string_view text )
+{
+  if ( text.empty() )
+    return;
+  if ( !_file )
+  {
+    // Nowhere to reserve a range: collect the block the way append() would. Which block lands
+    // first is as arbitrary as it is in a file, but the appends themselves are one at a time.
+    std::lock_guard<std::mutex> guard( _sink_lock );
+    _mbuff.append( text );
+    return;
+  }
+  // The range is this thread's alone, so the write needs nothing held while it happens.
+  uint64_t at = _next_offset.fetch_add( text.size() );
+  const char* data = text.data();
+  size_t left = text.size();
+  while ( left != 0 )
+  {
+#ifdef _WIN32
+    OVERLAPPED where{};
+    where.Offset = static_cast<DWORD>( at & 0xFFFFFFFFu );
+    where.OffsetHigh = static_cast<DWORD>( at >> 32 );
+    DWORD wrote = 0;
+    const DWORD ask = static_cast<DWORD>( std::min<size_t>( left, 0x40000000 ) );
+    const HANDLE file = reinterpret_cast<HANDLE>( _get_osfhandle( _fileno( _file ) ) );
+    if ( !WriteFile( file, data, ask, &wrote, &where ) )
+      throw std::runtime_error{ "failed to write" };
+#else
+    const ssize_t wrote = pwrite( fileno( _file ), data, left, static_cast<off_t>( at ) );
+    if ( wrote < 0 )
+    {
+      if ( errno == EINTR )
+        continue;
+      throw std::runtime_error{ "failed to write" };
+    }
+#endif
+    data += wrote;
+    left -= static_cast<size_t>( wrote );
+    at += static_cast<uint64_t>( wrote );
+  }
+  _bytes_written += text.size();
+}
+
+void StreamWriter::end_positioned()
+{
+  if ( !_file )
+    return;
+  // A positioned write leaves the stream where it was, so put it at the end for whatever writes
+  // next in sequence - items.txt takes its gotten items after the parallel section.
+  const auto end = static_cast<int64_t>( _next_offset.load() );
+#ifdef _WIN32
+  if ( _fseeki64( _file, end, SEEK_SET ) != 0 )
+#else
+  if ( fseeko( _file, static_cast<off_t>( end ), SEEK_SET ) != 0 )
+#endif
+    throw std::runtime_error{ "failed to seek to the end of the file" };
+}
+#endif
 
 void StreamWriter::flush_close()
 {

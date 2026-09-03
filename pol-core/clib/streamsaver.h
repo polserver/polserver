@@ -8,6 +8,11 @@
 #include <iosfwd>
 #include <iterator>
 #include <stdio.h>
+#ifdef POL_SAVE_POSITIONED_WRITES
+#include <atomic>
+#include <cstdint>
+#include <mutex>
+#endif
 #include <string>
 #include <string_view>
 #include <type_traits>
@@ -140,6 +145,22 @@ public:
   /// Payload handed to this file so far, the still-buffered tail included.
   size_t bytes_written() const { return _bytes_written + _mbuff.size(); }
 
+#ifdef POL_SAVE_POSITIONED_WRITES
+  /// Write this file by reserved offset instead of in sequence, which is what the parallel
+  /// section of a save wants: append_at() takes a range of the file for itself and writes it
+  /// where it lands, so several threads write to one file with nothing to queue behind.
+  ///
+  /// Experimental, built only with -DSAVE_POSITIONED_WRITES=ON. It costs the file order, which a
+  /// save has already given up, but not where the file ends: end_positioned() puts the stream
+  /// back at the end for whoever writes to it in sequence afterwards.
+  void begin_positioned();
+  /// Reserve a range the size of `text` and write it there. Safe from any number of threads.
+  /// A writer with no file behind it has no ranges to hand out and collects the block instead,
+  /// exactly as append() does, so a detached writer still works as a destination.
+  void append_at( std::string_view text );
+  void end_positioned();
+#endif
+
   /// How much text piles up before it is written. stdio buffering is off, so this is the size of
   /// the write() the kernel sees: a megabyte turns the hundreds of thousands of small writes a
   /// large save used to make into a few hundred big ones. Every flush check fires above it, so it
@@ -163,10 +184,22 @@ protected:
   void write_block( std::string_view text );
 
   FILE* _file;
+#ifdef POL_SAVE_POSITIONED_WRITES
+  /// Where the next reserved range starts. Only meaningful between begin_positioned() and
+  /// end_positioned().
+  std::atomic<uint64_t> _next_offset{ 0 };
+  /// Guards the buffer of a detached writer, which several threads may append to at once because
+  /// a positioned save holds nothing else while it hands a block over.
+  std::mutex _sink_lock;
+#endif
   // formatting creates a temp buffer
   // to prevent this format into this buffer and when full write to disk, clear of the buffer keeps
   // the capacity
   fmt::basic_memory_buffer<char> _mbuff;
+#ifdef POL_SAVE_POSITIONED_WRITES
+  std::atomic<size_t> _bytes_written{ 0 };  // append_at() counts from several threads at once
+#else
   size_t _bytes_written{ 0 };
+#endif
 };
 }  // namespace Pol::Clib

@@ -85,6 +85,16 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
     // see whole_file_part.
     if ( part.file != nullptr )
     {
+#ifdef POL_SAVE_POSITIONED_WRITES
+      // Every block goes to a range of the file it reserved for itself, so there is nothing to
+      // take and nothing to wait for.
+      (void)lock;
+      Tools::HighPerfTimer write_timer;
+      part.file->append_at( buffer.buffer() );
+      if ( part.equip != nullptr )
+        part.equip->append_at( equip_buffer.buffer() );
+      append_us += write_timer.ellapsed().count();
+#else
       // Timed either side of the lock, because the two answer different questions: what the
       // writing costs, and what the threads of this part queue behind each other for.
       Tools::HighPerfTimer wait_timer;
@@ -97,6 +107,7 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
           part.equip->append( equip_buffer.buffer() );
         append_us += write_timer.ellapsed().count();
       }
+#endif
     }
     buffer.reset_buffer();
     equip_buffer.reset_buffer();
@@ -177,6 +188,17 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
     }
   };
 
+#ifdef POL_SAVE_POSITIONED_WRITES
+  // Each file hands out ranges of itself for the length of the parallel section.
+  for ( const auto& part : parts )
+  {
+    if ( part.file != nullptr )
+      part.file->begin_positioned();
+    if ( part.equip != nullptr )
+      part.equip->begin_positioned();
+  }
+#endif
+
   // The calling thread is a worker too: it has nothing else to do, and on a wide pool that is a
   // whole thread's worth of formatting. It is also what makes a save possible at all with an
   // empty pool. Nothing escapes a worker, so joining them cannot throw - the first failure is
@@ -188,6 +210,19 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
   worker();
   for ( auto& running : workers )
     running.wait();
+
+#ifdef POL_SAVE_POSITIONED_WRITES
+  // Before the failure is rethrown: a stream left where the header ended would have whatever is
+  // written next land on top of the save.
+  for ( const auto& part : parts )
+  {
+    if ( part.file != nullptr )
+      part.file->end_positioned();
+    if ( part.equip != nullptr )
+      part.equip->end_positioned();
+  }
+#endif
+
   if ( failure )
     std::rethrow_exception( failure );
 
