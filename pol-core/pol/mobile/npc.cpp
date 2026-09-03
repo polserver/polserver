@@ -137,7 +137,7 @@ void NPC::destroy()
   base::destroy();
 }
 
-const char* NPC::classname() const
+std::string_view NPC::classname() const
 {
   return "NPC";
 }
@@ -264,84 +264,84 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
   base::printProperties( sw );
 
   if ( npc_ar_ )
-    sw.add( "AR", npc_ar_ );
+    sw.add<"AR">( npc_ar_ );
 
   if ( !script.get().empty() )
-    sw.add( "script", script.get() );
+    sw.add<"script">( script.get() );
 
   if ( master_.get() != nullptr )
-    sw.add( "master", master_->serial );
+    sw.add<"master">( master_->serial );
 
   if ( has_speech_color() )
-    sw.add( "SpeechColor", speech_color() );
+    sw.add<"SpeechColor">( speech_color() );
 
   if ( has_speech_font() )
-    sw.add( "SpeechFont", speech_font() );
+    sw.add<"SpeechFont">( speech_font() );
 
   if ( run_speed != dexterity() )
-    sw.add( "RunSpeed", run_speed );
+    sw.add<"RunSpeed">( run_speed );
 
   if ( use_adjustments() != true )
-    sw.add( "UseAdjustments", use_adjustments() );
+    sw.add<"UseAdjustments">( use_adjustments() );
 
 
   if ( has_orig_fire_resist() )
-    sw.add( "FireResist", orig_fire_resist() );
+    sw.add<"FireResist">( orig_fire_resist() );
   if ( has_orig_cold_resist() )
-    sw.add( "ColdResist", orig_cold_resist() );
+    sw.add<"ColdResist">( orig_cold_resist() );
   if ( has_orig_energy_resist() )
-    sw.add( "EnergyResist", orig_energy_resist() );
+    sw.add<"EnergyResist">( orig_energy_resist() );
   if ( has_orig_poison_resist() )
-    sw.add( "PoisonResist", orig_poison_resist() );
+    sw.add<"PoisonResist">( orig_poison_resist() );
   if ( has_orig_physical_resist() )
-    sw.add( "PhysicalResist", orig_physical_resist() );
+    sw.add<"PhysicalResist">( orig_physical_resist() );
 
   if ( has_orig_fire_damage() )
-    sw.add( "FireDamage", orig_fire_damage() );
+    sw.add<"FireDamage">( orig_fire_damage() );
   if ( has_orig_cold_damage() )
-    sw.add( "ColdDamage", orig_cold_damage() );
+    sw.add<"ColdDamage">( orig_cold_damage() );
   if ( has_orig_energy_damage() )
-    sw.add( "EnergyDamage", orig_energy_damage() );
+    sw.add<"EnergyDamage">( orig_energy_damage() );
   if ( has_orig_poison_damage() )
-    sw.add( "PoisonDamage", orig_poison_damage() );
+    sw.add<"PoisonDamage">( orig_poison_damage() );
   if ( has_orig_physical_damage() )
-    sw.add( "PhysicalDamage", orig_physical_damage() );
+    sw.add<"PhysicalDamage">( orig_physical_damage() );
   if ( has_orig_lower_reagent_cost() )
-    sw.add( "LowerReagentCost", orig_lower_reagent_cost() );
+    sw.add<"LowerReagentCost">( orig_lower_reagent_cost() );
   if ( has_orig_spell_damage_increase() )
-    sw.add( "SpellDamageIncrease", orig_spell_damage_increase() );
+    sw.add<"SpellDamageIncrease">( orig_spell_damage_increase() );
   if ( has_orig_faster_casting() )
-    sw.add( "FasterCasting", orig_faster_casting() );
+    sw.add<"FasterCasting">( orig_faster_casting() );
   if ( has_orig_faster_cast_recovery() )
-    sw.add( "FasterCastRecovery", orig_faster_cast_recovery() );
+    sw.add<"FasterCastRecovery">( orig_faster_cast_recovery() );
   if ( has_orig_defence_increase() )
-    sw.add( "DefenceIncrease", orig_defence_increase() );
+    sw.add<"DefenceIncrease">( orig_defence_increase() );
   if ( has_orig_defence_increase_cap() )
-    sw.add( "DefenceIncreaseCap", orig_defence_increase_cap() );
+    sw.add<"DefenceIncreaseCap">( orig_defence_increase_cap() );
   if ( has_orig_lower_mana_cost() )
-    sw.add( "LowerManaCost", orig_lower_mana_cost() );
+    sw.add<"LowerManaCost">( orig_lower_mana_cost() );
   if ( has_orig_hit_chance() )
-    sw.add( "HitChance", orig_hit_chance() );
+    sw.add<"HitChance">( orig_hit_chance() );
   if ( has_orig_fire_resist_cap() )
-    sw.add( "FireResistCap", orig_fire_resist_cap() );
+    sw.add<"FireResistCap">( orig_fire_resist_cap() );
   if ( has_orig_cold_resist_cap() )
-    sw.add( "ColdResistCap", orig_cold_resist_cap() );
+    sw.add<"ColdResistCap">( orig_cold_resist_cap() );
   if ( has_orig_energy_resist_cap() )
-    sw.add( "EnergyResistCap", orig_energy_resist_cap() );
+    sw.add<"EnergyResistCap">( orig_energy_resist_cap() );
   if ( has_orig_physical_resist_cap() )
-    sw.add( "PhysicalResistCap", orig_physical_resist_cap() );
+    sw.add<"PhysicalResistCap">( orig_physical_resist_cap() );
   if ( has_orig_poison_resist_cap() )
-    sw.add( "PoisonResistCap", orig_poison_resist_cap() );
+    sw.add<"PoisonResistCap">( orig_poison_resist_cap() );
   if ( has_orig_luck() )
-    sw.add( "Luck", orig_luck() );
+    sw.add<"Luck">( orig_luck() );
   if ( has_swing_speed_increase() )
-    sw.add( "SwingSpeedIncrease", orig_swing_speed_increase() );
+    sw.add<"SwingSpeedIncrease">( orig_swing_speed_increase() );
   if ( has_min_attack_range_increase() )
-    sw.add( "MinAttackRangeIncrease", orig_min_attack_range_increase() );
+    sw.add<"MinAttackRangeIncrease">( orig_min_attack_range_increase() );
   if ( has_max_attack_range_increase() )
-    sw.add( "MaxAttackRangeIncrease", orig_max_attack_range_increase() );
+    sw.add<"MaxAttackRangeIncrease">( orig_max_attack_range_increase() );
   if ( no_drop_exception() )
-    sw.add( "NoDropException", no_drop_exception() );
+    sw.add<"NoDropException">( no_drop_exception() );
 }
 
 void NPC::printDebugProperties( Clib::StreamWriter& sw ) const

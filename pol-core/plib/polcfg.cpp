@@ -61,7 +61,7 @@ void PolConfig::read( bool initial_load )
 
     check_integrity = true;  // elem.remove_bool( "CheckIntegrity", true );
     count_resource_tiles = elem.remove_bool( "CountResourceTiles", false );
-    
+
     web_server = elem.remove_bool( "WebServer", false );
     web_server_port = elem.remove_ushort( "WebServerPort", 8080 );
     web_server_local_only = elem.remove_bool( "WebServerLocalOnly", true );
@@ -93,6 +93,7 @@ void PolConfig::read( bool initial_load )
     debug_local_only = elem.remove_bool( "DebugLocalOnly", true );
 
     account_save = elem.remove_int( "AccountDataSave", -1 );
+    worldsave_threads = elem.remove_ushort( "WorldSaveThreads", 0 );
     default_priority =
         Clib::clamp_convert<unsigned char>( elem.remove_ushort( "DefaultPriority", 10 ) );
   }
@@ -107,6 +108,7 @@ void PolConfig::read( bool initial_load )
   watch_sysload = elem.remove_bool( "WatchSysLoad", false );
   log_sysload = elem.remove_bool( "LogSysLoad", false );
   inhibit_saves = elem.remove_bool( "InhibitSaves", false );
+  log_worldsave_details = elem.remove_bool( "LogWorldSaveDetails", false );
   log_script_cycles = elem.remove_bool( "LogScriptCycles", false );
 
   profile_cprops = elem.remove_bool( "ProfileCProps", false );

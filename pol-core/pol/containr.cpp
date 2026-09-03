@@ -38,12 +38,12 @@
 #include "clib/random.h"
 #include "clib/stlutil.h"
 #include "clib/streamsaver.h"
+#include "plib/uconst.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
-#include "plib/uconst.h"
 #include "pol/profile.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
@@ -908,15 +908,15 @@ void UContainer::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   if ( has_max_items_mod() )
-    sw.add( "Max_Items_mod", max_items_mod() );
+    sw.add<"Max_Items_mod">( max_items_mod() );
   if ( has_max_weight_mod() )
-    sw.add( "Max_Weight_mod", max_weight_mod() );
+    sw.add<"Max_Weight_mod">( max_weight_mod() );
   if ( has_max_slots_mod() )
-    sw.add( "Max_Slots_mod", max_slots_mod() );
+    sw.add<"Max_Slots_mod">( max_slots_mod() );
   if ( no_drop_exception() != default_no_drop_exception() )
-    sw.add( "NoDropException", no_drop_exception() );
+    sw.add<"NoDropException">( no_drop_exception() );
   if ( has_held_weight_multiplier() )
-    sw.add( "HeldWeightMultiplier", held_weight_multiplier() );
+    sw.add<"HeldWeightMultiplier">( held_weight_multiplier() );
 }
 
 void UContainer::readProperties( Clib::ConfigElem& elem )

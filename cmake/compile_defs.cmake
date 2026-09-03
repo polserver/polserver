@@ -21,6 +21,12 @@ function(set_compile_flags target is_executable)
     endif()
   endif()
 
+  if (SAVE_POSITIONED_WRITES)
+    target_compile_definitions(${target} PRIVATE
+      POL_SAVE_POSITIONED_WRITES
+    )
+  endif()
+
   if (${windows})
     # _WIN32/_WIN64 are compiler-predefined and deliberately not repeated here
     target_compile_definitions(${target} PRIVATE

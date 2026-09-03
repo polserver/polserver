@@ -7,6 +7,7 @@
 #ifndef __OBJECTHASH_H
 #define __OBJECTHASH_H
 
+#include <functional>
 #include <iosfwd>
 #include <map>
 #include <unordered_set>
@@ -61,6 +62,13 @@ public:
 
   hs::const_iterator begin() const;
   hs::const_iterator end() const;
+
+  /// Visit every object whose serial belongs to a character, in serial order.
+  ///
+  /// Characters and items are allocated from disjoint serial ranges, so the characters are one
+  /// contiguous stretch of the map. Walking only that stretch is what makes finding the mobiles
+  /// cheap on a shard whose hash also holds millions of items.
+  void for_each_character( const std::function<void( UObject* )>& f ) const;
   void ClearCharacterAccountReferences();
 
   ds::const_iterator dirty_deleted_begin() const;

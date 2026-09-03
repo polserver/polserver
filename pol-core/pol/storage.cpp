@@ -10,6 +10,7 @@
 #include <exception>
 #include <string>
 #include <time.h>
+#include <vector>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
@@ -25,6 +26,7 @@
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
 #include "pol/mkscrobj.h"
+#include "pol/saveparallel.h"
 #include "pol/ufunc.h"
 
 
@@ -168,16 +170,6 @@ StorageArea* Storage::create_area( Clib::ConfigElem& elem )
 }
 
 
-void StorageArea::print( Clib::StreamWriter& sw ) const
-{
-  for ( const auto& cont_item : _items )
-  {
-    const Items::Item* item = cont_item.second;
-    if ( item->saveonexit() )
-      item->printOn( sw );
-  }
-}
-
 void StorageArea::for_each_root_item(
     const std::function<void( const std::string&, Items::Item* )>& f ) const
 {
@@ -246,15 +238,55 @@ void Storage::read( Clib::ConfigFile& cf )
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
 }
 
-void Storage::print( Clib::StreamWriter& sw ) const
+void Storage::print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool starts_block,
+                           Clib::StreamWriter& sw )
 {
-  for ( const auto& area : areas )
+  const auto& piece = pieces[i];
+  // Storage::read files every Item under the last StorageArea element it read, and the blocks of a
+  // split file reach that file in whatever order the threads finish them. So a block names the
+  // area it is writing into before it writes anything, and again wherever it crosses into another
+  // one. Only the piece that opens a block may look at the piece before it: everywhere else in the
+  // buffer, the text in front of this one is a run claimed from somewhere else entirely.
+  // create_area is find-or-create, so a repeated header selects the same area a single one would.
+  if ( starts_block || piece.area != pieces[i - 1].area )
   {
     sw.begin( "StorageArea" );
-    sw.add( "Name", area.first );
+    sw.add<"Name">( *piece.area );
     sw.end();
-    area.second->print( sw );
   }
+  if ( piece.item != nullptr && piece.item->saveonexit() )
+    piece.item->printOn( sw );
+}
+
+std::vector<Storage::StoragePiece> Storage::collect_pieces() const
+{
+  std::vector<StoragePiece> pieces;
+  size_t count = areas.size();  // one piece names each area, so an empty one still survives a save
+  for ( const auto& area : areas )
+    count += area.second->root_item_count();
+  pieces.reserve( count );
+  for ( const auto& area : areas )
+  {
+    pieces.push_back( { &area.first, nullptr } );
+    area.second->for_each_root_item( [&pieces, &area]( const std::string&, Items::Item* item )
+                                     { pieces.push_back( { &area.first, item } ); } );
+  }
+  return pieces;
+}
+
+SavePart Storage::save_part( Clib::StreamWriter& sw ) const
+{
+  // Nearly all of a large shard's storage is a single area of player bank boxes -- thousands of
+  // root containers holding a few hundred items each -- so splitting the work per area would
+  // leave one thread with the whole file. Split it at root-item boundaries instead.
+  auto pieces = collect_pieces();
+  const size_t count = pieces.size();
+  return { .name = "storage",
+           .count = count,
+           .file = &sw,
+           .equip = nullptr,
+           .format = [pieces = std::move( pieces )]( size_t piece, ChunkOut out )
+           { print_piece( pieces, piece, out.starts_block, out.file ); } };
 }
 
 void Storage::clear()

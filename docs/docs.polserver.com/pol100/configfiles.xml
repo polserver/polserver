@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>08/15/2026</datemodified>
+    <datemodified>08/23/2026</datemodified>
 </fileheader>
 
 
@@ -958,6 +958,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [WatchMapCache=(1/0 {default 0})]
 [LogSysLoad=(1/0 {default 0})]
 [InhibitSaves=(1/0 {default 0})]
+[LogWorldSaveDetails=(1/0 {default 0})]
+[WorldSaveThreads=(int threads {default 0})]
 [LogScriptCycles=(1/0 {default 0})]
 [ProfileCProps=(1/0 {default 0})]
 [WebServerLocalOnly=(1/0 {default 1})]
@@ -1023,6 +1025,8 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>AssertionFailureAction options: abort: (like old behavior) aborts immediately, without saving data. continue: allows execution to continue. shutdown: attempts graceful shutdown. shutdown-nosave: attempts graceful shutdown, without saving data. If the assertion occurred during execution of a script, either 'shutdown', 'shutdown-nosave', or 'continue' will abort that script, displaying the script name and PC.</explain>
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
+    <explain>LogWorldSaveDetails: log a breakdown of every world save - how long the world was stopped, how long flushing and committing took, what each part of the save cost, how many pieces it was split into and how big its largest piece was, and how many bytes each data file received. The same numbers come back on the struct uo::SaveWorldState() returns. Use it to find which file a slow save is spending its time on.</explain>
+    <explain>WorldSaveThreads: how many threads a world save spreads itself over. 0 (default) picks a number from the cpus this server is actually allowed to use, which inside a container is not the same as the number the machine has. Setting it higher than the container may run makes saves slower rather than faster. The startup log prints the number chosen next to both cpu counts, so set this only if that choice is wrong for your host.</explain>
     <explain>AccountDataSave: -1 : old behaviour, saves accounts.txt immediately after an account change, 0 : saves only during worldsave (if needed), >0 : saves every X seconds and during worldsave (if needed)</explain>
     <explain>UseSingleThreadLogin: if set all prelogin clients are handled inside the listener thread and not inside an extra thread this will reduce the amount of thread creates and destroys</explain>
     <explain>DisableNagle: disables Nagle's algorithm. In theory, latency should improve if DisableNagle=1.</explain>
