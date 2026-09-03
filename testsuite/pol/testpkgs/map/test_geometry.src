@@ -1,9 +1,17 @@
-// The geometry helpers of the uo module. These are pure functions of their
-// arguments, so they need no world state and their results are exact.
+// The geometry helpers of the uo module. Mostly pure functions of their
+// arguments, so they need no world state and their results are exact -- the
+// object based ones need the objects to stand somewhere, or nowhere on purpose.
 use uo;
 use os;
+use storage;
 
 include "testutil";
+
+// The other realm the test shard generates.
+const OTHER_REALM := "britannia2";
+
+// What both object based functions report when there is nothing to measure.
+const NO_DISTANCE := 65535;
 
 program geometry()
   return 1;
@@ -101,6 +109,83 @@ exported function object_distance( resmngr )
   return 1;
 endfunction
 
+// Coordinates are measured against a realm, so two in different realms are not
+// two points at all and there is no distance between them to report.
+exported function object_distance_across_realms( resmngr )
+  var here := resmngr.CreateItemAtLocation( 50, 50, 0, 0x4ae );
+  var there := resmngr.CreateItemAtLocation( 50, 50, 0, 0x4ae, 1, OTHER_REALM );
+  if ( !here || !there )
+    return ret_error( $"failed to create items: {here}, {there}" );
+  endif
+
+  var res := check_no_distance( here, there, "the same coordinates in two realms" );
+  if ( !res )
+    return res;
+  endif
+
+  // and it really is the realm that decides, not the matching coordinates
+  var elsewhere := resmngr.CreateItemAtLocation( 60, 50, 0, 0x4ae, 1, OTHER_REALM );
+  if ( !elsewhere )
+    return ret_error( $"failed to create item: {elsewhere}" );
+  endif
+
+  return check_no_distance( here, elsewhere, "different coordinates in two realms" );
+endfunction
+
+// A root item of a storage area is filed rather than placed: it has no
+// coordinates of its own, and neither has anything inside it.
+exported function object_distance_from_nowhere( resmngr )
+  var area := FindStorageArea( "geometry" );
+  if ( !area )
+    area := CreateStorageArea( "geometry" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var root := CreateRootItemInStorageArea( area, "nowherebox", 0xE75 );
+  if ( !root )
+    return ret_error( $"Could not make the root item: {root}" );
+  endif
+
+  var item := resmngr.CreateItemAtLocation( 50, 50, 0, 0x4ae );
+  // Not through the resource manager: these live inside a root this function
+  // destroys itself, and cleaning them up afterwards would find them gone.
+  var coin := CreateItemInContainer( root, 0x0eed, 1 );
+  var coin2 := CreateItemInContainer( root, 0x0eed, 1 );
+
+  var res := 1;
+  do
+    if ( !item || !coin || !coin2 )
+      res := ret_error( $"failed to create items: {item}, {coin}, {coin2}" );
+      break;
+    endif
+
+    if ( !( res := check_no_distance( item, root, "a storage root" ) ) )
+      break;
+    endif
+    // measured from the box, so its contents answer exactly as it does
+    if ( !( res := check_no_distance( item, coin, "the contents of a storage root" ) ) )
+      break;
+    endif
+
+    // Two things one thing holds are in the same place, wherever that is.
+    if ( !( res := check_distance( coin, coin2, 0, "two items in one storage root" ) ) )
+      break;
+    endif
+    res := check_distance( root, root, 0, "a storage root and itself" );
+  dowhile ( false );
+
+  if ( coin )
+    DestroyItem( coin );
+  endif
+  if ( coin2 )
+    DestroyItem( coin2 );
+  endif
+  DestroyRootItemInStorageArea( area, "nowherebox" );
+  return res;
+endfunction
+
 // the facing is the compass direction from one point to another, 0 is north
 // and it counts clockwise
 exported function facing()
@@ -189,6 +274,25 @@ endfunction
 /**
  * Helper functions
  */
+
+// Both functions at once, since they may only differ over a measurable pair.
+function check_distance( obj1, obj2, expected, what )
+  var actual := Distance( obj1, obj2 );
+  if ( actual != expected )
+    return ret_error( $"Distance to {what}: {actual}, expected {expected}" );
+  endif
+  return check_near( DistanceEuclidean( obj1, obj2 ), expected,
+                     $"DistanceEuclidean to {what}" );
+endfunction
+
+// and both ways round, because a script may name either one first
+function check_no_distance( obj1, obj2, what )
+  var res := check_distance( obj1, obj2, NO_DISTANCE, what );
+  if ( !res )
+    return res;
+  endif
+  return check_distance( obj2, obj1, NO_DISTANCE, $"{what}, reversed" );
+endfunction
 
 function check_near( actual, expected, what )
   var diff := actual - expected;

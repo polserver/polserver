@@ -71,6 +71,7 @@
 #include <cmath>
 #include <cstddef>
 #include <exception>
+#include <limits>
 #include <memory>
 #include <optional>
 #include <stdlib.h>
@@ -3001,28 +3002,79 @@ BObjectImp* UOExecutorModule::mf_AssignRectToWeatherRegion()
   return new BError( "Weather region not found" );
 }
 
+namespace
+{
+/// What both distance functions report when there is nothing to measure, matching pol_distance().
+constexpr u16 NO_DISTANCE = std::numeric_limits<u16>::max();
+
+/// Whose coordinates stand for this object's: its top level owner, or the character holding it if
+/// it is on a cursor, which toplevel_owner() stops short of.
+UObject* measured_from( UObject* obj )
+{
+  UObject* top = obj->toplevel_owner();
+  // isitem(), not isa( CLASS_ITEM ): exact class equality is false for containers and weapons.
+  if ( top->isitem() )
+  {
+    // Named, because get_if() is deleted on a temporary and location() answers by value.
+    const Items::Location loc = static_cast<Item*>( top )->location();
+    if ( const auto* on_cursor = loc.get_if<Items::OnCursor>() )
+      return on_cursor->holder;
+  }
+  return top;
+}
+
+/// Whether the two have comparable coordinates. has_world_position() rather than a realm, which an
+/// item on a cursor takes from its holder and a detached one from where it last stood.
+bool same_world( const UObject* obj1, const UObject* obj2 )
+{
+  return obj1->has_world_position() && obj2->has_world_position() &&
+         obj1->pos().realm() == obj2->pos().realm();
+}
+
+/// How far apart two objects with no coordinates are: 0 when one thing holds both, or when the
+/// character was shown the container -- the reach can_reach() and Accessible() grant.
+u16 distance_when_nowhere( const UObject* obj1, const UObject* obj2 )
+{
+  if ( obj1 == obj2 )
+    return 0;
+  if ( obj1->ismobile() && static_cast<const Character*>( obj1 )->shown_a_container( obj2 ) )
+    return 0;
+  if ( obj2->ismobile() && static_cast<const Character*>( obj2 )->shown_a_container( obj1 ) )
+    return 0;
+  return NO_DISTANCE;
+}
+}  // namespace
+
 BObjectImp* UOExecutorModule::mf_Distance()
 {
   UObject* obj1;
   UObject* obj2;
-  if ( getUObjectParam( 0, obj1 ) && getUObjectParam( 1, obj2 ) )
-    return new BLong( obj1->distance_to( obj2->toplevel_pos() ) );
-  return new BError( "Invalid parameter type" );
+  if ( !getUObjectParam( 0, obj1 ) || !getUObjectParam( 1, obj2 ) )
+    return new BError( "Invalid parameter type" );
+
+  // Geometry first: a chest handed to SendOpenSpecialContainer() really does stand in the world.
+  const UObject* from = measured_from( obj1 );
+  const UObject* to = measured_from( obj2 );
+  if ( same_world( from, to ) )
+    return new BLong( from->pos2d().pol_distance( to->pos2d() ) );
+
+  return new BLong( distance_when_nowhere( from, to ) );
 }
 
 BObjectImp* UOExecutorModule::mf_DistanceEuclidean()
 {
   UObject* obj1;
   UObject* obj2;
-  if ( getUObjectParam( 0, obj1 ) && getUObjectParam( 1, obj2 ) )
-  {
-    const UObject* tobj1 = obj1->toplevel_owner();
-    const UObject* tobj2 = obj2->toplevel_owner();
-    return new Double( sqrt( pow( (double)( tobj1->x() - tobj2->x() ), 2 ) +
-                             pow( (double)( tobj1->y() - tobj2->y() ), 2 ) ) );
-  }
+  if ( !getUObjectParam( 0, obj1 ) || !getUObjectParam( 1, obj2 ) )
+    return new BError( "Invalid parameter type" );
 
-  return new BError( "Invalid parameter type" );
+  const UObject* from = measured_from( obj1 );
+  const UObject* to = measured_from( obj2 );
+  if ( same_world( from, to ) )
+    return new Double( std::hypot( static_cast<double>( from->x() ) - to->x(),
+                                   static_cast<double>( from->y() ) - to->y() ) );
+
+  return new Double( static_cast<double>( distance_when_nowhere( from, to ) ) );
 }
 
 BObjectImp* UOExecutorModule::mf_CoordinateDistance()
@@ -3563,21 +3615,27 @@ BObjectImp* UOExecutorModule::mf_GetRegionName( /* objref */ )
 
   if ( getUObjectParam( 0, obj ) )
   {
+    // Whatever holds it is what stands in a region.
+    UObject* top = measured_from( obj );
+
     JusticeRegion* justice_region;
-    if ( obj->isa( UOBJ_CLASS::CLASS_ITEM ) )
-      obj = obj->toplevel_owner();
-
-    if ( obj->isa( UOBJ_CLASS::CLASS_CHARACTER ) )
+    if ( top->ismobile() )
     {
-      Character* chr = static_cast<Character*>( obj );
+      Character* chr = static_cast<Character*>( top );
 
-      if ( chr->logged_in() )
+      // Only a player has a client caching its region; an NPC is logged_in() from creation.
+      if ( chr->has_active_client() && chr->client->gd != nullptr )
         justice_region = chr->client->gd->justice_region;
       else
         justice_region = gamestate.justicedef->getregion( chr->pos() );
     }
     else
-      justice_region = gamestate.justicedef->getregion( obj->pos() );
+    {
+      // A region is a painted patch of one realm, so only something standing in one has one.
+      if ( !top->has_world_position() )
+        return new BError( "Object has no position in the world" );
+      justice_region = gamestate.justicedef->getregion( top->pos() );
+    }
 
     if ( justice_region == nullptr )
       return new BError( "No Region defined at this Location" );

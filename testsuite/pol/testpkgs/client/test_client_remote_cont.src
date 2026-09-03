@@ -7,6 +7,9 @@ include "communication";
 
 var char;
 
+// What both object based distance functions report when there is nothing to measure.
+const NO_DISTANCE := 65535;
+
 var clientcon := getClientConnection();
 
 program chartests()
@@ -25,10 +28,8 @@ endprogram
 // comparison that would otherwise refuse anything in a different realm. So a character standing
 // in britannia2 can see a container in britannia if and only if it is still listed as remote.
 exported function remote_container_ends_on_move()
-  // Placed exactly where the character stands, because SendOpenSpecialContainer writes the
-  // character's position onto whatever it is handed. Anywhere else and that write would leave the
-  // container filed in a zone its coordinates no longer name, which is a defect of its own and not
-  // the one under test here.
+  // Placed on top of the character only so the first check has a plain answer. The assertion that
+  // carries the test is the one after the move, which membership alone can answer.
   var cont := CreateItemAtLocation( char.x, char.y, char.z, 0x200E75, 1, char.realm );
   if ( !cont )
     return ret_error( "Failed to create container: " + cont );
@@ -302,6 +303,122 @@ exported function bankbox_contents_are_accessible()
   endif
 
   DestroyRootItemInStorageArea( area, "accessbox" );
+  return res;
+endfunction
+
+// Both functions at once, since they may only differ over a measurable pair. Every expectation
+// here is a whole number of tiles, but the euclidean one answers with a double.
+function check_distance( obj1, obj2, expected, what )
+  var pol := Distance( obj1, obj2 );
+  if ( pol != expected )
+    return ret_error( $"Distance to {what}: {pol}, expected {expected}" );
+  endif
+
+  var euclid := DistanceEuclidean( obj1, obj2 );
+  var diff := euclid - expected;
+  if ( diff < 0 )
+    diff := -diff;
+  endif
+  if ( diff > 0.0001 )
+    return ret_error( $"DistanceEuclidean to {what}: {euclid}, expected {expected}" );
+  endif
+
+  return 1;
+endfunction
+
+// A bank box stands nowhere, so there are no coordinates to compare against it until the box is
+// shown -- and a script that measures before it reaches has to agree with Accessible().
+exported function bankbox_contents_are_at_hand()
+  var area := FindStorageArea( "clientbank" );
+  if ( !area )
+    area := CreateStorageArea( "clientbank" );
+    if ( !area )
+      return ret_error( $"Could not make the storage area: {area}" );
+    endif
+  endif
+
+  var cont := CreateRootItemInStorageArea( area, "distbox", 0xE75 );
+  if ( !cont )
+    return ret_error( $"Could not make the bank box: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    var home := struct{ x := char.x, y := char.y, z := char.z, realm := char.realm };
+    do
+      // Nothing has been shown yet, so the box is nowhere however close its owner stands.
+      if ( !( res := check_distance( char, item, NO_DISTANCE, "an unopened bank box" ) ) )
+        break;
+      endif
+
+      var opened := SendOpenSpecialContainer( char, cont );
+      if ( !opened )
+        res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+        break;
+      endif
+
+      if ( !( res := check_distance( char, item, 0, "the contents of an open bank box" ) ) )
+        break;
+      endif
+      // the box itself, which is its own top level owner
+      if ( !( res := check_distance( char, cont, 0, "an open bank box" ) ) )
+        break;
+      endif
+      // and the character may be named second
+      if ( !( res := check_distance( item, char, 0, "an open bank box, reversed" ) ) )
+        break;
+      endif
+
+      // Membership rather than a standing grant, exactly as Accessible() has it: moving ends the
+      // reach, and with it the answer.
+      MoveObjectToLocation( char, 100, 100, 0, realm := "britannia2",
+                            flags := MOVEOBJECT_FORCELOCATION );
+      res := check_distance( char, item, NO_DISTANCE,
+                             "a bank box the character has walked away from" );
+    dowhile ( false );
+
+    MoveObjectToLocation( char, home.x, home.y, home.z, realm := home.realm,
+                          flags := MOVEOBJECT_FORCELOCATION );
+    DestroyItem( item );
+  endif
+
+  DestroyRootItemInStorageArea( area, "distbox" );
+  return res;
+endfunction
+
+// SendOpenSpecialContainer() takes a chest standing in the world as happily as a bank box, and
+// such a chest goes on being measured: being shown it is no answer for a pair that has one.
+exported function shown_worldbox_still_measures()
+  var cont := CreateItemAtLocation( char.x + 4, char.y, char.z, 0x200E75, 1, char.realm );
+  if ( !cont )
+    return ret_error( $"Could not make the container: {cont}" );
+  endif
+
+  var res := 1;
+  var item := CreateItemInContainer( cont, 0x1F03, 1 );
+  if ( !item )
+    res := ret_error( $"Could not make the contents: {item}" );
+  else
+    do
+      var opened := SendOpenSpecialContainer( char, cont );
+      if ( !opened )
+        res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
+        break;
+      endif
+
+      if ( !( res := check_distance( char, cont, 4, "a shown container standing in the world" ) ) )
+        break;
+      endif
+      res := check_distance( char, item, 4, "the contents of a shown container in the world" );
+    dowhile ( false );
+
+    DestroyItem( item );
+  endif
+
+  DestroyItem( cont );
   return res;
 endfunction
 
