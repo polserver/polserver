@@ -1,5 +1,8 @@
 #pragma once
 
+#include <algorithm>
+#include <array>
+#include <cstddef>
 #include <fmt/compile.h>
 #include <fmt/format.h>
 #include <fmt/os.h>
@@ -20,6 +23,32 @@
 
 namespace Pol::Clib
 {
+/// A string literal usable as a template argument: a structural type, which is what C++20 accepts
+/// as a non-type template parameter.
+template <size_t N>
+struct FixedKey
+{
+  char text[N]{};
+  consteval FixedKey( const char ( &key )[N] ) { std::copy_n( key, N, text ); }
+  constexpr std::string_view view() const { return { text, N - 1 }; }
+};
+
+/// The whole "\tKey\t" that opens a line, composed once at compile time so that writing it is one
+/// copy of a known size.
+///
+/// Nearly every key in a save is a literal, but handed to a writer as an argument it has to be
+/// formatted like any other value - which on a large shard is millions of runtime copies of text
+/// that was known when the file was compiled.
+template <FixedKey Key>
+inline constexpr auto key_prefix = []
+{
+  std::array<char, Key.view().size() + 2> prefix{};
+  prefix[0] = '\t';
+  std::copy_n( Key.text, Key.view().size(), prefix.begin() + 1 );
+  prefix[prefix.size() - 1] = '\t';
+  return prefix;
+}();
+
 class StreamWriter
 {
 public:
@@ -31,6 +60,49 @@ public:
   ~StreamWriter() noexcept( false );
   StreamWriter( const StreamWriter& ) = delete;
   StreamWriter& operator=( const StreamWriter& ) = delete;
+
+  /// Write "\tKey\tvalue\n" with the key composed at compile time - see key_prefix. This is what
+  /// every literal key uses; the string_view overloads below are for the few keys only known at
+  /// runtime.
+  template <FixedKey Key, typename T>
+  void add( T&& value )
+  {
+    using namespace fmt::literals;
+    write_key<Key>();
+    if constexpr ( !std::is_same<std::decay_t<T>, bool>::value )
+      fmt::format_to( std::back_inserter( _mbuff ), "{}\n"_cf, value );
+    else  // force bool to write as 0/1
+      fmt::format_to( std::back_inserter( _mbuff ), "{:d}\n"_cf, value );
+    maybe_flush();
+  }
+  /// A value made of two parts, written as "{a} {b}" - the shape of a CProp line.
+  template <FixedKey Key, typename A, typename B>
+  void add( A&& a, B&& b )
+  {
+    using namespace fmt::literals;
+    write_key<Key>();
+    fmt::format_to( std::back_inserter( _mbuff ), "{} {}\n"_cf, a, b );
+    maybe_flush();
+  }
+  /// A hex value, which is most of what add_fmt used to be asked for. One format call for the
+  /// whole line rather than a key, a value and a newline written separately.
+  template <FixedKey Key, typename T>
+  void add_hex( T&& value )
+  {
+    using namespace fmt::literals;
+    write_key<Key>();
+    fmt::format_to( std::back_inserter( _mbuff ), "{:#x}\n"_cf, value );
+    maybe_flush();
+  }
+  /// A value formatted straight into the buffer, for the shapes add_hex does not cover:
+  /// add_fmt<"Reportable">( "{:#x} {}"_cf, serial, clock ).
+  template <FixedKey Key, typename S, typename... Args>
+  void add_fmt( S&& formatstr, Args&&... args )
+  {
+    write_key<Key>();
+    raw( std::forward<S>( formatstr ), std::forward<Args>( args )... );
+    eol();
+  }
 
   template <typename T>
   void add( std::string_view key, T&& value )
@@ -172,6 +244,14 @@ public:
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
 protected:
+  /// The compile-time prefix of a line, copied in one go.
+  template <FixedKey Key>
+  void write_key()
+  {
+    constexpr auto& prefix = key_prefix<Key>;
+    _mbuff.append( prefix.data(), prefix.data() + prefix.size() );
+  }
+
   /// Write the buffer out once it has grown past the threshold. clear() keeps the capacity.
   /// A detached writer has nowhere to write to, so its buffer just keeps growing.
   void maybe_flush()

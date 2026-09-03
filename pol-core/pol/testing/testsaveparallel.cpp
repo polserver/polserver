@@ -204,8 +204,8 @@ void save_parallel_test()
     return [tag, count]( size_t i, Core::ChunkOut out )
     {
       out.file.begin( tag );
-      out.file.add( "Index", i );
-      out.file.add( "Total", count );
+      out.file.add<"Index">( i );
+      out.file.add<"Total">( count );
       out.file.end();
     };
   };
@@ -214,14 +214,14 @@ void save_parallel_test()
     return [tag]( size_t i, Core::ChunkOut out )
     {
       out.file.begin( tag );
-      out.file.add( "Index", i );
+      out.file.add<"Index">( i );
       out.file.end();
       // Two entries in the second file per piece, so a swap between the files cannot pass.
       for ( int half = 0; half < 2; ++half )
       {
         out.equip.begin( "Equipment" );
-        out.equip.add( "Owner", i );
-        out.equip.add( "Half", half );
+        out.equip.add<"Owner">( i );
+        out.equip.add<"Half">( half );
         out.equip.end();
       }
     };
@@ -323,7 +323,7 @@ void save_parallel_failure_test()
                                if ( i == 0 )
                                  throw std::runtime_error( "no space left on device" );
                                out.file.begin( "Late" );
-                               out.file.add( "Index", i );
+                               out.file.add<"Index">( i );
                                out.file.end();
                              } };
 

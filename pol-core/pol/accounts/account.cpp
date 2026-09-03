@@ -82,29 +82,29 @@ void Account::readfrom( Clib::ConfigElem& elem )
 void Account::writeto( Clib::StreamWriter& sw ) const
 {
   sw.begin( "Account" );
-  sw.add( "Name", name_ );
+  sw.add<"Name">( name_ );
 
   // dave 6/5/3 don't write cleartext unless configured to
   if ( Plib::systemstate.config.retain_cleartext_passwords && !password_.empty() )
-    sw.add( "Password", password_ );
+    sw.add<"Password">( password_ );
 
-  sw.add( "PasswordHash", passwordhash_ );  // MD5
+  sw.add<"PasswordHash">( passwordhash_ );  // MD5
 
-  sw.add( "Enabled", enabled_ );
+  sw.add<"Enabled">( enabled_ );
 
-  sw.add( "Banned", banned_ );
+  sw.add<"Banned">( banned_ );
 
   if ( !default_privs_.empty() )
   {
-    sw.add( "DefaultPrivs", default_privs_.extract() );
+    sw.add<"DefaultPrivs">( default_privs_.extract() );
   }
   if ( default_cmdlevel_ )
   {
-    sw.add( "DefaultCmdLevel", Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
+    sw.add<"DefaultCmdLevel">( Core::gamestate.cmdlevels[default_cmdlevel_].name.c_str() );
   }
   if ( expansion_.expansionVersion() != Core::settingsManager.ssopt.features.expansionVersion() )
   {
-    sw.add( "UOExpansion", expansion_.expansionName() );
+    sw.add<"UOExpansion">( expansion_.expansionName() );
   }
   props_.printProperties( sw );
 

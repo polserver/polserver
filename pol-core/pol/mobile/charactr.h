@@ -37,6 +37,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "bscript/bobject.h"
@@ -326,7 +327,7 @@ public:
   void printForSave( Clib::StreamWriter& sw_mobile, Clib::StreamWriter& sw_equip ) const;
 
 protected:
-  const char* classname() const override;
+  std::string_view classname() const override;
   void printOn( Clib::StreamWriter& sw ) const override;
   void printSelfOn( Clib::StreamWriter& sw ) const override;
   void printProperties( Clib::StreamWriter& sw ) const override;

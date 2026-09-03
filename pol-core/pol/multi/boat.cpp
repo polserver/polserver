@@ -1433,7 +1433,7 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
   using namespace fmt::literals;
   base::printProperties( sw );
 
-  sw.add( "MultiID", multiid_ );
+  sw.add<"MultiID">( multiid_ );
 
   BoatContext bc( *this );
 
@@ -1442,14 +1442,14 @@ void UBoat::printProperties( Clib::StreamWriter& sw ) const
     UObject* obj = travellerRef.get();
     if ( !obj->orphan() && on_ship( bc, obj ) )
     {
-      sw.add_fmt( "Traveller", "{:#x}"_cf, obj->serial );
+      sw.add_hex<"Traveller">( obj->serial );
     }
   }
   for ( auto& component : Components )
   {
     if ( component != nullptr && !component->orphan() )
     {
-      sw.add_fmt( "Component", "{:#x}"_cf, component->serial );
+      sw.add_hex<"Component">( component->serial );
     }
   }
 }

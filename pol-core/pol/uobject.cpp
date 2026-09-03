@@ -289,170 +289,170 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
   using namespace fmt;
 
   if ( !name_.get().empty() )
-    sw.add( "Name", name_.get() );
+    sw.add<"Name">( name_.get() );
 
-  sw.add_fmt( "Serial", "{:#x}"_cf, serial );
-  sw.add_fmt( "ObjType", "{:#x}"_cf, objtype_ );
-  sw.add_fmt( "Graphic", "{:#x}"_cf, graphic );
+  sw.add_hex<"Serial">( serial );
+  sw.add_hex<"ObjType">( objtype_ );
+  sw.add_hex<"Graphic">( graphic );
 
   if ( color != 0 )
-    sw.add_fmt( "Color", "{:#x}"_cf, color );
+    sw.add_hex<"Color">( color );
 
   const Pos3d local = local_position();
-  sw.add( "X", local.x() );
-  sw.add( "Y", local.y() );
-  sw.add( "Z", (int)local.z() );
+  sw.add<"X">( local.x() );
+  sw.add<"Y">( local.y() );
+  sw.add<"Z">( (int)local.z() );
 
   if ( facing )
-    sw.add( "Facing", static_cast<int>( facing ) );
+    sw.add<"Facing">( static_cast<int>( facing ) );
 
-  sw.add( "Revision", rev() );
+  sw.add<"Revision">( rev() );
   // The world this can be reached in, which for anything held by something else is its holder's
   // -- the same value the borrowed copy used to carry. Something in no world at all still names the
   // default realm, as it always has: nothing reads the line back for those, and dropping it would
   // change the file format rather than just the value in it.
   if ( const Realms::Realm* in_world = toplevel_realm(); in_world != nullptr )
-    sw.add( "Realm", in_world->name() );
+    sw.add<"Realm">( in_world->name() );
   else
-    sw.add( "Realm", "britannia" );
+    sw.add<"Realm">( "britannia" );
 
 
   if ( has_fire_resist() )
   {
     if ( s16 value = fire_resist().mod; value )
-      sw.add( "FireResistMod", value );
+      sw.add<"FireResistMod">( value );
   }
   if ( has_cold_resist() )
   {
     if ( s16 value = cold_resist().mod; value )
-      sw.add( "ColdResistMod", value );
+      sw.add<"ColdResistMod">( value );
   }
   if ( has_energy_resist() )
   {
     if ( s16 value = energy_resist().mod; value )
-      sw.add( "EnergyResistMod", value );
+      sw.add<"EnergyResistMod">( value );
   }
   if ( has_poison_resist() )
   {
     if ( s16 value = poison_resist().mod; value )
-      sw.add( "PoisonResistMod", value );
+      sw.add<"PoisonResistMod">( value );
   }
   if ( has_physical_resist() )
   {
     if ( s16 value = physical_resist().mod; value )
-      sw.add( "PhysicalResistMod", value );
+      sw.add<"PhysicalResistMod">( value );
   }
 
   if ( has_fire_damage() )
   {
     if ( s16 value = fire_damage().mod; value )
-      sw.add( "FireDamageMod", value );
+      sw.add<"FireDamageMod">( value );
   }
   if ( has_cold_damage() )
   {
     if ( s16 value = cold_damage().mod; value )
-      sw.add( "ColdDamageMod", value );
+      sw.add<"ColdDamageMod">( value );
   }
   if ( has_energy_damage() )
   {
     if ( s16 value = energy_damage().mod; value )
-      sw.add( "EnergyDamageMod", value );
+      sw.add<"EnergyDamageMod">( value );
   }
   if ( has_poison_damage() )
   {
     if ( s16 value = poison_damage().mod; value )
-      sw.add( "PoisonDamageMod", value );
+      sw.add<"PoisonDamageMod">( value );
   }
   if ( has_physical_damage() )
   {
     if ( s16 value = physical_damage().mod; value )
-      sw.add( "PhysicalDamageMod", value );
+      sw.add<"PhysicalDamageMod">( value );
   }
 
   if ( has_lower_reagent_cost() )
   {
     if ( s16 value = lower_reagent_cost().mod; value )
-      sw.add( "LowerReagentCostMod", value );
+      sw.add<"LowerReagentCostMod">( value );
   }
   if ( has_defence_increase() )
   {
     if ( s16 value = defence_increase().mod; value )
-      sw.add( "DefenceIncreaseMod", value );
+      sw.add<"DefenceIncreaseMod">( value );
   }
   if ( has_defence_increase_cap() )
   {
     if ( s16 value = defence_increase_cap().mod; value )
-      sw.add( "DefenceIncreaseCapMod", value );
+      sw.add<"DefenceIncreaseCapMod">( value );
   }
   if ( has_lower_mana_cost() )
   {
     if ( s16 value = lower_mana_cost().mod; value )
-      sw.add( "LowerManaCostMod", value );
+      sw.add<"LowerManaCostMod">( value );
   }
   if ( has_hit_chance() )
   {
     if ( s16 value = hit_chance().mod; value )
-      sw.add( "HitChanceMod", value );
+      sw.add<"HitChanceMod">( value );
   }
   if ( has_fire_resist_cap() )
   {
     if ( s16 value = fire_resist_cap().mod; value )
-      sw.add( "FireResistCapMod", value );
+      sw.add<"FireResistCapMod">( value );
   }
   if ( has_cold_resist_cap() )
   {
     if ( s16 value = cold_resist_cap().mod; value )
-      sw.add( "ColdResistCapMod", value );
+      sw.add<"ColdResistCapMod">( value );
   }
   if ( has_energy_resist_cap() )
   {
     if ( s16 value = energy_resist_cap().mod; value )
-      sw.add( "EnergyResistCapMod", value );
+      sw.add<"EnergyResistCapMod">( value );
   }
   if ( has_physical_resist_cap() )
   {
     if ( s16 value = physical_resist_cap().mod; value )
-      sw.add( "PhysicalResistCapMod", value );
+      sw.add<"PhysicalResistCapMod">( value );
   }
   if ( has_poison_resist_cap() )
   {
     if ( s16 value = poison_resist_cap().mod; value )
-      sw.add( "PoisonResistCapMod", value );
+      sw.add<"PoisonResistCapMod">( value );
   }
   if ( has_spell_damage_increase() )
   {
     if ( s16 value = spell_damage_increase().mod; value )
-      sw.add( "SpellDamageIncreaseMod", value );
+      sw.add<"SpellDamageIncreaseMod">( value );
   }
   if ( has_faster_casting() )
   {
     if ( s16 value = faster_casting().mod; value )
-      sw.add( "FasterCastingMod", value );
+      sw.add<"FasterCastingMod">( value );
   }
   if ( has_faster_cast_recovery() )
   {
     if ( s16 value = faster_cast_recovery().mod; value )
-      sw.add( "FasterCastRecoveryMod", value );
+      sw.add<"FasterCastRecoveryMod">( value );
   }
   if ( has_luck() )
   {
     if ( s16 value = luck().mod; value )
-      sw.add( "LuckMod", value );
+      sw.add<"LuckMod">( value );
   }
   if ( has_swing_speed_increase() )
   {
     if ( s16 value = swing_speed_increase().mod; value )
-      sw.add( "SwingSpeedIncreaseMod", value );
+      sw.add<"SwingSpeedIncreaseMod">( value );
   }
   if ( has_min_attack_range_increase() )
   {
     if ( s16 value = min_attack_range_increase().mod; value )
-      sw.add( "MinAttackRangeIncreaseMod", value );
+      sw.add<"MinAttackRangeIncreaseMod">( value );
   }
   if ( has_max_attack_range_increase() )
   {
     if ( s16 value = max_attack_range_increase().mod; value )
-      sw.add( "MaxAttackRangeIncreaseMod", value );
+      sw.add<"MaxAttackRangeIncreaseMod">( value );
   }
 
 

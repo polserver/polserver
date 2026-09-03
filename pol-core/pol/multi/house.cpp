@@ -689,16 +689,16 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
     Items::Item* item = component.get();
     if ( item != nullptr && !item->orphan() )
     {
-      sw.add_fmt( "Component", "{:#x}"_cf, item->serial );
+      sw.add_hex<"Component">( item->serial );
     }
   }
-  sw.add( "Custom", custom );
+  sw.add<"Custom">( custom );
   if ( custom )
   {
     CurrentDesign.printProperties( sw, "Current" );
     WorkingDesign.printProperties( sw, "Working" );
     BackupDesign.printProperties( sw, "Backup" );
-    sw.add( "DesignRevision", revision );
+    sw.add<"DesignRevision">( revision );
   }
 }
 
