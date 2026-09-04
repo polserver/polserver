@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <deque>
 #include <fmt/compile.h>
 #include <fmt/format.h>
 #include <fmt/os.h>
@@ -10,11 +11,12 @@
 #include <fstream>
 #include <iosfwd>
 #include <iterator>
+#include <mutex>
 #include <stdio.h>
 #ifdef POL_SAVE_POSITIONED_WRITES
 #include <atomic>
 #include <cstdint>
-#include <mutex>
+#include <vector>
 #endif
 #include <string>
 #include <string_view>
@@ -196,6 +198,30 @@ public:
   /// Append an already formatted block, eg. the buffer of a detached writer.
   void append( std::string_view text )
   {
+    if ( _deferring && _file != nullptr && !text.empty() )
+    {
+      std::deque<DeferredBlock> evicted;
+      {
+        std::lock_guard<std::mutex> guard( _deferred_lock );
+        _deferred.emplace_back( this, std::string( text ) );
+        _deferred_total += text.size();
+        // Room is made from the front of the save, never by refusing to hold the newest block.
+        while ( _deferred_total > _deferred_budget && _deferred.size() > 1 )
+        {
+          _deferred_total -= _deferred.front().second.size();
+          evicted.push_back( std::move( _deferred.front() ) );
+          _deferred.pop_front();
+        }
+      }
+      _bytes_written += text.size();  // the file has been handed it, whatever is done with it
+      // Written with the queue lock released: an evicted block belongs to whichever file wrote it
+      // first, which may be a file another thread is appending to right now. Its own write lock is
+      // what keeps the two apart, and taking that while holding the queue lock would invert the
+      // order the save takes them in.
+      for ( auto& block : evicted )
+        block.first->write_raw( block.second );
+      return;
+    }
     // A block that already exceeds the buffer would be copied in only to be written straight
     // back out, so hand it to the file directly. Over a save that is one full copy of every
     // byte written, and on a large shard the copying was most of the time the save spent.
@@ -216,6 +242,25 @@ public:
 
   /// Payload handed to this file so far, the still-buffered tail included.
   size_t bytes_written() const { return _bytes_written + _mbuff.size(); }
+
+  /// Hold what append() is handed instead of writing it, until write_deferred(). Off unless
+  /// pol.cfg WorldSaveDeferMB is set, which is what bounds it across all files.
+  ///
+  /// Over that bound the *oldest* text of the whole save is written to make room: early blocks
+  /// were written while other threads were still formatting and cost the save nothing, while the
+  /// last ones have no formatting left to hide behind.
+  ///
+  /// The queue is shared by every file, because a file that has finished its part is never
+  /// appended to again and with a queue of its own would hold its share of the budget to the end.
+  void defer_writes() { _deferring = true; }
+  /// Write everything held, in the order it was handed over, and stop deferring.
+  void write_deferred();
+  /// How much every file together may hold before they write through instead. 0 defers nothing.
+  static void set_deferred_budget( size_t bytes )
+  {
+    std::lock_guard<std::mutex> guard( _deferred_lock );
+    _deferred_budget = bytes;
+  }
 
 #ifdef POL_SAVE_POSITIONED_WRITES
   /// Write this file by reserved offset instead of in sequence, which is what the parallel
@@ -244,6 +289,9 @@ public:
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
 protected:
+  /// Write a block bytes_written() has already counted - what a deferred block is.
+  void write_raw( std::string_view text );
+
   /// The compile-time prefix of a line, copied in one go.
   template <FixedKey Key>
   void write_key()
@@ -264,6 +312,16 @@ protected:
   void write_block( std::string_view text );
 
   FILE* _file;
+  bool _deferring{ false };
+  /// Serializes writes to this file, which eviction performs from whichever thread is over the
+  /// budget rather than from the one that formatted the block.
+  std::mutex _write_lock;
+  using DeferredBlock = std::pair<StreamWriter*, std::string>;
+  /// The save's text in the order it was handed over, across every file.
+  static inline std::mutex _deferred_lock;
+  static inline std::deque<DeferredBlock> _deferred;
+  static inline size_t _deferred_total{ 0 };
+  static inline size_t _deferred_budget{ 0 };
 #ifdef POL_SAVE_POSITIONED_WRITES
   /// Where the next reserved range starts. Only meaningful between begin_positioned() and
   /// end_positioned().

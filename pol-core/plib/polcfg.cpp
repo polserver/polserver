@@ -109,6 +109,7 @@ void PolConfig::read( bool initial_load )
   log_sysload = elem.remove_bool( "LogSysLoad", false );
   inhibit_saves = elem.remove_bool( "InhibitSaves", false );
   log_worldsave_details = elem.remove_bool( "LogWorldSaveDetails", false );
+  worldsave_defer_mb = elem.remove_ulong( "WorldSaveDeferMB", 0 );
   log_script_cycles = elem.remove_bool( "LogScriptCycles", false );
 
   profile_cprops = elem.remove_bool( "ProfileCProps", false );

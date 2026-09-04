@@ -141,6 +141,40 @@ void StreamWriter::end_positioned()
 }
 #endif
 
+void StreamWriter::write_raw( std::string_view text )
+{
+  if ( text.empty() || _file == nullptr )
+    return;
+  // Held because eviction writes this file from whichever thread ran out of budget, which may not
+  // be the thread that owns the part writing to it.
+  std::lock_guard<std::mutex> guard( _write_lock );
+  // Not write_block: bytes_written() counted this when the file was handed it.
+  if ( fwrite( text.data(), sizeof( char ), text.size(), _file ) < text.size() )
+    throw std::runtime_error{ "failed to write" };
+}
+
+void StreamWriter::write_deferred()
+{
+  _deferring = false;
+  // Taken out of the shared queue in the order they were handed over, which is the order this
+  // file has to receive them in.
+  std::deque<DeferredBlock> mine;
+  {
+    std::lock_guard<std::mutex> guard( _deferred_lock );
+    for ( auto& block : _deferred )
+    {
+      if ( block.first != this )
+        continue;
+      _deferred_total -= block.second.size();
+      mine.push_back( std::move( block ) );
+    }
+    std::erase_if( _deferred,
+                   [this]( const DeferredBlock& block ) { return block.first == this; } );
+  }
+  for ( const auto& block : mine )
+    write_raw( block.second );
+}
+
 void StreamWriter::flush_close()
 {
   if ( !_file )

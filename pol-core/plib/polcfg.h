@@ -37,6 +37,9 @@ struct PolConfig
   bool inhibit_saves;
   bool log_worldsave_details;
   unsigned short worldsave_threads;
+  /// Megabytes of formatted save text a world save may hold while the world is stopped, writing
+  /// it once the world runs again. 0 writes as the buffers fill.
+  unsigned int worldsave_defer_mb;
   bool log_script_cycles;
   bool count_resource_tiles;
   bool web_server;

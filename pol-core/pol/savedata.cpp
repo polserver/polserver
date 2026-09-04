@@ -478,6 +478,13 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
       [&, critical_promise = std::move( critical_promise ),
        callback = std::move( callback )]() mutable
       {
+#ifdef POL_SAVE_POSITIONED_WRITES
+        // Positioned writes reserve a range per block instead of appending, so nothing is held.
+        const size_t defer_bytes = 0;
+#else
+        const size_t defer_bytes =
+            static_cast<size_t>( Plib::systemstate.config.worldsave_defer_mb ) * 1024 * 1024;
+#endif
         Tools::Timer<> blocking_timer;
         bool result = true;
         SaveResult stats;
@@ -514,6 +521,16 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
                 object_part( "npcs", std::move( mobiles.npcs ), &sc.npcs, &sc.npcequip,
                              write_mobile ) };
             const auto scan_ms = scan_timer.ellapsed();
+
+            // The world is stopped for the objects, not for the disk: hold the formatted text
+            // and write it once it runs again. A budget of 0 holds nothing and writes as the
+            // buffer fills, which is what a save without WorldSaveDeferMB does.
+            if ( defer_bytes )
+            {
+              Clib::StreamWriter::set_deferred_budget( defer_bytes );
+              for ( auto& file : sc.files() )
+                file.second->defer_writes();
+            }
 
             auto work = write_parallel( parts );
             write_gotten_items( sc.items, mobiles );
@@ -553,6 +570,12 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
           // The world runs again from here on. Draining the buffers and closing the files no
           // longer touches any object.
           Tools::Timer<> flush_timer;
+          // What the save formatted while the world was stopped, written now that it is not.
+          if ( defer_bytes )
+          {
+            for ( auto& file : sc.files() )
+              file.second->write_deferred();
+          }
           for ( auto& file : sc.files() )
             file.second->flush_close();
           stats.flush_ms = flush_timer.ellapsed();

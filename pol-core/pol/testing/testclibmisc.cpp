@@ -367,6 +367,74 @@ void test_streamwriter()
         return false;
       },
       true, "StreamWriter refuses a path it cannot open" );
+
+  // Deferred writing, what pol.cfg WorldSaveDeferMB buys: the text a save formats is held until
+  // write_deferred(), so the world runs again while the bytes are still in memory.
+  auto file_text = []( const char* name )
+  {
+    std::ifstream ifs( testdir_file( name ) );
+    return std::string( ( std::istreambuf_iterator<char>( ifs ) ),
+                        std::istreambuf_iterator<char>() );
+  };
+
+  UnitTest(
+      [&]()
+      {
+        Clib::StreamWriter::set_deferred_budget( 1 << 20 );
+        std::string before;
+        {
+          Clib::StreamWriter sw( testdir_file( "deferred.txt" ) );
+          sw.defer_writes();
+          sw.append( "first\n" );
+          sw.append( "second\n" );
+          before = file_text( "deferred.txt" );
+          sw.write_deferred();
+          sw.flush_close();
+        }
+        Clib::StreamWriter::set_deferred_budget( 0 );
+        return before + "|" + file_text( "deferred.txt" );
+      },
+      std::string( "|first\nsecond\n" ), "a deferred writer holds its text until write_deferred" );
+
+  // A budget too small for what is handed over is what a shard owner will actually set, so the
+  // eviction path matters as much as the holding one.
+  UnitTest(
+      [&]()
+      {
+        Clib::StreamWriter::set_deferred_budget( 8 );
+        std::string over_budget;
+        {
+          Clib::StreamWriter sw( testdir_file( "evicted.txt" ) );
+          sw.defer_writes();
+          sw.append( "aaaaaaaaaa\n" );
+          sw.append( "bbbbbbbbbb\n" );
+          sw.append( "cccccccccc\n" );
+          over_budget = file_text( "evicted.txt" );
+          sw.write_deferred();
+          sw.flush_close();
+        }
+        Clib::StreamWriter::set_deferred_budget( 0 );
+        return over_budget + "|" + file_text( "evicted.txt" );
+      },
+      std::string( "aaaaaaaaaa\nbbbbbbbbbb\n|aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\n" ),
+      "over the budget the oldest deferred block is written first" );
+
+  // bytes_written() is what the save reports per file, counted when the file is handed the block
+  // rather than when it reaches the disk.
+  UnitTest(
+      [&]()
+      {
+        Clib::StreamWriter::set_deferred_budget( 1 << 20 );
+        Clib::StreamWriter sw( testdir_file( "deferred_count.txt" ) );
+        sw.defer_writes();
+        sw.append( "0123456789" );
+        const auto counted = sw.bytes_written();
+        sw.write_deferred();
+        sw.flush_close();
+        Clib::StreamWriter::set_deferred_budget( 0 );
+        return counted;
+      },
+      size_t( 10 ), "a deferred block counts as written when the file is handed it" );
 }
 
 // The elapsed-time helper. Only its named form and the seconds/print accessors are unreached.
