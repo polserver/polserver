@@ -2,8 +2,10 @@
 
 #include <algorithm>
 #include <array>
+#include <atomic>
+#include <condition_variable>
 #include <cstddef>
-#include <deque>
+#include <exception>
 #include <fmt/compile.h>
 #include <fmt/format.h>
 #include <fmt/os.h>
@@ -11,10 +13,15 @@
 #include <fstream>
 #include <iosfwd>
 #include <iterator>
+#include <list>
 #include <mutex>
 #include <stdio.h>
+#include <thread>
+
+#include "clib/message_queue.h"
+#include "clib/rawtypes.h"
+
 #ifdef POL_SAVE_POSITIONED_WRITES
-#include <atomic>
 #include <cstdint>
 #include <vector>
 #endif
@@ -200,26 +207,9 @@ public:
   {
     if ( _deferring && _file != nullptr && !text.empty() )
     {
-      std::deque<DeferredBlock> evicted;
-      {
-        std::lock_guard<std::mutex> guard( _deferred_lock );
-        _deferred.emplace_back( this, std::string( text ) );
-        _deferred_total += text.size();
-        // Room is made from the front of the save, never by refusing to hold the newest block.
-        while ( _deferred_total > _deferred_budget && _deferred.size() > 1 )
-        {
-          _deferred_total -= _deferred.front().second.size();
-          evicted.push_back( std::move( _deferred.front() ) );
-          _deferred.pop_front();
-        }
-      }
-      _bytes_written += text.size();  // the file has been handed it, whatever is done with it
-      // Written with the queue lock released: an evicted block belongs to whichever file wrote it
-      // first, which may be a file another thread is appending to right now. Its own write lock is
-      // what keeps the two apart, and taking that while holding the queue lock would invert the
-      // order the save takes them in.
-      for ( auto& block : evicted )
-        block.first->write_raw( block.second );
+      if ( _mbuff.size() )
+        flush();  // whatever is buffered belongs in the file ahead of this block
+      enqueue( std::string( text ) );
       return;
     }
     // A block that already exceeds the buffer would be copied in only to be written straight
@@ -243,24 +233,33 @@ public:
   /// Payload handed to this file so far, the still-buffered tail included.
   size_t bytes_written() const { return _bytes_written + _mbuff.size(); }
 
-  /// Hold what append() is handed instead of writing it, until write_deferred(). Off unless
-  /// pol.cfg WorldSaveDeferMB is set, which is what bounds it across all files.
+  /// Hand what this file is given to a thread of its own instead of writing it here, so that the
+  /// world is stopped for formatting and not for the disk. Off unless pol.cfg WorldSaveDeferMB is
+  /// set, which is what bounds the text every file together may hold.
   ///
-  /// Over that bound the *oldest* text of the whole save is written to make room: early blocks
-  /// were written while other threads were still formatting and cost the save nothing, while the
-  /// last ones have no formatting left to hide behind.
+  /// One thread per file rather than a pool: a file has to be written in order, so it can only
+  /// ever be written by one thread at a time, and a pool would have the same throughput for the
+  /// price of deciding who takes what. A thread waiting on an empty queue costs nothing.
   ///
-  /// The queue is shared by every file, because a file that has finished its part is never
-  /// appended to again and with a queue of its own would hold its share of the budget to the end.
-  void defer_writes() { _deferring = true; }
-  /// Write everything held, in the order it was handed over, and stop deferring.
+  /// At the bound an appending thread waits for its writer to make room rather than writing the
+  /// block itself - see enqueue(). Writing it here is what an earlier version did, and it made a
+  /// budget smaller than the save *slower* than not deferring at all: 446 ms of stopped world at
+  /// 256 MB against 377 ms at 0, measured on an 854 MB shard.
+  void defer_writes();
+  /// Cancel this file's queue, wait for its writer to drain what is left, and rethrow whatever
+  /// the writer caught. A cancelled queue stays cancelled, so a writer defers only once.
   void write_deferred();
-  /// How much every file together may hold before they write through instead. 0 defers nothing.
+  /// How much every file together may hold before an appender waits. 0 defers nothing.
   static void set_deferred_budget( size_t bytes )
   {
     std::lock_guard<std::mutex> guard( _deferred_lock );
     _deferred_budget = bytes;
+    _deferred_stall_us = 0;
   }
+  /// Time formatting threads spent waiting for a writer to make room, summed over them. This is
+  /// the whole cost a budget too small for the shard has: nothing else about deferring can reach
+  /// back into the stopped window.
+  static s64 deferred_stall_us() { return _deferred_stall_us.load(); }
 
 #ifdef POL_SAVE_POSITIONED_WRITES
   /// Write this file by reserved offset instead of in sequence, which is what the parallel
@@ -289,8 +288,18 @@ public:
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
 protected:
-  /// Write a block bytes_written() has already counted - what a deferred block is.
+  /// Write a block bytes_written() has already counted - what a deferred block is. Only this
+  /// file's writer thread calls it, and write_deferred() joins that thread before anything else
+  /// writes, so the file needs no lock of its own.
   void write_raw( std::string_view text );
+  /// Hand a block to this file's writer, waiting first if the save is already at its budget.
+  void enqueue( std::string&& text );
+  /// Give a written block's bytes back to the budget and wake whoever is waiting for room.
+  static void release_bytes( size_t size );
+  /// Write a batch in order, giving each block's bytes back to the budget.
+  void write_blocks( std::list<std::string>& blocks );
+  /// Drain this file's queue until it is cancelled, catching the first write that fails.
+  void writer_loop();
 
   /// The compile-time prefix of a line, copied in one go.
   template <FixedKey Key>
@@ -313,15 +322,17 @@ protected:
 
   FILE* _file;
   bool _deferring{ false };
-  /// Serializes writes to this file, which eviction performs from whichever thread is over the
-  /// budget rather than from the one that formatted the block.
-  std::mutex _write_lock;
-  using DeferredBlock = std::pair<StreamWriter*, std::string>;
-  /// The save's text in the order it was handed over, across every file.
+  /// This file's text, in the order it was handed over, waiting for _writer to write it.
+  message_queue<std::string> _pending;
+  std::thread _writer;
+  /// The first exception a write raised, rethrown by write_deferred().
+  std::exception_ptr _writer_error;
+  /// The budget is shared by every file, so the accounting is too.
   static inline std::mutex _deferred_lock;
-  static inline std::deque<DeferredBlock> _deferred;
+  static inline std::condition_variable _deferred_room;
   static inline size_t _deferred_total{ 0 };
   static inline size_t _deferred_budget{ 0 };
+  static inline std::atomic<s64> _deferred_stall_us{ 0 };
 #ifdef POL_SAVE_POSITIONED_WRITES
   /// Where the next reserved range starts. Only meaningful between begin_positioned() and
   /// end_positioned().

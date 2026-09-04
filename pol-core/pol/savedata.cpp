@@ -430,6 +430,11 @@ void log_save_details( const SaveResult& stats )
                   "summed over the threads, {} ms flushing, {} ms committing",
                   stats.success ? "ok" : "FAILED", stats.critical_ms, stats.write_ms, stats.wait_ms,
                   stats.flush_ms, stats.commit_ms );
+  if ( stats.defer_stall_ms != 0 )
+    fmt::format_to( out,
+                    "\n  WorldSaveDeferMB is below what this save produces: {} ms of the stopped "
+                    "world was formatting threads waiting for room",
+                    stats.defer_stall_ms );
   fmt::format_to( out, "\n  parts (work, summed over the threads that shared it):" );
   for ( const auto& task : tasks )
   {
@@ -540,6 +545,7 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
 
             stats.write_ms = work.write_ms;
             stats.wait_ms = work.wait_ms;
+            stats.defer_stall_ms = Clib::StreamWriter::deferred_stall_us() / 1000;
             stats.tasks = std::move( work.work );
             // Not a part: no pieces, and nothing of it passed through a buffer.
             stats.tasks.push_back( { .name = "scan", .elapsed_ms = scan_ms } );

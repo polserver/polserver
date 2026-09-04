@@ -1,3 +1,4 @@
+#include <chrono>
 #include <exception>
 #include <fstream>
 #include <ios>
@@ -61,6 +62,15 @@ void StreamWriter::write_block( std::string_view text )
 
 void StreamWriter::flush()
 {
+  if ( _deferring && _file != nullptr && _mbuff.size() )
+  {
+    // One path to the file: written straight out, a buffered tail would land ahead of blocks
+    // still queued for this file. write_gotten_items() fills items.txt this way while the parts
+    // that share it are still being drained.
+    enqueue( std::string( _mbuff.data(), _mbuff.size() ) );
+    _mbuff.clear();
+    return;
+  }
   write_block( { _mbuff.data(), _mbuff.size() } );
   _mbuff.clear();
 }
@@ -145,40 +155,119 @@ void StreamWriter::write_raw( std::string_view text )
 {
   if ( text.empty() || _file == nullptr )
     return;
-  // Held because eviction writes this file from whichever thread ran out of budget, which may not
-  // be the thread that owns the part writing to it.
-  std::lock_guard<std::mutex> guard( _write_lock );
   // Not write_block: bytes_written() counted this when the file was handed it.
   if ( fwrite( text.data(), sizeof( char ), text.size(), _file ) < text.size() )
     throw std::runtime_error{ "failed to write" };
 }
 
-void StreamWriter::write_deferred()
+void StreamWriter::enqueue( std::string&& text )
 {
-  _deferring = false;
-  // Taken out of the shared queue in the order they were handed over, which is the order this
-  // file has to receive them in.
-  std::deque<DeferredBlock> mine;
+  const size_t size = text.size();
+  {
+    std::unique_lock<std::mutex> guard( _deferred_lock );
+    // A block bigger than the whole budget still has to go somewhere, so what is waited for is
+    // room beside what is already held, never an empty queue.
+    const auto room = [size]
+    { return _deferred_total == 0 || _deferred_total + size <= _deferred_budget; };
+    if ( !room() )
+    {
+      // Timed because this is the one thing that can reach back into the stopped window: a thread
+      // waiting here is a thread that would otherwise be formatting.
+      const auto since = std::chrono::steady_clock::now();
+      _deferred_room.wait( guard, room );
+      _deferred_stall_us += std::chrono::duration_cast<std::chrono::microseconds>(
+                                std::chrono::steady_clock::now() - since )
+                                .count();
+    }
+    _deferred_total += size;
+  }
+  _bytes_written += size;  // the file has been handed it, whatever is done with it
+  _pending.push_move( std::move( text ) );
+}
+
+void StreamWriter::release_bytes( size_t size )
+{
   {
     std::lock_guard<std::mutex> guard( _deferred_lock );
-    for ( auto& block : _deferred )
-    {
-      if ( block.first != this )
-        continue;
-      _deferred_total -= block.second.size();
-      mine.push_back( std::move( block ) );
-    }
-    std::erase_if( _deferred,
-                   [this]( const DeferredBlock& block ) { return block.first == this; } );
+    _deferred_total -= size;
   }
-  for ( const auto& block : mine )
-    write_raw( block.second );
+  _deferred_room.notify_all();
+}
+
+void StreamWriter::write_blocks( std::list<std::string>& blocks )
+{
+  for ( auto& block : blocks )
+  {
+    if ( !_writer_error )
+    {
+      try
+      {
+        write_raw( block );
+      }
+      catch ( ... )
+      {
+        _writer_error = std::current_exception();
+      }
+    }
+    // Given back whether or not it was written: a thread waiting for room must not be left
+    // waiting because this file has failed.
+    release_bytes( block.size() );
+  }
+  blocks.clear();
+}
+
+void StreamWriter::writer_loop()
+{
+  std::list<std::string> blocks;
+  for ( ;; )
+  {
+    try
+    {
+      _pending.pop_wait( &blocks );
+    }
+    catch ( const message_queue<std::string>::Canceled& )
+    {
+      // write_deferred() cancels once nothing more can be queued. pop_wait() abandons whatever is
+      // still in the queue when it throws, so the tail of the save is taken out by hand - it is
+      // the end of this file, not text to drop.
+      _pending.pop_remaining( &blocks );
+      write_blocks( blocks );
+      return;
+    }
+    write_blocks( blocks );
+  }
+}
+
+void StreamWriter::defer_writes()
+{
+  if ( _file == nullptr || _deferring )
+    return;
+  _deferring = true;
+  _writer_error = nullptr;
+  _writer = std::thread( [this]() { writer_loop(); } );
+}
+
+void StreamWriter::write_deferred()
+{
+  if ( !_deferring )
+    return;
+  _deferring = false;  // set before the cancel, so nothing can be queued after it
+  _pending.cancel();
+  if ( _writer.joinable() )
+    _writer.join();
+  if ( _writer_error )
+  {
+    auto error = _writer_error;
+    _writer_error = nullptr;
+    std::rethrow_exception( error );
+  }
 }
 
 void StreamWriter::flush_close()
 {
   if ( !_file )
     return;
+  write_deferred();  // nothing may be left with this file's writer when the file is closed
   if ( _mbuff.size() )
     flush();
   fclose( _file );

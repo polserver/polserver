@@ -47,6 +47,10 @@ struct SaveResult
   /// Waiting for a file, summed the same way: one file takes one block at a time, so this is what
   /// the threads sharing a part queued behind each other for.
   s64 wait_ms{ 0 };
+  /// Waiting for a deferred write to make room, summed over the formatting threads. Zero unless
+  /// pol.cfg WorldSaveDeferMB is set, and zero even then if the budget covers what the save
+  /// produces - a non-zero value is the amount the budget added back to critical_ms.
+  s64 defer_stall_ms{ 0 };
   /// The .ndt -> .txt renames.
   s64 commit_ms{ 0 };
   std::vector<SaveFileStat> files;

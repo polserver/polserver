@@ -368,8 +368,8 @@ void test_streamwriter()
       },
       true, "StreamWriter refuses a path it cannot open" );
 
-  // Deferred writing, what pol.cfg WorldSaveDeferMB buys: the text a save formats is held until
-  // write_deferred(), so the world runs again while the bytes are still in memory.
+  // Deferred writing, what pol.cfg WorldSaveDeferMB buys: a thread per file writes what append()
+  // is handed, so the world is stopped for formatting rather than for the disk.
   auto file_text = []( const char* name )
   {
     std::ifstream ifs( testdir_file( name ) );
@@ -377,50 +377,96 @@ void test_streamwriter()
                         std::istreambuf_iterator<char>() );
   };
 
+  constexpr int BLOCKS = 50;
+  std::string every_block;
+  for ( int i = 0; i < BLOCKS; ++i )
+    every_block += fmt::format( "block {}\n", i );
+
   UnitTest(
       [&]()
       {
         Clib::StreamWriter::set_deferred_budget( 1 << 20 );
-        std::string before;
         {
           Clib::StreamWriter sw( testdir_file( "deferred.txt" ) );
           sw.defer_writes();
-          sw.append( "first\n" );
-          sw.append( "second\n" );
-          before = file_text( "deferred.txt" );
+          for ( int i = 0; i < BLOCKS; ++i )
+            sw.append( fmt::format( "block {}\n", i ) );
           sw.write_deferred();
           sw.flush_close();
         }
         Clib::StreamWriter::set_deferred_budget( 0 );
-        return before + "|" + file_text( "deferred.txt" );
+        return file_text( "deferred.txt" );
       },
-      std::string( "|first\nsecond\n" ), "a deferred writer holds its text until write_deferred" );
+      every_block, "a deferred writer writes its blocks in the order it was handed them" );
 
-  // A budget too small for what is handed over is what a shard owner will actually set, so the
-  // eviction path matters as much as the holding one.
+  // A budget nowhere near what is handed over: every append after the first has to wait for the
+  // writer to make room, and the file still has to come out whole and in order.
   UnitTest(
       [&]()
       {
         Clib::StreamWriter::set_deferred_budget( 8 );
-        std::string over_budget;
         {
-          Clib::StreamWriter sw( testdir_file( "evicted.txt" ) );
+          Clib::StreamWriter sw( testdir_file( "backpressure.txt" ) );
           sw.defer_writes();
-          sw.append( "aaaaaaaaaa\n" );
-          sw.append( "bbbbbbbbbb\n" );
-          sw.append( "cccccccccc\n" );
-          over_budget = file_text( "evicted.txt" );
+          for ( int i = 0; i < BLOCKS; ++i )
+            sw.append( fmt::format( "block {}\n", i ) );
           sw.write_deferred();
           sw.flush_close();
         }
         Clib::StreamWriter::set_deferred_budget( 0 );
-        return over_budget + "|" + file_text( "evicted.txt" );
+        return file_text( "backpressure.txt" );
       },
-      std::string( "aaaaaaaaaa\nbbbbbbbbbb\n|aaaaaaaaaa\nbbbbbbbbbb\ncccccccccc\n" ),
-      "over the budget the oldest deferred block is written first" );
+      every_block, "a budget below the text still writes every block in order" );
+
+  // The other half of that: a budget that covers everything must never make a thread wait, which
+  // is the whole claim the option rests on.
+  UnitTest(
+      [&]()
+      {
+        Clib::StreamWriter::set_deferred_budget( 1 << 20 );
+        {
+          Clib::StreamWriter sw( testdir_file( "unstalled.txt" ) );
+          sw.defer_writes();
+          for ( int i = 0; i < BLOCKS; ++i )
+            sw.append( fmt::format( "block {}\n", i ) );
+          sw.write_deferred();
+          sw.flush_close();
+        }
+        const auto stalled = Clib::StreamWriter::deferred_stall_us();
+        Clib::StreamWriter::set_deferred_budget( 0 );
+        return stalled;
+      },
+      s64( 0 ), "a budget above the text never stalls an appending thread" );
+
+  // Both ways into one file, which is the shape write_gotten_items() gives items.txt: buffered
+  // add() calls and whole blocks handed to append(), interleaved. A buffered tail written straight
+  // to the file would land ahead of blocks still queued for it.
+  UnitTest(
+      [&]()
+      {
+        Clib::StreamWriter::set_deferred_budget( 1 << 20 );
+        {
+          Clib::StreamWriter sw( testdir_file( "deferred_mixed.txt" ) );
+          sw.defer_writes();
+          sw.begin( "Element" );
+          sw.add<"Key">( "value" );
+          sw.end();
+          sw.append( "APPENDED\n" );
+          sw.begin( "Second" );
+          sw.end();
+          sw.write_deferred();
+          sw.flush_close();
+        }
+        Clib::StreamWriter::set_deferred_budget( 0 );
+        return file_text( "deferred_mixed.txt" );
+      },
+      std::string( "Element\n{\n\tKey\tvalue\n}\n\n"
+                   "APPENDED\n"
+                   "Second\n{\n}\n\n" ),
+      "a deferred file keeps buffered and appended text in order" );
 
   // bytes_written() is what the save reports per file, counted when the file is handed the block
-  // rather than when it reaches the disk.
+  // rather than when its writer reaches the disk.
   UnitTest(
       [&]()
       {
