@@ -2,9 +2,24 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>08-23-2026</datemodified>
+		<datemodified>09-03-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-03-2026</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">uo::Distance() returned 65535 for the contents of a container opened with<br/>
+uo::SendOpenSpecialContainer(), a bank box for instance. It is 0 again.</change>
+			<change type="Fixed">uo::DistanceEuclidean() ignored realms, so two objects in different realms<br/>
+measured as if they stood in the same one, and one standing nowhere measured<br/>
+from (0,0). It now answers as uo::Distance() does, 65535 when there is nothing<br/>
+to measure between the two.</change>
+			<change type="Fixed">both reported an item held on a cursor as impossibly far from the character<br/>
+holding it.</change>
+			<change type="Fixed">uo::GetRegionName() crashed the server when handed an object standing in no<br/>
+realm - one in a storage area, on a cursor, or a worn container. It returns an<br/>
+error now.</change>
+		</entry>
 		<entry>
 			<date>08-23-2026</date>
 			<author>AsYlum:</author>

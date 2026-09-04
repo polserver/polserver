@@ -1250,6 +1250,61 @@ exported function gotten_item_is_saved()
   return res;
 endfunction
 
+// An item on a cursor keeps no coordinates of its own -- toplevel_owner() stops short of the
+// character holding it -- while standing exactly where that character does.
+exported function gotten_item_stands_with_holder()
+  var item := CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return ret_error( $"Could not create item: {item}" );
+  endif
+
+  item.movable := 1;
+
+  var err;
+  if ( !lift_item_succeeded( err, item.serial ) )
+    destroy_lifted_item( item );
+    return err;
+  endif
+
+  var res := 1;
+  do
+    var pol := Distance( char, item );
+    if ( pol != 0 )
+      res := ret_error( $"Distance to a gotten item: {pol}, expected 0" );
+      break;
+    endif
+    // reversed, because a script may name the character second
+    pol := Distance( item, char );
+    if ( pol != 0 )
+      res := ret_error( $"Distance from a gotten item: {pol}, expected 0" );
+      break;
+    endif
+
+    var euclid := DistanceEuclidean( char, item );
+    if ( euclid > 0.0001 or euclid < -0.0001 )
+      res := ret_error( $"DistanceEuclidean to a gotten item: {euclid}, expected 0.0" );
+      break;
+    endif
+
+    // The holder stands in a region, so the item does too.
+    var item_region := GetRegionName( item );
+    var char_region := GetRegionName( char );
+    if ( item_region != char_region )
+      res := ret_error( $"Region of a gotten item: '{item_region}', expected its holder's "
+                        + $"'{char_region}'" );
+    endif
+  dowhile ( false );
+
+  if ( res == 1 )
+    if ( !drop_item_succeeded( err, item.serial, 0xFF, 0xFF, 0, char.backpack.serial ) )
+      res := err;
+    endif
+  endif
+
+  destroy_lifted_item( item );
+  return res;
+endfunction
+
 // A corpse renders what its owner wore at death. UO has no "move within a container", so dragging
 // one of those items to another spot in the loot window is a lift and a drop like any other -- and
 // the corpse has to still be wearing it afterwards.

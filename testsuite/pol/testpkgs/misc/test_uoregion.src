@@ -1,5 +1,6 @@
 use uo;
 use os;
+use storage;
 
 include "testutil";
 
@@ -9,6 +10,9 @@ include "testutil";
 const JR_X := 134;
 const JR_Y := 134;
 const JR_NAME := "TestJustice";
+
+// What the object form answers for something that stands in no realm at all.
+const NO_POSITION_ERROR := "Object has no position in the world";
 
 // Well outside it, where the background region the core builds for itself
 // applies. That one comes from an empty config element, so its name is the
@@ -55,12 +59,9 @@ function region_pc()
   return pc;
 endfunction
 
-// GetRegionName reaches the justice region three different ways depending on
-// what it is handed, because UObject::isa is exact class equality: an item is
-// resolved through its top level owner, a player character through its own
-// position (or its client's cached region while logged in), and anything else --
-// an NPC is CLASS_NPC, a container is CLASS_CONTAINER -- straight from where it
-// stands.
+// GetRegionName reaches the justice region two different ways depending on what
+// it is handed: a mobile through its own position, or its client's cached region
+// while it is logged in, and anything else through whatever ultimately holds it.
 exported function region_name_of_objects( resmngr )
   var npc := resmngr.CreateNPCFromTemplate( ":TestNPC:probe_npc", JR_X, JR_Y, 0, 0, _DEFAULT_REALM,
                                             1 );
@@ -102,6 +103,54 @@ exported function region_name_of_objects( resmngr )
   endif
 
   return 1;
+endfunction
+
+// A region is a painted patch of one realm, so only something standing in one
+// has a region to report. A storage root has no coordinates, and nor has
+// anything inside it.
+exported function region_name_without_position( unused resmngr )
+  var area := FindStorageArea( "uoregion" );
+  if ( !area )
+    area := CreateStorageArea( "uoregion" );
+    if ( !area )
+      return ret_error( $"could not make the storage area: {area}" );
+    endif
+  endif
+
+  var root := CreateRootItemInStorageArea( area, "regionbox", 0xE75 );
+  if ( !root )
+    return ret_error( $"could not make the root item: {root}" );
+  endif
+
+  var coin := CreateItemInContainer( root, 0x0eed, 1 );
+
+  var res := 1;
+  do
+    if ( !coin )
+      res := ret_error( $"could not make the contents: {coin}" );
+      break;
+    endif
+
+    // The exact message matters: the background region's empty name is falsy
+    // just like an error, and so is the error a lookup off the painted range
+    // answers with.
+    var name := GetRegionName( root );
+    if ( name.errortext != NO_POSITION_ERROR )
+      res := ret_error( $"expected '{NO_POSITION_ERROR}' for a storage root, got '{name}'" );
+      break;
+    endif
+
+    name := GetRegionName( coin );
+    if ( name.errortext != NO_POSITION_ERROR )
+      res := ret_error( $"expected '{NO_POSITION_ERROR}' for its contents, got '{name}'" );
+    endif
+  dowhile ( false );
+
+  if ( coin )
+    DestroyItem( coin );
+  endif
+  DestroyRootItemInStorageArea( area, "regionbox" );
+  return res;
 endfunction
 
 // The by-location form needs no object at all, and answers the background

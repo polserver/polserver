@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>08/23/2026</datemodified>
+    <datemodified>09/03/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -518,9 +518,11 @@ endif</code></explain>
 <function name="GetRegionName">
   <prototype>GetRegionName( object )</prototype>
   <parameter name="object" value="top level UObject (item/character/npc/etc)" />
-  <explain>Get name of [justice] region that Object is in.</explain>
+  <explain>Get name of [justice] region that Object is in. An item is resolved through whatever holds it, and one on a cursor through the character holding it.</explain>
+  <explain>Notes: An object standing in no realm, in a storage area for instance, has no region and gets an error.</explain>
   <return>String value of "Region Name" on success</return>
   <error>"Invalid Parameter"</error>
+  <error>"Object has no position in the world"</error>
   <error>"No Region defined at this Location"</error>
   <relatedcfg>regions.cfg</relatedcfg>
 </function>
@@ -1406,6 +1408,8 @@ endprogram</code>
         uses the world-position of its ultimate-parent container. </explain>
   <explain>Notes: This distance is defined as the greater of the x-distance and the y-distance. z-distance 
        is not taken into account.  (This is neither Pythagorean distance nor Manhattan distance) </explain>
+  <explain>Notes: Two objects with nothing to measure between them are 65535 apart - different realms, or one of them standing nowhere at all, such as in a storage area. Objects sharing a holder are 0 apart, and an item on a cursor is measured from the character holding it. </explain>
+  <explain>Notes: The contents of a container shown with SendOpenSpecialContainer(), a bank box for instance, are 0 away from that character until they move, as Accessible() also reports. A container standing in the world is measured normally. </explain>
   <return>Integer - calculated distance on success</return>
   <error>"Invalid parameter type"</error>
   <related>UObject</related>
@@ -3157,7 +3161,8 @@ const CHARPROFILE_NO_EDITABLE_TEXT := array;</code></explain>
   <parameter name="obj2" value="UObject Reference" />
   <explain>Determines the distance between two objects.  If either object is in a container, 
         uses the world-position of its ultimate-parent container. </explain>
-  <explain>Notes: This distance is defined as sqrt(pow(object1.x-object2.x,2)+pow(object1.y-object2.y,2)) </explain>
+  <explain>Notes: This distance is the straight line between the two positions, so it agrees with Distance() only along the axes. </explain>
+  <explain>Notes: The special cases are the same as Distance(). </explain>
   <return>Double - calculated distance on success</return>
   <error>"Invalid parameter type"</error>
   <related>UObject</related>

@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+09-03-2026 AsYlum:
+    Fixed: uo::Distance() returned 65535 for the contents of a container opened with
+           uo::SendOpenSpecialContainer(), a bank box for instance. It is 0 again.
+    Fixed: uo::DistanceEuclidean() ignored realms, so two objects in different realms
+           measured as if they stood in the same one, and one standing nowhere measured
+           from (0,0). It now answers as uo::Distance() does, 65535 when there is nothing
+           to measure between the two.
+    Fixed: both reported an item held on a cursor as impossibly far from the character
+           holding it.
+    Fixed: uo::GetRegionName() crashed the server when handed an object standing in no
+           realm - one in a storage area, on a cursor, or a worn container. It returns an
+           error now.
 08-23-2026 AsYlum:
     Fixed: uo::Accessible() returned 0 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance.
