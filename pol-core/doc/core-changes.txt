@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+09-05-2026 Turley:
+    Fixed: inconsistency of ghost speech
+    Fixed: client.clientinfo it was partially garbage
+    Fixed: a one byte packet (0xFA) disconnected the client on some platforms
 09-05-2026 Ins:
     Fixed: an AOS tooltip with more than 65535 characters of text could shut the shard
            down, since the length was narrowed to 16 bits before the range check. A
@@ -15,10 +19,6 @@
     Fixed: uo::GetRegionName() crashed the server when handed an object standing in no
            realm - one in a storage area, on a cursor, or a worn container. It returns an
            error now.
-08-23-2026 Turley:
-    Fixed: inconsistency of ghost speech
-    Fixed: client.clientinfo it was partially garbage
-    Fixed: a one byte packet (0xFA) disconnected the client on some platforms
 08-23-2026 AsYlum:
     Fixed: uo::Accessible() returned 0 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance.

@@ -7,6 +7,13 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>09-05-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">inconsistency of ghost speech</change>
+			<change type="Fixed">client.clientinfo it was partially garbage</change>
+			<change type="Fixed">a one byte packet (0xFA) disconnected the client on some platforms</change>
+		</entry>
+		<entry>
+			<date>09-05-2026</date>
 			<author>Ins:</author>
 			<change type="Fixed">an AOS tooltip with more than 65535 characters of text could shut the shard<br/>
 down, since the length was narrowed to 16 bits before the range check. A<br/>
@@ -26,13 +33,6 @@ holding it.</change>
 			<change type="Fixed">uo::GetRegionName() crashed the server when handed an object standing in no<br/>
 realm - one in a storage area, on a cursor, or a worn container. It returns an<br/>
 error now.</change>
-		</entry>
-		<entry>
-			<date>08-23-2026</date>
-			<author>Turley:</author>
-			<change type="Fixed">inconsistency of ghost speech</change>
-			<change type="Fixed">client.clientinfo it was partially garbage</change>
-			<change type="Fixed">a one byte packet (0xFA) disconnected the client on some platforms</change>
 		</entry>
 		<entry>
 			<date>08-23-2026</date>
