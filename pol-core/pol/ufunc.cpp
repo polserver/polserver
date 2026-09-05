@@ -1739,6 +1739,30 @@ void update_lightregion( Client* client, LightRegion* /*lightregion*/ )
   client->chr->check_light_region_change();
 }
 
+// Expires a lapsed personal lightoverride, then reports whether the client's
+// weather region owns its light - sending the region's level if the client had
+// drifted off it, which a just-expired override leaves behind.
+bool weather_region_owns_light( Client* client )
+{
+  auto light_until = client->chr->lightoverride_until();
+  if ( light_until < read_gameclock() && light_until != ~0u )
+  {
+    client->chr->lightoverride_until( 0 );
+    client->chr->lightoverride( -1 );
+  }
+
+  if ( client->gd->weather_region == nullptr || client->gd->weather_region->lightoverride == -1 ||
+       client->chr->has_lightoverride() )
+    return false;
+
+  if ( client->gd->lightlevel != client->gd->weather_region->lightoverride )
+  {
+    send_light( client, client->gd->weather_region->lightoverride );
+    client->gd->lightlevel = client->gd->weather_region->lightoverride;
+  }
+  return true;
+}
+
 void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
 {
   lightregion->lightlevel = lightlevel;
@@ -1749,15 +1773,7 @@ void SetRegionLightLevel( LightRegion* lightregion, int lightlevel )
     if ( !client->ready )
       continue;
 
-    auto light_until = client->chr->lightoverride_until();
-    if ( light_until < read_gameclock() && light_until != ~0u )
-    {
-      client->chr->lightoverride_until( 0 );
-      client->chr->lightoverride( -1 );
-    }
-
-    if ( client->gd->weather_region && client->gd->weather_region->lightoverride != -1 &&
-         !client->chr->has_lightoverride() )
+    if ( weather_region_owns_light( client ) )
       continue;
 
     int newlightlevel;
@@ -1798,7 +1814,9 @@ void update_weatherregion( Client* client, WeatherRegion* weatherregion )
   if ( !client->ready )
     return;
 
-  if ( client->gd->weather_region == weatherregion )
+  // A client with no remembered region needs it too: the forced call looks the
+  // region up from pos(), and nulling is how a reset marks itself.
+  if ( client->gd->weather_region == weatherregion || client->gd->weather_region == nullptr )
   {
     // client->gd->weather_region = nullptr;  //dave commented this out 5/26/03, causing no
     // processing to happen in following function, added force bool instead.
@@ -2130,11 +2148,7 @@ void send_season_info( Client* client )
     msg.Send( client );
 
     // Sending Season info resets light level in client, this fixes it during login
-    if ( client->gd->weather_region != nullptr && client->gd->weather_region->lightoverride != -1 &&
-         !client->chr->has_lightoverride() )
-    {
-      send_light( client, client->gd->weather_region->lightoverride );
-    }
+    send_light( client, client->gd->lightlevel );
   }
 }
 

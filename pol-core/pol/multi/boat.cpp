@@ -827,7 +827,8 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
   chr->position_changed();
   if ( chr->has_active_client() )
   {
-    if ( oldpos.realm() != chr->stored_realm() )
+    bool crossed_realms = ( oldpos.realm() != chr->stored_realm() );
+    if ( crossed_realms )
     {
       Core::send_new_subserver( chr->client );
       Core::send_owncreate( chr->client, chr );
@@ -849,6 +850,11 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
       // should be consolidated.
       Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
     }
+
+    // Below the goxyz above, which would undo it. Forced, because an unpainted
+    // zone in either realm is the same background region.
+    if ( crossed_realms )
+      chr->check_weather_region_change( true );
   }
   chr->move_reason = Mobile::Character::MULTIMOVE;
   // multis are visible before a client accepts objects, we need to resend them

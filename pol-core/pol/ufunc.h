@@ -129,6 +129,8 @@ void remove_objects_inrange( Network::Client* client );
 
 void send_goxyz( Network::Client* client, const Mobile::Character* chr );
 void send_light( Network::Client* client, int lightlevel );
+// Expires a lapsed lightoverride and may send a light packet; see ufunc.cpp.
+bool weather_region_owns_light( Network::Client* client );
 void send_weather( Network::Client* client, unsigned char type, unsigned char severity,
                    unsigned char aux );
 void send_mode( Network::Client* client );
