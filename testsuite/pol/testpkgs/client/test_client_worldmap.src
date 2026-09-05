@@ -1,0 +1,222 @@
+use os;
+use uo;
+use polsys;
+
+include "party";
+include "guild";
+include "guildutil";
+include "clientpkt";
+
+// The worldmap query: the packet the enhanced clients send to find out where the rest of their
+// party or guild is, so it can be drawn on the map. It is off by default and answers nothing at
+// all until the shard turns it on.
+//
+// The two lists are not built the same way. A party list is positions only and leaves out anyone
+// the asking character can already see, since the client is drawing those itself. A guild list
+// says whether it carries positions, and only leaves out what can be seen when it does.
+
+program worldmaptests()
+  return guild_setup();
+endprogram
+
+// Sends one worldmap query: the subcommand, and for the guild one a flag saying whether the
+// answer should carry positions. The party form of the query has no such field.
+function f0( sub, locations := -1 )
+  var packet := struct{ packet := "worldmap", sub := sub };
+  if ( locations >= 0 )
+    packet.+locations := locations;
+  endif
+  return send_client_packet( clientcon, 0, packet );
+endfunction
+
+// Sends a query and waits for the list it is answered with.
+function query( sub, locations := -1 )
+  drain_events();
+  var res := f0( sub, locations );
+  if ( !res )
+    return res;
+  endif
+  var ev := waitForClient( 0, { EVT_WORLDMAP } );
+  if ( !ev )
+    return ret_error( $"the client was sent no worldmap list for subcommand {sub}" );
+  endif
+  return ev;
+endfunction
+
+// Sends a query the shard has nothing to answer with and asserts it stays quiet.
+function query_is_ignored( sub, locations := -1 )
+  drain_events();
+  var res := f0( sub, locations );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_WORLDMAP )
+      return ret_error( $"subcommand {sub} was answered with {ev.members.size()} members" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// Puts the second character where the first cannot see it, and back. A member that can be seen
+// is left out of a party list, so which of the two it is decides what the answer holds.
+function put_char2_away()
+  MoveObjectToLocation( char2, 160, 120, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 1 );
+endfunction
+
+function bring_char2_back()
+  MoveObjectToLocation( char2, CHAR2_X, CHAR2_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 1 );
+endfunction
+
+exported function worldmap_off_by_default()
+  // The shard default is off, and then even a party with somebody out of sight answers nothing.
+  var res := build_party();
+  if ( !res )
+    return party_finish( res );
+  endif
+  res := put_char2_away();
+  if ( !res )
+    return party_finish( res );
+  endif
+  res := query_is_ignored( 0x00 );
+  bring_char2_back();
+  return party_finish( res );
+endfunction
+
+exported function worldmap_party_list( resmgr )
+  var res := resmgr.UpdateConfiguration( struct{ EnableWorldMapPackets := 1 } );
+  if ( !res )
+    return res;
+  endif
+  res := build_party();
+  if ( !res )
+    return party_finish( res );
+  endif
+  res := put_char2_away();
+  if ( !res )
+    return party_finish( res );
+  endif
+
+  var ev := query( 0x00 );
+  if ( !ev )
+    bring_char2_back();
+    return party_finish( ev );
+  endif
+  if ( CInt( ev.subcmd ) != WORLDMAP_PARTY )
+    bring_char2_back();
+    return party_finish( ret_error( $"the answer came as subcommand {ev.subcmd}" ) );
+  endif
+  if ( ev.members.size() != 1 )
+    bring_char2_back();
+    return party_finish( ret_error( $"the party list holds {ev.members.size()} members" ) );
+  endif
+  var member := ev.members[1];
+  if ( CInt( member.serial ) != char2.serial )
+    bring_char2_back();
+    return party_finish( ret_error( $"the list names 0x{member.serial:x}" ) );
+  endif
+  if ( CInt( member.x ) != char2.x or CInt( member.y ) != char2.y )
+    bring_char2_back();
+    return party_finish( ret_error( $"the list puts it at {member.x},{member.y}" ) );
+  endif
+
+  // With the member back in sight there is nothing left to draw, and a list with nobody in it is
+  // not sent at all.
+  res := bring_char2_back();
+  if ( !res )
+    return party_finish( res );
+  endif
+  res := query_is_ignored( 0x00 );
+  return party_finish( res );
+endfunction
+
+exported function worldmap_party_needs_a_party( resmgr )
+  // Somebody in no party at all is answered with nothing rather than with an empty list.
+  var res := resmgr.UpdateConfiguration( struct{ EnableWorldMapPackets := 1 } );
+  if ( !res )
+    return res;
+  endif
+  res := disband_parties();
+  if ( !res )
+    return res;
+  endif
+  return query_is_ignored( 0x00 );
+endfunction
+
+exported function worldmap_guild_list( resmgr )
+  var res := resmgr.UpdateConfiguration( struct{ EnableWorldMapPackets := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var guild := guild_of( "TestWorldmap", { char, char2 } );
+  if ( !guild )
+    return guild_finish( guild );
+  endif
+
+  // Asked without positions, the list is serials alone - and holds a member that is standing in
+  // plain sight, because only a list with positions in it leaves those out.
+  var ev := query( 0x01, 0 );
+  if ( !ev )
+    return guild_finish( ev );
+  endif
+  if ( CInt( ev.subcmd ) != WORLDMAP_GUILD )
+    return guild_finish( ret_error( $"the answer came as subcommand {ev.subcmd}" ) );
+  endif
+  if ( CInt( ev.locations ) )
+    return guild_finish( ret_error( "positions came back although none were asked for" ) );
+  endif
+  if ( ev.members.size() != 1 or CInt( ev.members[1].serial ) != char2.serial )
+    return guild_finish( ret_error( $"the guild list holds {ev.members}" ) );
+  endif
+
+  // Asked with positions, the same member in sight is left out.
+  var res2 := query_is_ignored( 0x01, 1 );
+  if ( !res2 )
+    return guild_finish( res2 );
+  endif
+
+  // Out of sight it comes back, with where it is and how it is doing.
+  res2 := put_char2_away();
+  if ( !res2 )
+    return guild_finish( res2 );
+  endif
+  ev := query( 0x01, 1 );
+  if ( !ev )
+    bring_char2_back();
+    return guild_finish( ev );
+  endif
+  if ( !CInt( ev.locations ) or ev.members.size() != 1 )
+    bring_char2_back();
+    return guild_finish( ret_error( $"the guild list holds {ev.members}" ) );
+  endif
+  var member := ev.members[1];
+  if ( CInt( member.x ) != char2.x or CInt( member.y ) != char2.y )
+    bring_char2_back();
+    return guild_finish( ret_error( $"the list puts it at {member.x},{member.y}" ) );
+  endif
+  // a live member is reported as a percentage of its hit points
+  if ( CInt( member.hits ) <= 0 or CInt( member.hits ) > 100 )
+    bring_char2_back();
+    return guild_finish( ret_error( $"the list says it is at {member.hits}%" ) );
+  endif
+
+  res2 := bring_char2_back();
+  return guild_finish( res2 );
+endfunction
+
+exported function worldmap_guild_needs_a_guild( resmgr )
+  // Somebody in no guild is answered with nothing.
+  var res := resmgr.UpdateConfiguration( struct{ EnableWorldMapPackets := 1 } );
+  if ( !res )
+    return res;
+  endif
+  res := drop_guilds();
+  if ( !res )
+    return res;
+  endif
+  return query_is_ignored( 0x01, 1 );
+endfunction

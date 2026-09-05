@@ -10,7 +10,7 @@ program test_custom_house()
 endprogram
 
 exported function test_customhouse_custom( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -29,7 +29,7 @@ exported function test_customhouse_custom( resources )
 endfunction
 
 exported function test_customhouse_parts( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -50,7 +50,7 @@ function find_part( multi, graphic, xoffset, yoffset, z )
 endfunction
 
 exported function test_customhouse_addpart( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -86,7 +86,7 @@ exported function test_customhouse_addpart( resources )
 endfunction
 
 exported function test_customhouse_addparts( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -126,7 +126,7 @@ exported function test_customhouse_addparts( resources )
 endfunction
 
 exported function test_customhouse_addparts_fail( resources )
-  var multi := ResourceManager::CreateMultiAtLocation( resources, 100, 75, 0, 0x12002 );
+  var multi := resources.CreateMultiAtLocation( 100, 75, 0, 0x12002 );
   if ( !multi )
     return multi;
   endif
@@ -209,4 +209,3 @@ exported function test_customhouse_addparts_fail( resources )
   endif
   return 1;
 endfunction
-

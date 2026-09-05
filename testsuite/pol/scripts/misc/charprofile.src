@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+// The core starts this when a client asks for a character profile, or writes one back. It is
+// handed the character that asked, the mobile the request is about, which of the two it was, and
+// the new text of an update. Everything it knows is answered to the asking character, which is
+// how a test sees the request arrived and what it carried.
+
+program charprofile( who, mobile, mode, text )
+  SendSysMessage( who, $"charprofile [{mode}] [0x{mobile.serial:x}] [{text}]" );
+endprogram

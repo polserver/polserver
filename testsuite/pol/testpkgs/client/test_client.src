@@ -3,6 +3,7 @@ use uo;
 
 include "testutil";
 include "communication";
+include "clientpkt";
 
 var char;
 var char2;
@@ -256,29 +257,32 @@ exported function aos_tooltip()
   char.title_race := "";
   char.title_guild := "";
   // get tooltip via 0xd6
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "tooltips", serials := { char.serial }
+                                    }, wait := 0 );
   var res := waitAndTest( "char", 1050045, " \tClient0\t " );
   if ( !res )
     return res;
   endif
   // get tooltip via 0xbf 0x10
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP,
-                               arg := { char.backpack.serial, False },
-                               id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "object_cache",
+                                            serial := char.backpack.serial },
+                      wait := 0 );
   res := waitAndTest( "backpack", 1042971, "back pack" );
   if ( !res )
     return res;
   endif
   char.title_prefix := "title_prefix";
   char.title_suffix := "title_suffix";
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "tooltips", serials := { char.serial }
+                                    }, wait := 0 );
   res := waitAndTest( "char prefix,suffix", 1050045, "title_prefix \tClient0\t title_suffix" );
   if ( !res )
     return res;
   endif
   char.title_race := "title_race";
   char.title_guild := "title_guild";
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "tooltips", serials := { char.serial }
+                                    }, wait := 0 );
   res := waitAndTest( "char prefix,suffix,race,guild", 1050045,
                       "title_prefix \tClient0\t title_suffix (title_race) [title_guild]" );
   if ( !res )
@@ -288,7 +292,8 @@ exported function aos_tooltip()
   char.title_suffix := "";
   char.title_race := "";
   char.title_guild := "title_guild";
-  clientcon.sendevent( struct{ todo := EVT_AOS_TOOLTIP, arg := { char.serial, True }, id := 0 } );
+  send_client_packet( clientcon, 0, struct{ packet := "tooltips", serials := { char.serial }
+                                    }, wait := 0 );
   res := waitAndTest( "char guild", 1050045, " \tClient0\t [title_guild]" );
   if ( !res )
     return res;

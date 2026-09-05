@@ -294,21 +294,20 @@ void textcmd_repdata( Network::Client* client )
 
 void start_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
-  if ( mob->connected() )  // gotta be connected to get packets right?
+  if ( !mob->has_active_client() )
+    return;
+  auto res = mob->client->start_log();
+  if ( res == Network::PacketLog::Success )
   {
-    auto res = mob->client->start_log();
-    if ( res == Network::PacketLog::Success )
-    {
-      send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
-    }
-    else if ( res == Network::PacketLog::Unchanged )
-    {
-      send_sysmessage( looker->client, "I/O log was already open for " + mob->name() );
-    }
-    else
-    {
-      send_sysmessage( looker->client, "Unable to open I/O log file for " + mob->name() );
-    }
+    send_sysmessage( looker->client, "I/O log file opened for " + mob->name() );
+  }
+  else if ( res == Network::PacketLog::Unchanged )
+  {
+    send_sysmessage( looker->client, "I/O log was already open for " + mob->name() );
+  }
+  else
+  {
+    send_sysmessage( looker->client, "Unable to open I/O log file for " + mob->name() );
   }
 }
 
@@ -339,17 +338,16 @@ void textcmd_startlog( Network::Client* client )
 
 void stop_packetlog( Mobile::Character* looker, Mobile::Character* mob )
 {
-  if ( mob->connected() )  // gotta be connected to already have packets right?
+  if ( !mob->has_active_client() )
+    return;
+  auto res = mob->client->stop_log();
+  if ( res == Network::PacketLog::Success )
   {
-    auto res = mob->client->stop_log();
-    if ( res == Network::PacketLog::Success )
-    {
-      send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
-    }
-    else
-    {
-      send_sysmessage( looker->client, "Packet Logging not enabled for " + mob->name() );
-    }
+    send_sysmessage( looker->client, "I/O log file closed for " + mob->name() );
+  }
+  else
+  {
+    send_sysmessage( looker->client, "Packet Logging not enabled for " + mob->name() );
   }
 }
 

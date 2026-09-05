@@ -9,7 +9,7 @@ if(testemail)
     COMMAND_ECHO STDOUT
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     RESULT_VARIABLE res
-    TIMEOUT 600
+    TIMEOUT 900
   )
 else()
   execute_process(
@@ -20,7 +20,7 @@ else()
     COMMAND_ECHO STDOUT
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     RESULT_VARIABLE res
-    TIMEOUT 600
+    TIMEOUT 900
   )
 endif()
 if(NOT "${res}" STREQUAL "0")

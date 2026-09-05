@@ -64,6 +64,8 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   }
   chr->last_textcolor( textcol );
 
+  u16 textfont = cfBEu16( font );
+
   if ( s_text[0] == '.' || s_text[0] == '=' )
   {
     if ( !process_command( client, s_text ) )
@@ -98,7 +100,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
   talkmsg->WriteFlipped<u16>( chr->graphic );
   talkmsg->Write<u8>( type );  // FIXME authorize
   talkmsg->WriteFlipped<u16>( textcol );
-  talkmsg->WriteFlipped<u16>( font );
+  talkmsg->WriteFlipped<u16>( textfont );
   talkmsg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30 );
   talkmsg->Write( convertedText.c_str(), textlen );
   u16 len = talkmsg->offset;
@@ -112,7 +114,7 @@ void handle_processed_speech( Network::Client* client, const std::string& text, 
     memcpy( &ghostmsg->buffer, &talkmsg->buffer, sizeof ghostmsg->buffer );
     ghostmsg->offset = 44;
     char* t = &ghostmsg->buffer[ghostmsg->offset];
-    while ( ghostmsg->offset < len )
+    while ( ghostmsg->offset < len - 1 )
     {
       if ( !isspace( *t ) )
       {
@@ -219,6 +221,8 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
     textcol = 1001;
   }
 
+  u16 textfont = cfBEu16( msgin->font );
+
   Mobile::Character* chr = client->chr;
 
   chr->last_textcolor( textcol );
@@ -258,7 +262,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
   talkmsg->WriteFlipped<u16>( chr->graphic );
   talkmsg->Write<u8>( msgin->type );  // FIXME authorize
   talkmsg->WriteFlipped<u16>( textcol );
-  talkmsg->WriteFlipped<u16>( msgin->font );
+  talkmsg->WriteFlipped<u16>( textfont );
   talkmsg->Write( msgin->lang, 4 );
   talkmsg->Write( Clib::strUtf8ToCp1252( chr->name() ).c_str(), 30 );
 
@@ -315,7 +319,7 @@ void SendUnicodeSpeech( Network::Client* client, PKTIN_AD* msgin, const std::str
       u16* t = ( (u16*)&ghostmsg->buffer[ghostmsg->offset] );
       while ( ghostmsg->offset < len - 2 )  // dont convert nullterm
       {
-        wchar_t wch = ( *t );
+        wchar_t wch = cfBEu16( *t );
         if ( !iswspace( wch ) )
         {
           if ( Clib::random_int( 3 ) == 0 )

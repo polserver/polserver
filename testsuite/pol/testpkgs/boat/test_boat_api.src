@@ -1,0 +1,107 @@
+use boat;
+use os;
+use uo;
+
+include "testutil";
+
+// The three free functions of boat.em that take or hand back a boat, as opposed to the methods on
+// the boat object itself. Nothing else in the suite calls them.
+
+const SMALL_BOAT := 0x11000;
+
+// open water, clear of the boats the other files make
+const BOAT_X := 10;
+const BOAT_Y := 74;
+const BOAT_Z := -4;
+
+program testboatapi()
+  return 1;
+endprogram
+
+function make_boat( resmngr, objtype := SMALL_BOAT )
+  return resmngr.CreateMultiAtLocation( BOAT_X, BOAT_Y, BOAT_Z, objtype, CRMULTI_FACING_EAST );
+endfunction
+
+exported function boatapi_from_item( resmngr )
+  // BoatFromItem turns an item that is a multi back into a boat. Its parameter check is an exact
+  // type compare - getItemParam accepts an item reference and nothing else - so a boat or a house
+  // obtained the ordinary way is refused before the multi check is ever reached. What a script can
+  // reach is the refusals.
+  var boat := make_boat( resmngr );
+  if ( !boat )
+    return boat;
+  endif
+
+  // a boat object is not an item reference, whatever it is in the world
+  var res := BoatFromItem( boat );
+  if ( res )
+    return ret_error( "a boat object was accepted as an item" );
+  endif
+  if ( res.errortext != "Invalid parameter type." )
+    return ret_error( $"a boat object was refused with: {res.errortext}" );
+  endif
+
+  // an ordinary item is an item reference, and is no multi
+  var it := resmngr.CreateItemAtLocation( 100, 79, 0, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  res := BoatFromItem( it );
+  if ( res )
+    return ret_error( "an item was taken for a boat" );
+  endif
+  if ( res.errortext != "Item wasn't a multi" )
+    return ret_error( $"an item was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function boatapi_find_by_serial( resmngr )
+  // The serial of a boat finds it; anything else is refused.
+  var boat := make_boat( resmngr );
+  if ( !boat )
+    return boat;
+  endif
+
+  var found := SystemFindBoatBySerial( boat.serial );
+  if ( !found )
+    return ret_error( $"the boat was not found by its own serial: {found}" );
+  endif
+  if ( found.serial != boat.serial )
+    return ret_error( $"found 0x{found.serial:x}, expected 0x{boat.serial:x}" );
+  endif
+
+  var res := SystemFindBoatBySerial( 0x7FFFFFF0 );
+  if ( res )
+    return ret_error( "a serial nothing has found a boat" );
+  endif
+  return 1;
+endfunction
+
+exported function boatapi_register_item( resmngr )
+  // An item registered with a boat travels with it, the way something standing on deck does,
+  // without having to be on it.
+  var boat := make_boat( resmngr );
+  if ( !boat )
+    return boat;
+  endif
+  var it := resmngr.CreateItemAtLocation( boat.x, boat.y, boat.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+
+  var res := RegisterItemWithBoat( boat, it );
+  if ( !res )
+    return ret_error( $"the item was not registered: {res}" );
+  endif
+
+  var was_x := it.x;
+  res := MoveBoatRelative( boat.serial, 0 );
+  if ( !res )
+    return ret_error( $"the boat would not move: {res}" );
+  endif
+  if ( it.x == was_x )
+    return ret_error( "the registered item stayed behind" );
+  endif
+  return 1;
+endfunction

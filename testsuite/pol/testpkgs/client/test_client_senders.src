@@ -1,0 +1,286 @@
+use os;
+use uo;
+use vitals;
+
+include "testutil";
+include "communication";
+
+// The packets a script sends a client by asking the core for something else: a buff icon, a
+// profile, an item description, a vital level. Each is a function in ufunc.cpp that nothing in
+// the suite reached, and each is only sent to a character with a client attached - which is why
+// the offline characters the other packages use never got near them.
+
+const BUFF_ICON := 0x3EA;
+const BUFF_DURATION := 30;
+const BUFF_NAME_CLILOC := 1075824;
+const BUFF_DESCR_CLILOC := 1075825;
+const BUFF_NAME_ARGS := "buffname";
+const BUFF_DESCR_ARGS := "buffdescr";
+
+const PROFILE_TITLE := "Profile Title";
+const PROFILE_UNEDITABLE := "what nobody may change";
+const PROFILE_EDITABLE := "what the owner may";
+
+const HOME_X := 100;
+const HOME_Y := 50;
+
+var char;
+var char2;
+
+// takes ownership of the client events, which is what puts them in this script's queue
+var clientcon := getClientConnection();
+
+program test_client_senders()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, HOME_X + 1, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Waits for a buff packet about this file's icon.
+function wait_buff( id, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_BUFF or CInt( ev.id ) != id )
+      continue;
+    endif
+    if ( CInt( ev.icon ) != BUFF_ICON )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"client {id} was never told about buff 0x{BUFF_ICON:x}" );
+endfunction
+
+// Collects the packets one buff change sets off, in the order they arrived. Replacing a buff
+// sends two - the icon has to be taken away before it can be put back - and a wait for one of
+// them would throw the other away.
+function collect_buffs( howmany, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var seen := array{};
+  while ( ReadMillisecondClock() < deadline and seen.size() < howmany )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_BUFF or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( CInt( ev.icon ) != BUFF_ICON )
+      continue;
+    endif
+    seen.append( ev );
+  endwhile
+  if ( seen.size() != howmany )
+    return ret_error( $"the client got {seen.size()} buff packets, expected {howmany}" );
+  endif
+  return seen;
+endfunction
+
+// Clears anything this file left on the character, whatever the case made of it.
+function drop_buff( res )
+  char.delbuff( BUFF_ICON );
+  drain_events();
+  return res;
+endfunction
+
+exported function sender_buff_added()
+  // A buff appearing carries everything the client draws it with: the icon twice, how long it
+  // lasts, the two clilocs and the arguments they are filled in with.
+  drain_events();
+  var res := char.addbuff( BUFF_ICON, BUFF_DURATION, BUFF_NAME_CLILOC, BUFF_DESCR_CLILOC,
+                           BUFF_DESCR_ARGS, BUFF_NAME_ARGS );
+  if ( !res )
+    return ret_error( $"the buff was refused: {res}" );
+  endif
+  var ev := wait_buff( 0 );
+  if ( !ev )
+    return drop_buff( ev );
+  endif
+  if ( !CInt( ev.show ) )
+    return drop_buff( ret_error( "the buff arrived as a removal" ) );
+  endif
+  if ( CInt( ev.serial ) != char.serial )
+    return drop_buff( ret_error( $"it was about 0x{ev.serial:x}, expected 0x{char.serial:x}" ) );
+  endif
+  if ( CInt( ev.duration ) != BUFF_DURATION )
+    return drop_buff( ret_error( $"it lasts {ev.duration}, asked for {BUFF_DURATION}" ) );
+  endif
+  if ( CInt( ev.cl_name ) != BUFF_NAME_CLILOC or CInt( ev.cl_descr ) != BUFF_DESCR_CLILOC )
+    return drop_buff( ret_error( $"clilocs {ev.cl_name} and {ev.cl_descr}" ) );
+  endif
+  if ( ev.name_arguments != BUFF_NAME_ARGS or ev.desc_arguments != BUFF_DESCR_ARGS )
+    return drop_buff( ret_error( $"arguments \"{ev.name_arguments}\" and \"{ev.desc_arguments}\"" ) );
+  endif
+  return drop_buff( 1 );
+endfunction
+
+exported function sender_buff_removed()
+  // Taking one away is the short form of the same packet: the icon, and nothing to draw it with.
+  drain_events();
+  var res := char.addbuff( BUFF_ICON, BUFF_DURATION, BUFF_NAME_CLILOC, BUFF_DESCR_CLILOC,
+                           BUFF_DESCR_ARGS );
+  if ( !res )
+    return ret_error( $"the buff was refused: {res}" );
+  endif
+  var ev := wait_buff( 0 );
+  if ( !ev )
+    return drop_buff( ev );
+  endif
+
+  drain_events();
+  res := char.delbuff( BUFF_ICON );
+  if ( !res )
+    return ret_error( $"the buff could not be removed: {res}" );
+  endif
+  ev := wait_buff( 0 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.show ) )
+    return ret_error( "the removal arrived as an addition" );
+  endif
+  if ( CInt( ev.duration ) != 0 )
+    return ret_error( $"a removal carried a duration of {ev.duration}" );
+  endif
+  return 1;
+endfunction
+
+exported function sender_buff_replaced()
+  // The same icon added twice is taken away first, because a client that is already drawing it
+  // does not update on a second one.
+  drain_events();
+  var res := char.addbuff( BUFF_ICON, BUFF_DURATION, BUFF_NAME_CLILOC, BUFF_DESCR_CLILOC,
+                           BUFF_DESCR_ARGS );
+  if ( !res )
+    return ret_error( $"the buff was refused: {res}" );
+  endif
+  var ev := wait_buff( 0 );
+  if ( !ev )
+    return drop_buff( ev );
+  endif
+
+  drain_events();
+  res := char.addbuff( BUFF_ICON, BUFF_DURATION + 5, BUFF_NAME_CLILOC, BUFF_DESCR_CLILOC,
+                       BUFF_DESCR_ARGS );
+  if ( !res )
+    return drop_buff( ret_error( $"the second buff was refused: {res}" ) );
+  endif
+  var both := collect_buffs( 2 );
+  if ( !both )
+    return drop_buff( both );
+  endif
+  if ( CInt( both[1].show ) )
+    return drop_buff( ret_error( "the first packet was not the removal" ) );
+  endif
+  if ( !CInt( both[2].show ) )
+    return drop_buff( ret_error( "the second packet was not the new buff" ) );
+  endif
+  if ( CInt( both[2].duration ) != BUFF_DURATION + 5 )
+    return drop_buff( ret_error( $"the new buff lasts {both[2].duration}" ) );
+  endif
+  return drop_buff( 1 );
+endfunction
+
+exported function sender_char_profile()
+  // A profile is answered to one client and is about whoever it was asked for, which need not be
+  // the character reading it.
+  drain_events();
+  var res := SendCharProfile( char, char2, PROFILE_TITLE, PROFILE_UNEDITABLE, PROFILE_EDITABLE );
+  if ( !res )
+    return ret_error( $"the profile was refused: {res}" );
+  endif
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_CHAR_PROFILE or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( CInt( ev.serial ) != char2.serial )
+      return ret_error( $"the profile was about 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+    endif
+    if ( ev.title != PROFILE_TITLE )
+      return ret_error( $"the title came back as \"{ev.title}\"" );
+    endif
+    if ( ev.utext != PROFILE_UNEDITABLE )
+      return ret_error( $"the uneditable text came back as \"{ev.utext}\"" );
+    endif
+    if ( ev.etext != PROFILE_EDITABLE )
+      return ret_error( $"the editable text came back as \"{ev.etext}\"" );
+    endif
+    return 1;
+  endwhile
+  return ret_error( "the client was never sent a profile" );
+endfunction
+
+exported function sender_objdesc( resmgr )
+  // Single clicking an item answers with its description, said by "System" - the same packet a
+  // client is sent for speech, which is why nothing else was needed to see it.
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"failed to create the item: {it}" );
+  endif
+  it.name := "clicked backpack";
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  drain_events();
+  clientcon.sendevent( struct{ todo := "single_click", arg := it.serial, id := 0 } );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != 0 )
+      continue;
+    endif
+    if ( ev.msg.find( "clicked backpack" ) != 1 )
+      continue;
+    endif
+    if ( ev.name != "System" )
+      return ret_error( $"the description was said by \"{ev.name}\", expected System" );
+    endif
+    return 1;
+  endwhile
+  return ret_error( "the client was never told what it clicked" );
+endfunction
+
+exported function sender_mana_level()
+  // Spending mana on a spell tells the client what it has left. The level is sent only to a
+  // character with a client, which is the whole reason this is reachable from here and nowhere
+  // else in the suite.
+  var was := char.mana;
+  char.mana := char.maxmana;
+  drain_events();
+  var res := ConsumeMana( char, 1 );
+  if ( res == error )
+    char.mana := was;
+    return ret_error( $"the mana could not be consumed: {res}" );
+  endif
+  var deadline := ReadMillisecondClock() + 10000;
+  var seen := 0;
+  while ( ReadMillisecondClock() < deadline and !seen )
+    var ev := Wait_For_Event( 1 );
+    if ( ev and ev.type == EVT_MANA_CHANGED and CInt( ev.id ) == 0 )
+      seen := 1;
+    endif
+  endwhile
+  char.mana := was;
+  if ( !seen )
+    return ret_error( "the client was never told its mana level" );
+  endif
+  return 1;
+endfunction

@@ -1,0 +1,11 @@
+use os;
+use uo;
+
+// A text command script: the core starts it when a client says ".tc_echo", and hands it the
+// character that typed the command, everything typed after the command name, and the language
+// code the client sent its speech in. It answers with what it was given, which is how the test
+// knows all three arrived.
+
+program tc_echo( who, text, langcode )
+  SendSysMessage( who, $"tc_echo [{text}] [{langcode}]" );
+endprogram

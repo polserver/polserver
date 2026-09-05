@@ -1,0 +1,10 @@
+use os;
+use uo;
+
+// The core starts this when a client asks for the context menu of an object. It is handed the
+// character that asked and the object it asked about, and answers that character so a test can
+// see which of the two kinds of object arrived.
+
+program popupmenu( who, obj )
+  SendSysMessage( who, $"popupmenu [0x{obj.serial:x}]" );
+endprogram

@@ -1,0 +1,482 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+include "communication";
+include "clientpkt";
+
+// The message handlers of miscmsg.cpp: what a client asks for with a packet nothing else in the
+// suite sends. The test client knows every one of them - see clientpkt.inc - so a case here names
+// the packet and hands over its fields rather than building bytes of its own.
+//
+// Several of them answer nothing at all and only write to the log. What those cases assert is
+// that the connection survived them: a packet the core reads the wrong number of bytes out of
+// takes the rest of the stream with it, and that shows up as the client going away.
+
+var char;
+var char2;
+var clientcon := getClientConnection();
+
+program miscmsgtests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  a := FindAccount( "testclient1" );
+  char2 := a.getcharacter( 1 );
+  if ( !char2 )
+    return ret_error( "Could not find char2 at slot 1" );
+  endif
+
+  // one at a time: a wait for one client throws away what the other was told
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  var res := wait_for_own_create( 1 );
+  if ( !res )
+    return res;
+  endif
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+// Sends one packet the client knows how to build, named by what it is.
+function client_sends( packet )
+  return send_client_packet( clientcon, 0, packet );
+endfunction
+
+// Waits for a system message client 0 was sent, matched by its opening.
+function wait_sysmsg( prefix, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != 0 or ev.msg.find( prefix ) != 1 )
+      continue;
+    endif
+    return ev;
+  endwhile
+  return ret_error( $"the client was never told anything starting with \"{prefix}\"" );
+endfunction
+
+function expect_sysmsg( prefix )
+  var ev := wait_sysmsg( prefix );
+  if ( !ev )
+    return ev;
+  endif
+  return 1;
+endfunction
+
+// Says something as the client and waits to hear it back, which proves the connection is still
+// there and still in step with the core - a stream the core has lost its place in answers
+// nothing at all.
+function client_alive( what )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := what, id := 0 } );
+  var ev := wait_for_speech( 0, what );
+  if ( !ev )
+    return ret_error( $"the connection did not survive: \"{what}\" was never heard back" );
+  endif
+  return 1;
+endfunction
+
+// Tells the shard what version the client is, and waits until it has been read - the shard reads
+// one packet at a time, so hearing something said after it proves the version arrived. This is
+// also how the client type is put back: setClientType() clears the type flags and fills them in
+// again from the version it is given rather than adding to them.
+function claim_version( text )
+  var res := client_sends( struct{ packet := "version", text := text } );
+  if ( !res )
+    return res;
+  endif
+  return client_alive( $"claimed version {text}" );
+endfunction
+
+// Sends a packet the core does nothing with but report, and asserts the connection is still in
+// step with it afterwards.
+function logged_only( what, packet )
+  var res := client_sends( packet );
+  if ( !res )
+    return ret_error( $"{what}: {res.errortext}" );
+  endif
+  return client_alive( $"survived {what}" );
+endfunction
+
+exported function miscmsg_logged_only()
+  // Every packet the core has a handler for that does nothing but report it. Each has a size the
+  // core insists on, so getting one wrong is what the round trip inside logged_only() catches.
+
+  // the bulletin board, a subcommand and nothing else
+  var res := logged_only( "0x71 bulletin board", struct{ packet := "bulletin_board", sub := 0 } );
+  if ( !res )
+    return res;
+  endif
+
+  // 0xBB, two serials
+  res := logged_only( "0xBB", struct{ packet := "ultima_messenger", serial := char.serial } );
+  if ( !res )
+    return res;
+  endif
+
+  // 0xC4, a serial and an intensity
+  res := logged_only( "0xC4", struct{ packet := "unknown_c4", serial := char.serial } );
+  if ( !res )
+    return res;
+  endif
+
+  // the UO store button, whose whole packet is its type
+  res := logged_only( "0xFA uo store", struct{ packet := "uo_store" } );
+  if ( !res )
+    return res;
+  endif
+
+  // public house content, which carries a flag the core does not read
+  res := logged_only( "0xFB public house", struct{ packet := "public_house", flag := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  // a 0xBF subcommand nothing handles
+  res := logged_only( "0xBF unknown sub", struct{ packet := "general_info", sub := 0x0099 } );
+  if ( !res )
+    return res;
+  endif
+
+  // a 0xF0 subcommand nothing handles
+  res := logged_only( "0xF0 unknown sub", struct{ packet := "worldmap", sub := 0x77 } );
+  if ( !res )
+    return res;
+  endif
+
+  // a 0xD7 subcommand nothing handles, sent about the client's own character
+  return logged_only( "0xD7 unknown sub", struct{ packet := "house_command", sub := 0x0099 } );
+endfunction
+
+exported function miscmsg_rename( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y + 2, char.z );
+  if ( !npc )
+    return npc;
+  endif
+  var rename := @( serial, name ) {
+    return struct{ packet := "rename", serial := serial, name := name };
+  };
+
+  // A mobile is renamed by whoever it answers to, and an NPC with no master answers to nobody.
+  var res := client_sends( rename.call( npc.serial, "Renamed Npc" ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "I can't rename that." );
+  if ( !res )
+    return res;
+  endif
+
+  npc.setmaster( char );
+  res := client_sends( rename.call( npc.serial, "Renamed Npc" ) );
+  if ( !res )
+    return res;
+  endif
+  // nothing is sent back on success, so the name is what has to be waited for
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( npc.name != "Renamed Npc" and ReadMillisecondClock() < deadline )
+    Sleepms( 100 );
+  endwhile
+  if ( npc.name != "Renamed Npc" )
+    return ret_error( $"the npc is still called \"{npc.name}\"" );
+  endif
+
+  // Only letters and spaces are allowed, and a name that holds anything else is refused whole -
+  // the mobile keeps the name it had.
+  res := client_sends( rename.call( npc.serial, "Bad1 Name" ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "Invalid name!" );
+  if ( !res )
+    return res;
+  endif
+  if ( npc.name != "Renamed Npc" )
+    return ret_error( $"the refused name was applied all the same: \"{npc.name}\"" );
+  endif
+
+  // a serial no mobile has
+  res := client_sends( rename.call( 0x7FFFFFF0, "Nobody" ) );
+  if ( !res )
+    return res;
+  endif
+  return expect_sysmsg( "I can't find that." );
+endfunction
+
+exported function miscmsg_allnames( resmgr )
+  // The all names request, which a client sends for everything on screen at once. It answers one
+  // packet per mobile and says nothing about anything else.
+  Clear_Event_Queue();
+  var res := client_sends( struct{ packet := "all_names", serial := char2.serial } );
+  if ( !res )
+    return res;
+  endif
+  var ev := waitForClient( 0, { EVT_ALL_NAMES } );
+  if ( !ev )
+    return ret_error( "the client was told no name" );
+  endif
+  if ( CInt( ev.serial ) != char2.serial )
+    return ret_error( $"the name was about 0x{ev.serial:x}, expected 0x{char2.serial:x}" );
+  endif
+  if ( ev.name != char2.name )
+    return ret_error( $"the name came back as \"{ev.name}\", expected \"{char2.name}\"" );
+  endif
+
+  // an item is not a mobile, and neither is a serial nothing owns
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"failed to create the item: {it}" );
+  endif
+  drain_events();
+  res := client_sends( struct{ packet := "all_names", serial := it.serial } );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_ALL_NAMES )
+      return ret_error( $"an item was named: 0x{ev.serial:x}" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+exported function miscmsg_client_version()
+  // The version packet is sent once at login and read again every time it arrives. An old version
+  // walks the whole ladder of version checks the core answers it with - and lowers what the shard
+  // believes the client can be sent, which is why the real version is claimed again at the end.
+  var original := char.client.clientversion;
+
+  var res := claim_version( "4.0.0.0" );
+  if ( !res )
+    return res;
+  endif
+  if ( char.client.clientversion != "4.0.0.0" )
+    return ret_error( $"the shard still thinks the client is {char.client.clientversion}" );
+  endif
+
+  // A version string long enough to be nonsense is dropped whole and the old one kept.
+  var toolong := "";
+  for i := 1 to 12
+    toolong := toolong + "1234567890";
+  endfor
+  res := client_sends( struct{ packet := "version", text := toolong } );
+  if ( !res )
+    return res;
+  endif
+  res := client_alive( "survived a long version" );
+  if ( !res )
+    return res;
+  endif
+  if ( char.client.clientversion != "4.0.0.0" )
+    return ret_error( $"the oversized version was taken: {char.client.clientversion}" );
+  endif
+
+  // put back what the client really is
+  res := claim_version( original );
+  if ( !res )
+    return res;
+  endif
+  if ( char.client.clientversion != original )
+    return ret_error( $"the version was not restored: {char.client.clientversion}" );
+  endif
+  return 1;
+endfunction
+
+exported function miscmsg_seed()
+  // The seed packet carries the same version as four numbers rather than as text. It is what a
+  // client opens the connection with, and the core reads it again whenever it arrives.
+  var original := char.client.clientversion;
+  var res := client_sends( struct{ packet := "seed", version := "7.0.9.1" } );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( char.client.clientversion != "7.0.9.1" and ReadMillisecondClock() < deadline )
+    Sleepms( 100 );
+  endwhile
+  if ( char.client.clientversion != "7.0.9.1" )
+    return ret_error( $"the seed left the version at {char.client.clientversion}" );
+  endif
+  if ( original != "7.0.9.1" )
+    return ret_error( $"this case changed the client version from {original}" );
+  endif
+  return 1;
+endfunction
+
+exported function miscmsg_clienttype()
+  // What the 3D clients announce themselves as: Kingdom Reborn, Stygian Abyss, and a number
+  // nothing knows. Nothing is sent back, so what each of them proves is that the packet was read
+  // and the connection stayed in step.
+  //
+  // Announcing one of these REPLACES what the shard thinks the client is - setClientType() clears
+  // the flags and fills them in again from the type it is given, it does not add to them - so
+  // this drops the client below 7.0.9.0 and with it the packets a 7090 client is sent. The
+  // version has to be claimed again at the end or the test client can no longer read its own
+  // item packets.
+  foreach clienttype in ( { 0x2, 0x3, 0x99 } )
+    var res := client_sends( struct{ packet := "client_type", type := clienttype } );
+    if ( !res )
+      return res;
+    endif
+    res := client_alive( $"survived client type {clienttype}" );
+    if ( !res )
+      return res;
+    endif
+  endforeach
+  return claim_version( char.client.clientversion );
+endfunction
+
+exported function miscmsg_object_list( resmgr )
+  // One packet asking for the tooltips of several objects at once.
+  var first := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !first )
+    return ret_error( $"failed to create the first item: {first}" );
+  endif
+  var second := resmgr.CreateItemAtLocation( char.x + 1, char.y + 1, char.z, 0xE75 );
+  if ( !second )
+    return ret_error( $"failed to create the second item: {second}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, second.serial );
+  if ( !res )
+    return res;
+  endif
+
+  Clear_Event_Queue();
+  res := client_sends( struct{ packet := "tooltips", serials := { first.serial, second.serial } } );
+  if ( !res )
+    return res;
+  endif
+
+  var told_first := 0, told_second := 0;
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ( !told_first or !told_second ) and ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( !ev or ev.type != EVT_AOS_TOOLTIP )
+      continue;
+    endif
+    if ( CInt( ev.serial ) == first.serial )
+      told_first := 1;
+    elseif ( CInt( ev.serial ) == second.serial )
+      told_second := 1;
+    endif
+  endwhile
+  if ( !told_first or !told_second )
+    return ret_error( $"described the first: {told_first}, the second: {told_second}" );
+  endif
+
+  // A length that is not a whole number of serials is dropped, not read as far as it goes. No
+  // client would send this, so it is built here and put on the wire as the bytes it is.
+  drain_events();
+  var pkt := CreatePacket( 0xD6, MSGLEN_VARIABLE );
+  pkt.SetInt32( 3, first.serial );
+  pkt.SetInt16( 7, 0 );
+  res := send_packet( clientcon, 0, pkt );
+  if ( !res )
+    return res;
+  endif
+  var quiet := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < quiet )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_AOS_TOOLTIP and CInt( ev.serial ) == first.serial )
+      return ret_error( "a half serial was read as one" );
+    endif
+  endwhile
+  return client_alive( "survived a ragged object list" );
+endfunction
+
+exported function miscmsg_char_profile()
+  // Asking for a character's profile, and writing one back. Both start scripts/misc/charprofile,
+  // which answers with everything it was handed.
+  var res := client_sends( struct{ packet := "char_profile", serial := char2.serial } );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"charprofile [0] [0x{char2.serial:x}] [0]" );
+  if ( !res )
+    return res;
+  endif
+
+  // The update form carries the new text as unicode, and its length is worked out from the
+  // length of the packet rather than from the field that claims it.
+  res := client_sends( struct{ packet := "char_profile", serial := char2.serial, text := "Hi" } );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( $"charprofile [1] [0x{char2.serial:x}] [Hi]" );
+  if ( !res )
+    return res;
+  endif
+
+  // a serial no mobile has starts nothing at all
+  drain_events();
+  res := client_sends( struct{ packet := "char_profile", serial := 0x7FFFFFF0 } );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_SPEECH and ev.msg.find( "charprofile" ) == 1 )
+      return ret_error( $"a profile was answered for nobody: {ev.msg}" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+// The 0xD7 family, which carries the serial of whoever is sending it and a subcommand. The
+// buttons of the paperdoll are two of its subcommands.
+function house_command( serial, sub )
+  return struct{ packet := "house_command", serial := serial, sub := sub };
+endfunction
+
+exported function miscmsg_paperdoll_buttons()
+  // The three buttons that are nothing but a script hook, each in scripts/misc.
+  var res := client_sends( house_command( char.serial, 0x28 ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "guildbutton ran" );
+  if ( !res )
+    return res;
+  endif
+
+  res := client_sends( house_command( char.serial, 0x32 ) );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "questbutton ran" );
+  if ( !res )
+    return res;
+  endif
+
+  // the chat button has a packet of its own, and carries a name the core does not read
+  res := client_sends( struct{ packet := "chat_button" } );
+  if ( !res )
+    return res;
+  endif
+  res := expect_sysmsg( "chatbutton ran" );
+  if ( !res )
+    return res;
+  endif
+
+  // A 0xD7 that claims to be from somebody else is dropped whole - that is the one check the
+  // whole family shares.
+  drain_events();
+  res := client_sends( house_command( char2.serial, 0x28 ) );
+  if ( !res )
+    return res;
+  endif
+  var deadline := ReadMillisecondClock() + QUIET_SECS * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == EVT_SPEECH and ev.msg == "guildbutton ran" )
+      return ret_error( "a spoofed packet was acted on" );
+    endif
+  endwhile
+  return 1;
+endfunction

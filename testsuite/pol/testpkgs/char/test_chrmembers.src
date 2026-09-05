@@ -15,6 +15,20 @@ program chrmemberreads()
   if ( !chr )
     return ret_error( "Could not find char at slot 1" );
   endif
+
+  // chr_weapon_and_shield puts a shield in the backpack, and the account's character is made with
+  // addcharacter(), which carries nothing. test_chr.src equips one and sorts earlier, so a whole
+  // run has it already - a run of this file alone does not.
+  if ( !chr.backpack )
+    var newpack := CreateItemAtLocation( 0, 0, 0, 0xE75 );
+    if ( !newpack )
+      return ret_error( $"could not make a backpack: {newpack}" );
+    endif
+    var res := EquipItem( chr, newpack );
+    if ( !res )
+      return ret_error( $"could not equip the backpack: {res}" );
+    endif
+  endif
   return 1;
 endprogram
 
