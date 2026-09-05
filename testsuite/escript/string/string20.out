@@ -30,47 +30,47 @@ hello
 1234 - t
 1234
 t * 1234
-hello
+error{ errortext = "Operator * not supported for String and String" }
 1234 * t
-1234
+error{ errortext = "Operator * not supported for String and String" }
 t / 1234
-hello
+error{ errortext = "Operator / not supported for String and String" }
 1234 / t
-1234
+error{ errortext = "Operator / not supported for String and String" }
 t % 1234
-hello
+error{ errortext = "Operator % not supported for String and String" }
 1234 % t
-1234
+error{ errortext = "Operator % not supported for String and String" }
 tmp += 1234
 hello1234
 tmp -= 1234
 hello
 tmp *= 1234
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= 1234
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= 1234
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & 1234
-hello
+error{ errortext = "Operator & not supported for String and String" }
 1234 & t
-1234
+error{ errortext = "Operator & not supported for String and String" }
 t | 1234
-hello
+error{ errortext = "Operator | not supported for String and String" }
 1234 | t
-1234
+error{ errortext = "Operator | not supported for String and String" }
 t ^ 1234
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 1234 ^ t
-1234
+error{ errortext = "Operator ^ not supported for String and String" }
 t << 1234
-hello
+error{ errortext = "Operator << not supported for String and String" }
 1234 << t
-1234
+error{ errortext = "Operator << not supported for String and String" }
 t >> 1234
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 1234 >> t
-1234
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ 1234
 hello
 tmp .- 1234
@@ -101,47 +101,47 @@ t - hello
 hello - t
 
 t * hello
-hello
+error{ errortext = "Operator * not supported for String and String" }
 hello * t
-hello
+error{ errortext = "Operator * not supported for String and String" }
 t / hello
-hello
+error{ errortext = "Operator / not supported for String and String" }
 hello / t
-hello
+error{ errortext = "Operator / not supported for String and String" }
 t % hello
-hello
+error{ errortext = "Operator % not supported for String and String" }
 hello % t
-hello
+error{ errortext = "Operator % not supported for String and String" }
 tmp += hello
 hellohello
 tmp -= hello
 
 tmp *= hello
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= hello
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= hello
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & hello
-hello
+error{ errortext = "Operator & not supported for String and String" }
 hello & t
-hello
+error{ errortext = "Operator & not supported for String and String" }
 t | hello
-hello
+error{ errortext = "Operator | not supported for String and String" }
 hello | t
-hello
+error{ errortext = "Operator | not supported for String and String" }
 t ^ hello
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 hello ^ t
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 t << hello
-hello
+error{ errortext = "Operator << not supported for String and String" }
 hello << t
-hello
+error{ errortext = "Operator << not supported for String and String" }
 t >> hello
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 hello >> t
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ hello
 hello
 tmp .- hello
@@ -172,47 +172,47 @@ hello
 b - t
 b
 t * b
-hello
+error{ errortext = "Operator * not supported for String and String" }
 b * t
-b
+error{ errortext = "Operator * not supported for String and String" }
 t / b
-hello
+error{ errortext = "Operator / not supported for String and String" }
 b / t
-b
+error{ errortext = "Operator / not supported for String and String" }
 t % b
-hello
+error{ errortext = "Operator % not supported for String and String" }
 b % t
-b
+error{ errortext = "Operator % not supported for String and String" }
 tmp += b
 hellob
 tmp -= b
 hello
 tmp *= b
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= b
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= b
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & b
-hello
+error{ errortext = "Operator & not supported for String and String" }
 b & t
-b
+error{ errortext = "Operator & not supported for String and String" }
 t | b
-hello
+error{ errortext = "Operator | not supported for String and String" }
 b | t
-b
+error{ errortext = "Operator | not supported for String and String" }
 t ^ b
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 b ^ t
-b
+error{ errortext = "Operator ^ not supported for String and String" }
 t << b
-hello
+error{ errortext = "Operator << not supported for String and String" }
 b << t
-b
+error{ errortext = "Operator << not supported for String and String" }
 t >> b
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 b >> t
-b
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ b
 hello
 tmp .- b
@@ -243,47 +243,47 @@ hello
 ab - t
 ab
 t * ab
-hello
+error{ errortext = "Operator * not supported for String and String" }
 ab * t
-ab
+error{ errortext = "Operator * not supported for String and String" }
 t / ab
-hello
+error{ errortext = "Operator / not supported for String and String" }
 ab / t
-ab
+error{ errortext = "Operator / not supported for String and String" }
 t % ab
-hello
+error{ errortext = "Operator % not supported for String and String" }
 ab % t
-ab
+error{ errortext = "Operator % not supported for String and String" }
 tmp += ab
 helloab
 tmp -= ab
 hello
 tmp *= ab
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= ab
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= ab
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & ab
-hello
+error{ errortext = "Operator & not supported for String and String" }
 ab & t
-ab
+error{ errortext = "Operator & not supported for String and String" }
 t | ab
-hello
+error{ errortext = "Operator | not supported for String and String" }
 ab | t
-ab
+error{ errortext = "Operator | not supported for String and String" }
 t ^ ab
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 ab ^ t
-ab
+error{ errortext = "Operator ^ not supported for String and String" }
 t << ab
-hello
+error{ errortext = "Operator << not supported for String and String" }
 ab << t
-ab
+error{ errortext = "Operator << not supported for String and String" }
 t >> ab
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 ab >> t
-ab
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ ab
 hello
 tmp .- ab
@@ -314,47 +314,47 @@ hello
 a - t
 a
 t * a
-hello
+error{ errortext = "Operator * not supported for String and String" }
 a * t
-a
+error{ errortext = "Operator * not supported for String and String" }
 t / a
-hello
+error{ errortext = "Operator / not supported for String and String" }
 a / t
-a
+error{ errortext = "Operator / not supported for String and String" }
 t % a
-hello
+error{ errortext = "Operator % not supported for String and String" }
 a % t
-a
+error{ errortext = "Operator % not supported for String and String" }
 tmp += a
 helloa
 tmp -= a
 hello
 tmp *= a
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= a
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= a
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & a
-hello
+error{ errortext = "Operator & not supported for String and String" }
 a & t
-a
+error{ errortext = "Operator & not supported for String and String" }
 t | a
-hello
+error{ errortext = "Operator | not supported for String and String" }
 a | t
-a
+error{ errortext = "Operator | not supported for String and String" }
 t ^ a
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 a ^ t
-a
+error{ errortext = "Operator ^ not supported for String and String" }
 t << a
-hello
+error{ errortext = "Operator << not supported for String and String" }
 a << t
-a
+error{ errortext = "Operator << not supported for String and String" }
 t >> a
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 a >> t
-a
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ a
 hello
 tmp .- a
@@ -385,47 +385,47 @@ hello
 caterpillar - t
 caterpillar
 t * caterpillar
-hello
+error{ errortext = "Operator * not supported for String and String" }
 caterpillar * t
-caterpillar
+error{ errortext = "Operator * not supported for String and String" }
 t / caterpillar
-hello
+error{ errortext = "Operator / not supported for String and String" }
 caterpillar / t
-caterpillar
+error{ errortext = "Operator / not supported for String and String" }
 t % caterpillar
-hello
+error{ errortext = "Operator % not supported for String and String" }
 caterpillar % t
-caterpillar
+error{ errortext = "Operator % not supported for String and String" }
 tmp += caterpillar
 hellocaterpillar
 tmp -= caterpillar
 hello
 tmp *= caterpillar
-hello
+error{ errortext = "Operator * not supported for String and String" }
 tmp /= caterpillar
-hello
+error{ errortext = "Operator / not supported for String and String" }
 tmp %= caterpillar
-hello
+error{ errortext = "Operator % not supported for String and String" }
 t & caterpillar
-hello
+error{ errortext = "Operator & not supported for String and String" }
 caterpillar & t
-caterpillar
+error{ errortext = "Operator & not supported for String and String" }
 t | caterpillar
-hello
+error{ errortext = "Operator | not supported for String and String" }
 caterpillar | t
-caterpillar
+error{ errortext = "Operator | not supported for String and String" }
 t ^ caterpillar
-hello
+error{ errortext = "Operator ^ not supported for String and String" }
 caterpillar ^ t
-caterpillar
+error{ errortext = "Operator ^ not supported for String and String" }
 t << caterpillar
-hello
+error{ errortext = "Operator << not supported for String and String" }
 caterpillar << t
-caterpillar
+error{ errortext = "Operator << not supported for String and String" }
 t >> caterpillar
-hello
+error{ errortext = "Operator >> not supported for String and String" }
 caterpillar >> t
-caterpillar
+error{ errortext = "Operator >> not supported for String and String" }
 tmp .+ caterpillar
 hello
 tmp .- caterpillar
@@ -456,47 +456,47 @@ hello
 1234 - t
 1234
 t * 1234
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 1234 * t
-1234
+error{ errortext = "Operator * not supported for Integer and String" }
 t / 1234
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 1234 / t
-1234
+error{ errortext = "Operator / not supported for Integer and String" }
 t % 1234
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 1234 % t
-1234
+error{ errortext = "Operator % not supported for Integer and String" }
 tmp += 1234
 hello1234
 tmp -= 1234
 hello
 tmp *= 1234
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 tmp /= 1234
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 tmp %= 1234
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 t & 1234
-hello
+error{ errortext = "Operator & not supported for String and Integer" }
 1234 & t
-1234
+error{ errortext = "Operator & not supported for Integer and String" }
 t | 1234
-hello
+error{ errortext = "Operator | not supported for String and Integer" }
 1234 | t
-1234
+error{ errortext = "Operator | not supported for Integer and String" }
 t ^ 1234
-hello
+error{ errortext = "Operator ^ not supported for String and Integer" }
 1234 ^ t
-1234
+error{ errortext = "Operator ^ not supported for Integer and String" }
 t << 1234
-hello
+error{ errortext = "Operator << not supported for String and Integer" }
 1234 << t
-1234
+error{ errortext = "Operator << not supported for Integer and String" }
 t >> 1234
-hello
+error{ errortext = "Operator >> not supported for String and Integer" }
 1234 >> t
-1234
+error{ errortext = "Operator >> not supported for Integer and String" }
 tmp .+ 1234
 hello
 tmp .- 1234
@@ -527,47 +527,47 @@ hello
 0 - t
 0
 t * 0
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 0 * t
-0
+error{ errortext = "Operator * not supported for Integer and String" }
 t / 0
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 0 / t
-0
+error{ errortext = "Operator / not supported for Integer and String" }
 t % 0
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 0 % t
-0
+error{ errortext = "Operator % not supported for Integer and String" }
 tmp += 0
 hello0
 tmp -= 0
 hello
 tmp *= 0
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 tmp /= 0
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 tmp %= 0
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 t & 0
-hello
+error{ errortext = "Operator & not supported for String and Integer" }
 0 & t
-0
+error{ errortext = "Operator & not supported for Integer and String" }
 t | 0
-hello
+error{ errortext = "Operator | not supported for String and Integer" }
 0 | t
-0
+error{ errortext = "Operator | not supported for Integer and String" }
 t ^ 0
-hello
+error{ errortext = "Operator ^ not supported for String and Integer" }
 0 ^ t
-0
+error{ errortext = "Operator ^ not supported for Integer and String" }
 t << 0
-hello
+error{ errortext = "Operator << not supported for String and Integer" }
 0 << t
-0
+error{ errortext = "Operator << not supported for Integer and String" }
 t >> 0
-hello
+error{ errortext = "Operator >> not supported for String and Integer" }
 0 >> t
-0
+error{ errortext = "Operator >> not supported for Integer and String" }
 tmp .+ 0
 hello
 tmp .- 0
@@ -598,47 +598,47 @@ hello
 -6 - t
 -6
 t * -6
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 -6 * t
--6
+error{ errortext = "Operator * not supported for Integer and String" }
 t / -6
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 -6 / t
--6
+error{ errortext = "Operator / not supported for Integer and String" }
 t % -6
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 -6 % t
--6
+error{ errortext = "Operator % not supported for Integer and String" }
 tmp += -6
 hello-6
 tmp -= -6
 hello
 tmp *= -6
-hello
+error{ errortext = "Operator * not supported for String and Integer" }
 tmp /= -6
-hello
+error{ errortext = "Operator / not supported for String and Integer" }
 tmp %= -6
-hello
+error{ errortext = "Operator % not supported for String and Integer" }
 t & -6
-hello
+error{ errortext = "Operator & not supported for String and Integer" }
 -6 & t
--6
+error{ errortext = "Operator & not supported for Integer and String" }
 t | -6
-hello
+error{ errortext = "Operator | not supported for String and Integer" }
 -6 | t
--6
+error{ errortext = "Operator | not supported for Integer and String" }
 t ^ -6
-hello
+error{ errortext = "Operator ^ not supported for String and Integer" }
 -6 ^ t
--6
+error{ errortext = "Operator ^ not supported for Integer and String" }
 t << -6
-hello
+error{ errortext = "Operator << not supported for String and Integer" }
 -6 << t
--6
+error{ errortext = "Operator << not supported for Integer and String" }
 t >> -6
-hello
+error{ errortext = "Operator >> not supported for String and Integer" }
 -6 >> t
--6
+error{ errortext = "Operator >> not supported for Integer and String" }
 tmp .+ -6
 hello
 tmp .- -6
@@ -669,47 +669,47 @@ hello
 12.11 - t
 12.11
 t * 12.11
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 12.11 * t
-12.11
+error{ errortext = "Operator * not supported for Double and String" }
 t / 12.11
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 12.11 / t
-12.11
+error{ errortext = "Operator / not supported for Double and String" }
 t % 12.11
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 12.11 % t
-12.11
+error{ errortext = "Operator % not supported for Double and String" }
 tmp += 12.11
 hello12.11
 tmp -= 12.11
 hello
 tmp *= 12.11
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 tmp /= 12.11
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 tmp %= 12.11
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 t & 12.11
-hello
+error{ errortext = "Operator & not supported for String and Double" }
 12.11 & t
-12.11
+error{ errortext = "Operator & not supported for Double and String" }
 t | 12.11
-hello
+error{ errortext = "Operator | not supported for String and Double" }
 12.11 | t
-12.11
+error{ errortext = "Operator | not supported for Double and String" }
 t ^ 12.11
-hello
+error{ errortext = "Operator ^ not supported for String and Double" }
 12.11 ^ t
-12.11
+error{ errortext = "Operator ^ not supported for Double and String" }
 t << 12.11
-hello
+error{ errortext = "Operator << not supported for String and Double" }
 12.11 << t
-12.11
+error{ errortext = "Operator << not supported for Double and String" }
 t >> 12.11
-hello
+error{ errortext = "Operator >> not supported for String and Double" }
 12.11 >> t
-12.11
+error{ errortext = "Operator >> not supported for Double and String" }
 tmp .+ 12.11
 hello
 tmp .- 12.11
@@ -740,47 +740,47 @@ hello
 0 - t
 0
 t * 0
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 0 * t
-0
+error{ errortext = "Operator * not supported for Double and String" }
 t / 0
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 0 / t
-0
+error{ errortext = "Operator / not supported for Double and String" }
 t % 0
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 0 % t
-0
+error{ errortext = "Operator % not supported for Double and String" }
 tmp += 0
 hello0
 tmp -= 0
 hello
 tmp *= 0
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 tmp /= 0
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 tmp %= 0
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 t & 0
-hello
+error{ errortext = "Operator & not supported for String and Double" }
 0 & t
-0
+error{ errortext = "Operator & not supported for Double and String" }
 t | 0
-hello
+error{ errortext = "Operator | not supported for String and Double" }
 0 | t
-0
+error{ errortext = "Operator | not supported for Double and String" }
 t ^ 0
-hello
+error{ errortext = "Operator ^ not supported for String and Double" }
 0 ^ t
-0
+error{ errortext = "Operator ^ not supported for Double and String" }
 t << 0
-hello
+error{ errortext = "Operator << not supported for String and Double" }
 0 << t
-0
+error{ errortext = "Operator << not supported for Double and String" }
 t >> 0
-hello
+error{ errortext = "Operator >> not supported for String and Double" }
 0 >> t
-0
+error{ errortext = "Operator >> not supported for Double and String" }
 tmp .+ 0
 hello
 tmp .- 0
@@ -811,47 +811,47 @@ hello
 -8.8 - t
 -8.8
 t * -8.8
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 -8.8 * t
--8.8
+error{ errortext = "Operator * not supported for Double and String" }
 t / -8.8
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 -8.8 / t
--8.8
+error{ errortext = "Operator / not supported for Double and String" }
 t % -8.8
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 -8.8 % t
--8.8
+error{ errortext = "Operator % not supported for Double and String" }
 tmp += -8.8
 hello-8.8
 tmp -= -8.8
 hello
 tmp *= -8.8
-hello
+error{ errortext = "Operator * not supported for String and Double" }
 tmp /= -8.8
-hello
+error{ errortext = "Operator / not supported for String and Double" }
 tmp %= -8.8
-hello
+error{ errortext = "Operator % not supported for String and Double" }
 t & -8.8
-hello
+error{ errortext = "Operator & not supported for String and Double" }
 -8.8 & t
--8.8
+error{ errortext = "Operator & not supported for Double and String" }
 t | -8.8
-hello
+error{ errortext = "Operator | not supported for String and Double" }
 -8.8 | t
--8.8
+error{ errortext = "Operator | not supported for Double and String" }
 t ^ -8.8
-hello
+error{ errortext = "Operator ^ not supported for String and Double" }
 -8.8 ^ t
--8.8
+error{ errortext = "Operator ^ not supported for Double and String" }
 t << -8.8
-hello
+error{ errortext = "Operator << not supported for String and Double" }
 -8.8 << t
--8.8
+error{ errortext = "Operator << not supported for Double and String" }
 t >> -8.8
-hello
+error{ errortext = "Operator >> not supported for String and Double" }
 -8.8 >> t
--8.8
+error{ errortext = "Operator >> not supported for Double and String" }
 tmp .+ -8.8
 hello
 tmp .- -8.8
@@ -880,49 +880,49 @@ hello{ a, b, c, 19 }
 t - { a, b, c, 19 }
 hello
 { a, b, c, 19 } - t
-{ a, b, c, 19 }
+error{ errortext = "Operator - not supported for Array and String" }
 t * { a, b, c, 19 }
-hello
+error{ errortext = "Operator * not supported for String and Array" }
 { a, b, c, 19 } * t
-{ a, b, c, 19 }
+error{ errortext = "Operator * not supported for Array and String" }
 t / { a, b, c, 19 }
-hello
+error{ errortext = "Operator / not supported for String and Array" }
 { a, b, c, 19 } / t
-{ a, b, c, 19 }
+error{ errortext = "Operator / not supported for Array and String" }
 t % { a, b, c, 19 }
-hello
+error{ errortext = "Operator % not supported for String and Array" }
 { a, b, c, 19 } % t
-{ a, b, c, 19 }
+error{ errortext = "Operator % not supported for Array and String" }
 tmp += { a, b, c, 19 }
 hello{ a, b, c, 19 }
 tmp -= { a, b, c, 19 }
 hello
 tmp *= { a, b, c, 19 }
-hello
+error{ errortext = "Operator * not supported for String and Array" }
 tmp /= { a, b, c, 19 }
-hello
+error{ errortext = "Operator / not supported for String and Array" }
 tmp %= { a, b, c, 19 }
-hello
+error{ errortext = "Operator % not supported for String and Array" }
 t & { a, b, c, 19 }
-hello
+error{ errortext = "Operator & not supported for String and Array" }
 { a, b, c, 19 } & t
-{ a, b, c, 19 }
+error{ errortext = "Operator & not supported for Array and String" }
 t | { a, b, c, 19 }
-hello
+error{ errortext = "Operator | not supported for String and Array" }
 { a, b, c, 19 } | t
-{ a, b, c, 19 }
+error{ errortext = "Operator | not supported for Array and String" }
 t ^ { a, b, c, 19 }
-hello
+error{ errortext = "Operator ^ not supported for String and Array" }
 { a, b, c, 19 } ^ t
-{ a, b, c, 19 }
+error{ errortext = "Operator ^ not supported for Array and String" }
 t << { a, b, c, 19 }
-hello
+error{ errortext = "Operator << not supported for String and Array" }
 { a, b, c, 19 } << t
-{ a, b, c, 19 }
+error{ errortext = "Operator << not supported for Array and String" }
 t >> { a, b, c, 19 }
-hello
+error{ errortext = "Operator >> not supported for String and Array" }
 { a, b, c, 19 } >> t
-{ a, b, c, 19 }
+error{ errortext = "Operator >> not supported for Array and String" }
 tmp .+ { a, b, c, 19 }
 hello
 tmp .- { a, b, c, 19 }
@@ -947,53 +947,53 @@ t >= dict{ "1234" -> "456", "eeee" -> 0 }
 t + dict{ "1234" -> "456", "eeee" -> 0 }
 hellodict{ "1234" -> "456", "eeee" -> 0 }
 dict{ "1234" -> "456", "eeee" -> 0 } + t
-dict{ "1234" -> "456", "eeee" -> 0 }
+dict{ "1234" -> "456", "eeee" -> 0 }hello
 t - dict{ "1234" -> "456", "eeee" -> 0 }
 hello
 dict{ "1234" -> "456", "eeee" -> 0 } - t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator - not supported for Dictionary and String" }
 t * dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator * not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } * t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator * not supported for Dictionary and String" }
 t / dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator / not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } / t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator / not supported for Dictionary and String" }
 t % dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator % not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } % t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator % not supported for Dictionary and String" }
 tmp += dict{ "1234" -> "456", "eeee" -> 0 }
 hellodict{ "1234" -> "456", "eeee" -> 0 }
 tmp -= dict{ "1234" -> "456", "eeee" -> 0 }
 hello
 tmp *= dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator * not supported for String and Dictionary" }
 tmp /= dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator / not supported for String and Dictionary" }
 tmp %= dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator % not supported for String and Dictionary" }
 t & dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator & not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } & t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator & not supported for Dictionary and String" }
 t | dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator | not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } | t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator | not supported for Dictionary and String" }
 t ^ dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator ^ not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } ^ t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator ^ not supported for Dictionary and String" }
 t << dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator << not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } << t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator << not supported for Dictionary and String" }
 t >> dict{ "1234" -> "456", "eeee" -> 0 }
-hello
+error{ errortext = "Operator >> not supported for String and Dictionary" }
 dict{ "1234" -> "456", "eeee" -> 0 } >> t
-dict{ "1234" -> "456", "eeee" -> 0 }
+error{ errortext = "Operator >> not supported for Dictionary and String" }
 tmp .+ dict{ "1234" -> "456", "eeee" -> 0 }
 hello
 tmp .- dict{ "1234" -> "456", "eeee" -> 0 }
@@ -1018,53 +1018,53 @@ t >= struct{ a = "hello", b = 21, c = "0" }
 t + struct{ a = "hello", b = 21, c = "0" }
 hellostruct{ a = "hello", b = 21, c = "0" }
 struct{ a = "hello", b = 21, c = "0" } + t
-struct{ a = "hello", b = 21, c = "0" }
+struct{ a = "hello", b = 21, c = "0" }hello
 t - struct{ a = "hello", b = 21, c = "0" }
 hello
 struct{ a = "hello", b = 21, c = "0" } - t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator - not supported for Struct and String" }
 t * struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator * not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } * t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator * not supported for Struct and String" }
 t / struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator / not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } / t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator / not supported for Struct and String" }
 t % struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator % not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } % t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator % not supported for Struct and String" }
 tmp += struct{ a = "hello", b = 21, c = "0" }
 hellostruct{ a = "hello", b = 21, c = "0" }
 tmp -= struct{ a = "hello", b = 21, c = "0" }
 hello
 tmp *= struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator * not supported for String and Struct" }
 tmp /= struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator / not supported for String and Struct" }
 tmp %= struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator % not supported for String and Struct" }
 t & struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator & not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } & t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator & not supported for Struct and String" }
 t | struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator | not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } | t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator | not supported for Struct and String" }
 t ^ struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator ^ not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } ^ t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator ^ not supported for Struct and String" }
 t << struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator << not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } << t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator << not supported for Struct and String" }
 t >> struct{ a = "hello", b = 21, c = "0" }
-hello
+error{ errortext = "Operator >> not supported for String and Struct" }
 struct{ a = "hello", b = 21, c = "0" } >> t
-struct{ a = "hello", b = 21, c = "0" }
+error{ errortext = "Operator >> not supported for Struct and String" }
 tmp .+ struct{ a = "hello", b = 21, c = "0" }
 hello
 tmp .- struct{ a = "hello", b = 21, c = "0" }
@@ -1089,53 +1089,53 @@ t >= error{ errortext = "ERROR" }
 t + error{ errortext = "ERROR" }
 helloerror{ errortext = "ERROR" }
 error{ errortext = "ERROR" } + t
-error{ errortext = "ERROR" }
+error{ errortext = "ERROR" }hello
 t - error{ errortext = "ERROR" }
 hello
 error{ errortext = "ERROR" } - t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator - not supported for Error and String" }
 t * error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator * not supported for String and Error" }
 error{ errortext = "ERROR" } * t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator * not supported for Error and String" }
 t / error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator / not supported for String and Error" }
 error{ errortext = "ERROR" } / t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator / not supported for Error and String" }
 t % error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator % not supported for String and Error" }
 error{ errortext = "ERROR" } % t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator % not supported for Error and String" }
 tmp += error{ errortext = "ERROR" }
 helloerror{ errortext = "ERROR" }
 tmp -= error{ errortext = "ERROR" }
 hello
 tmp *= error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator * not supported for String and Error" }
 tmp /= error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator / not supported for String and Error" }
 tmp %= error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator % not supported for String and Error" }
 t & error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator & not supported for String and Error" }
 error{ errortext = "ERROR" } & t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator & not supported for Error and String" }
 t | error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator | not supported for String and Error" }
 error{ errortext = "ERROR" } | t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator | not supported for Error and String" }
 t ^ error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator ^ not supported for String and Error" }
 error{ errortext = "ERROR" } ^ t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator ^ not supported for Error and String" }
 t << error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator << not supported for String and Error" }
 error{ errortext = "ERROR" } << t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator << not supported for Error and String" }
 t >> error{ errortext = "ERROR" }
-hello
+error{ errortext = "Operator >> not supported for String and Error" }
 error{ errortext = "ERROR" } >> t
-error{ errortext = "ERROR" }
+error{ errortext = "Operator >> not supported for Error and String" }
 tmp .+ error{ errortext = "ERROR" }
 hello
 tmp .- error{ errortext = "ERROR" }
@@ -1160,53 +1160,53 @@ t >= <uninitialized object>
 t + <uninitialized object>
 hello<uninitialized object>
 <uninitialized object> + t
-<uninitialized object>
+<uninitialized object>hello
 t - <uninitialized object>
 hello
 <uninitialized object> - t
-<uninitialized object>
+error{ errortext = "Operator - not supported for Uninit and String" }
 t * <uninitialized object>
-hello
+error{ errortext = "Operator * not supported for String and Uninit" }
 <uninitialized object> * t
-<uninitialized object>
+error{ errortext = "Operator * not supported for Uninit and String" }
 t / <uninitialized object>
-hello
+error{ errortext = "Operator / not supported for String and Uninit" }
 <uninitialized object> / t
-<uninitialized object>
+error{ errortext = "Operator / not supported for Uninit and String" }
 t % <uninitialized object>
-hello
+error{ errortext = "Operator % not supported for String and Uninit" }
 <uninitialized object> % t
-<uninitialized object>
+error{ errortext = "Operator % not supported for Uninit and String" }
 tmp += <uninitialized object>
 hello<uninitialized object>
 tmp -= <uninitialized object>
 hello
 tmp *= <uninitialized object>
-hello
+error{ errortext = "Operator * not supported for String and Uninit" }
 tmp /= <uninitialized object>
-hello
+error{ errortext = "Operator / not supported for String and Uninit" }
 tmp %= <uninitialized object>
-hello
+error{ errortext = "Operator % not supported for String and Uninit" }
 t & <uninitialized object>
-hello
+error{ errortext = "Operator & not supported for String and Uninit" }
 <uninitialized object> & t
-<uninitialized object>
+error{ errortext = "Operator & not supported for Uninit and String" }
 t | <uninitialized object>
-hello
+error{ errortext = "Operator | not supported for String and Uninit" }
 <uninitialized object> | t
-<uninitialized object>
+error{ errortext = "Operator | not supported for Uninit and String" }
 t ^ <uninitialized object>
-hello
+error{ errortext = "Operator ^ not supported for String and Uninit" }
 <uninitialized object> ^ t
-<uninitialized object>
+error{ errortext = "Operator ^ not supported for Uninit and String" }
 t << <uninitialized object>
-hello
+error{ errortext = "Operator << not supported for String and Uninit" }
 <uninitialized object> << t
-<uninitialized object>
+error{ errortext = "Operator << not supported for Uninit and String" }
 t >> <uninitialized object>
-hello
+error{ errortext = "Operator >> not supported for String and Uninit" }
 <uninitialized object> >> t
-<uninitialized object>
+error{ errortext = "Operator >> not supported for Uninit and String" }
 tmp .+ <uninitialized object>
 hello
 tmp .- <uninitialized object>

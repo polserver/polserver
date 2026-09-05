@@ -3,801 +3,801 @@
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Uninit" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Uninit" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Uninit" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Uninit" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Uninit" }
 '<uninitialized object>' vs 'struct{  }'
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Struct" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Struct" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Struct" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Struct" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Struct" }
 '<uninitialized object>' vs 'dict{  }'
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Dictionary" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Dictionary" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Dictionary" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Dictionary" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Dictionary" }
 '<uninitialized object>' vs '{  }'
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Array" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Array" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Array" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Array" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Array" }
 '<uninitialized object>' vs ''
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and String" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and String" }
 t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
+t1-t2 error{ errortext = "Operator - not supported for Uninit and String" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and String" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and String" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and String" }
 t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and String" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and String" }
 '<uninitialized object>' vs '4'
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Integer" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Integer" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Integer" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Integer" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Integer" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Integer" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Integer" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Integer" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Integer" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Integer" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Integer" }
 '<uninitialized object>' vs '1.5'
 !t1 1
 ~t1 <uninitialized object>
 -t1 <uninitialized object>
 +t1 <uninitialized object>
-t1*t2 <uninitialized object>
-t1/t2 <uninitialized object>
-t1+t2 <uninitialized object>
-t1-t2 <uninitialized object>
-t1%t2 <uninitialized object>
-t1&t2 <uninitialized object>
-t1^t2 <uninitialized object>
-t1|t2 <uninitialized object>
-t1>>t2 <uninitialized object>
-t1<<t2 <uninitialized object>
-t1+=t2 <uninitialized object>
-t1-=t2 <uninitialized object>
-t1*=t2 <uninitialized object>
-t1/=t2 <uninitialized object>
-t1%=t2 <uninitialized object>
+t1*t2 error{ errortext = "Operator * not supported for Uninit and Double" }
+t1/t2 error{ errortext = "Operator / not supported for Uninit and Double" }
+t1+t2 error{ errortext = "Operator + not supported for Uninit and Double" }
+t1-t2 error{ errortext = "Operator - not supported for Uninit and Double" }
+t1%t2 error{ errortext = "Operator % not supported for Uninit and Double" }
+t1&t2 error{ errortext = "Operator & not supported for Uninit and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Uninit and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Uninit and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Uninit and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Uninit and Double" }
+t1+=t2 error{ errortext = "Operator + not supported for Uninit and Double" }
+t1-=t2 error{ errortext = "Operator - not supported for Uninit and Double" }
+t1*=t2 error{ errortext = "Operator * not supported for Uninit and Double" }
+t1/=t2 error{ errortext = "Operator / not supported for Uninit and Double" }
+t1%=t2 error{ errortext = "Operator % not supported for Uninit and Double" }
 'struct{  }' vs '<uninitialized object>'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Uninit" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Uninit" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Uninit" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Uninit" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Uninit" }
 'struct{  }' vs 'struct{  }'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Struct" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Struct" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Struct" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Struct" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Struct" }
 'struct{  }' vs 'dict{  }'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Dictionary" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Dictionary" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Dictionary" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Dictionary" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Dictionary" }
 'struct{  }' vs '{  }'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Array" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Array" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Array" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Array" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Array" }
 'struct{  }' vs ''
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and String" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and String" }
 t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
+t1-t2 error{ errortext = "Operator - not supported for Struct and String" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and String" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and String" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and String" }
 t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and String" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and String" }
 'struct{  }' vs '4'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Integer" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Integer" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Integer" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Integer" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Integer" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Integer" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Integer" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Integer" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Integer" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Integer" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Integer" }
 'struct{  }' vs '1.5'
 !t1 0
 ~t1 struct{  }
 -t1 <uninitialized object>
 +t1 struct{  }
-t1*t2 struct{  }
-t1/t2 struct{  }
-t1+t2 struct{  }
-t1-t2 struct{  }
-t1%t2 struct{  }
-t1&t2 struct{  }
-t1^t2 struct{  }
-t1|t2 struct{  }
-t1>>t2 struct{  }
-t1<<t2 struct{  }
-t1+=t2 struct{  }
-t1-=t2 struct{  }
-t1*=t2 struct{  }
-t1/=t2 struct{  }
-t1%=t2 struct{  }
+t1*t2 error{ errortext = "Operator * not supported for Struct and Double" }
+t1/t2 error{ errortext = "Operator / not supported for Struct and Double" }
+t1+t2 error{ errortext = "Operator + not supported for Struct and Double" }
+t1-t2 error{ errortext = "Operator - not supported for Struct and Double" }
+t1%t2 error{ errortext = "Operator % not supported for Struct and Double" }
+t1&t2 error{ errortext = "Operator & not supported for Struct and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Struct and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Struct and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Struct and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Struct and Double" }
+t1+=t2 error{ errortext = "Operator + not supported for Struct and Double" }
+t1-=t2 error{ errortext = "Operator - not supported for Struct and Double" }
+t1*=t2 error{ errortext = "Operator * not supported for Struct and Double" }
+t1/=t2 error{ errortext = "Operator / not supported for Struct and Double" }
+t1%=t2 error{ errortext = "Operator % not supported for Struct and Double" }
 'dict{  }' vs '<uninitialized object>'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Uninit" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Uninit" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Uninit" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Uninit" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Uninit" }
 'dict{  }' vs 'struct{  }'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Struct" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Struct" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Struct" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Struct" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Struct" }
 'dict{  }' vs 'dict{  }'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Dictionary" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Dictionary" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Dictionary" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Dictionary" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Dictionary" }
 'dict{  }' vs '{  }'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Array" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Array" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Array" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Array" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Array" }
 'dict{  }' vs ''
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and String" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and String" }
 t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and String" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and String" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and String" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and String" }
 t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and String" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and String" }
 'dict{  }' vs '4'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Integer" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Integer" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Integer" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Integer" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Integer" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Integer" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Integer" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Integer" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Integer" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Integer" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Integer" }
 'dict{  }' vs '1.5'
 !t1 0
 ~t1 dict{  }
 -t1 <uninitialized object>
 +t1 dict{  }
-t1*t2 dict{  }
-t1/t2 dict{  }
-t1+t2 dict{  }
-t1-t2 dict{  }
-t1%t2 dict{  }
-t1&t2 dict{  }
-t1^t2 dict{  }
-t1|t2 dict{  }
-t1>>t2 dict{  }
-t1<<t2 dict{  }
-t1+=t2 dict{  }
-t1-=t2 dict{  }
-t1*=t2 dict{  }
-t1/=t2 dict{  }
-t1%=t2 dict{  }
+t1*t2 error{ errortext = "Operator * not supported for Dictionary and Double" }
+t1/t2 error{ errortext = "Operator / not supported for Dictionary and Double" }
+t1+t2 error{ errortext = "Operator + not supported for Dictionary and Double" }
+t1-t2 error{ errortext = "Operator - not supported for Dictionary and Double" }
+t1%t2 error{ errortext = "Operator % not supported for Dictionary and Double" }
+t1&t2 error{ errortext = "Operator & not supported for Dictionary and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Dictionary and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Dictionary and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Dictionary and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Dictionary and Double" }
+t1+=t2 error{ errortext = "Operator + not supported for Dictionary and Double" }
+t1-=t2 error{ errortext = "Operator - not supported for Dictionary and Double" }
+t1*=t2 error{ errortext = "Operator * not supported for Dictionary and Double" }
+t1/=t2 error{ errortext = "Operator / not supported for Dictionary and Double" }
+t1%=t2 error{ errortext = "Operator % not supported for Dictionary and Double" }
 '{  }' vs '<uninitialized object>'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Uninit" }
 t1+t2 { <uninitialized object> }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Uninit" }
 t1+=t2 { <uninitialized object> }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Uninit" }
 '{  }' vs 'struct{  }'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Struct" }
 t1+t2 { struct{  } }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Struct" }
 t1+=t2 { struct{  } }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Struct" }
 '{  }' vs 'dict{  }'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Dictionary" }
 t1+t2 { dict{  } }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Dictionary" }
 t1+=t2 { dict{  } }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Dictionary" }
 '{  }' vs '{  }'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Array" }
 t1+t2 {  }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Array" }
 t1+=t2 {  }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Array" }
 '{  }' vs ''
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and String" }
+t1/t2 error{ errortext = "Operator / not supported for Array and String" }
 t1+t2 {  }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and String" }
+t1%t2 error{ errortext = "Operator % not supported for Array and String" }
+t1&t2 error{ errortext = "Operator & not supported for Array and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and String" }
+t1|t2 error{ errortext = "Operator | not supported for Array and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and String" }
 t1+=t2 {  }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and String" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and String" }
 '{  }' vs '4'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Integer" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Integer" }
 t1+t2 { 4 }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Integer" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Integer" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Integer" }
 t1+=t2 { 4 }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Integer" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Integer" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Integer" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Integer" }
 '{  }' vs '1.5'
 !t1 0
 ~t1 {  }
 -t1 <uninitialized object>
 +t1 {  }
-t1*t2 {  }
-t1/t2 {  }
+t1*t2 error{ errortext = "Operator * not supported for Array and Double" }
+t1/t2 error{ errortext = "Operator / not supported for Array and Double" }
 t1+t2 { 1.5 }
-t1-t2 {  }
-t1%t2 {  }
-t1&t2 {  }
-t1^t2 {  }
-t1|t2 {  }
-t1>>t2 {  }
-t1<<t2 {  }
+t1-t2 error{ errortext = "Operator - not supported for Array and Double" }
+t1%t2 error{ errortext = "Operator % not supported for Array and Double" }
+t1&t2 error{ errortext = "Operator & not supported for Array and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Array and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Array and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Array and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Array and Double" }
 t1+=t2 { 1.5 }
-t1-=t2 {  }
-t1*=t2 {  }
-t1/=t2 {  }
-t1%=t2 {  }
+t1-=t2 error{ errortext = "Operator - not supported for Array and Double" }
+t1*=t2 error{ errortext = "Operator * not supported for Array and Double" }
+t1/=t2 error{ errortext = "Operator / not supported for Array and Double" }
+t1%=t2 error{ errortext = "Operator % not supported for Array and Double" }
 '' vs '<uninitialized object>'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for String and Uninit" }
 t1+t2 <uninitialized object>
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for String and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for String and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Uninit" }
 t1+=t2 <uninitialized object>
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Uninit" }
 '' vs 'struct{  }'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for String and Struct" }
 t1+t2 struct{  }
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for String and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for String and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Struct" }
 t1+=t2 struct{  }
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Struct" }
 '' vs 'dict{  }'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for String and Dictionary" }
 t1+t2 dict{  }
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for String and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for String and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Dictionary" }
 t1+=t2 dict{  }
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Dictionary" }
 '' vs '{  }'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Array" }
+t1/t2 error{ errortext = "Operator / not supported for String and Array" }
 t1+t2 {  }
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Array" }
+t1&t2 error{ errortext = "Operator & not supported for String and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Array" }
+t1|t2 error{ errortext = "Operator | not supported for String and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Array" }
 t1+=t2 {  }
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Array" }
 '' vs ''
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and String" }
+t1/t2 error{ errortext = "Operator / not supported for String and String" }
 t1+t2 
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and String" }
+t1&t2 error{ errortext = "Operator & not supported for String and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and String" }
+t1|t2 error{ errortext = "Operator | not supported for String and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and String" }
+t1<<t2 error{ errortext = "Operator << not supported for String and String" }
 t1+=t2 
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and String" }
+t1/=t2 error{ errortext = "Operator / not supported for String and String" }
+t1%=t2 error{ errortext = "Operator % not supported for String and String" }
 '' vs '4'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Integer" }
+t1/t2 error{ errortext = "Operator / not supported for String and Integer" }
 t1+t2 4
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Integer" }
+t1&t2 error{ errortext = "Operator & not supported for String and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for String and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Integer" }
 t1+=t2 4
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Integer" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Integer" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Integer" }
 '' vs '1.5'
 !t1 1
 ~t1 
 -t1 <uninitialized object>
 +t1 
-t1*t2 
-t1/t2 
+t1*t2 error{ errortext = "Operator * not supported for String and Double" }
+t1/t2 error{ errortext = "Operator / not supported for String and Double" }
 t1+t2 1.5
 t1-t2 
-t1%t2 
-t1&t2 
-t1^t2 
-t1|t2 
-t1>>t2 
-t1<<t2 
+t1%t2 error{ errortext = "Operator % not supported for String and Double" }
+t1&t2 error{ errortext = "Operator & not supported for String and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for String and Double" }
+t1|t2 error{ errortext = "Operator | not supported for String and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for String and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for String and Double" }
 t1+=t2 1.5
 t1-=t2 
-t1*=t2 
-t1/=t2 
-t1%=t2 
+t1*=t2 error{ errortext = "Operator * not supported for String and Double" }
+t1/=t2 error{ errortext = "Operator / not supported for String and Double" }
+t1%=t2 error{ errortext = "Operator % not supported for String and Double" }
 '4' vs '<uninitialized object>'
 !t1 0
 ~t1 -5
 -t1 -4
 +t1 4
-t1*t2 4
-t1/t2 4
-t1+t2 4
-t1-t2 4
-t1%t2 4
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
-t1+=t2 4
-t1-=t2 4
-t1*=t2 4
-t1/=t2 4
-t1%=t2 4
+t1*t2 error{ errortext = "Operator * not supported for Integer and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Integer and Uninit" }
+t1+t2 error{ errortext = "Operator + not supported for Integer and Uninit" }
+t1-t2 error{ errortext = "Operator - not supported for Integer and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Integer and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Integer and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and Uninit" }
+t1+=t2 error{ errortext = "Operator + not supported for Integer and Uninit" }
+t1-=t2 error{ errortext = "Operator - not supported for Integer and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Integer and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Integer and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Integer and Uninit" }
 '4' vs 'struct{  }'
 !t1 0
 ~t1 -5
 -t1 -4
 +t1 4
-t1*t2 4
-t1/t2 4
-t1+t2 4
-t1-t2 4
-t1%t2 4
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
-t1+=t2 4
-t1-=t2 4
-t1*=t2 4
-t1/=t2 4
-t1%=t2 4
+t1*t2 error{ errortext = "Operator * not supported for Integer and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Integer and Struct" }
+t1+t2 error{ errortext = "Operator + not supported for Integer and Struct" }
+t1-t2 error{ errortext = "Operator - not supported for Integer and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Integer and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Integer and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and Struct" }
+t1+=t2 error{ errortext = "Operator + not supported for Integer and Struct" }
+t1-=t2 error{ errortext = "Operator - not supported for Integer and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Integer and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Integer and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Integer and Struct" }
 '4' vs 'dict{  }'
 !t1 0
 ~t1 -5
 -t1 -4
 +t1 4
-t1*t2 4
-t1/t2 4
-t1+t2 4
-t1-t2 4
-t1%t2 4
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
-t1+=t2 4
-t1-=t2 4
-t1*=t2 4
-t1/=t2 4
-t1%=t2 4
+t1*t2 error{ errortext = "Operator * not supported for Integer and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Integer and Dictionary" }
+t1+t2 error{ errortext = "Operator + not supported for Integer and Dictionary" }
+t1-t2 error{ errortext = "Operator - not supported for Integer and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Integer and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Integer and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and Dictionary" }
+t1+=t2 error{ errortext = "Operator + not supported for Integer and Dictionary" }
+t1-=t2 error{ errortext = "Operator - not supported for Integer and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Integer and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Integer and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Integer and Dictionary" }
 '4' vs '{  }'
 !t1 0
 ~t1 -5
 -t1 -4
 +t1 4
-t1*t2 4
-t1/t2 4
-t1+t2 4
-t1-t2 4
-t1%t2 4
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
-t1+=t2 4
-t1-=t2 4
-t1*=t2 4
-t1/=t2 4
-t1%=t2 4
+t1*t2 error{ errortext = "Operator * not supported for Integer and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Integer and Array" }
+t1+t2 error{ errortext = "Operator + not supported for Integer and Array" }
+t1-t2 error{ errortext = "Operator - not supported for Integer and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Integer and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Integer and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and Array" }
+t1+=t2 error{ errortext = "Operator + not supported for Integer and Array" }
+t1-=t2 error{ errortext = "Operator - not supported for Integer and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Integer and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Integer and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Integer and Array" }
 '4' vs ''
 !t1 0
 ~t1 -5
 -t1 -4
 +t1 4
-t1*t2 4
-t1/t2 4
+t1*t2 error{ errortext = "Operator * not supported for Integer and String" }
+t1/t2 error{ errortext = "Operator / not supported for Integer and String" }
 t1+t2 4
 t1-t2 4
-t1%t2 4
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
+t1%t2 error{ errortext = "Operator % not supported for Integer and String" }
+t1&t2 error{ errortext = "Operator & not supported for Integer and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and String" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and String" }
 t1+=t2 4
 t1-=t2 4
-t1*=t2 4
-t1/=t2 4
-t1%=t2 4
+t1*=t2 error{ errortext = "Operator * not supported for Integer and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Integer and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Integer and String" }
 '4' vs '4'
 !t1 0
 ~t1 -5
@@ -828,11 +828,11 @@ t1/t2 2.6666666666666665
 t1+t2 5.5
 t1-t2 2.5
 t1%t2 1
-t1&t2 4
-t1^t2 4
-t1|t2 4
-t1>>t2 4
-t1<<t2 4
+t1&t2 error{ errortext = "Operator & not supported for Integer and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Integer and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Integer and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Integer and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Integer and Double" }
 t1+=t2 5.5
 t1-=t2 2.5
 t1*=t2 6
@@ -843,101 +843,101 @@ t1%=t2 1
 ~t1 1.5
 -t1 -1.5
 +t1 1.5
-t1*t2 1.5
-t1/t2 1.5
-t1+t2 1.5
-t1-t2 1.5
-t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
-t1+=t2 1.5
-t1-=t2 1.5
-t1*=t2 1.5
-t1/=t2 1.5
-t1%=t2 1.5
+t1*t2 error{ errortext = "Operator * not supported for Double and Uninit" }
+t1/t2 error{ errortext = "Operator / not supported for Double and Uninit" }
+t1+t2 error{ errortext = "Operator + not supported for Double and Uninit" }
+t1-t2 error{ errortext = "Operator - not supported for Double and Uninit" }
+t1%t2 error{ errortext = "Operator % not supported for Double and Uninit" }
+t1&t2 error{ errortext = "Operator & not supported for Double and Uninit" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Uninit" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Uninit" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Uninit" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Uninit" }
+t1+=t2 error{ errortext = "Operator + not supported for Double and Uninit" }
+t1-=t2 error{ errortext = "Operator - not supported for Double and Uninit" }
+t1*=t2 error{ errortext = "Operator * not supported for Double and Uninit" }
+t1/=t2 error{ errortext = "Operator / not supported for Double and Uninit" }
+t1%=t2 error{ errortext = "Operator % not supported for Double and Uninit" }
 '1.5' vs 'struct{  }'
 !t1 0
 ~t1 1.5
 -t1 -1.5
 +t1 1.5
-t1*t2 1.5
-t1/t2 1.5
-t1+t2 1.5
-t1-t2 1.5
-t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
-t1+=t2 1.5
-t1-=t2 1.5
-t1*=t2 1.5
-t1/=t2 1.5
-t1%=t2 1.5
+t1*t2 error{ errortext = "Operator * not supported for Double and Struct" }
+t1/t2 error{ errortext = "Operator / not supported for Double and Struct" }
+t1+t2 error{ errortext = "Operator + not supported for Double and Struct" }
+t1-t2 error{ errortext = "Operator - not supported for Double and Struct" }
+t1%t2 error{ errortext = "Operator % not supported for Double and Struct" }
+t1&t2 error{ errortext = "Operator & not supported for Double and Struct" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Struct" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Struct" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Struct" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Struct" }
+t1+=t2 error{ errortext = "Operator + not supported for Double and Struct" }
+t1-=t2 error{ errortext = "Operator - not supported for Double and Struct" }
+t1*=t2 error{ errortext = "Operator * not supported for Double and Struct" }
+t1/=t2 error{ errortext = "Operator / not supported for Double and Struct" }
+t1%=t2 error{ errortext = "Operator % not supported for Double and Struct" }
 '1.5' vs 'dict{  }'
 !t1 0
 ~t1 1.5
 -t1 -1.5
 +t1 1.5
-t1*t2 1.5
-t1/t2 1.5
-t1+t2 1.5
-t1-t2 1.5
-t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
-t1+=t2 1.5
-t1-=t2 1.5
-t1*=t2 1.5
-t1/=t2 1.5
-t1%=t2 1.5
+t1*t2 error{ errortext = "Operator * not supported for Double and Dictionary" }
+t1/t2 error{ errortext = "Operator / not supported for Double and Dictionary" }
+t1+t2 error{ errortext = "Operator + not supported for Double and Dictionary" }
+t1-t2 error{ errortext = "Operator - not supported for Double and Dictionary" }
+t1%t2 error{ errortext = "Operator % not supported for Double and Dictionary" }
+t1&t2 error{ errortext = "Operator & not supported for Double and Dictionary" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Dictionary" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Dictionary" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Dictionary" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Dictionary" }
+t1+=t2 error{ errortext = "Operator + not supported for Double and Dictionary" }
+t1-=t2 error{ errortext = "Operator - not supported for Double and Dictionary" }
+t1*=t2 error{ errortext = "Operator * not supported for Double and Dictionary" }
+t1/=t2 error{ errortext = "Operator / not supported for Double and Dictionary" }
+t1%=t2 error{ errortext = "Operator % not supported for Double and Dictionary" }
 '1.5' vs '{  }'
 !t1 0
 ~t1 1.5
 -t1 -1.5
 +t1 1.5
-t1*t2 1.5
-t1/t2 1.5
-t1+t2 1.5
-t1-t2 1.5
-t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
-t1+=t2 1.5
-t1-=t2 1.5
-t1*=t2 1.5
-t1/=t2 1.5
-t1%=t2 1.5
+t1*t2 error{ errortext = "Operator * not supported for Double and Array" }
+t1/t2 error{ errortext = "Operator / not supported for Double and Array" }
+t1+t2 error{ errortext = "Operator + not supported for Double and Array" }
+t1-t2 error{ errortext = "Operator - not supported for Double and Array" }
+t1%t2 error{ errortext = "Operator % not supported for Double and Array" }
+t1&t2 error{ errortext = "Operator & not supported for Double and Array" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Array" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Array" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Array" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Array" }
+t1+=t2 error{ errortext = "Operator + not supported for Double and Array" }
+t1-=t2 error{ errortext = "Operator - not supported for Double and Array" }
+t1*=t2 error{ errortext = "Operator * not supported for Double and Array" }
+t1/=t2 error{ errortext = "Operator / not supported for Double and Array" }
+t1%=t2 error{ errortext = "Operator % not supported for Double and Array" }
 '1.5' vs ''
 !t1 0
 ~t1 1.5
 -t1 -1.5
 +t1 1.5
-t1*t2 1.5
-t1/t2 1.5
+t1*t2 error{ errortext = "Operator * not supported for Double and String" }
+t1/t2 error{ errortext = "Operator / not supported for Double and String" }
 t1+t2 1.5
 t1-t2 1.5
-t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
+t1%t2 error{ errortext = "Operator % not supported for Double and String" }
+t1&t2 error{ errortext = "Operator & not supported for Double and String" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and String" }
+t1|t2 error{ errortext = "Operator | not supported for Double and String" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and String" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and String" }
 t1+=t2 1.5
 t1-=t2 1.5
-t1*=t2 1.5
-t1/=t2 1.5
-t1%=t2 1.5
+t1*=t2 error{ errortext = "Operator * not supported for Double and String" }
+t1/=t2 error{ errortext = "Operator / not supported for Double and String" }
+t1%=t2 error{ errortext = "Operator % not supported for Double and String" }
 '1.5' vs '4'
 !t1 0
 ~t1 1.5
@@ -948,11 +948,11 @@ t1/t2 0.375
 t1+t2 5.5
 t1-t2 -2.5
 t1%t2 1.5
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
+t1&t2 error{ errortext = "Operator & not supported for Double and Integer" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Integer" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Integer" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Integer" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Integer" }
 t1+=t2 5.5
 t1-=t2 -2.5
 t1*=t2 6
@@ -968,11 +968,11 @@ t1/t2 1
 t1+t2 3
 t1-t2 0
 t1%t2 0
-t1&t2 1.5
-t1^t2 1.5
-t1|t2 1.5
-t1>>t2 1.5
-t1<<t2 1.5
+t1&t2 error{ errortext = "Operator & not supported for Double and Double" }
+t1^t2 error{ errortext = "Operator ^ not supported for Double and Double" }
+t1|t2 error{ errortext = "Operator | not supported for Double and Double" }
+t1>>t2 error{ errortext = "Operator >> not supported for Double and Double" }
+t1<<t2 error{ errortext = "Operator << not supported for Double and Double" }
 t1+=t2 3
 t1-=t2 0
 t1*=t2 2.25
