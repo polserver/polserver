@@ -30,6 +30,12 @@ public:  // Class Machinery
   BObjectImp* copy() const override;
   bool isTrue() const override;
   bool operator==( const BObjectImp& objimp ) const override;
+  bool operator<( const BObjectImp& objimp ) const override;
+
+  // A Boolean is 1 or 0 in arithmetic, so the unary operators answer as they would for that
+  // Integer. Without these, `-true` was an uninitialized value and `~true` was `true` itself.
+  BObjectImp* inverse() const override;
+  BObjectImp* bitnot() const override;
 
   std::string getStringRep() const override;
 

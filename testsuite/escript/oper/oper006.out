@@ -1,1 +1,1 @@
-<uninitialized object>
+error{ errortext = "Operator + not supported for Error and Uninit" }

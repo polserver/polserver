@@ -7,6 +7,44 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>09-05-2026</date>
+			<author>Nando:</author>
+			<change type="Added">The compiler warns when both operands of an operator are literals and no rule exists<br/>
+for the pair, so the ones that can be seen at build time are reported before the shard<br/>
+runs at all.</change>
+			<change type="Changed">`+` with a String on either side concatenates and spells the Boolean &quot;true&quot; or<br/>
+&quot;false&quot;, so `&quot;abc&quot; + true` stays &quot;abctrue&quot; and `true + &quot;abc&quot;` is now &quot;trueabc&quot;<br/>
+instead of evaluating to `true` and dropping the string.</change>
+			<change type="Fixed">An arithmetic or bitwise operator applied to an operand pair that neither type had a<br/>
+rule for returned the left operand unchanged, silently. `2 + true` was 2 and<br/>
+`true + 2` was true, so the answer depended on which side a value was written on, and<br/>
+`2 + error{...}` was 2 - addition destroyed the error. Every such pair now produces an<br/>
+error naming the operator and both types, and the first one in a script is written to<br/>
+pol.log with the script and PC.</change>
+			<change type="Fixed">A Boolean now counts as 1 or 0 in arithmetic, as it does in C, Python and JavaScript,<br/>
+so `2 + true`, `true + 2` and `true + true` are 3, 3 and 2. `-true` is -1 and `~true`<br/>
+is -2, where they were an uninitialized value and `true` itself.</change>
+			<change type="Fixed">An eScript expression built from constants could compute a different answer than<br/>
+the same expression written through variables: the compiler folded it with<br/>
+arithmetic of its own instead of the arithmetic the VM runs. Folding now applies<br/>
+the VM's own operators, so the two cannot disagree. This affected every comparison<br/>
+mixing an Integer with a Real, and every operator on Booleans.</change>
+			<change type="Fixed">`(-2147483647-1) / -1` and the matching modulus crashed ecompile outright, and<br/>
+evaluating them at runtime killed the running script with no message on Windows.<br/>
+Integer arithmetic is now defined in every case: overflow wraps, INT_MIN / -1 is<br/>
+INT_MIN, INT_MIN % -1 is 0, and shift counts are taken modulo 32. These are the<br/>
+answers the VM has always given on x86, so no working script changes.</change>
+			<change type="Fixed">Comparing an Integer to a Real applied the documented tolerance of 0.00000001 only<br/>
+when the Real was on the left, so `2 == 2.000000001` and `2.000000001 == 2`<br/>
+disagreed. The tolerance now applies whichever side the Real is on, and `&lt;`<br/>
+excludes the band that `==` accepts, so `==`, `&lt;`, `&lt;=`, `&gt;` and `&gt;=` can no longer<br/>
+contradict one another. Previously `2.0 == 2.000000001` was true while<br/>
+`2.0 &gt;= 2.000000001` was false.</change>
+			<change type="Fixed">`&lt;`, `&lt;=`, `&gt;` and `&gt;=` on Booleans compared the addresses of the two objects<br/>
+rather than their values, so `true &lt; true` was as likely to be 1 as 0. false now<br/>
+orders below true, and below any other value that is true.</change>
+		</entry>
+		<entry>
+			<date>09-05-2026</date>
 			<author>Turley:</author>
 			<change type="Fixed">inconsistency of ghost speech</change>
 			<change type="Fixed">client.clientinfo it was partially garbage</change>

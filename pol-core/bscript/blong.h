@@ -33,11 +33,11 @@ public:
   size_t sizeEstimate() const override;
 
   int value() const { return lval_; }
-  int increment() { return ++lval_; }
+  int increment() { return lval_ = wrap_add( lval_, 1 ); }
 
 public:  // Class Machinery
   BObjectImp* copy() const override;
-  BObjectImp* inverse() const override { return new BLong( -lval_ ); }
+  BObjectImp* inverse() const override { return new BLong( wrap_neg( lval_ ) ); }
   void copyvalue( const BLong& ni ) { lval_ = ni.lval_; }
   bool isTrue() const override;
   bool operator==( const BObjectImp& objimp ) const override;
@@ -99,10 +99,44 @@ public:  // Class Machinery
 
   BObjectImp* bitnot() const override;
 
-  void selfPlusPlus() override { ++lval_; }
-  void selfMinusMinus() override { --lval_; }
+  void selfPlusPlus() override { lval_ = wrap_add( lval_, 1 ); }
+  void selfMinusMinus() override { lval_ = wrap_sub( lval_, 1 ); }
 
   std::string getStringRep() const override;
+
+  // eScript Integer arithmetic is defined here rather than left to C++, whose signed overflow,
+  // INT_MIN/-1 and out-of-range shift counts are all undefined behavior. These reproduce what the
+  // VM has always produced on x86 -- two's-complement wrap, shift counts masked to 0-31 -- so no
+  // script changes meaning, and the compiler's constant folder gets the same answers by calling
+  // the same operators (see specs/escript/03).
+  static constexpr int wrap_add( int a, int b )
+  {
+    return static_cast<int>( static_cast<unsigned>( a ) + static_cast<unsigned>( b ) );
+  }
+  static constexpr int wrap_sub( int a, int b )
+  {
+    return static_cast<int>( static_cast<unsigned>( a ) - static_cast<unsigned>( b ) );
+  }
+  static constexpr int wrap_mul( int a, int b )
+  {
+    return static_cast<int>( static_cast<unsigned>( a ) * static_cast<unsigned>( b ) );
+  }
+  static constexpr int wrap_neg( int a )
+  {
+    return static_cast<int>( 0u - static_cast<unsigned>( a ) );
+  }
+  // Callers must reject a zero divisor first; that is an error object, not a value.
+  static constexpr int wrap_div( int a, int b ) { return ( b == -1 ) ? wrap_neg( a ) : a / b; }
+  static constexpr int wrap_mod( int a, int b ) { return ( b == -1 ) ? 0 : a % b; }
+  static constexpr int shift_left( int v, int count )
+  {
+    unsigned shift = static_cast<unsigned>( count ) & 31u;
+    return static_cast<int>( static_cast<unsigned>( v ) << shift );
+  }
+  static constexpr int shift_right( int v, int count )
+  {
+    return v >> ( static_cast<unsigned>( count ) & 31u );
+  }
 
 protected:
   int lval_;

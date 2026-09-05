@@ -20,7 +20,7 @@ dict{ "blubb" -> 2 }
 struct{ blubb = 2 }
 dict{ "blubb" -> 1 }
 struct{ blubb = 1 }
-struct{ blubb = <uninitialized object> }
+struct{ blubb = error{ errortext = "Operator + not supported for Uninit and Integer" } }
 dict{  }
 struct{ resist_fire_mod = <uninitialized object> }
 dict{  }

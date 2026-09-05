@@ -1,0 +1,2 @@
+// Same for the modulus operator, and for a Real divisor.
+print( 1.0 % 0 );

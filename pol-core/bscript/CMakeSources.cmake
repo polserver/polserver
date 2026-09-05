@@ -349,14 +349,8 @@ set (bscript_sources    # sorted !
   compiler/optimizer/BinaryOperatorOptimizer.h
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.cpp
   compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h
-  compiler/optimizer/BinaryOperatorWithBooleanOptimizer.cpp
-  compiler/optimizer/BinaryOperatorWithBooleanOptimizer.h
-  compiler/optimizer/BinaryOperatorWithFloatOptimizer.cpp
-  compiler/optimizer/BinaryOperatorWithFloatOptimizer.h
-  compiler/optimizer/BinaryOperatorWithIntegerOptimizer.cpp
-  compiler/optimizer/BinaryOperatorWithIntegerOptimizer.h
-  compiler/optimizer/BinaryOperatorWithStringOptimizer.cpp
-  compiler/optimizer/BinaryOperatorWithStringOptimizer.h
+  compiler/optimizer/ConstantFolder.cpp
+  compiler/optimizer/ConstantFolder.h
   compiler/optimizer/ConstantValidator.cpp
   compiler/optimizer/ConstantValidator.h
   compiler/optimizer/CodeSectionOptimizer.cpp

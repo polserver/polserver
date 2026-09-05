@@ -71,7 +71,7 @@ bool BLong::operator==( const BObjectImp& objimp ) const
   }
   if ( objimp.isa( OTDouble ) )
   {
-    return lval_ == ( (Double&)objimp ).value();
+    return numbers_equal( lval_, ( (Double&)objimp ).value() );
   }
   if ( objimp.isa( OTBoolean ) )
   {
@@ -89,7 +89,11 @@ bool BLong::operator<( const BObjectImp& objimp ) const
   }
   if ( objimp.isa( OTDouble ) )
   {
-    return lval_ < ( (Double&)objimp ).value();
+    return number_less( lval_, ( (Double&)objimp ).value() );
+  }
+  if ( objimp.isa( OTBoolean ) )
+  {
+    return !isTrue() && static_cast<const BBoolean&>( objimp ).isTrue();
   }
 
   return base::operator<( objimp );
@@ -106,7 +110,7 @@ BObjectImp* BLong::selfPlusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfPlusObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ + objimp.lval_ );
+  return new BLong( wrap_add( lval_, objimp.lval_ ) );
 }
 BObjectImp* BLong::selfPlusObj( const Double& objimp ) const
 {
@@ -123,7 +127,7 @@ void BLong::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 }
 void BLong::selfPlusObj( BLong& objimp, BObject& /*obj*/ )
 {
-  lval_ += objimp.value();
+  lval_ = wrap_add( lval_, objimp.value() );
 }
 void BLong::selfPlusObj( Double& objimp, BObject& obj )
 {
@@ -140,7 +144,7 @@ BObjectImp* BLong::selfMinusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfMinusObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ - objimp.value() );
+  return new BLong( wrap_sub( lval_, objimp.value() ) );
 }
 BObjectImp* BLong::selfMinusObj( const Double& objimp ) const
 {
@@ -157,7 +161,7 @@ void BLong::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 }
 void BLong::selfMinusObj( BLong& objimp, BObject& /*obj*/ )
 {
-  lval_ -= objimp.value();
+  lval_ = wrap_sub( lval_, objimp.value() );
 }
 void BLong::selfMinusObj( Double& objimp, BObject& obj )
 {
@@ -174,7 +178,7 @@ BObjectImp* BLong::selfTimesObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfTimesObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ * objimp.lval_ );
+  return new BLong( wrap_mul( lval_, objimp.lval_ ) );
 }
 BObjectImp* BLong::selfTimesObj( const Double& objimp ) const
 {
@@ -186,7 +190,7 @@ void BLong::selfTimesObjImp( BObjectImp& objimp, BObject& obj )
 }
 void BLong::selfTimesObj( BLong& objimp, BObject& /*obj*/ )
 {
-  lval_ *= objimp.lval_;
+  lval_ = wrap_mul( lval_, objimp.lval_ );
 }
 void BLong::selfTimesObj( Double& objimp, BObject& obj )
 {
@@ -202,7 +206,7 @@ BObjectImp* BLong::selfDividedByObj( const BLong& objimp ) const
   int divisor = objimp.lval_;
   if ( !divisor )
     return new BError( "Divide by Zero" );
-  return new BLong( lval_ / divisor );
+  return new BLong( wrap_div( lval_, divisor ) );
 }
 BObjectImp* BLong::selfDividedByObj( const Double& objimp ) const
 {
@@ -220,7 +224,7 @@ void BLong::selfDividedByObj( BLong& objimp, BObject& obj )
   if ( !objimp.lval_ )
     obj.setimp( new BError( "Divide by Zero" ) );
   else
-    lval_ /= objimp.lval_;
+    lval_ = wrap_div( lval_, objimp.lval_ );
 }
 void BLong::selfDividedByObj( Double& objimp, BObject& obj )
 {
@@ -236,7 +240,7 @@ BObjectImp* BLong::selfModulusObj( const BLong& objimp ) const
   int divisor = objimp.lval_;
   if ( !divisor )
     return new BError( "Divide by Zero" );
-  return new BLong( lval_ % divisor );
+  return new BLong( wrap_mod( lval_, divisor ) );
 }
 BObjectImp* BLong::selfModulusObj( const Double& objimp ) const
 {
@@ -253,7 +257,7 @@ void BLong::selfModulusObj( BLong& objimp, BObject& obj )
   if ( !objimp.lval_ )
     obj.setimp( new BError( "Divide by Zero" ) );
   else
-    lval_ %= objimp.lval_;
+    lval_ = wrap_mod( lval_, objimp.lval_ );
 }
 void BLong::selfModulusObj( Double& objimp, BObject& obj )
 {
@@ -266,7 +270,7 @@ BObjectImp* BLong::selfBitShiftRightObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfBitShiftRightObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ >> objimp.lval_ );
+  return new BLong( shift_right( lval_, objimp.lval_ ) );
 }
 BObjectImp* BLong::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 {
@@ -274,7 +278,7 @@ BObjectImp* BLong::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BLong::selfBitShiftLeftObj( const BLong& objimp ) const
 {
-  return new BLong( lval_ << objimp.lval_ );
+  return new BLong( shift_left( lval_, objimp.lval_ ) );
 }
 BObjectImp* BLong::selfBitAndObjImp( const BObjectImp& objimp ) const
 {
