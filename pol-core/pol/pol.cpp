@@ -300,8 +300,6 @@ void start_client_char( Network::Client* client )
   login_complete( client );
   client->chr->tellmove();
 
-  client->chr->check_weather_region_change( true );
-
   if ( settingsManager.ssopt.core_sends_season )
     send_season_info( client );
 
@@ -311,6 +309,9 @@ void start_client_char( Network::Client* client )
   send_owncreate( client, client->chr );
 
   send_goxyz( client, client->chr );
+
+  // Both send_goxyz and the season packet stop the client's weather.
+  client->chr->check_weather_region_change( true );
 
   client->restart();
 
@@ -485,6 +486,8 @@ void handle_resync_request( Network::Client* client, PKTBI_22_SYNC* /*msg*/ )
 
   send_inrange_items( client );
   send_inrange_multis( client );
+
+  client->chr->check_weather_region_change( true );
 
   client->send_restart();  // dave removed force=true 5/10/3
 }

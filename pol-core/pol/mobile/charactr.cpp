@@ -1656,7 +1656,10 @@ bool Character::setgraphic( u16 newgraphic )
   graphic = newgraphic;
   send_remove_character_to_nearby_cansee( this );
   if ( client )
+  {
     send_goxyz( client, client->chr );
+    check_weather_region_change( true );
+  }
   send_create_mobile_to_nearby_cansee( this );
 
   return true;
@@ -1666,7 +1669,10 @@ void Character::on_color_changed()
 {
   send_remove_character_to_nearby_cansee( this );
   if ( client )
+  {
     send_goxyz( client, client->chr );
+    check_weather_region_change( true );
+  }
   send_create_mobile_to_nearby_cansee( this );
 }
 
@@ -1715,7 +1721,10 @@ void Character::on_cmdlevel_changed()
 void Character::on_facing_changed()
 {
   if ( client )
+  {
     send_goxyz( client, client->chr );
+    check_weather_region_change( true );
+  }
   send_move_mobile_to_nearby_cansee( this );
 }
 
@@ -2063,6 +2072,7 @@ void Character::resurrect()
                                                         if ( !is_visible_to_me( zonechr ) )
                                                           send_remove_character( client, zonechr );
                                                       } );
+    check_weather_region_change( true );
     client->restart();
   }
 
@@ -2107,6 +2117,7 @@ void Character::on_death( Items::Item* corpse )
             send_owncreate( client, zonechr );
         } );
 
+    check_weather_region_change( true );
     client->restart();
   }
 
@@ -3562,14 +3573,7 @@ void Character::check_attack_after_move( bool check_opponents_after_check )
 
 void Character::check_light_region_change()
 {
-  auto light_unil = lightoverride_until();
-  if ( light_unil < Core::read_gameclock() && light_unil != ~0u )
-  {
-    lightoverride_until( 0 );
-    lightoverride( -1 );
-  }
-  if ( client->gd->weather_region && client->gd->weather_region->lightoverride != -1 &&
-       !has_lightoverride() )
+  if ( Core::weather_region_owns_light( client ) )
     return;
 
   int newlightlevel;
@@ -3695,7 +3699,8 @@ void Character::check_weather_region_change( bool force )  // dave changed 5/26/
   if ( force || ( cur_weather_region != new_weather_region ) )
   {
     if ( new_weather_region != nullptr && new_weather_region->lightoverride != -1 &&
-         !has_lightoverride() )
+         !has_lightoverride() &&
+         client->gd->lightlevel != new_weather_region->lightoverride )
     {
       Core::send_light( client, new_weather_region->lightoverride );
       client->gd->lightlevel = new_weather_region->lightoverride;
@@ -4077,6 +4082,7 @@ void Character::realm_changed()
     // these are important to keep here in this order
     Core::send_realm_change( client, stored_realm() );
     Core::send_map_difs( client );
+    // Callers repaint after their own send_goxyz; one here would be undone.
     if ( Core::settingsManager.ssopt.core_sends_season )
       Core::send_season_info( client );
     Core::send_full_statmsg( client, this );
