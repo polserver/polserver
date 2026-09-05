@@ -42,10 +42,11 @@ program tests()
   endif
 
   foreach pkg in testpkgs
-    if ( filter_pkg and !pkg[1].find( filter_pkg ) )
-      continue;
-    endif
+    // Filtered-out packages still set up and clean up, or a skipped cleanup strands what its
+    // setup started - the client package is what tells testclient.py to exit.
+    var run_tests := !filter_pkg or pkg[1].find( filter_pkg );
 
+    // Not a filter: the other packages' cleanups would destroy what this pass verifies.
     if ( test_count == 2 and pkg[1] != "testrestart" )
       continue;
     endif
@@ -70,7 +71,9 @@ program tests()
       syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
     endif
     foreach file in scripts
-      if ( file.find( "test" ) != 1 )
+      if ( !run_tests )
+        continue;
+      elseif ( file.find( "test" ) != 1 )
         continue;
       elseif ( filter_file and !file.find( filter_file ) )
         continue;
