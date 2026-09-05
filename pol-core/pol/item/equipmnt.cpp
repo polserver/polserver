@@ -181,9 +181,10 @@ void allocate_intrinsic_equipment_serials()
 /// must be called at startup
 void load_npc_intrinsic_equip()
 {
-  if ( Clib::FileExists( "config/npcdesc.cfg" ) )
+  std::vector<std::string> filenames = Plib::GetPackageCfgPaths( nullptr, "npcdesc.cfg" );
+  for ( auto& filename : filenames )
   {
-    Clib::ConfigFile cf( "config/npcdesc.cfg" );
+    Clib::ConfigFile cf( filename.c_str() );
     Clib::ConfigElem elem;
     while ( cf.read( elem ) )
     {
@@ -191,11 +192,11 @@ void load_npc_intrinsic_equip()
       Items::create_intrinsic_shield_from_npctemplate( elem, nullptr );
     }
   }
+
   for ( const auto& pkg : Plib::systemstate.packages )
   {
-    std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
-
-    if ( Clib::FileExists( filename.c_str() ) )
+    std::vector<std::string> pkg_filenames = Plib::GetPackageCfgPaths( pkg, "npcdesc.cfg" );
+    for ( auto& filename : pkg_filenames )
     {
       Clib::ConfigFile cf( filename.c_str() );
       Clib::ConfigElem elem;

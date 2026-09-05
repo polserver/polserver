@@ -91,103 +91,40 @@ bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem )
   return false;
 }
 
-// FIXME inefficient.  Templates should be read in once, and reused.
-bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::ConfigElem& elem )
-{
-  try
-  {
-    const Plib::Package* pkg;
-    std::string npctemplate;
-    if ( !Plib::pkgdef_split( template_name, nullptr, &pkg, &npctemplate ) )
-      return false;
-
-    std::string filename =
-        Plib::GetPackageCfgPath( const_cast<Plib::Package*>( pkg ), "npcdesc.cfg" );
-
-    cf.open( filename.c_str() );
-    while ( cf.read( elem ) )
-    {
-      if ( !elem.type_is( "NpcTemplate" ) )
-        continue;
-
-      std::string orig_rest = elem.rest();
-      if ( pkg != nullptr )
-      {
-        std::string newrest = ":" + pkg->name() + ":" + npctemplate;
-        elem.set_rest( newrest.c_str() );
-      }
-      const char* rest = elem.rest();
-      if ( rest != nullptr && *rest != '\0' )
-      {
-        if ( stricmp( orig_rest.c_str(), npctemplate.c_str() ) == 0 )
-          return true;
-      }
-      else
-      {
-        std::string tname = elem.remove_string( "TemplateName" );
-        if ( stricmp( tname.c_str(), npctemplate.c_str() ) == 0 )
-          return true;
-      }
-    }
-    return false;
-  }
-  catch ( const char* msg )
-  {
-    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, msg );
-  }
-  catch ( std::string& str )
-  {
-    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, str );
-  }  // egcs has some trouble realizing 'exception' should catch
-  catch ( std::runtime_error& re )  // runtime_errors, so...
-  {
-    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, re.what() );
-  }
-  catch ( std::exception& ex )
-  {
-    ERROR_PRINTLN( "NPC Creation ({}) Failed: {}", template_name, ex.what() );
-  }
-#ifndef WIN32
-  catch ( ... )
-  {
-  }
-#endif
-  return false;
-}
-
 void read_npc_templates( Plib::Package* pkg )
 {
-  std::string filename = GetPackageCfgPath( pkg, "npcdesc.cfg" );
-  if ( !Clib::FileExists( filename ) )
-    return;
+  std::vector<std::string> filenames = Plib::GetPackageCfgPaths( pkg, "npcdesc.cfg" );
 
-  Clib::ConfigFile cf( filename.c_str() );
-  Clib::ConfigElem elem;
-  while ( cf.read( elem ) )
+  for ( auto& filename : filenames )
   {
-    if ( elem.type_is( "NpcTemplate" ) )
+    Clib::ConfigFile cf( filename.c_str() );
+    Clib::ConfigElem elem;
+    while ( cf.read( elem ) )
     {
-      // first determine the NPC template name.
-      std::string namebase;
-      const char* rest = elem.rest();
-      if ( rest != nullptr && *rest != '\0' )
+      if ( elem.type_is( "NpcTemplate" ) )
       {
-        namebase = rest;
-      }
-      else
-      {
-        namebase = elem.remove_string( "TemplateName" );
-      }
-      std::string descname;
-      if ( pkg != nullptr )
-      {
-        descname = ":" + pkg->name() + ":" + namebase;
-        elem.set_rest( descname.c_str() );
-      }
-      else
-        descname = namebase;
+        // first determine the NPC template name.
+        std::string namebase;
+        const char* rest = elem.rest();
+        if ( rest != nullptr && *rest != '\0' )
+        {
+          namebase = rest;
+        }
+        else
+        {
+          namebase = elem.remove_string( "TemplateName" );
+        }
+        std::string descname;
+        if ( pkg != nullptr )
+        {
+          descname = ":" + pkg->name() + ":" + namebase;
+          elem.set_rest( descname.c_str() );
+        }
+        else
+          descname = namebase;
 
-      gamestate.npc_template_elems[descname] = NpcTemplateElem( cf, elem );
+        gamestate.npc_template_elems[descname] = NpcTemplateElem( cf, elem );
+      }
     }
   }
 }
