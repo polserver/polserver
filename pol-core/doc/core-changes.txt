@@ -39,9 +39,41 @@
     Fixed: client.clientinfo it was partially garbage
     Fixed: a one byte packet (0xFA) disconnected the client on some platforms
 09-05-2026 Ins:
-    Fixed: an AOS tooltip with more than 65535 characters of text could shut the shard
-           down, since the length was narrowed to 16 bits before the range check. A
-           script can set a name that long, so it was script-reachable.
+    Fixed: a client was left with a clear sky, or the wrong light level, after several
+           ordinary events: logging in, reconnecting, its own resync request, dying, being
+           resurrected, having its graphic, colour or facing set from a script, a gargoyle
+           toggling flight, and a boat carrying it between realms. Each of those resends
+           the character's position or a season packet, and the client stops drawing
+           weather when it gets either. Nothing sent it again, so the sky stayed wrong
+           until the character crossed into another weather region, teleported, or the
+           weather changed on its own.
+    Fixed: a character that logged in while dead came back in the wrong season once it
+           was resurrected. A season sent while the character is dead does not stick,
+           so the one login sent was gone, and resurrection sent no other.
+    Fixed: after a season packet the light level was only restored for weather regions
+           that carry a LightOverride. Everywhere else, and for a character holding a
+           light override of its own, the client kept whatever the packet had reset it to.
+    Fixed: a light override expiring inside a weather region that carries a LightOverride
+           never restored the region's level - the client stayed on the expired level
+           until it left the region. Both the timed expiry and uo::SetRegionLightLevel()
+           were affected.
+    Fixed: a character logging into a light region whose level is 0 was never sent a light
+           level at all, on the assumption that a fresh client already shows 0.
+    Changed: chr.setseason() and uo::SendOverallSeason() still leave resending the light
+             and weather to the script, as documented, but no longer leave the core
+             recording a light level and weather region that the client no longer has - so
+             the next weather or region change repairs a client whose script did not.
+    Changed: chr.facing :=, chr.setfacing() and npc::Face() no longer resend the
+             character's position to itself, or its movement to onlookers, when the facing
+             did not actually change. A script using a same-direction turn as a resync
+             nudge no longer gets one: uo::UpdateMobile() redraws a mobile for its
+             onlookers without a position packet, and MoveObjectToLocation() to the
+             character's own position resynchronises the character itself.
+    Note:  a client older than 7.0.9.0 aboard a boat is sent its position on every step,
+           not only when the boat crosses realms, and only the crossing repaints. Those
+           clients still lose the weather while sailing within one realm. The repaint
+           belongs in do_tellmoves, where it would cost a weather packet per step, and
+           wants testing against a real client first.
 09-03-2026 AsYlum:
     Fixed: uo::Distance() returned 65535 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance. It is 0 again.

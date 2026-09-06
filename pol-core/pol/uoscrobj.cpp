@@ -2417,10 +2417,15 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     }
     return new BLong( carrying_capacity_mod() );
   case MBR_FACING:
+  {
+    // face() reports success whether or not it actually turned.
+    u8 oldfacing = facing;
     if ( !face( static_cast<Core::UFACING>( value & PKTIN_02_FACING_MASK ), 0 ) )
       return new BLong( 0 );
-    on_facing_changed();
+    if ( facing != oldfacing )
+      on_facing_changed();
     return new BLong( 1 );
+  }
   case MBR_FIRE_RESIST_MOD:
     fire_resist( fire_resist().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
@@ -2829,6 +2834,9 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
         msg->Write<u8>( Clib::clamp_convert<u8>( season_id ) );
         msg->Write<u8>( Clib::clamp_convert<u8>( playsound ) );
         msg.Send( client );
+        // The packet stopped both; -1 is not a sendable level.
+        client->gd->weather_region = nullptr;
+        client->gd->lightlevel = -1;
         return new BLong( 1 );
       }
     }
@@ -3077,10 +3085,12 @@ BObjectImp* Character::script_method_id( const int id, Core::UOExecutor& ex )
     else
       return new BError( "Invalid type for parameter 0" );
 
+    u8 oldfacing = facing;
     if ( !face( i_facing, flags ) )
       return new BLong( 0 );
 
-    on_facing_changed();
+    if ( facing != oldfacing )
+      on_facing_changed();
     return new BLong( 1 );
     break;
   }

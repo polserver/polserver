@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2026</datemodified>
+		<datemodified>09-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -53,9 +53,41 @@ orders below true, and below any other value that is true.</change>
 		<entry>
 			<date>09-05-2026</date>
 			<author>Ins:</author>
-			<change type="Fixed">an AOS tooltip with more than 65535 characters of text could shut the shard<br/>
-down, since the length was narrowed to 16 bits before the range check. A<br/>
-script can set a name that long, so it was script-reachable.</change>
+			<change type="Fixed">a client was left with a clear sky, or the wrong light level, after several<br/>
+ordinary events: logging in, reconnecting, its own resync request, dying, being<br/>
+resurrected, having its graphic, colour or facing set from a script, a gargoyle<br/>
+toggling flight, and a boat carrying it between realms. Each of those resends<br/>
+the character's position or a season packet, and the client stops drawing<br/>
+weather when it gets either. Nothing sent it again, so the sky stayed wrong<br/>
+until the character crossed into another weather region, teleported, or the<br/>
+weather changed on its own.</change>
+			<change type="Fixed">a character that logged in while dead came back in the wrong season once it<br/>
+was resurrected. A season sent while the character is dead does not stick,<br/>
+so the one login sent was gone, and resurrection sent no other.</change>
+			<change type="Fixed">after a season packet the light level was only restored for weather regions<br/>
+that carry a LightOverride. Everywhere else, and for a character holding a<br/>
+light override of its own, the client kept whatever the packet had reset it to.</change>
+			<change type="Fixed">a light override expiring inside a weather region that carries a LightOverride<br/>
+never restored the region's level - the client stayed on the expired level<br/>
+until it left the region. Both the timed expiry and uo::SetRegionLightLevel()<br/>
+were affected.</change>
+			<change type="Fixed">a character logging into a light region whose level is 0 was never sent a light<br/>
+level at all, on the assumption that a fresh client already shows 0.</change>
+			<change type="Changed">chr.setseason() and uo::SendOverallSeason() still leave resending the light<br/>
+and weather to the script, as documented, but no longer leave the core<br/>
+recording a light level and weather region that the client no longer has - so<br/>
+the next weather or region change repairs a client whose script did not.</change>
+			<change type="Changed">chr.facing :=, chr.setfacing() and npc::Face() no longer resend the<br/>
+character's position to itself, or its movement to onlookers, when the facing<br/>
+did not actually change. A script using a same-direction turn as a resync<br/>
+nudge no longer gets one: uo::UpdateMobile() redraws a mobile for its<br/>
+onlookers without a position packet, and MoveObjectToLocation() to the<br/>
+character's own position resynchronises the character itself.</change>
+			<change type="Note">a client older than 7.0.9.0 aboard a boat is sent its position on every step,<br/>
+not only when the boat crosses realms, and only the crossing repaints. Those<br/>
+clients still lose the weather while sailing within one realm. The repaint<br/>
+belongs in do_tellmoves, where it would cost a weather packet per step, and<br/>
+wants testing against a real client first.</change>
 		</entry>
 		<entry>
 			<date>09-03-2026</date>

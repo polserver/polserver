@@ -232,6 +232,8 @@ class Event:
   EVT_MULTI_PLACED = 135
   EVT_REFRESH_OBJ = 136
   EVT_PROMPT = 137
+  EVT_WEATHER = 138
+  EVT_LIGHT = 139
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -300,6 +302,10 @@ class Event:
       return "refresh_obj"
     elif self.type==Event.EVT_PROMPT:
       return "prompt"
+    elif self.type==Event.EVT_WEATHER:
+      return "weather"
+    elif self.type==Event.EVT_LIGHT:
+      return "light"
     elif self.type==Event.EVT_CLOSE_WINDOW:
       return "close_window"
     elif self.type==Event.EVT_GUMP_REPLY:
