@@ -28,12 +28,9 @@ struct FixedKey
   constexpr std::string_view view() const { return { text, N - 1 }; }
 };
 
-/// The whole "\tKey\t" that opens a line, composed once at compile time so that writing it is one
-/// copy of a known size.
-///
-/// Nearly every key in a save is a literal, but handed to a writer as an argument it has to be
-/// formatted like any other value - which on a large shard is millions of runtime copies of text
-/// that was known when the file was compiled.
+/// The whole "\tKey\t" that opens a line, composed at compile time so writing it is one copy of a
+/// known size. Handed to a writer as an argument instead, a literal key is formatted like any
+/// other value - millions of times over on a large shard.
 template <FixedKey Key>
 inline constexpr auto key_prefix = []
 {
@@ -213,13 +210,10 @@ public:
   size_t bytes_written() const { return _bytes_written + _mbuff.size(); }
 
   /// How much text piles up before it is written. stdio buffering is off, so this is the size of
-  /// the write() the kernel sees: a megabyte turns the hundreds of thousands of small writes a
-  /// large save used to make into a few hundred big ones. Every flush check fires above it, so it
-  /// is also where the buffer of a file-backed writer ends up -- see the constructor.
-  ///
-  /// Public because a block handed to append() at this size goes straight to the file instead of
-  /// being copied in, so whoever is filling a detached writer wants to hand it over at exactly
-  /// this size and not at a constant of its own.
+  /// the write() the kernel sees - a megabyte, against the hundreds of thousands of small writes
+  /// a large save used to make. Public because a block handed to append() at this size goes
+  /// straight to the file instead of being copied in, so a detached writer hands its buffer over
+  /// at exactly this size rather than at a constant of its own.
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
 protected:
