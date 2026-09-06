@@ -20,8 +20,8 @@ import sys
 # Three things differ between two saves of the same world for reasons that have nothing to
 # do with what was persisted, so they are normalised away:
 #
-# 1. Block order, but only in OBJECTHASH_ORDERED below.  Every other file is compared in
-#    file order - see BLOCK ORDER.
+# 1. Block order, in every file - see BLOCK ORDER for what that costs.  storage.txt gets more
+#    than a flat sort, because its order decides which area an item is loaded into.
 #
 # 2. The comment header, which carries the core version and object counts.
 #
@@ -33,46 +33,51 @@ import sys
 
 # BLOCK ORDER
 #
-# Most of these files are compared in file order, because for them the order means
-# something. items.txt and multis.txt are written by walking realm zones
-# (savedata.cpp: write_items/write_multis), and the load reads them back in file order into
-# the same vectors via add_item_to_world's zone.items.push_back - so file order IS zone
+# Every world file is now compared as a set, sorted by a stable key, because a save no longer
+# fixes the block order of any of them: the big ones are split across the thread pool and land
+# in whatever order the threads finish them, and the rest are written by walking
+# objStorageManager.objecthash, whose iteration order is an STL implementation detail.
+#
+# KNOW WHAT THIS NO LONGER CHECKS. items.txt and multis.txt used to be compared in file order,
+# because the load reads them back into the zone vectors in that order - so file order WAS zone
 # vector order, which every WorldIterator walk hands to scripts as the result order of
-# ListItemsNearLocation and friends. specs/items/08 reworks exactly those insert/erase
-# helpers, so this file is the one place that would notice it reordering them.
+# ListItemsNearLocation and friends. This test was the one place that would have noticed a
+# rework of the zone insert/erase helpers (specs/items/08) reordering them. Both files are
+# split now, so that signal is gone and nothing here replaces it. A change to the zone
+# bookkeeping needs its own coverage; do not assume a green round trip covers it.
 #
-# The exception is the files written by walking objStorageManager.objecthash, an
-# unordered_map whose iteration order is an STL implementation detail. It was in fact stable
-# across every round trip measured here, but that is not a property worth asserting across
-# platforms and standard libraries, so those files are sorted by a stable key instead.
+# An on-cursor item used to be a soft spot here, and sorting items.txt has retired it.
+# write_gotten_items appends those after the zone walk, and a lifted item has been extricated
+# from its zone, so it exists only in that tail; reloading it makes it an ordinary ground item
+# at the holder's feet, and the next save writes it among the rest - same bytes, different
+# place in the file. That was enough to fail a file compared in position order. Compared as a
+# set it is not, and the contents do line up across the two saves, because WriteGottenItem
+# writes the holder's coordinates, which is exactly where the reloaded ground item sits.
+# Files whose block order a save does not fix, so they are sorted by a stable key before being
+# compared.  Two reasons land a file here.
 #
-# Known soft spot, verified rather than assumed: ONE on-cursor item in the starting save is
-# enough to fail this test, legitimately. write_items appends gotten items after its zone
-# walk, and a lifted item has been extricated from its zone, so it exists only in that tail.
-# Reloading it makes it an ordinary ground item at the holder's feet, and the next save
-# writes it in zone order - same bytes, different place in the file. Confirmed by moving a
-# block to the tail by hand and round-tripping it: the reload put it back in zone order and
-# this comparison reported it.
-#
-# It is unreachable as the tests are wired today, and the reason is worth knowing before
-# anyone rewires them: the round trip starts from what shard_test_2 saved, and shard_test_2
-# is a bare `pol` with POLCORE_TEST_RUN=2 and no pyuo client, so it cannot put an item on a
-# cursor. Whatever pass 1 left on a cursor was already converted to a ground item when
-# shard_test_2 loaded it. Giving pass 2 a client, or re-pointing this test at shard_test_1's
-# save, makes the hazard live.
-#
-# If that happens, do not sort items.txt - that would give up the zone-order signal for the
-# whole file to accommodate one block. Mark the item instead: set a CProp on it before the
-# save and exempt blocks carrying that CProp from position comparison here, matching them by
-# content as a set while every other block stays in file order. The contents do line up
-# across the two saves (WriteGottenItem writes the holder's coordinates, which is exactly
-# where the reloaded ground item sits), so a per-object exemption is enough.
-OBJECTHASH_ORDERED = {
+# pcs/pcequip/npcs/npcequip are written by walking objStorageManager.objecthash, whose iteration
+# order is an STL implementation detail, and are also split across the thread pool.  datastore.txt
+# is split per datafile, items.txt one top-level item at a time, and multis.txt one multi at a
+# time.  storage.txt is split too and needs more than a flat sort - see AREA_SCOPED below.
+ORDER_FREE = {
     "pcs.txt",
     "pcequip.txt",
     "npcs.txt",
     "npcequip.txt",
+    "datastore.txt",
+    "items.txt",
+    "multis.txt",
 }
+
+# storage.txt is split across the pool too, but sorting it flat would lose the one thing its order
+# decides: Storage::read files every Item under the last StorageArea element it read.  So each item
+# is compared carrying the area it would be loaded into, which is order-independent AND still
+# catches an item that ended up in the wrong area.  The StorageArea elements themselves are
+# collapsed to one per name, because a split file repeats a header once per run of pieces and how
+# many runs there are depends on thread scheduling (Storage::create_area is find-or-create, so a
+# repeat selects the same area).
+AREA_SCOPED = {"storage.txt"}
 
 # Keys dropped from every block before comparing.
 VOLATILE_KEYS = {
@@ -165,9 +170,31 @@ def parse(path):
     return blocks
 
 
+def area_scoped_entries(blocks):
+    """Each item block tagged with the storage area it would be loaded into."""
+    entries = []
+    seen_areas = set()
+    area = None
+    for block in blocks:
+        if block.type_line.startswith("StorageArea"):
+            keyed = dict(block.lines)
+            area = keyed.get("Name", "")
+            if area not in seen_areas:
+                seen_areas.add(area)
+                entries.append(block.render())
+            continue
+        entries.append(["# in storage area %s" % area] + block.render())
+    return entries
+
+
 def canonical(path):
     blocks = parse(path)
-    if os.path.basename(path) in OBJECTHASH_ORDERED:
+    name = os.path.basename(path)
+    if name in AREA_SCOPED:
+        entries = area_scoped_entries(blocks)
+        entries.sort()
+        return [line for entry in entries for line in entry]
+    if name in ORDER_FREE:
         blocks.sort(key=Block.sort_key)
     out = []
     for block in blocks:

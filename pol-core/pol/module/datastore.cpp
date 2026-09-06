@@ -34,6 +34,7 @@
 #include "pol/globals/ucfg.h"
 #include "pol/module/datastoreimp.h"
 #include "pol/proplist.h"
+#include "pol/saveparallel.h"
 
 #include <module_defs/datafile.h>
 
@@ -603,15 +604,15 @@ DataStoreFile::~DataStoreFile()
 void DataStoreFile::printOn( Clib::StreamWriter& sw ) const
 {
   sw.begin( "DataFile" );
-  sw.add( "Descriptor", descriptor );
-  sw.add( "Name", name );
+  sw.add<"Descriptor">( descriptor );
+  sw.add<"Name">( name );
 
   if ( !pkgname.empty() )
-    sw.add( "Package", pkgname );
+    sw.add<"Package">( pkgname );
 
-  sw.add( "Flags", flags );
-  sw.add( "Version", version );
-  sw.add( "OldVersion", oldversion );
+  sw.add<"Flags">( flags );
+  sw.add<"Version">( version );
+  sw.add<"OldVersion">( oldversion );
   sw.end();
 }
 
@@ -629,13 +630,16 @@ std::string DataStoreFile::filename() const
   return filename( version );
 }
 
-void DataStoreFile::save() const
+void DataStoreFile::ensure_directory() const
 {
   auto path = std::filesystem::path( filename() );
   path.remove_filename();
   if ( !std::filesystem::exists( path ) )
     std::filesystem::create_directories( path );
+}
 
+void DataStoreFile::save() const
+{
   Clib::StreamWriter sw( filename() );
   dfcontents->save( sw );
 }
@@ -689,25 +693,53 @@ void read_datastore_dat()
   }
 }
 
-void write_datastore( Clib::StreamWriter& sw )
+namespace
 {
+/// Whether a save has to write a new generation of this datafile, as opposed to only re-stating
+/// where the current one is.
+bool contents_changed( const DataStoreFile* dsf )
+{
+  return dsf->dfcontents.get() != nullptr && dsf->dfcontents->dirty;
+}
+
+/// One datafile: a new generation of its own ds/ file if its contents changed, and its entry in
+/// the datastore.txt index either way.
+void write_datastore_file( DataStoreFile* dsf, Clib::StreamWriter& index )
+{
+  dsf->delversion = dsf->oldversion;
+  dsf->oldversion = dsf->version;
+
+  if ( contents_changed( dsf ) )
+  {
+    // make a new generation of file and write it.
+    ++dsf->version;
+
+    dsf->save();
+
+    dsf->dfcontents->dirty = false;
+  }
+
+  dsf->printOn( index );
+}
+}  // namespace
+
+Core::SavePart datastore_part( Clib::StreamWriter& sw )
+{
+  // One piece per datafile. Each writes a file of its own, so the pieces are independent, and the
+  // index entries still reach datastore.txt in map order. Worth cutting up: on a shard that uses
+  // datastores heavily this was 680 ms of a 691 ms save -- with everything else spread over the
+  // pool, the one file nobody could share had become what the whole save waited for.
+  std::vector<DataStoreFile*> files;
+  files.reserve( Core::configurationbuffer.datastore.size() );
   for ( auto dsf : Core::configurationbuffer.datastore | std::views::values )
   {
-    dsf->delversion = dsf->oldversion;
-    dsf->oldversion = dsf->version;
-
-    if ( dsf->dfcontents.get() && dsf->dfcontents->dirty )
-    {
-      // make a new generation of file and write it.
-      ++dsf->version;
-
-      dsf->save();
-
-      dsf->dfcontents->dirty = false;
-    }
-
-    dsf->printOn( sw );
+    if ( contents_changed( dsf ) )
+      dsf->ensure_directory();  // on this thread -- see DataStoreFile::ensure_directory
+    files.push_back( dsf );
   }
+  return Core::object_part( "datastore", std::move( files ), &sw, nullptr,
+                            []( DataStoreFile* dsf, Core::ChunkOut out )
+                            { write_datastore_file( dsf, out.file ); } );
 }
 
 void commit_datastore()

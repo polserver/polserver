@@ -30,11 +30,11 @@
 #include "pol/extobj.h"
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/armrtmpl.h"
+#include "pol/item/itemdesc.h"
 #include "pol/layers.h"
 #include "pol/syshookscript.h"
 #include "pol/uobject.h"
-#include "pol/item/armrtmpl.h"
-#include "pol/item/itemdesc.h"
 
 
 namespace Pol
@@ -169,9 +169,9 @@ void UArmor::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   if ( has_ar_mod() )
-    sw.add( "AR_mod", ar_mod() );
+    sw.add<"AR_mod">( ar_mod() );
   if ( tmpl != nullptr && onhitscript_ != ARMOR_TMPL->on_hit_script )
-    sw.add( "OnHitScript", onhitscript_.relativename( tmpl->pkg ) );
+    sw.add<"OnHitScript">( onhitscript_.relativename( tmpl->pkg ) );
 }
 
 void UArmor::readProperties( Clib::ConfigElem& elem )

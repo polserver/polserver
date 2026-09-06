@@ -2,9 +2,27 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2026</datemodified>
+		<datemodified>09-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-06-2026</date>
+			<author>AsYlum, Turley:</author>
+			<change type="Fixed">the shard could wedge when uo::SaveWorldState() was called again while the previous<br/>
+save was still finishing - two scripts saving in the same pass is enough.</change>
+			<change type="Added">pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses; 0 picks<br/>
+a number from the cpus the server is allowed to use, which inside a container is not<br/>
+what the machine has.</change>
+			<change type="Added">pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and what each<br/>
+data file received.</change>
+			<change type="Removed">objects.txt, written empty and read back empty since the world was split into the files<br/>
+that replaced it.</change>
+			<change type="Improved">world save speed - a large shard that used to freeze for seconds while it saved now<br/>
+freezes for a fraction of one, and no single big data file decides how long that is.</change>
+			<change type="Note">the data files hold the same data, but the elements inside storage.txt, items.txt,<br/>
+multis.txt, datastore.txt, pcs.txt, npcs.txt and the equip files are no longer written<br/>
+in a fixed order - two saves of an unchanged world can differ in block order.</change>
+		</entry>
 		<entry>
 			<date>09-05-2026</date>
 			<author>Nando:</author>

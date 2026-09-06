@@ -31,9 +31,10 @@ SerialSet::SerialSet( Clib::ConfigElem& elem, const char* tag )
 
 void SerialSet::writeOn( Clib::StreamWriter& sw, const char* tag ) const
 {
+  using namespace fmt::literals;
   for ( unsigned int citr : *this )
   {
-    sw.add( tag, Clib::hexintv( citr ) );
+    sw.add_fmt( tag, "{:#x}"_cf, citr );
   }
 }
 
@@ -149,7 +150,7 @@ bool Guild::hasEnemy( const Guild* g2 ) const
 void Guild::printOn( Clib::StreamWriter& sw ) const
 {
   sw.begin( "Guild" );
-  sw.add( "GuildId", _guildid );
+  sw.add<"GuildId">( _guildid );
   _member_serials.writeOn( sw, "Member" );
   _allyguild_serials.writeOn( sw, "AllyGuild" );
   _enemyguild_serials.writeOn( sw, "EnemyGuild" );
@@ -223,7 +224,7 @@ void read_guilds_dat()
 void write_guilds( Clib::StreamWriter& sw )
 {
   sw.begin( "General" );
-  sw.add( "NextGuildId", Core::gamestate.nextguildid );
+  sw.add<"NextGuildId">( Core::gamestate.nextguildid );
   sw.end();
 
   for ( const auto& _guild : Core::gamestate.guilds )

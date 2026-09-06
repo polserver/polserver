@@ -3,7 +3,7 @@
 message("* libfmt")
 
 set(FMT_REPO "https://github.com/fmtlib/fmt")
-set(FMT_TAG "11.2.0")
+set(FMT_TAG "12.2.0")
 
 set(FMT_SOURCE_DIR "${EXT_DOWNLOAD_DIR}/fmt-${FMT_TAG}")
 set(FMT_INSTALL_DIR "${FMT_SOURCE_DIR}/install")
@@ -12,6 +12,7 @@ set(FMT_ARGS -DCMAKE_BUILD_TYPE=Release
    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
    -DBUILD_SHARED_LIBS=Off
    -DFMT_MASTER_PROJECT=Off # no docs/tests
+   -DFMT_INSTALL=On # activate install target
    -DCMAKE_USER_MAKE_RULES_OVERRIDE_CXX=${CMAKE_CURRENT_LIST_DIR}/cxx_flag_overrides.cmake
    -DCMAKE_USER_MAKE_RULES_OVERRIDE_C=${CMAKE_CURRENT_LIST_DIR}/c_flag_overrides.cmake
    -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded # /Mt instead lf /Md
