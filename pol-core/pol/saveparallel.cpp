@@ -21,13 +21,10 @@ namespace Pol::Core
 {
 namespace
 {
-/// The longest run of pieces a worker takes off a part in one claim.
-///
-/// A claim is an atomic read-modify-write on a counter every thread is hammering, so the cacheline
-/// it lives on has to travel between cores once per claim and those trips cannot overlap. Claiming
-/// one piece at a time would spend more on that than on formatting a piece; a run of this length
-/// pushes it out of the picture. It is all a claim decides - the buffer is handed over between
-/// pieces, so how heavy a part's pieces are does not come into it.
+/// The longest run of pieces a worker takes off a part in one claim. A claim is an atomic
+/// read-modify-write on a counter every thread hammers, and claiming one piece at a time costs
+/// more than formatting one. It decides nothing else: the buffer is handed over between pieces,
+/// so how heavy a part's pieces are does not come into it.
 constexpr size_t MAX_SAVE_CLAIM = 64;
 
 /// How many pieces of a part a worker takes at a time. A part with few pieces is claimed in
@@ -140,10 +137,9 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
             const size_t equip_held = equip_buffer.buffer().size();
             // Nothing is handed over inside a piece, so the buffers only grow across one.
             biggest = std::max( biggest, held + equip_held - before );
-            // Handed over at exactly the size the file flushes at, so append() writes the block
-            // straight out instead of copying it into a buffer that is about to be written anyway.
-            // Between pieces rather than at the end of the run, so a part whose pieces are a whole
-            // bank box each costs a worker no more memory than one whose piece is a single item.
+            // Handed over at exactly the size the file flushes at, so append() writes it
+            // straight out instead of copying it first, and between pieces rather than at the end
+            // of a run, so heavy pieces cost a worker no more memory than light ones.
             if ( held >= Clib::StreamWriter::FLUSH_THRESHOLD ||
                  equip_held >= Clib::StreamWriter::FLUSH_THRESHOLD )
             {
@@ -177,10 +173,9 @@ SaveParallelResult write_parallel( const std::vector<SavePart>& parts )
     }
   };
 
-  // The calling thread is a worker too: it has nothing else to do, and on a wide pool that is a
-  // whole thread's worth of formatting. It is also what makes a save possible at all with an
-  // empty pool. Nothing escapes a worker, so joining them cannot throw - the first failure is
-  // rethrown below instead.
+  // The calling thread is a worker too - it has nothing else to do, and it is what makes a save
+  // work with an empty pool. Nothing escapes a worker, so joining cannot throw; the first failure
+  // is rethrown below.
   std::vector<std::future<bool>> workers;
   workers.reserve( pool.size() );
   for ( size_t t = 0; t < pool.size(); ++t )

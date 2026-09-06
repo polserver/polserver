@@ -247,11 +247,9 @@ void WriteGottenItem( Items::Item* item, Clib::StreamWriter& sw )
   item->printOn( sw );
 }
 
-/// The mobiles a save has to write, in the order the object hash lists them.
-///
-/// Collected once and shared. The hash holds every item on the shard as well as every mobile, so
-/// on a large shard it is a tree of millions of nodes; finding a few thousand mobiles used to walk
-/// all of it three times over.
+/// The mobiles a save has to write, in the order the object hash lists them. Collected once and
+/// shared: the hash holds every item as well, so finding a few thousand mobiles used to walk
+/// millions of nodes three times over.
 struct MobileSnapshot
 {
   std::vector<Mobile::Character*> pcs;
@@ -317,13 +315,9 @@ void write_item( Items::Item* item, ChunkOut out )
   item->clear_dirty();
 }
 
-/// Items on a player's cursor, appended to items.txt after all the top-level ones as they always
-/// have been.
-///
-/// Runs once the pool has finished rather than as a piece of the items part: it reads the mobiles
-/// that the character part is writing, and that part clears a dirty flag on each of them as it
-/// goes. There is at most one of these per player, so there is nothing here worth overlapping
-/// anything with.
+/// Items on a player's cursor, appended to items.txt after the top-level ones. Runs once the pool
+/// has finished rather than as a piece of the items part, because it reads the mobiles the
+/// character part is writing - and at one per player there is nothing worth overlapping.
 void write_gotten_items( Clib::StreamWriter& sw_items, const MobileSnapshot& mobiles )
 {
   for ( Mobile::Character* chr : mobiles.pcs )
@@ -334,14 +328,11 @@ void write_gotten_items( Clib::StreamWriter& sw_items, const MobileSnapshot& mob
   }
 }
 
-/// Drop the working design of any custom house left mid-edit, which a shutdown has to do before
-/// the save decides what there is to write.
-///
-/// Separate from writing multis.txt: the commit destroys the house's editable component items,
-/// and those are ordinary top-level items, so collect_toplevel_items would otherwise hand one to a
-/// worker that formats it after it has been freed. Doing it here, on this thread and before
-/// anything is collected, is also what keeps destroy_item - which touches the object hash - off
-/// the save's worker threads.
+/// Drop the working design of any custom house left mid-edit, before the save decides what there
+/// is to write. The commit destroys the house's editable component items, which are ordinary
+/// top-level items, so collecting first would hand a worker an item it then formats after it has
+/// been freed. Doing it here also keeps destroy_item, which touches the object hash, off the
+/// worker threads.
 void settle_pending_house_commits()
 {
   if ( !Clib::exit_signalled )
@@ -587,12 +578,10 @@ std::optional<bool> write_data( std::function<void( const SaveResult& )> callbac
         stats.dirty_writes = UObject::dirty_writes;
         if ( Plib::systemstate.config.log_worldsave_details )
           log_save_details( stats );
-        // Handed to another thread rather than run here, because the callback takes the world
-        // lock and SaveContext::finished must not span a lock acquisition: write_data is called
-        // from the scripts thread with that lock held, and opens by waiting on finished. Running
-        // the callback before finished is set would mean this thread waits for a lock the thread
-        // waiting for us is holding - the shard wedges, and back-to-back saves are how you get
-        // there. Nothing waits on the callback, so it is free to block for the lock.
+        // Handed to another thread: the callback takes the world lock, and write_data is called
+        // from the scripts thread holding it, opening by waiting on finished. Running the callback
+        // here would wait for a lock held by the thread waiting for us - back-to-back saves wedge
+        // the shard. Nothing waits on the callback, so it is free to block.
         if ( callback )
           gamestate.save_callback_pool.push(
               [callback = std::move( callback ), stats = std::move( stats )]() mutable
