@@ -632,6 +632,7 @@ class Client(threading.Thread):
     self.disable_item_logging = False # do not signal or log new items
     self.view_range = 18 # default client view range
     self.auto_delete_objs = True
+    self.weather_events = False # weather/light events, for the tests that assert on them
 
     self.gumps=[] # open gumps
     self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
@@ -1144,10 +1145,19 @@ class Client(threading.Thread):
           title=pkt.title, utext=pkt.utext, etext=pkt.etext))
 
     elif isinstance(pkt, packets.SetWeatherPacket):
-      self.log.info('Ignoring weather packet')
+      # No 'assert self.lc' here or below: the core can send both of these
+      # before login completes - check_region_changes() runs ahead of
+      # login_complete() in start_client_char.
+      self.log.debug('Weather %s severity %s aux %s', pkt.type, pkt.num, pkt.temp)
+      if self.weather_events:
+        # 'weather', not 'type': Event takes its own type as the first argument.
+        self.brain.event(brain.Event(brain.Event.EVT_WEATHER, weather=pkt.type,
+            num=pkt.num, temp=pkt.temp))
 
     elif isinstance(pkt, packets.OverallLightLevelPacket):
-      self.log.info('Ignoring light level packet')
+      self.log.debug('Light level %s', pkt.level)
+      if self.weather_events:
+        self.brain.event(brain.Event(brain.Event.EVT_LIGHT, level=pkt.level))
 
     elif isinstance(pkt, packets.SendSkillsPacket):
       self.brain.event(brain.Event(brain.Event.EVT_SKILLS, skills=pkt.skills))

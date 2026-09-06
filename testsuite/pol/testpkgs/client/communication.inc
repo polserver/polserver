@@ -37,7 +37,8 @@ const EVT_ANIMATION := "animation";
 const ANIM_PKT_OLD := 0x6E;
 const ANIM_PKT_NEW := 0xE2;
 // What the shard tells one client and nothing else: the arrow pointing at a place, the cursor for
-// placing a multi, an old style menu, a tip window, the season, and the skill list.
+// placing a multi, an old style menu, a tip window, the season, the skill list, and the weather
+// and light level it should be drawing.
 const EVT_QUEST_ARROW := "quest_arrow";
 const EVT_MULTI_PLACEMENT := "multi_placement";
 // The ack of the place_multi todo: whether a placement cursor was there to answer.
@@ -51,6 +52,8 @@ const EVT_PROMPT := "prompt";
 const EVT_MENU := "menu";
 const EVT_TIP_WINDOW := "tip_window";
 const EVT_SEASON := "season";
+const EVT_WEATHER := "weather";
+const EVT_LIGHT := "light";
 const EVT_SKILLS := "skills";
 // What the "kind" of an effect says the client should draw. Named for the field rather than for
 // the effect, because eScript identifiers are case insensitive and a case called
