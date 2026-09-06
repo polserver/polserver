@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-05-2026</datemodified>
+		<datemodified>09-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -61,6 +61,9 @@ the character's position or a season packet, and the client stops drawing<br/>
 weather when it gets either. Nothing sent it again, so the sky stayed wrong<br/>
 until the character crossed into another weather region, teleported, or the<br/>
 weather changed on its own.</change>
+			<change type="Fixed">a character that logged in while dead came back in the wrong season once it<br/>
+was resurrected. A season sent while the character is dead does not stick,<br/>
+so the one login sent was gone, and resurrection sent no other.</change>
 			<change type="Fixed">after a season packet the light level was only restored for weather regions<br/>
 that carry a LightOverride. Everywhere else, and for a character holding a<br/>
 light override of its own, the client kept whatever the packet had reset it to.</change>

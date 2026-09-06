@@ -2072,6 +2072,10 @@ void Character::resurrect()
                                                         if ( !is_visible_to_me( zonechr ) )
                                                           send_remove_character( client, zonechr );
                                                       } );
+    // A season sent while the character was dead does not stick, so a client that
+    // logged in as a ghost has none. Nothing else sends one on the way back.
+    if ( Core::settingsManager.ssopt.core_sends_season )
+      Core::send_season_info( client );
     check_weather_region_change( true );
     client->restart();
   }

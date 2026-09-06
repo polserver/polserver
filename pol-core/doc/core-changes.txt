@@ -47,6 +47,9 @@
            weather when it gets either. Nothing sent it again, so the sky stayed wrong
            until the character crossed into another weather region, teleported, or the
            weather changed on its own.
+    Fixed: a character that logged in while dead came back in the wrong season once it
+           was resurrected. A season sent while the character is dead does not stick,
+           so the one login sent was gone, and resurrection sent no other.
     Fixed: after a season packet the light level was only restored for weather regions
            that carry a LightOverride. Everywhere else, and for a character holding a
            light override of its own, the client kept whatever the packet had reset it to.
