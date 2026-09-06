@@ -14,6 +14,11 @@
 // The repaints this does not reach yet - login, the version handshake, the
 // gargoyle fly toggle, a boat crossing realms, two of the light fixes and
 // npc::Face() - are listed in the pull request, with what each would need.
+//
+// The first two need more than a case: startclient selects the character
+// before it attaches a brain, so nothing sent during login can raise an
+// event. Reaching them means recording what the client last received and
+// asking it afterwards, rather than watching for it.
 
 use os;
 use uo;
