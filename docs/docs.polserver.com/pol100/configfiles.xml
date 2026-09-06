@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>09/05/2026</datemodified>
+    <datemodified>09/06/2026</datemodified>
 </fileheader>
 
 
@@ -443,8 +443,9 @@ Spell (int spellid)
   <explain><i>WhisperRange:</i> definies the range of whispered speech</explain>
   <explain><i>YellRange:</i> definies the range of yelled speech</explain>
   <explain><i>CoreSendsSeason:</i> Determines if the core should send season packet on char creation/logon/reconnect,
-        realm change and the client version handshake, based on the season entry in realm.cfg. The season packet resets
-        the client's light level, so the core restores it behind each packet it sends.</explain>
+        realm change, the client version handshake and resurrection, based on the season entry in realm.cfg. The season
+        packet resets the client's light level, so the core restores it behind each packet it sends. The one on
+        resurrection is there because a season sent while the character was dead does not stick.</explain>
   <explain><i>CoreHandledTags:</i> bitfield to determine which tags are displayed on singleclick, current used bits are:<br/>
     0x1  [title_guild]<br/>
     0x2  [frozen]<br/>

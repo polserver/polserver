@@ -80,7 +80,14 @@ the next weather or region change repairs a client whose script did not.</change
 			<change type="Changed">chr.facing :=, chr.setfacing() and npc::Face() no longer resend the<br/>
 character's position to itself, or its movement to onlookers, when the facing<br/>
 did not actually change. A script using a same-direction turn as a resync<br/>
-nudge no longer gets one.</change>
+nudge no longer gets one: uo::UpdateMobile() redraws a mobile for its<br/>
+onlookers without a position packet, and MoveObjectToLocation() to the<br/>
+character's own position resynchronises the character itself.</change>
+			<change type="Note">a client older than 7.0.9.0 aboard a boat is sent its position on every step,<br/>
+not only when the boat crosses realms, and only the crossing repaints. Those<br/>
+clients still lose the weather while sailing within one realm. The repaint<br/>
+belongs in do_tellmoves, where it would cost a weather packet per step, and<br/>
+wants testing against a real client first.</change>
 		</entry>
 		<entry>
 			<date>09-03-2026</date>

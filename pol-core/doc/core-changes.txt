@@ -66,7 +66,14 @@
     Changed: chr.facing :=, chr.setfacing() and npc::Face() no longer resend the
              character's position to itself, or its movement to onlookers, when the facing
              did not actually change. A script using a same-direction turn as a resync
-             nudge no longer gets one.
+             nudge no longer gets one: uo::UpdateMobile() redraws a mobile for its
+             onlookers without a position packet, and MoveObjectToLocation() to the
+             character's own position resynchronises the character itself.
+    Note:  a client older than 7.0.9.0 aboard a boat is sent its position on every step,
+           not only when the boat crosses realms, and only the crossing repaints. Those
+           clients still lose the weather while sailing within one realm. The repaint
+           belongs in do_tellmoves, where it would cost a weather packet per step, and
+           wants testing against a real client first.
 09-03-2026 AsYlum:
     Fixed: uo::Distance() returned 65535 for the contents of a container opened with
            uo::SendOpenSpecialContainer(), a bank box for instance. It is 0 again.

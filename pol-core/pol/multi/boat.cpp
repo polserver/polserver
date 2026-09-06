@@ -851,8 +851,15 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
       Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
     }
 
-    // Below the goxyz above, which would undo it. Forced, because an unpainted
-    // zone in either realm is the same background region.
+    // After both branches: the older clients above were sent a goxyz, the newer
+    // ones a season packet by realm_changed(), and either stops the weather.
+    // Forced, because an unpainted zone in either realm is the same background
+    // region, so an ordinary check would see no change.
+    //
+    // Only on a realm crossing. A pre-7.0.9.0 client is also sent a goxyz on
+    // every ordinary step and turn, and repainting there would put a weather
+    // packet - and the journal line that comes with it - on every step. That
+    // belongs in do_tellmoves, and wants testing against a real client first.
     if ( crossed_realms )
       chr->check_weather_region_change( true );
   }
