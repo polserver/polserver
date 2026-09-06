@@ -11,43 +11,9 @@
 // client otherwise visits, so nothing else can be sending these packets - and
 // because it is water, anything that checks walkheight there has to be forced.
 //
-// STILL UNTESTED. Every repaint the core does is listed here; the ones without
-// a case below are left for whoever gets to them, with what each would need.
-//
-//   start_client_char (pol.cpp)  - the repaint after login's last position
-//       send. Needs the client to go away and come back: the todos are
-//       "disconnect" and "connect" (see testclient.py). The catch is that a
-//       reconnect reorders whose events are whose, so drain carefully or the
-//       case passes for the wrong reason.
-//
-//   handle_client_version (miscmsg.cpp) - same trip as above; the core sends
-//       the season here because the one during login is too early for the
-//       client to keep. Falls out of the reconnect case for free.
-//
-//   handle_msg_BF, the gargoyle flight toggle (miscmsg.cpp) - a 0xBF
-//       subcommand through the "raw_packet" todo, like the resync case below.
-//       Needs the subcommand id and a gargoyle body: a non-gargoyle is
-//       refused before anything is sent.
-//
-//   move_boat_mobile (boat.cpp) - a boat carrying this character across into
-//       britannia2. testpkgs/boat/test_boat.src already moves a boat between
-//       realms, and test_client_boat.src already sails one with a client
-//       aboard; this is the two put together.
-//
-//   The three light fixes (ufunc.cpp, charactr.cpp) - EVT_LIGHT is wired up
-//       and unused. regions/light.cfg has TestLightBase at 10 and
-//       TestLightDark at 25 (108..115). Each fix is a restoration after
-//       something resets the level, so the case has to catch the reset first
-//       and then the value coming back:
-//         - the level after a season packet, outside a weather region that
-//           carries a LightOverride
-//         - a light override expiring inside a region that carries one, both
-//           on its timer and through uo::SetRegionLightLevel()
-//         - logging into a light region whose level is 0
-//
-//   npc::Face() (npcmod.cpp) - the same no-resend guard as
-//       facing_unchanged_is_quiet below, but for an NPC turning. Needs a
-//       second client watching, and an assert that it is told nothing.
+// The repaints this does not reach yet - login, the version handshake, the
+// gargoyle fly toggle, a boat crossing realms, two of the light fixes and
+// npc::Face() - are listed in the pull request, with what each would need.
 
 use os;
 use uo;
@@ -65,7 +31,6 @@ const HOME_X := 100;
 const HOME_Y := 50;
 
 // A human body to turn into; what to turn back into is read off the character.
-// setgraphic refuses anything past MaxAnimID, and this is well inside it.
 const BODY_FEMALE := 0x191;
 
 const CLIENT_ID := 0;
@@ -80,6 +45,13 @@ const SEASON_DEFAULT := 0;
 // with -1, which is what the core reads as "no override".
 const TEST_LIGHT := 12;
 const NO_LIGHT_OVERRIDE := -1;
+
+// TestLightDark in regions/light.cfg, and the level it carries. Away from the
+// storm, so the background weather region applies and it holds no
+// LightOverride of its own - which is the case the light fix is about.
+const DARK_X := 111;
+const DARK_Y := 111;
+const DARK_LEVEL := 25;
 
 var char;
 
@@ -121,10 +93,9 @@ function wait_weather( what, timeout := 10 )
 endfunction
 
 
-// Resurrection sends the season first and the weather second, so waiting for
-// one at a time would throw the other away. Which season it is depends on the
-// realm, so only that one was sent is asserted: a client that was dead never
-// kept the season login gave it, and before the fix nothing sent another.
+// Resurrection sends the season first and the weather second, so waiting for one
+// at a time would throw the other away. Only that a season arrived is asserted;
+// which one depends on the realm.
 function wait_season_and_weather( what, timeout := 10 )
   var deadline := ReadMillisecondClock() + timeout * 1000;
   var got_season := 0;
@@ -154,9 +125,24 @@ function wait_season_and_weather( what, timeout := 10 )
 endfunction
 
 
-// Fails if the event turns up at all, for the cases whose fix is that a packet
-// is no longer sent. Polls rather than sleeping a second at a time, so a
-// negative assertion costs what it was asked for.
+function wait_light( level, what, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or ev.type != EVT_LIGHT or CInt( ev.id ) != CLIENT_ID )
+      continue;
+    endif
+    if ( CInt( ev.level ) != level )
+      return ret_error( $"{what}: light {ev.level}, wanted {level}" );
+    endif
+    return 1;
+  endwhile
+  return ret_error( $"{what}: the client was never sent the light level again" );
+endfunction
+
+
+// Fails if the event turns up at all, for the cases whose fix is that a packet is
+// no longer sent. Polls, so a negative assertion costs what it was asked for.
 function no_event_for( type, what, timeout := QUIET_SECS )
   var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( ReadMillisecondClock() < deadline )
@@ -177,16 +163,14 @@ function watch_weather( on )
 endfunction
 
 
-// Puts the character in the storm. The drain comes first, so the toggle above
-// has landed before anything can be sent; then it waits for the packet walking
-// in causes rather than draining blindly, since one that arrived late would
-// otherwise satisfy the wait the case makes afterwards.
+// Drain first, so the toggle above has landed before anything can be sent, then
+// wait for the packet walking in causes: draining blindly would let a late one
+// satisfy the wait the case makes afterwards.
 function enter_storm()
   watch_weather( 1 );
-  // Pinned rather than taken on trust from weather.cfg: TestMisc's
-  // test_uoregion turns this region off and puts back "no weather" rather than
-  // what the config says, and a filtered run can order that before this file.
-  // Nobody is standing in the region yet, so this reaches no client.
+  // Pinned, not trusted to weather.cfg: test_uoregion leaves this region off,
+  // and a filtered run can order that package first. Nobody is standing in it
+  // yet, so this reaches no client.
   var pinned := SetRegionWeatherLevel( STORM_REGION, STORM_TYPE, STORM_SEVERITY, 0, -1 );
   if ( !pinned )
     watch_weather( 0 );
@@ -218,6 +202,32 @@ function leave_storm( res )
   if ( res && !moved )
     return ret_error( "could not take the character back out of the weather region" );
   endif
+  return res;
+endfunction
+
+
+// enter_storm for the light region: walking in changes the level, so waiting
+// for that proves the events are armed before the case starts.
+function enter_dark()
+  watch_weather( 1 );
+  drain_events();
+  if ( !MoveObjectToLocation( char, DARK_X, DARK_Y, 0,
+                              flags := MOVEOBJECT_FORCELOCATION ) )
+    return leave_dark( ret_error( "could not move into the light region" ) );
+  endif
+  var res := wait_light( DARK_LEVEL, "entering the dark" );
+  if ( !res )
+    return leave_dark( res );
+  endif
+  drain_events();
+  return 1;
+endfunction
+
+
+function leave_dark( res )
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  drain_events();
+  watch_weather( 0 );
   return res;
 endfunction
 
@@ -366,4 +376,33 @@ exported function weather_repaint_after_setseason( unused resources )
   // gated the way the weather events are, so a later case would inherit this.
   char.setseason( SEASON_DEFAULT, 0 );
   return leave_storm( res );
+endfunction
+
+
+// A season packet resets the client's light, and the core sends one on
+// resurrection. Outside a weather region carrying a LightOverride - which is
+// everywhere on this shard - nothing used to put the level back, so the client
+// kept whatever the packet had left it on.
+exported function light_restored_after_season( unused resources )
+  var res := enter_dark();
+  if ( !res )
+    return res;
+  endif
+
+  ApplyRawDamage( char, GetVital( char, "Life" ) / 100 + 10 );
+  if ( !char.dead )
+    return leave_dark( revive( ret_error( "the character did not die" ) ) );
+  endif
+  drain_events();
+
+  var corpse := char.getcorpse();
+  if ( !Resurrect( char, RESURRECT_FORCELOCATION ) )
+    return leave_dark( revive( ret_error( "the character could not be resurrected" ) ) );
+  endif
+  res := wait_light( DARK_LEVEL, "resurrection" );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return leave_dark( res );
 endfunction
