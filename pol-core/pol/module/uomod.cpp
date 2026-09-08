@@ -829,8 +829,8 @@ BObjectImp* UOExecutorModule::mf_Target()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::Target():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -963,8 +963,8 @@ BObjectImp* UOExecutorModule::mf_TargetCoordinates()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::TargetCoordinates():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1008,8 +1008,8 @@ BObjectImp* UOExecutorModule::mf_TargetMultiPlacement()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::TargetMultiPlacement():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1569,8 +1569,8 @@ BObjectImp* UOExecutorModule::mf_SelectMenuItem2()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::SelectMenuItem():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

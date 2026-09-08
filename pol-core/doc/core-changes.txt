@@ -1,4 +1,12 @@
 -- POL100.3.0 --
+09-08-2026 Nando:
+  Changed: Runtime script errors now report the eScript call stack, each frame naming its source
+           file and line where the script was compiled with debug information, instead of a
+           program counter alone. Covers the no-rule operator report and the VM's fatal errors
+           in pol.log, and the wrong-parameter and "script can't be blocked" messages in
+           debug.log.
+    Fixed: "Return without GOSUB!" went to stderr only, so a shard run as a service never saw
+           it. It goes to pol.log now.
 09-05-2026 Nando:
     Added: The compiler warns when both operands of an operator are literals and no rule exists
            for the pair, so the ones that can be seen at build time are reported before the shard

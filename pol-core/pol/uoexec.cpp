@@ -526,9 +526,9 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function {}:\n"
-        "\tParameter {}: Expected Long or String, got datatype {}",
+        "\tParameter {}: Expected Long or String, got datatype {}{}",
         scriptname(), PC, current_module_function->name.get(), param,
-        BObjectImp::typestr( imp->type() ) );
+        BObjectImp::typestr( imp->type() ), script_stack_block() );
     return false;
   }
 
@@ -554,8 +554,9 @@ bool UOExecutor::getObjtypeParam( unsigned param, unsigned int& objtype )
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function {}:\n"
-      "\tParameter {}: Value {} is out of range for an objtype",
-      scriptname(), PC, current_module_function->name.get(), param, objtype_long );
+      "\tParameter {}: Value {} is out of range for an objtype{}",
+      scriptname(), PC, current_module_function->name.get(), param, objtype_long,
+      script_stack_block() );
   setFunctionResult( new BError( "Objtype is out of range ( acceptable: 0 - " +
                                  Clib::hexint( Plib::systemstate.config.max_objtype ) + " )" ) );
   return false;
@@ -614,9 +615,9 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function {}:\n"
-        "\tParameter {}: Expected Long, String, or Struct, got datatype {}",
+        "\tParameter {}: Expected Long, String, or Struct, got datatype {}{}",
         scriptname(), PC, current_module_function->name.get(), param,
-        BObjectImp::typestr( imp->type() ) );
+        BObjectImp::typestr( imp->type() ), script_stack_block() );
     return false;
   }
 
@@ -658,8 +659,9 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function {}:\n"
-      "\tParameter {}: Value {} is out of range for an objtype",
-      scriptname(), PC, current_module_function->name.get(), param, objtype_long );
+      "\tParameter {}: Value {} is out of range for an objtype{}",
+      scriptname(), PC, current_module_function->name.get(), param, objtype_long,
+      script_stack_block() );
   setFunctionResult( new BError( "Objtype is out of range (acceptable: 0-0x20000)" ) );
   return false;
 }

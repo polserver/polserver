@@ -44,10 +44,15 @@ exported function no_rule_operator_reported_once()
   endif
 
   var reports := array;
+  var stack_line := "";
   var i;
   for ( i := 1; i <= lines.size(); ++i )
     if ( lines[i].find( expected ) )
       reports.append( lines[i] );
+      // The frames follow the report on the lines after it, innermost first.
+      if ( i < lines.size() )
+        stack_line := lines[i + 1];
+      endif
     endif
   endfor
 
@@ -61,6 +66,19 @@ exported function no_rule_operator_reported_once()
   endif
   if ( !reports[1].find( "PC=" ) )
     return $"report does not carry a PC: {reports[1]}";
+  endif
+
+  // A PC is not a place anyone can open. The script is compiled with debug information, so the
+  // report resolves it to the function and the source line that wrote the expression. Asserted
+  // as three parts because the .dbg records an absolute path, which no substring can predict.
+  if ( !stack_line.find( "no_rule_operator_reported_once" ) )
+    return $"report does not name the function: {stack_line}";
+  endif
+  if ( !stack_line.find( "test_operator_report.src:" ) )
+    return $"report does not name the source file: {stack_line}";
+  endif
+  if ( !stack_line.find( ":25)" ) )
+    return $"report does not name the line the operator is on: {stack_line}";
   endif
 
   return 1;

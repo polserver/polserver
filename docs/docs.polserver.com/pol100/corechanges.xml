@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-06-2026</datemodified>
+		<datemodified>09-13-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-08-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">Runtime script errors now report the eScript call stack, each frame naming its source<br/>
+file and line where the script was compiled with debug information, instead of a<br/>
+program counter alone. Covers the no-rule operator report and the VM's fatal errors<br/>
+in pol.log, and the wrong-parameter and &quot;script can't be blocked&quot; messages in<br/>
+debug.log.</change>
+			<change type="Fixed">&quot;Return without GOSUB!&quot; went to stderr only, so a shard run as a service never saw<br/>
+it. It goes to pol.log now.</change>
+		</entry>
 		<entry>
 			<date>09-05-2026</date>
 			<author>Nando:</author>

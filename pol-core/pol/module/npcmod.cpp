@@ -113,8 +113,8 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
         DEBUGLOGLN(
             "Script Error in '{}' PC={}: \n"
             "\tCall to function npc::canmove():\n"
-            "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
-            scriptname(), exec.PC, dir );
+            "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}{}",
+            scriptname(), exec.PC, dir, exec.script_stack_block() );
         return new BError( "Invalid facing value" );
       }
 
@@ -129,8 +129,8 @@ BObjectImp* NPCExecutorModule::mf_CanMove()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function npc::canmove():\n"
-        "\tParameter 0: Expected direction, got datatype {}",
-        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+        "\tParameter 0: Expected direction, got datatype {}{}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ), exec.script_stack_block() );
     return new BError( "Invalid parameter type" );
   }
   return new BError( "Invalid parameter count" );
@@ -278,8 +278,8 @@ BObjectImp* NPCExecutorModule::mf_Face()
       DEBUGLOGLN(
           "Script Error in '{}' PC={}: \n"
           "\tCall to function npc::face():\n"
-          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
-          scriptname(), exec.PC, dir );
+          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}{}",
+          scriptname(), exec.PC, dir, exec.script_stack_block() );
       return nullptr;
     }
   }
@@ -292,8 +292,8 @@ BObjectImp* NPCExecutorModule::mf_Face()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function npc::face():\n"
-        "\tParameter 0: Expected direction, , got datatype {}",
-        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+        "\tParameter 0: Expected direction, , got datatype {}{}",
+        scriptname(), exec.PC, BObjectImp::typestr( param0->type() ), exec.script_stack_block() );
 
     return nullptr;
   }
@@ -321,8 +321,8 @@ BObjectImp* NPCExecutorModule::mf_Move()
       DEBUGLOGLN(
           "Script Error in '{}' PC={}: \n"
           "\tCall to function npc::move():\n"
-          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}",
-          scriptname(), exec.PC, dir );
+          "\tParameter 0: Expected direction: N S E W NW NE SW SE, got {}{}",
+          scriptname(), exec.PC, dir, exec.script_stack_block() );
       return nullptr;
     }
 
@@ -358,8 +358,8 @@ BObjectImp* NPCExecutorModule::mf_Move()
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function npc::move():\n"
-      "\tParameter 0: Expected direction or bounding box, , got datatype {}",
-      scriptname(), exec.PC, BObjectImp::typestr( param0->type() ) );
+      "\tParameter 0: Expected direction or bounding box, , got datatype {}{}",
+      scriptname(), exec.PC, BObjectImp::typestr( param0->type() ), exec.script_stack_block() );
   return nullptr;
 }
 

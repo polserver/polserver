@@ -70,6 +70,13 @@
 
 namespace Pol::Bscript
 {
+namespace
+{
+// Script-controlled recursion is unbounded, so this block is capped tighter than
+// the native one.
+constexpr size_t MAX_REPORTED_ESCRIPT_FRAMES = 30;
+}  // namespace
+
 std::set<Executor*> executor_instances;
 
 void display_executor_instances()
@@ -308,7 +315,8 @@ int Executor::getParams( unsigned howMany )
     {
       if ( ValueStack.empty() )
       {
-        POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
+        POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={}){}", prog_->name, PC,
+                        script_stack_block() );
         seterror( true );
         return -1;
       }
@@ -412,20 +420,22 @@ int Executor::paramAsLong( unsigned param )
 }
 BObject* Executor::getParam( unsigned param )
 {
-  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
-                                         ": Less Parameter than expected. " +
-                                         "You should use *.em-files shipped with this Core and "
-                                         "recompile ALL of your Scripts _now_! RTFM" );
+  passert_r( param < fparams.size(),
+             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
+                 "You should use *.em-files shipped with this Core and "
+                 "recompile ALL of your Scripts _now_! RTFM" +
+                 script_stack_block() );
 
   return fparams[param].get();
 }
 
 BObjectImp* Executor::getParamImp( unsigned param )
 {
-  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
-                                         ": Less Parameter than expected. " +
-                                         "You should use *.em-files shipped with this Core and "
-                                         "recompile ALL of your Scripts _now_! RTFM" );
+  passert_r( param < fparams.size(),
+             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
+                 "You should use *.em-files shipped with this Core and "
+                 "recompile ALL of your Scripts _now_! RTFM" +
+                 script_stack_block() );
 
   return fparams[param].get()->impptr();
 }
@@ -439,10 +449,11 @@ BObject* Executor::getParamObj( unsigned param )
 
 BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type )
 {
-  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
-                                         ": Less Parameter than expected. " +
-                                         "You should use *.em-files shipped with this Core and "
-                                         "recompile ALL of your Scripts _now_! RTFM" );
+  passert_r( param < fparams.size(),
+             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
+                 "You should use *.em-files shipped with this Core and "
+                 "recompile ALL of your Scripts _now_! RTFM" +
+                 script_stack_block() );
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
@@ -461,6 +472,7 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
     fmt::format_to( std::back_inserter( tmp ),
                     "\tParameter {}: Expected datatype {}, got datatype {}", param,
                     BObjectImp::typestr( type ), BObjectImp::typestr( imp->type() ) );
+    tmp += script_stack_block();
     DEBUGLOGLN( tmp );
   }
   return nullptr;
@@ -468,10 +480,11 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
 
 BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type )
 {
-  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
-                                         ": Less Parameter than expected. " +
-                                         "You should use *.em-files shipped with this Core and "
-                                         "recompile ALL of your Scripts _now_! RTFM" );
+  passert_r( param < fparams.size(),
+             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
+                 "You should use *.em-files shipped with this Core and "
+                 "recompile ALL of your Scripts _now_! RTFM" +
+                 script_stack_block() );
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
@@ -594,9 +607,9 @@ bool Executor::getRealParam( unsigned param, double& value )
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function {}:\n"
-      "\tParameter {}: Expected Integer or Real, got datatype {}",
+      "\tParameter {}: Expected Integer or Real, got datatype {}{}",
       scriptname(), PC, current_module_function->name.get(), param,
-      BObjectImp::typestr( imp->type() ) );
+      BObjectImp::typestr( imp->type() ), script_stack_block() );
 
   return false;
 }
@@ -619,8 +632,9 @@ BApplicObjBase* Executor::getApplicObjParam( unsigned param, const BApplicObjTyp
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function {}:\n"
-      "\tParameter {}: Expected datatype, got datatype {}",
-      scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep() );
+      "\tParameter {}: Expected datatype, got datatype {}{}",
+      scriptname(), PC, current_module_function->name.get(), param, aob->getStringRep(),
+      script_stack_block() );
 
   return nullptr;
 }
@@ -786,9 +800,9 @@ bool Executor::getParam( unsigned param, bool& value )
   DEBUGLOGLN(
       "Script Error in '{}' PC={}: \n"
       "\tCall to function {}:\n"
-      "\tParameter {}: Expected Boolean or Integer, got datatype {}",
+      "\tParameter {}: Expected Boolean or Integer, got datatype {}{}",
       scriptname(), PC, current_module_function->name.get(), param,
-      BObjectImp::typestr( imp->type() ) );
+      BObjectImp::typestr( imp->type() ), script_stack_block() );
 
   return false;
 }
@@ -829,7 +843,8 @@ BObjectRef& Executor::GlobalVar( unsigned int varnum )
 {
   if ( varnum >= Globals2->size() )
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
+                    script_stack_block() );
     seterror( true );
     UninitObject::SharedInstanceRef.set( UninitObject::SharedInstance );
     return UninitObject::SharedInstanceRef;
@@ -875,7 +890,8 @@ BObjectRef Executor::getObjRef()
 {
   if ( ValueStack.empty() )
   {
-    POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={})", prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Value Stack Empty! ({},PC={}){}", prog_->name, PC,
+                    script_stack_block() );
     seterror( true );
     return BObjectRef( UninitObject::create() );
   }
@@ -1409,7 +1425,8 @@ void Executor::ins_globalvar( const Instruction& ins )
 {
   if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
+                    script_stack_block() );
     seterror( true );
     ValueStack.emplace_back( UninitObject::create() );
     return;
@@ -1648,7 +1665,8 @@ void Executor::ins_assign_globalvar( const Instruction& ins )
 {
   if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
+                    script_stack_block() );
     seterror( true );
     ValueStack.pop_back();
     return;
@@ -1783,7 +1801,12 @@ BObjectImp* Executor::operator_fallback( BTokenId token_id, BObjectImp& left, BO
   BObjectImp* result = apply_operator_fallback( token_id, left, right, &no_rule_message );
   if ( !no_rule_message.empty() && !prog_->reported_operator_fallback.exchange( true ) )
   {
-    POLLOG_ERRORLN( "{} ({},PC={})", no_rule_message, prog_->name, PC );
+    // A PC names an instruction nobody can look up in a source file. Where the script was
+    // compiled with debug information the stack turns it into the line that wrote the
+    // expression, and names the callers with it: an operand that made the pair impossible
+    // usually arrived as an argument, so the frame above is as often the answer as the frame
+    // the operator is in.
+    POLLOG_ERRORLN( "{} ({},PC={}){}", no_rule_message, prog_->name, PC, script_stack_block() );
   }
   return result;
 }
@@ -2382,7 +2405,8 @@ void Executor::ins_take_global( const Instruction& ins )
 
   if ( (unsigned)ins.token.lval >= Globals2->size() )
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={})", prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
+                    script_stack_block() );
     seterror( true );
     ValueStack.pop_back();
     return;
@@ -2893,8 +2917,9 @@ void Executor::ins_check_mro( const Instruction& ins )
 
   if ( classinst_offset > static_cast<int>( ValueStack.size() ) || ValueStack.empty() )
   {
-    POLLOG_ERRORLN( "Fatal error: Check MRO offset error! offset={}, ValueStack.size={} ({},PC={})",
-                    classinst_offset, ValueStack.size(), prog_->name, PC );
+    POLLOG_ERRORLN(
+        "Fatal error: Check MRO offset error! offset={}, ValueStack.size={} ({},PC={}){}",
+        classinst_offset, ValueStack.size(), prog_->name, PC, script_stack_block() );
     seterror( true );
     return;
   }
@@ -2903,8 +2928,8 @@ void Executor::ins_check_mro( const Instruction& ins )
 
   if ( nLines < PC + 1 )
   {
-    POLLOG_ERRORLN( "Fatal error: Check MRO instruction out of bounds! nLines={} ({},PC={})",
-                    nLines, prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction out of bounds! nLines={} ({},PC={}){}",
+                    nLines, prog_->name, PC, script_stack_block() );
     seterror( true );
     return;
   }
@@ -2912,8 +2937,8 @@ void Executor::ins_check_mro( const Instruction& ins )
   const Instruction& jsr_ins = prog_->instr.at( PC + 1 );
   if ( jsr_ins.func != &Executor::ins_jsr_userfunc )
   {
-    POLLOG_ERRORLN( "Fatal error: Check MRO instruction not followed by JSR_USERFUNC! ({},PC={})",
-                    prog_->name, PC );
+    POLLOG_ERRORLN( "Fatal error: Check MRO instruction not followed by JSR_USERFUNC! ({},PC={}){}",
+                    prog_->name, PC, script_stack_block() );
     seterror( true );
     return;
   }
@@ -3102,12 +3127,25 @@ std::string Executor::stacktrace_string()
   return result;
 }
 
-namespace
+std::string Executor::script_stack_block()
 {
-// Script-controlled recursion is unbounded, so this block is capped tighter than
-// the native one.
-constexpr size_t MAX_REPORTED_ESCRIPT_FRAMES = 30;
-}  // namespace
+  try
+  {
+    auto block = Clib::indent_stack_block( stacktrace_string(), MAX_REPORTED_ESCRIPT_FRAMES );
+    if ( block.empty() )
+      return {};
+    // indent_stack_block terminates its last line like every other; the caller's message ends
+    // where this block does.
+    block.pop_back();
+    return "\n" + block;
+  }
+  catch ( ... )
+  {
+    // Reading the debug file allocates and can fail. Losing the frames is acceptable; turning a
+    // diagnostic into a second failure is not.
+    return {};
+  }
+}
 
 std::string Executor::execution_error_report( size_t onPC, const std::string& what )
 {
@@ -3203,7 +3241,9 @@ void Executor::ins_return( const Instruction& /*ins*/ )
 {
   if ( ControlStack.empty() )
   {
-    ERROR_PRINTLN( "Return without GOSUB! (PC={}, {})", PC, scriptname() );
+    // POLLOG, not ERROR_PRINTLN: the latter is stderr only, so a shard run as a service never
+    // saw this at all.
+    POLLOG_ERRORLN( "Return without GOSUB! (PC={}, {}){}", PC, scriptname(), script_stack_block() );
 
     seterror( true );
     return;
