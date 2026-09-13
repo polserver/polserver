@@ -22,7 +22,12 @@ include "speech";
 // event that arrives after this leaks into the next case's answer, so it wants
 // to stay comfortably above a client round trip. POLL_INTERVAL comes from
 // communication.inc.
-const SETTLE_QUIET := 500;
+//
+// Measured at some 5ms since the client stopped waiting out a poll interval at
+// each of the three hops between it and here - see QUIET_SECS, which is the
+// same reasoning. This is paid by all forty callers of settle(), and only after
+// the last event: the deadline restarts whenever one arrives.
+const SETTLE_QUIET := 250;
 
 // where speech_setup() leaves the two characters
 const CHAR_X := 100;
