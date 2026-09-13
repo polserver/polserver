@@ -24,6 +24,7 @@ import collections
 import threading
 import struct
 import logging
+import select
 import socket
 import ipaddress
 import time
@@ -568,6 +569,11 @@ class Client(threading.Thread):
 
   ## Minimum interval between two pings
   PING_INTERVAL = 30
+  ## How long the main loop waits with nothing happening. An incoming packet or
+  ## anything another thread queues ends the wait early, so this only decides how
+  ## often the loop turns over to look at the ping and at whether the brain is
+  ## still there.
+  IDLE_SECS = 0.25
   ## Version sent to server
   VERSION = '7.0.9.1'
   ## Language sent to server
@@ -588,6 +594,11 @@ class Client(threading.Thread):
     self.todoqueue = []
     ## Lock for the todo queue
     self.todoLock = threading.Lock()
+    ## Wakes the select() in mainloop() when another thread queues a packet to
+    ## send or a todo to run, so neither waits out the idle poll.
+    self._wake_r, self._wake_w = socket.socketpair()
+    self._wake_r.setblocking(False)
+    self._wake_w.setblocking(False)
     ## Dict info about last server connected to {ip, port, user, pass}
     self.server = None
     ## Current client status, one of:
@@ -633,6 +644,9 @@ class Client(threading.Thread):
     self.view_range = 18 # default client view range
     self.auto_delete_objs = True
     self.weather_events = False # weather/light events, for the tests that assert on them
+    ## Whether something other than an incoming packet has made the out of range
+    ## sweep worth running - see processTodo()
+    self.sweepDue = False
 
     self.gumps=[] # open gumps
     self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
@@ -806,7 +820,6 @@ class Client(threading.Thread):
     self.ping = time.time() + self.PING_INTERVAL
 
     while True:
-      pkt = self.receive(blocking=False)
       self.send()
 
       if not self.processTodo():
@@ -824,25 +837,62 @@ class Client(threading.Thread):
         self.queue(po)
         self.ping = time.time() + self.PING_INTERVAL
 
-      # Process packet
-      if pkt is None:
-        time.sleep(0.01)
-      else:
+      # Take everything the server has ready, not one packet per turn round the
+      # loop: the server sends in bursts - a container's contents, a gump and
+      # its tooltips - and handling one per iteration made each burst cost as
+      # many idle waits as it had packets.
+      handled = False
+      while True:
+        pkt = self.receive(blocking=False)
+        if pkt is None:
+          break
         self.handlePacket(pkt)
+        handled = True
 
-      # remove out of range objects
-      if self.player and self.auto_delete_objs:
-        for key in list(self.objects.keys()):
-          obj = self.objects[key]
-          if isinstance(obj,Item) and obj.parent:
-            continue
-          if self.player.serial == obj.serial:
-            continue
-          if not self.player.inRange(obj):
-            if isinstance(obj,Container) and obj.content:
-              for c in obj.content:
-                del self.objects[c.serial]
-            del self.objects[key]
+      # Remove out of range objects. This walks everything the client knows, so
+      # it runs when something can actually have gone out of range rather than
+      # on every turn of an idle loop. A todo counts as well: switching the
+      # sweep back on has to catch up with what piled up while it was off.
+      if (handled or self.sweepDue) and self.player and self.auto_delete_objs:
+        self.sweepDue = False
+        self.dropOutOfRange()
+
+      if not handled:
+        self.idle()
+
+  @clientthread
+  def dropOutOfRange(self):
+    ''' Forgets the objects that are no longer close enough to be seen '''
+    for key in list(self.objects.keys()):
+      obj = self.objects[key]
+      if isinstance(obj,Item) and obj.parent:
+        continue
+      if self.player.serial == obj.serial:
+        continue
+      if not self.player.inRange(obj):
+        if isinstance(obj,Container) and obj.content:
+          for c in obj.content:
+            del self.objects[c.serial]
+        del self.objects[key]
+
+  @clientthread
+  def idle(self):
+    '''! Waits for the server to send something or for another thread to queue
+    work, whichever happens first.
+
+    The wait is what used to be a flat 10ms sleep, which every incoming packet
+    and every order from the test script paid on its way through.
+    '''
+    try:
+      ready, _, _ = select.select([self.net.sock, self._wake_r], [], [], self.IDLE_SECS)
+    except (OSError, ValueError):
+      # Socket closed under us; the next read reports it properly.
+      return
+    if self._wake_r in ready:
+      try:
+        self._wake_r.recv(65536)
+      except OSError:
+        pass
 
   @status('game')
   @clientthread
@@ -2313,6 +2363,16 @@ class Client(threading.Thread):
     ''' Puts a packet in the queue to be sent asap '''
     with self.sendqueueLock:
       self.sendqueue.append(data)
+    self.wake()
+
+  def wake(self):
+    ''' Ends the main loop's idle wait, so work queued from another thread is
+    picked up now rather than when the wait runs out '''
+    try:
+      self._wake_w.send(b'\x01')
+    except OSError:
+      # A full pipe is already readable, so the wait is going to end anyway.
+      pass
 
   @clientthread
   def send(self):
@@ -2327,6 +2387,7 @@ class Client(threading.Thread):
   def addTodo(self, todo):
     with self.todoLock:
       self.todoqueue.append(todo)
+    self.wake()
 
   @clientthread
   def processTodo(self):
@@ -2334,6 +2395,10 @@ class Client(threading.Thread):
     with self.todoLock:
       queue = self.todoqueue
       self.todoqueue = []
+    if queue:
+      # A todo can change what the client is meant to know about - switching the
+      # out of range sweep back on, most of all - so let the loop run one.
+      self.sweepDue = True
     for todo in queue:
       if todo.type == brain.Event.EVT_EXIT:
         return False
