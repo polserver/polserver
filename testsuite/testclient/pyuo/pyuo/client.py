@@ -50,9 +50,13 @@ class status:
 
 
 def clientthread(f):
-  ''' Decorator, checks that method is run in the client thread only unless initing '''
+  ''' Decorator, checks that method is run in the client thread only unless initing
+
+  The test read the module level name "status", which is the decorator class
+  above and never equals 'game', so this had never once checked anything.
+  '''
   def wrapper(client, *args, **kwargs):
-    if status == 'game':
+    if client.status == 'game':
       mythread = threading.current_thread()
       if mythread is not client:
         raise ThreadError("This must run in client thread only, currently in {}".format(mythread))
@@ -1688,9 +1692,18 @@ class Client(threading.Thread):
       ack = False
 
     with self.moveLock:
-      # Match first move packet to be ackowledged
+      # Match first move packet to be ackowledged. Both of these were an
+      # IndexError and a bare assert, which killed the client thread without
+      # saying which move the server was answering.
+      if not self.unmoves:
+        raise RuntimeError(
+            "server {} move {} that was never requested".format(
+                'acknowledged' if ack else 'rejected', pkt.sequence))
       mpkt = self.unmoves.popleft()
-      assert mpkt.sequence == pkt.sequence
+      if mpkt.sequence != pkt.sequence:
+        raise RuntimeError(
+            "server answered move {} while move {} was the one outstanding".format(
+                pkt.sequence, mpkt.sequence))
 
       if not ack:
         # Reset sequence counter after a reject
@@ -2422,7 +2435,7 @@ class Client(threading.Thread):
         self.disable_item_logging = todo.value
         self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
       else:
-        raise NotImplementedError("Unknown todo event {}",format(todo.type))
+        raise NotImplementedError("Unknown todo event {}".format(todo.type))
     return True
 
   @clientthread
