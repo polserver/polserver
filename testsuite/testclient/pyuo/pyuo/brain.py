@@ -234,6 +234,8 @@ class Event:
   EVT_PROMPT = 137
   EVT_WEATHER = 138
   EVT_LIGHT = 139
+  EVT_TOOLTIP = 140
+  EVT_OPEN_URL = 141
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -292,6 +294,10 @@ class Event:
       return "menu"
     elif self.type==Event.EVT_TIP_WINDOW:
       return "tip_window"
+    elif self.type==Event.EVT_TOOLTIP:
+      return "tooltip"
+    elif self.type==Event.EVT_OPEN_URL:
+      return "open_url"
     elif self.type==Event.EVT_SEASON:
       return "season"
     elif self.type==Event.EVT_SKILLS:

@@ -965,7 +965,8 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.TipWindowPacket):
       assert self.lc
       self.log.info("Received tip: %s", pkt.msg.replace('\r','\n'))
-      # "flag" is 0 for a tip and 1 for a notice; the core only ever sends notices
+      # "flag" is 0 for a tip and 1 for an update; the core writes 0 either way,
+      # both for a 0xA7 answer and for SendStringAsTipWindow
       self.brain.event(brain.Event(brain.Event.EVT_TIP_WINDOW, flag=pkt.flag,
           tipid=pkt.tipid, text=pkt.msg))
 
@@ -1014,6 +1015,17 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_ANIMATION, cmd=pkt.cmd,
           serial=pkt.serial, action=pkt.action, frames=pkt.frames, repeat=pkt.repeat,
           delay=pkt.delay))
+
+    elif isinstance(pkt, packets.PromptPacket):
+      assert self.lc
+      # the ascii twin of the unicode prompt below, and answered the same way:
+      # RequestInput() suspends the script that raised it until this goes back
+      reply = self.next_prompt_reply
+      self.next_prompt_reply = None
+      po = packets.PromptPacket()
+      po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
+      self.queue(po)
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
 
     elif isinstance(pkt, packets.UnicodePromptPacket):
       assert self.lc
@@ -1210,6 +1222,15 @@ class Client(threading.Thread):
         serial = pkt.serial, revision = pkt.revision))
     elif isinstance(pkt, packets.AOSTooltipPacket):
       self.brain.event(brain.Event(brain.Event.EVT_AOS_TOOLTIP, serial = pkt.serial, text=pkt.text))
+
+    elif isinstance(pkt, packets.TooltipTextPacket):
+      assert self.lc
+      self.brain.event(brain.Event(brain.Event.EVT_TOOLTIP, serial=pkt.serial, text=pkt.text))
+
+    elif isinstance(pkt, packets.OpenUrlPacket):
+      assert self.lc
+      self.log.info("Asked to open %s", pkt.url)
+      self.brain.event(brain.Event(brain.Event.EVT_OPEN_URL, url=pkt.url))
     elif isinstance(pkt, packets.EnableFeaturesPacket):
       self.features = pkt.features
     elif isinstance(pkt, packets.OpenPaperdollPacket):
@@ -1864,6 +1885,53 @@ class Client(threading.Thread):
     '''! Asks for the tooltips of several objects at once (0xD6) '''
     po = packets.AOSTooltipPacket()
     po.fill(serials)
+    self.queue(po)
+
+  def requestTooltip(self, serial, lang='ENU'):
+    '''! Asks for one object's tooltip (0xB6)
+
+    The pre-AOS request, answered with the item's itemdesc Tooltip line rather
+    than with the cliloc list 0xD6 brings back. Only an item has one: the core
+    drops the request for a mobile.
+    '''
+    po = packets.RequestTooltipPacket()
+    po.fill(serial, lang)
+    self.queue(po)
+
+  def resyncRequest(self):
+    '''! Asks the server to send everything in range again (0x22)
+
+    The answer is the player's own position followed by every mobile, item and
+    multi in range, so a case waits on what it expects to be resent.
+    '''
+    po = packets.MoveAckPacket()
+    po.fill()
+    self.queue(po)
+
+  def skillLock(self, skillid, lock):
+    '''! Sets one skill's lock state (0x3A)
+    @param skillid int: the skill, numbered as uoskills.cfg numbers it
+    @param lock int: 0 up, 1 down, 2 locked
+    '''
+    po = packets.SendSkillsPacket()
+    po.fill(skillid, lock)
+    self.queue(po)
+
+  def requestHelp(self):
+    '''! Presses the help button (0x9B), which runs the shard's misc/help script '''
+    po = packets.HelpRequestPacket()
+    po.fill()
+    self.queue(po)
+
+  def getTip(self, lasttip=0, next=True):
+    '''! Asks for a tip window (0xA7)
+    @param lasttip int: the tip the client last saw
+    @param next bool: True for the one after it, False for the one before
+
+    The core walks its tips directory from there and wraps at either end.
+    '''
+    po = packets.GetTipPacket()
+    po.fill(lasttip, next)
     self.queue(po)
 
   @logincomplete

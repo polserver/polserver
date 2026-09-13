@@ -1,0 +1,271 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+include "communication";
+include "clientpkt";
+
+// The registered message handlers that nothing else in the suite reaches: the resync request, the
+// skill lock button, the ascii prompt, the help button, the tip window and the single tooltip
+// request. Each is a packet the test client knows how to build - see clientpkt.inc.
+//
+// Two handlers are deliberately not here. 0x83 (delete character) and 0xA4 (client info) are
+// refused in the game phase by the filter in msgfiltr.cpp, so only a client still at the login
+// screen can send them. The unicode twin of the prompt below lives in test_client_sendfuncs.src.
+
+// The item package's probe item, the only one in the suite with a Tooltip line.
+const TOOLTIP_ITEM := 0x200032;
+// itemdesc.cpp cuts a tooltip to PKTOUT_B7_MAX_CHARACTERS as it reads it, and the probe's line is
+// longer than that on purpose.
+const TOOLTIP_MAX := 256;
+
+const PROMPT_ANSWER := "typed into the ascii prompt";
+
+// Skills are numbered as pkg/systems/attributes/config/uoskills.cfg numbers them, from zero.
+const SKILLID_ANATOMY := 1;
+const SKILL_ATTRIBUTE := "Anatomy";
+
+var char;
+var clientcon := getClientConnection();
+
+program msghandlertests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+function client_sends( packet, wait := 1 )
+  return send_client_packet( clientcon, 0, packet, wait );
+endfunction
+
+// Says something as the client and hears it back, which proves the stream is still in step with
+// the core: a packet read as the wrong length takes the rest of the stream with it.
+function client_alive( what )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "speech", arg := what, id := 0 } );
+  var ev := wait_for_speech( 0, what );
+  if ( !ev )
+    return ret_error( $"the connection did not survive: \"{what}\" was never heard back" );
+  endif
+  return 1;
+endfunction
+
+// Waits for one event of the given type from client 0.
+function wait_event( type, what, timeout := 10 )
+  var ev := waitForClient( 0, { type }, timeout );
+  if ( !ev )
+    return ret_error( $"the client was never sent {what}" );
+  endif
+  return ev;
+endfunction
+
+// A resync request asks for everything in range again. The player's own position comes first and
+// the client reads that silently, so what this waits for is an item it already knows arriving a
+// second time - which is send_inrange_items() having run.
+exported function msghandler_resync( resmgr )
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  drain_events();
+  res := client_sends( struct{ packet := "resync" }, wait := 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := waitForClient( 0, { EVT_REFRESH_OBJ }, 10 );
+    if ( !ev )
+      break;
+    endif
+    if ( CInt( ev.serial ) == it.serial )
+      return client_alive( "resynced" );
+    endif
+  endwhile
+  return ret_error( "the resync never re-sent the item in range" );
+endfunction
+
+// The help button runs scripts/misc/help.ecl, which answers the character that pressed it.
+exported function msghandler_help()
+  drain_events();
+  var res := client_sends( struct{ packet := "help" }, wait := 0 );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_for_speech( 0, $"help for {char.name}" );
+  if ( !ev )
+    return ret_error( "the help script never answered" );
+  endif
+  return 1;
+endfunction
+
+// The tip window. The core walks its tips directory from the tip the client says it last saw,
+// wraps at either end, and sends what is in the file it lands on.
+exported function msghandler_tip()
+  // the three files in the shard's tips directory, by their contents
+  var texts := array{ "A tip about walking north.", "A tip about mining ore.",
+                      "A tip about taming animals." };
+  var seen := dictionary{};
+
+  // Directory order is not sorted, so the index a tip lands on is what this asserts, together
+  // with the same index always coming back with the same text.
+  var asked := array{ array{ 0, 1, 1 }, // next from 0 is 1
+                      array{ 2, 1, 0 }, // next from the last wraps to the first
+                      array{ 1, 0, 0 }, // previous from 1 is 0
+                      array{ 0, 0, 2 }
+                      };                // previous from the first wraps to the last
+  foreach ask in ( asked )
+    drain_events();
+    var res := client_sends( struct{ packet := "get_tip", lasttip := ask[1], next := ask[2] },
+                             wait := 0 );
+    if ( !res )
+      return res;
+    endif
+    var ev := wait_event( EVT_TIP_WINDOW, $"a tip after asking for {ask[1]}/{ask[2]}" );
+    if ( !ev )
+      return ev;
+    endif
+    if ( CInt( ev.tipid ) != ask[3] )
+      return ret_error( $"asking {ask[1]}/{ask[2]} answered tip {ev.tipid}, expected {ask[3]}" );
+    endif
+    // 0 is the tip form; the core never sends the update form the other value names
+    if ( CInt( ev.flag ) != 0 )
+      return ret_error( $"the tip came as flag {ev.flag}, expected 0" );
+    endif
+    if ( !( ev.text in texts ) )
+      return ret_error( $"the tip window carried \"{ev.text}\", none of {texts}" );
+    endif
+    if ( seen.exists( ask[3] ) && seen[ask[3]] != ev.text )
+      return ret_error( $"tip {ask[3]} came back as \"{ev.text}\" and \"{seen[ask[3]]}\"" );
+    endif
+    seen[ask[3]] := ev.text;
+  endforeach
+
+  if ( seen.size() != 3 )
+    return ret_error( $"only {seen.size()} of the three tips were reachable" );
+  endif
+  return 1;
+endfunction
+
+// The single tooltip request, which is answered from the item's itemdesc Tooltip line rather than
+// from the cliloc list a 0xD6 brings back.
+exported function msghandler_tooltip( resmgr )
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y, char.z, TOOLTIP_ITEM );
+  if ( !it )
+    return ret_error( $"could not create the tooltip item: {it}" );
+  endif
+  var res := client_finds_obj( clientcon, 0, it.serial );
+  if ( !res )
+    return res;
+  endif
+
+  drain_events();
+  res := client_sends( struct{ packet := "tooltip", serial := it.serial }, wait := 0 );
+  if ( !res )
+    return res;
+  endif
+  var ev := wait_event( EVT_TOOLTIP, "the item's tooltip" );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.serial ) != it.serial )
+    return ret_error( $"the tooltip came back for 0x{CInt( ev.serial ):x}" );
+  endif
+  var desc := GetItemDescriptor( TOOLTIP_ITEM );
+  if ( ev.text != desc.Tooltip )
+    return ret_error( $"the tooltip carried \"{ev.text}\", not the descriptor's line" );
+  endif
+  if ( ev.text.length() != TOOLTIP_MAX )
+    return ret_error( $"the tooltip is {ev.text.length()} characters, expected {TOOLTIP_MAX}" );
+  endif
+
+  // A mobile has no itemdesc, so the request is dropped rather than answered.
+  res := client_sends( struct{ packet := "tooltip", serial := char.serial } );
+  if ( !res )
+    return res;
+  endif
+  return client_alive( "asked for a mobile's tooltip" );
+endfunction
+
+// The skill lock buttons of the skill window. Like the stat locks of test_client_bf.src the core
+// only acts on them when CoreHandledLocks says so, and the shard default leaves them to a script.
+exported function msghandler_skill_lock( resmgr )
+  var res := resmgr.UpdateConfiguration( struct{ CoreHandledLocks := 1 } );
+  if ( !res )
+    return res;
+  endif
+
+  // 0 up, 1 down, 2 locked
+  foreach mode in ( array{ 2, 1, 0 } )
+    res := client_sends( struct{ packet := "skill_lock", skill := SKILLID_ANATOMY, mode := mode } );
+    if ( !res )
+      return res;
+    endif
+    res := client_alive( $"set {SKILL_ATTRIBUTE} to lock {mode}" );
+    if ( !res )
+      return res;
+    endif
+    var lock := GetAttributeLock( char, SKILL_ATTRIBUTE );
+    if ( lock != mode )
+      return ret_error( $"{SKILL_ATTRIBUTE} is at lock {lock}, expected {mode}" );
+    endif
+  endforeach
+
+  // A mode the client cannot mean is logged and dropped, and the lock stays where it was.
+  res := client_sends( struct{ packet := "skill_lock", skill := SKILLID_ANATOMY, mode := 3 } );
+  if ( !res )
+    return res;
+  endif
+  res := client_alive( $"refused an impossible lock for {SKILL_ATTRIBUTE}" );
+  if ( !res )
+    return res;
+  endif
+  var still := GetAttributeLock( char, SKILL_ATTRIBUTE );
+  if ( still != 0 )
+    return ret_error( $"{SKILL_ATTRIBUTE} moved to {still}" );
+  endif
+
+  // A skill the shard does not have is dropped before anything is read off it.
+  res := client_sends( struct{ packet := "skill_lock", skill := 0xFFFF, mode := 2 } );
+  if ( !res )
+    return res;
+  endif
+  return client_alive( "refused a skill that does not exist" );
+endfunction
+
+// The ascii prompt. RequestInput picks it over the unicode 0xC2 when its prompt text fits in
+// ascii, and suspends the script until the client answers - so the answer is armed first.
+exported function msghandler_prompt( resmgr )
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y + 1, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+
+  drain_events();
+  clientcon.sendevent( struct{ todo := "prompt_reply", arg := struct{
+                                                       text := PROMPT_ANSWER }, id := 0 } );
+  var armed := waitForClient( 0, { EVT_PACKET_SENT } );
+  if ( !armed )
+    return ret_error( "the client never acknowledged the armed reply" );
+  endif
+
+  var answer := RequestInput( char, it, "type something" );
+  if ( answer == error )
+    return ret_error( $"the prompt was refused: {answer}" );
+  endif
+  if ( answer != PROMPT_ANSWER )
+    return ret_error( $"the client typed \"{answer}\"" );
+  endif
+  return 1;
+endfunction

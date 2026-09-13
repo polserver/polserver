@@ -154,6 +154,7 @@
 #include "pol/scrstore.h"
 #include "pol/spells.h"
 #include "pol/target.h"
+#include "pol/tips.h"
 #include "pol/ufunc.h"
 #include "pol/uimport.h"
 #include "pol/umanip.h"
@@ -175,7 +176,6 @@ void cancel_all_trades();
 Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* client,
                                                            Items::Item* item );
 Bscript::BObjectImp* open_trade_window( Network::Client* client, Mobile::Character* dropon );
-void send_tip( Network::Client* client, const std::string& tiptext );
 std::string get_textcmd_help( Mobile::Character* chr, const std::string& cmd );
 void send_paperdoll( Network::Client* client, Mobile::Character* chr );
 void send_skillmsg( Network::Client* client, const Mobile::Character* chr );

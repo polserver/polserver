@@ -1,0 +1,14 @@
+use os;
+
+// Set_Debug is asked for here rather than in a test case because it turns on SOURCELINES for
+// the executor that calls it, which then writes every statement it runs to the log. A script
+// this short keeps that to a handful of lines.
+//
+// Reports back to the process that started it, since the return values are all it can show.
+program setdebugscript( caller )
+  var res := struct{};
+  // a false argument is accepted and changes nothing
+  res.off := Set_Debug( 0 );
+  res.on := Set_Debug( 1 );
+  caller.SendEvent( res );
+endprogram

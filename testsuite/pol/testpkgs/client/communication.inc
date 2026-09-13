@@ -49,6 +49,8 @@ const EVT_REFRESH_OBJ := "refresh_obj";
 // The prompt RequestInputUC raises. The client always answers one, because the script that raised
 // it is suspended until then; the prompt_reply todo says what with.
 const EVT_PROMPT := "prompt";
+const EVT_TOOLTIP := "tooltip";
+const EVT_OPEN_URL := "open_url";
 const EVT_MENU := "menu";
 const EVT_TIP_WINDOW := "tip_window";
 const EVT_SEASON := "season";

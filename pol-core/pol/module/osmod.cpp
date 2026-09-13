@@ -20,8 +20,8 @@
 #include "clib/stlutil.h"
 #include "clib/threadhelp.h"
 #include "clib/weakptr.h"
-#include "pol/globals/settings.h"
 #include "plib/systemstate.h"
+#include "pol/globals/settings.h"
 
 #include "pol/exscrobj.h"
 #include "pol/globals/script_internals.h"
@@ -30,6 +30,8 @@
 #include "pol/mobile/attribute.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
+#include "pol/module/npcmod.h"
+#include "pol/module/uomod.h"
 #include "pol/network/auxclient.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packets.h"
@@ -44,8 +46,6 @@
 #include "pol/skills.h"
 #include "pol/ufunc.h"
 #include "pol/uoexec.h"
-#include "pol/module/npcmod.h"
-#include "pol/module/uomod.h"
 
 #include <chrono>
 #include <limits>
@@ -305,7 +305,7 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
 
   if ( getCharacterParam( 0, chr ) && getAttributeParam( 1, attr ) )
   {
-    if ( !attr->disable_core_checks && !Core::CanUseSkill( chr->client ) )
+    if ( !attr->disable_core_checks && !Core::CanUseSkill( chr ) )
       return new BLong( 0 );
 
     const String* script_name;
@@ -360,9 +360,9 @@ BObjectImp* OSExecutorModule::mf_Start_Skill_Script()
     }
     else
     {
-      std::string msg = "Unable to start skill script:";
-      msg += script.c_str();
-      Core::send_sysmessage( chr->client, msg.c_str() );
+      if ( chr->has_active_client() )
+        Core::send_sysmessage( chr->client,
+                               ( "Unable to start skill script:" + script.name() ).c_str() );
 
       return new BLong( 0 );
     }

@@ -1,0 +1,134 @@
+// Start_Skill_Script, which is how a script starts the script an attribute names - the same
+// route the core takes for a skill the client asked to use.
+use uo;
+use os;
+use attributes;
+
+include "testutil";
+
+// open flat land at z 0, clear of the other attribute cases
+const BASE_X := 68;
+const BASE_Y := 114;
+
+// the attribute of this package that carries a skill script, and the script it names
+const SKILL_ATTR := "TestSkillAttr";
+
+// A script named inside a package is looked for under the package's own directory: the
+// "scripts/skills/" default that full_scriptname() would otherwise add is only used for a
+// script that belongs to no package.
+const SKILL_SCRIPT := "scripts/skills/testskill";
+const SKILL_CPROP := "TestSkillRan";
+
+program testattrskillscript()
+  return 1;
+endprogram
+
+function make_npc( resmgr, offset )
+  var npc := resmgr.CreateNPCFromTemplate( ":testattributes:attr_npc", BASE_X + offset, BASE_Y, 0 );
+  if ( !npc )
+    return ret_error( $"could not create the npc: {npc}" );
+  endif
+  return npc;
+endfunction
+
+// The script is attached to the character, so it does not run before this returns to the
+// scheduler; the cprop it sets is what says it did.
+function wait_for_skill_script( npc, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( GetObjProperty( npc, SKILL_CPROP ) )
+      return 1;
+    endif
+    Sleepms( 50 );
+  endwhile
+  return ret_error( "the skill script never ran" );
+endfunction
+
+// The attribute names its own script, so the third parameter can be left off.
+exported function skillscript_from_attribute( resmgr )
+  var npc := make_npc( resmgr, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := Start_Skill_Script( npc, SKILL_ATTR );
+  if ( !res )
+    return ret_error( $"the skill script was refused: {res}" );
+  endif
+  return wait_for_skill_script( npc );
+endfunction
+
+// A script named outright is used instead of the attribute's own, and is looked for in the
+// calling script's package under scripts/skills/.
+exported function skillscript_by_name( resmgr )
+  var npc := make_npc( resmgr, 2 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := Start_Skill_Script( npc, SKILL_ATTR, SKILL_SCRIPT );
+  if ( !res )
+    return ret_error( $"the named skill script was refused: {res}" );
+  endif
+  return wait_for_skill_script( npc );
+endfunction
+
+// A name that resolves to no script at all is refused, and nothing is started.
+exported function skillscript_missing( resmgr )
+  var npc := make_npc( resmgr, 4 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := Start_Skill_Script( npc, SKILL_ATTR, "nosuchskillscript" );
+  if ( res )
+    return ret_error( "a script that does not exist was started" );
+  endif
+  if ( !res.errortext.find( "does not exist" ) )
+    return ret_error( $"the missing script was refused with: {res.errortext}" );
+  endif
+  if ( GetObjProperty( npc, SKILL_CPROP ) )
+    return ret_error( "the attribute's own script ran instead of the named one" );
+  endif
+  return 1;
+endfunction
+
+// An attribute with no script of its own and no name given has nothing to start.
+//
+// TestAttr also leaves DisableCoreChecks off, so this runs the core check against a mobile that
+// has no client to send its refusal to.
+exported function skillscript_no_script( resmgr )
+  var npc := make_npc( resmgr, 6 );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := Start_Skill_Script( npc, "TestAttr" );
+  if ( res )
+    return ret_error( "an attribute with no script started one" );
+  endif
+  if ( !res.errortext.find( "No script defined" ) )
+    return ret_error( $"the scriptless attribute was refused with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// A script the attribute names but that cannot be read. The core tells the character so, which
+// for a mobile with no client is nobody - the second place a refusal has no client to reach.
+exported function skillscript_unreadable( resmgr )
+  var npc := make_npc( resmgr, 8 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // The attribute's own script is loaded without being checked for existence first, which is
+  // what separates this from the named-script case above.
+  var res := Start_Skill_Script( npc, "TestSkillMissingAttr" );
+  if ( res )
+    return ret_error( "a script that cannot be read was started" );
+  endif
+  if ( GetObjProperty( npc, SKILL_CPROP ) )
+    return ret_error( "the attribute's own script ran instead" );
+  endif
+  return 1;
+endfunction

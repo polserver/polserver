@@ -94,6 +94,16 @@ class TestBrain(brain.Brain):
         None if locations is None else int(locations))
     elif name == "tooltips":
       self.client.requestTooltips([int(s) for s in arg['serials']])
+    elif name == "tooltip":
+      self.client.requestTooltip(int(arg['serial']), arg.get('lang', 'ENU'))
+    elif name == "resync":
+      self.client.resyncRequest()
+    elif name == "skill_lock":
+      self.client.skillLock(int(arg['skill']), int(arg['mode']))
+    elif name == "help":
+      self.client.requestHelp()
+    elif name == "get_tip":
+      self.client.getTip(int(arg.get('lasttip', 0)), bool(arg.get('next', 1)))
     elif name == "popup_request":
       self.client.generalInfo(packets.GeneralInfoPacket.SUB_POPUP_REQUEST,
         int(arg['serial']))
@@ -887,6 +897,11 @@ class PolServer:
     elif ev.type==Event.EVT_AOS_TOOLTIP:
       res['serial']=ev.serial
       res['text']=ev.text
+    elif ev.type==Event.EVT_TOOLTIP:
+      res['serial']=ev.serial
+      res['text']=ev.text
+    elif ev.type==Event.EVT_OPEN_URL:
+      res['url']=ev.url
     elif ev.type==Event.EVT_OPEN_PAPERDOLL:
       res['serial']=ev.serial
       res['text']=ev.text

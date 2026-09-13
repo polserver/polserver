@@ -16,6 +16,7 @@
 #include "plib/systemstate.h"
 #include "plib/tiles.h"
 
+#include "plib/objtype.h"
 #include "pol/checkpnt.h"
 #include "pol/cmbtcfg.h"
 #include "pol/console.h"
@@ -29,7 +30,7 @@
 #include "pol/landtile.h"
 #include "pol/mobile/attribute.h"
 #include "pol/multi/multidef.h"
-#include "plib/objtype.h"
+#include "pol/tips.h"
 
 namespace Pol
 {
@@ -76,7 +77,6 @@ void load_spell_data();
 
 void load_cmdlevels();
 void load_package_cmdlevels();
-void load_tips();
 
 
 void load_intrinsic_weapons();

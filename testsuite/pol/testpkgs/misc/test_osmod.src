@@ -1,0 +1,112 @@
+// The os.em functions no other case reaches: the debug switch, the scheduler sampler and the
+// cprop profile dump. Start_Skill_Script is the fourth, and lives with the attribute that
+// names its script, in testpkgs/attributes/test_attr_skillscript.src.
+use os;
+use polsys;
+use file;
+
+include "testutil";
+
+program testosmod()
+  return 1;
+endprogram
+
+// Set_Debug turns on the executor's SOURCELINES level, which makes it log every statement it
+// then runs. It is called in a script of its own so that the logging stops with that script.
+exported function osmod_set_debug()
+  var pid := Start_Script( ":TestMisc:setdebugscript", GetProcess() );
+  if ( !pid )
+    return ret_error( $"could not start the debug script: {pid}" );
+  endif
+
+  Clear_Event_Queue();
+  var ev := wait_for_event( 10 );
+  if ( !ev )
+    return ret_error( "the debug script never reported back" );
+  endif
+  if ( ev.off != 1 )
+    return ret_error( $"Set_Debug( 0 ) answered {ev.off}, expected 1" );
+  endif
+  if ( ev.on != 1 )
+    return ret_error( $"Set_Debug( 1 ) answered {ev.on}, expected 1" );
+  endif
+  return 1;
+endfunction
+
+// PerformanceMeasure samples the scheduler, waits the seconds it was given, and answers with
+// what the scripts running over that window did. The caller is suspended for the whole of it,
+// so it counts itself among them.
+exported function osmod_performance_measure()
+  var res := PerformanceMeasure( 1, 5 );
+  if ( !res )
+    return ret_error( $"the measure was refused: {res}" );
+  endif
+
+  if ( !( res.?scripts ) or !( res.?total_number_observed ) or !( res.?total_instructions ) )
+    return ret_error( $"the measure answered {res}" );
+  endif
+  if ( res.total_number_observed < 1 )
+    return ret_error( "the measure observed no scripts at all" );
+  endif
+  // max_scripts caps the list, not the count of what was observed
+  if ( res.scripts.size() > 5 )
+    return ret_error( $"{res.scripts.size()} scripts came back for a cap of 5" );
+  endif
+  if ( res.scripts.size() > res.total_number_observed )
+    return ret_error( "more scripts were listed than were observed" );
+  endif
+
+  foreach script in ( res.scripts )
+    if ( !( script.?name ) or !( script.?instructions ) or !( script.?pid ) or !( script.?percent ) )
+      return ret_error( $"a listed script reads {script}" );
+    endif
+    if ( script.percent < 0 or script.percent > 100 )
+      return ret_error( $"{script.name} took {script.percent} percent" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// A cap of zero lists nothing, and still says what it saw.
+exported function osmod_performance_measure_nolist()
+  var res := PerformanceMeasure( 1, 0 );
+  if ( !res )
+    return ret_error( $"the measure was refused: {res}" );
+  endif
+  if ( res.scripts.size() )
+    return ret_error( $"a cap of zero listed {res.scripts.size()} scripts" );
+  endif
+  return 1;
+endfunction
+
+// LogCPropProfile writes what the cprop profiler holds to log/cpprofile.log, appending to
+// whatever is already there. The profiler itself is off in this shard, which the dump says.
+exported function osmod_log_cprop_profile()
+  var before := ReadFile( "::log/cpprofile.log" );
+  var was := before ? before.size() : 0;
+
+  var res := LogCPropProfile();
+  if ( !res )
+    return ret_error( $"the profile dump was refused: {res}" );
+  endif
+
+  var after := ReadFile( "::log/cpprofile.log" );
+  if ( !after )
+    return ret_error( $"::log/cpprofile.log could not be read back: {after}" );
+  endif
+  if ( after.size() <= was )
+    return ret_error( $"the dump added nothing: {was} lines before, {after.size()} after" );
+  endif
+
+  // the header names the profiler's state, which is what a shard reads the file for
+  var found := 0;
+  foreach line in ( after )
+    if ( line.find( "the profiler is currently" ) )
+      found := 1;
+    endif
+  endforeach
+  if ( !found )
+    return ret_error( "the dump carries no profiler state line" );
+  endif
+  return 1;
+endfunction

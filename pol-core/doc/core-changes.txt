@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+09-13-2026 Turley:
+    Fixed: The tip window showed the name of the file the tip came from instead of what was
+           written in it, and before that showed nothing at all.
 09-13-2026 AsYlum, Turley:
     Fixed: the shard could wedge when uo::SaveWorldState() was called again while the previous
            save was still finishing - two scripts saving in the same pass is enough.

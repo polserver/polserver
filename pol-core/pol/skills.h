@@ -15,11 +15,12 @@ class Client;
 namespace Mobile
 {
 class Attribute;
-}
+class Character;
+}  // namespace Mobile
 namespace Core
 {
-bool CanUseSkill( Network::Client* client );
+bool CanUseSkill( Mobile::Character* chr );
 bool StartSkillScript( Network::Client* client, const Mobile::Attribute* attrib );
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif
