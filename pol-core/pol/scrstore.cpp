@@ -29,7 +29,7 @@ void preload_test_scripts( const std::string& );
 }  // namespace Items
 namespace Core
 {
-bool script_loaded( ScriptDef& sd )
+bool script_loaded( const ScriptDef& sd )
 {
   ScriptStorage::iterator itr = scriptScheduler.scrstore.find( sd.name() );
   return ( itr != scriptScheduler.scrstore.end() );

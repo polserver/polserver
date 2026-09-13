@@ -7,12 +7,164 @@
 #ifndef CLIB_CFGELEM_H
 #define CLIB_CFGELEM_H
 #include "clib/maputil.h"
+#include "clib/rawtypes.h"
 
-#include <map>
+#include <algorithm>
+#include <cstddef>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
 
 namespace Pol::Clib
 {
+/// Case-insensitive FNV-1a over ASCII. constexpr so a literal name at the call site is hashed
+/// at compile time. Never returns 0: ConfigProps spends that value on marking a removed slot.
+constexpr u32 ci_hash( std::string_view s )
+{
+  u32 h = 2166136261u;
+  for ( char c : s )
+  {
+    const char lowered = ( c >= 'A' && c <= 'Z' ) ? static_cast<char>( c + ( 'a' - 'A' ) ) : c;
+    h ^= static_cast<u32>( static_cast<unsigned char>( lowered ) );
+    h *= 16777619u;
+  }
+  return h != 0 ? h : 1u;
+}
+
+/// A property name plus its hash. Implicit constructors so a call site can pass a plain literal
+/// and get the hash folded into a constant; a name built at runtime works, it just pays to hash.
+class PropKey
+{
+public:
+  constexpr PropKey( const char* name ) : name_( name ), hash_( ci_hash( name_ ) ) {}
+  constexpr PropKey( std::string_view name ) : name_( name ), hash_( ci_hash( name_ ) ) {}
+  PropKey( const std::string& name ) : name_( name ), hash_( ci_hash( name_ ) ) {}
+
+  constexpr std::string_view name() const { return name_; }
+  constexpr u32 hash() const { return hash_; }
+
+private:
+  std::string_view name_;
+  u32 hash_;
+};
+
+inline bool ci_equal( std::string_view a, std::string_view b )
+{
+  return a.size() == b.size() && strnicmp( a.data(), b.data(), a.size() ) == 0;
+}
+
+/**
+ * An element's properties, in the order the file listed them.
+ *
+ * A flat scan rather than a tree: an element carries about a dozen properties and
+ * readProperties() probes some ninety fixed names against them, so nearly every lookup misses
+ * and a contiguous run of hashes beats descending a tree.
+ *
+ * clear() only forgets the live count, so the vectors and every string buffer in them are reused
+ * by the next element. Removal leaves the slot with a 0 hash rather than shifting anything down,
+ * which is what keeps its strings around to be reused.
+ */
+class ConfigProps
+{
+public:
+  static constexpr size_t npos = static_cast<size_t>( -1 );
+
+  void clear()
+  {
+    count_ = 0;
+    live_ = 0;
+    by_name_valid_ = false;
+  }
+  bool empty() const { return live_ == 0; }
+
+  void emplace( std::string_view name, std::string_view value )
+  {
+    if ( count_ == entries_.size() )
+    {
+      entries_.emplace_back();
+      hashes_.push_back( 0 );
+    }
+    entries_[count_].first.assign( name );
+    entries_[count_].second.assign( value );
+    hashes_[count_] = ci_hash( name );
+    ++count_;
+    ++live_;
+    by_name_valid_ = false;
+  }
+
+  size_t find( PropKey key ) const
+  {
+    const u32 hash = key.hash();
+    // The hash compare carries the search and the name compare only confirms a hit, so a
+    // collision costs one strnicmp rather than a wrong answer.
+    for ( size_t i = 0; i < count_; ++i )
+    {
+      if ( hashes_[i] == hash && ci_equal( entries_[i].first, key.name() ) )
+        return i;
+    }
+    return npos;
+  }
+
+  /**
+   * The next live slot in name order.
+   *
+   * That order is load-bearing: menus are built from their properties in it, and read_movecost()
+   * interpolates over them.
+   *
+   * Sorted once and walked with a cursor rather than rescanned for the smallest each time --
+   * scripts drain large elements through ReadConfigFile(), and a scan per property would be
+   * quadratic. Ties keep the earlier slot, so repeated names come back in file order.
+   */
+  size_t take_first()
+  {
+    if ( !by_name_valid_ )
+    {
+      by_name_.clear();
+      by_name_.reserve( live_ );
+      for ( size_t i = 0; i < count_; ++i )
+      {
+        if ( hashes_[i] != 0 )
+          by_name_.push_back( i );
+      }
+      std::stable_sort( by_name_.begin(), by_name_.end(), [this]( size_t a, size_t b )
+                        { return ci_cmp_pred{}( entries_[a].first, entries_[b].first ); } );
+      by_name_pos_ = 0;
+      by_name_valid_ = true;
+    }
+
+    while ( by_name_pos_ < by_name_.size() )
+    {
+      const size_t i = by_name_[by_name_pos_++];
+      if ( hashes_[i] != 0 )  // it may have been removed by name since we sorted
+        return i;
+    }
+    return npos;
+  }
+
+  const std::string& name_at( size_t i ) const { return entries_[i].first; }
+  const std::string& value_at( size_t i ) const { return entries_[i].second; }
+
+  void remove_at( size_t i )
+  {
+    hashes_[i] = 0;
+    --live_;
+  }
+
+  size_t estimateSize() const;
+
+private:
+  std::vector<u32> hashes_;  // 0 marks a removed slot; parallel to entries_
+  std::vector<std::pair<std::string, std::string>> entries_;
+  size_t count_ = 0;  // slots in use, tombstones included
+  size_t live_ = 0;
+
+  std::vector<size_t> by_name_;  // slots in name order, only if take_first() was ever asked
+  size_t by_name_pos_ = 0;
+  bool by_name_valid_ = false;
+};
+
 class ConfigProperty
 {
 public:
@@ -54,43 +206,43 @@ public:
   size_t estimateSize() const override;
   friend class ConfigFile;
 
-  bool has_prop( const char* propname ) const;
+  bool has_prop( PropKey propname ) const;
 
-  std::string remove_string( const char* propname );
-  std::string remove_string( const char* propname, const char* dflt );
+  std::string remove_string( PropKey propname );
+  std::string remove_string( PropKey propname, const char* dflt );
 
-  unsigned short remove_ushort( const char* propname );
-  unsigned short remove_ushort( const char* propname, unsigned short dflt );
+  unsigned short remove_ushort( PropKey propname );
+  unsigned short remove_ushort( PropKey propname, unsigned short dflt );
 
-  int remove_int( const char* propname );
-  int remove_int( const char* propname, int dflt );
+  int remove_int( PropKey propname );
+  int remove_int( PropKey propname, int dflt );
 
-  unsigned remove_unsigned( const char* propname );
-  unsigned remove_unsigned( const char* propname, int dflt );
+  unsigned remove_unsigned( PropKey propname );
+  unsigned remove_unsigned( PropKey propname, int dflt );
 
-  unsigned int remove_ulong( const char* propname );
-  unsigned int remove_ulong( const char* propname, unsigned int dflt );
+  unsigned int remove_ulong( PropKey propname );
+  unsigned int remove_ulong( PropKey propname, unsigned int dflt );
 
-  bool remove_bool( const char* propname );
-  bool remove_bool( const char* propname, bool dflt );
+  bool remove_bool( PropKey propname );
+  bool remove_bool( PropKey propname, bool dflt );
 
-  float remove_float( const char* propname, float dflt );
-  double remove_double( const char* propname, double dflt );
+  float remove_float( PropKey propname, float dflt );
+  double remove_double( PropKey propname, double dflt );
 
-  void clear_prop( const char* propname );
+  void clear_prop( PropKey propname );
 
   bool remove_first_prop( std::string* propname, std::string* value );
-  bool remove_prop( const char* propname, std::string* value );
-  bool remove_prop( const char* propname, unsigned int* plong );
-  bool remove_prop( const char* propname, unsigned short* pushort );
+  bool remove_prop( PropKey propname, std::string* value );
+  bool remove_prop( PropKey propname, unsigned int* plong );
+  bool remove_prop( PropKey propname, unsigned short* pushort );
 
-  bool read_prop( const char* propname, std::string* value ) const;
+  bool read_prop( PropKey propname, std::string* value ) const;
 
   // get_prop calls: don't remove, and throw if not found.
-  void get_prop( const char* propname, unsigned int* plong ) const;
+  void get_prop( PropKey propname, unsigned int* plong ) const;
 
-  std::string read_string( const char* propname ) const;
-  std::string read_string( const char* propname, const char* dflt ) const;
+  std::string read_string( PropKey propname ) const;
+  std::string read_string( PropKey propname, const char* dflt ) const;
 
 
   void add_prop( std::string propname, std::string propval );
@@ -109,9 +261,8 @@ public:
   void set_source( const ConfigSource* source );
 
 protected:
-  [[noreturn]] void prop_not_found( const char* propname ) const;
-  using Props = std::multimap<std::string, std::string, ci_cmp_pred>;
-  Props properties;
+  [[noreturn]] void prop_not_found( std::string_view propname ) const;
+  ConfigProps properties;
 };
 
 }  // namespace Pol::Clib

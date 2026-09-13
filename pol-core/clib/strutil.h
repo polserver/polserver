@@ -17,6 +17,7 @@
 #include <fmt/std.h>
 #include <iterator>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 
@@ -49,6 +50,8 @@ std::string tostring( const T& value )
   return fmt::to_string( fmt::underlying( value ) );
 }
 
+/// Writes into the caller's strings, so a line-by-line reader can reuse the same two forever.
+void splitnamevalue( std::string_view istr, std::string& propname, std::string& propvalue );
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue );
 
 void decodequotedstring( std::string& str );
@@ -65,10 +68,18 @@ std::string strupperASCII( const std::string& str );
 std::string strtrim( const std::string& str );
 
 void remove_bom( std::string* strbuf );
+/// The same, without touching the input: returns the view past a leading BOM.
+std::string_view remove_bom( std::string_view strbuf );
 
+/// True when no byte has its high bit set. Cheaper than the utf8 validation below, which decodes
+/// code point by code point, so it is worth asking first.
+bool isPlainAscii( std::string_view str );
 bool isValidUnicode( const std::string& str );
 // if invalid unicode is detected iso8859 is assumed
 void sanitizeUnicodeWithIso( std::string* str );
+/// The same, without touching the input: returns str itself when there was nothing to do, and
+/// otherwise the rewrite, which is left in *scratch.
+std::string_view sanitizeUnicodeWithIso( std::string_view str, std::string* scratch );
 // if invalid unicode is detected characters get replaced
 void sanitizeUnicode( std::string* str );
 

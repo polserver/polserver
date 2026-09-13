@@ -13,6 +13,9 @@
 #include "pol/item/item.h"
 
 #include <exception>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
@@ -1256,21 +1259,53 @@ bool Item::check_unequip_script( Mobile::Character* unequip_by )
   return true;
 }
 
-void preload_test_scripts( const std::string& script_ecl )
+namespace
 {
+/**
+ * Where a test script -- equiptest.ecl, unequiptest.ecl -- is actually installed: the core copy
+ * and each package that has one.
+ *
+ * Cached, because check_test_scripts() runs for every equipped item on every character and NPC
+ * while a world loads. Leaving out the packages with no such file loses nothing: script_loaded()
+ * can only say yes for a script that was read off disk.
+ */
+const std::vector<Core::ScriptDef>& test_script_locations( const std::string& script_ecl,
+                                                           bool refresh = false )
+{
+  static std::map<std::string, std::vector<Core::ScriptDef>> locations_by_name;
+
+  auto itr = locations_by_name.find( script_ecl );
+  if ( itr != locations_by_name.end() && !refresh )
+    return itr->second;
+
+  std::vector<Core::ScriptDef> locations;
   Core::ScriptDef sd;
   sd.quickconfig( "scripts/misc/" + script_ecl );
   if ( sd.exists() )
-  {
-    find_script2( sd, true, true );
-  }
+    locations.push_back( sd );
   for ( const auto& pkg : Plib::systemstate.packages )
   {
     sd.quickconfig( pkg, script_ecl );
     if ( sd.exists() )
-    {
-      find_script2( sd, true, true );
-    }
+      locations.push_back( sd );
+  }
+
+  if ( itr != locations_by_name.end() )
+  {
+    itr->second = std::move( locations );
+    return itr->second;
+  }
+  return locations_by_name.emplace( script_ecl, std::move( locations ) ).first->second;
+}
+}  // namespace
+
+void preload_test_scripts( const std::string& script_ecl )
+{
+  // Re-taken here rather than trusted: this also runs after a script is unloaded, and one may
+  // have been installed since the list was last built.
+  for ( const Core::ScriptDef& sd : test_script_locations( script_ecl, true ) )
+  {
+    find_script2( sd, true, true );
   }
 }
 void preload_test_scripts()
@@ -1282,11 +1317,14 @@ void preload_test_scripts()
 bool Item::check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_chr,
                                const std::string& script_ecl, bool startup )
 {
-  Core::ScriptDef sd;
-  sd.quickconfig( "scripts/misc/" + script_ecl );
   this->inuse( true );
-  if ( script_loaded( sd ) )
+  // Where the script lives is fixed, but whether it is loaded is not -- a shard can unload one
+  // while it runs -- so that is still asked per location.
+  for ( const Core::ScriptDef& sd : test_script_locations( script_ecl ) )
   {
+    if ( !script_loaded( sd ) )
+      continue;
+
     auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
                                          : new Module::ECharacterRefObjImp( by_chr );
     bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
@@ -1295,21 +1333,6 @@ bool Item::check_test_scripts( Mobile::Character* on_chr, Mobile::Character* by_
     this->inuse( false );
     if ( !res )
       return false;
-  }
-  for ( const auto& pkg : Plib::systemstate.packages )
-  {
-    sd.quickconfig( pkg, script_ecl );
-    if ( script_loaded( sd ) )
-    {
-      auto* by_chr_imp = by_chr == nullptr ? new Module::ECharacterRefObjImp( on_chr )
-                                           : new Module::ECharacterRefObjImp( by_chr );
-      bool res = Core::call_script( sd, new Module::ECharacterRefObjImp( on_chr ),
-                                    new Module::EItemRefObjImp( this ),
-                                    new Bscript::BLong( startup ), by_chr_imp );
-      this->inuse( false );
-      if ( !res )
-        return false;
-    }
   }
 
   this->inuse( false );

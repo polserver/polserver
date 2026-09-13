@@ -189,11 +189,6 @@ Items::Item* read_item( Clib::ConfigElem& elem )
   return item;
 }
 
-#define USE_PARENT_CONTS 1
-
-using ContStack = std::stack<UContainer*>;
-static ContStack parent_conts;
-
 void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 {
   u32 container_serial = 0;  // defaults to item in the world's top-level
@@ -226,44 +221,24 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       item->destroy();
       return;
     }
-    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-      parent_conts.push( static_cast<UContainer*>( item ) );
+  }
+  else if ( IsCharacter( container_serial ) )  // it's equipped on a character
+  {
+    Mobile::Character* chr = system_find_mobile( container_serial );
+    if ( chr != nullptr )
+    {
+      equip_loaded_item( chr, item );
+    }
+    else
+    {
+      defer_item_insertion( item, container_serial, saved_layer, saved_slot );
+    }
   }
   else
   {
-    if ( IsCharacter( container_serial ) )  // it's equipped on a character
-    {
-      Mobile::Character* chr = system_find_mobile( container_serial );
-      if ( chr != nullptr )
-      {
-        equip_loaded_item( chr, item );
-      }
-      else
-      {
-        defer_item_insertion( item, container_serial, saved_layer, saved_slot );
-      }
-      return;
-    }
-    Items::Item* cont_item = nullptr;
-    // bool new_parent_cont = false;
-
-    while ( !parent_conts.empty() )
-    {
-      UContainer* cont = parent_conts.top();
-      if ( cont->serial == container_serial )
-      {
-        cont_item = cont;
-        break;
-      }
-
-      parent_conts.pop();
-    }
-
+    Items::Item* cont_item = loaded_container_stack.find( container_serial );
     if ( cont_item == nullptr )
-    {
       cont_item = system_find_item( container_serial );
-      // new_parent_cont = true;
-    }
 
     if ( cont_item )
     {
@@ -274,6 +249,10 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
+
+  // Whatever happened to it, if it is a container its own contents are the next thing in the file.
+  // Pushed for every item, not only top-level ones: nested containers are most of a storage file.
+  loaded_container_stack.push( item );
 }
 
 void read_system_vars( Clib::ConfigElem& elem )
@@ -649,8 +628,7 @@ int read_data()
   if ( stateManager.stored_last_char_serial < GetCurrentCharSerialNumber() )
     SetCurrentCharSerialNumber( stateManager.stored_last_char_serial );
 
-  while ( !parent_conts.empty() )
-    parent_conts.pop();
+  loaded_container_stack.clear();
 
   for ( const auto& citr : objStorageManager.objecthash )
   {

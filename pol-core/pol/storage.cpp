@@ -25,6 +25,7 @@
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
 #include "pol/loaddata.h"
+#include "pol/loadstats.h"
 #include "pol/mkscrobj.h"
 #include "pol/saveparallel.h"
 #include "pol/ufunc.h"
@@ -118,13 +119,19 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
     elem.warn_with_line( "Error reading item SERIAL or OBJTYPE." );
     return;
   }
+
+  LoadPhase phase( &worldLoadStats.place_ns );
   if ( container_serial == 0 )
   {
     (void)Items::relocate_loaded( *item, Items::InStorage{ this, item->name() } );
   }
   else
   {
-    Items::Item* cont_item = Core::system_find_item( container_serial );
+    // Storage is written depth first too, so the container this item names is almost always the
+    // one we are standing in.
+    Items::Item* cont_item = Core::loaded_container_stack.find( container_serial );
+    if ( cont_item == nullptr )
+      cont_item = Core::system_find_item( container_serial );
 
     if ( cont_item )
     {
@@ -135,6 +142,8 @@ void StorageArea::load_item( Clib::ConfigElem& elem )
       defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
+
+  Core::loaded_container_stack.push( item );
 }
 StorageArea* Storage::find_area( const std::string& name )
 {
@@ -193,8 +202,14 @@ void Storage::read( Clib::ConfigFile& cf )
 
   clock_t start = clock();
 
-  while ( cf.read( elem ) )
+  worldLoadStats.reset();
+  for ( ;; )
   {
+    {
+      LoadPhase phase( &worldLoadStats.parse_ns );
+      if ( !cf.read( elem ) )
+        break;
+    }
     if ( --num_until_dot == 0 )
     {
       INFO_PRINT( "." );
@@ -236,6 +251,7 @@ void Storage::read( Clib::ConfigFile& cf )
   int ms = static_cast<int>( ( end - start ) * 1000.0 / CLOCKS_PER_SEC );
 
   INFO_PRINTLN( " {} elements in {} ms.", nobjects, ms );
+  Core::worldLoadStats.log( "storage.txt", nobjects );
 }
 
 void Storage::print_piece( const std::vector<StoragePiece>& pieces, size_t i, bool starts_block,
