@@ -5082,6 +5082,9 @@ BObjectImp* UOExecutorModule::mf_SendOverallSeason( /*season_id, playsound := 1*
       if ( !client->chr || !client->chr->logged_in() || client->getversiondetail().major < 1 )
         continue;
       msg.Send( client );
+      // The packet stopped both; -1 is not a sendable level.
+      client->gd->weather_region = nullptr;
+      client->gd->lightlevel = -1;
     }
     return new BLong( 1 );
   }

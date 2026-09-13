@@ -402,6 +402,10 @@ class TestBrain(brain.Brain):
             res = res is not None))
       elif todo=="disable_item_logging":
         self.client.addTodo(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING, value = arg))
+      elif todo=="weather_events":
+        # Off for everyone else: these two packets raised no event at all before,
+        # and the rest of the suite is written against that silence.
+        self.client.weather_events = arg
       elif todo=="auto_delete_objs":
         self.client.auto_delete_objs = arg
         self.server.addevent(
@@ -741,6 +745,13 @@ class PolServer:
     elif ev.type==Event.EVT_SEASON:
       res["season"]=ev.season
       res["playsound"]=ev.playsound
+    elif ev.type==Event.EVT_WEATHER:
+      # named for the wire, not for pyuo's decoder: 0x65 is type, severity, aux
+      res["weather"]=ev.weather
+      res["severity"]=ev.num
+      res["aux"]=ev.temp
+    elif ev.type==Event.EVT_LIGHT:
+      res["level"]=ev.level
     elif ev.type==Event.EVT_SKILLS:
       res["skills"]=len(ev.skills)
     elif ev.type==Event.EVT_ANIMATION:

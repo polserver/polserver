@@ -46,7 +46,7 @@ ClientGameData::ClientGameData()
       menu( nullptr ),
       on_menu_selection( nullptr ),
       on_popup_menu_selection( nullptr ),
-      lightlevel( 0 ),
+      lightlevel( -1 ),  // not a sendable level: nothing has been sent yet
       custom_house_serial( 0 ),
       custom_house_chrserial( 0 ),
       script_defined_update_range( false ),
@@ -62,6 +62,9 @@ ClientGameData::~ClientGameData()
 
 void ClientGameData::clear()
 {
+  weather_region = nullptr;
+  lightlevel = -1;
+
   if ( textentry_uoemod )
   {
     textentry_uoemod->uoexec().revive();

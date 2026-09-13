@@ -298,10 +298,12 @@ BObjectImp* NPCExecutorModule::mf_Face()
     return nullptr;
   }
 
+  u8 oldfacing = npc.facing;
   if ( !npc.face( i_facing, flags ) )
     return new BLong( 0 );
 
-  npc.on_facing_changed();
+  if ( npc.facing != oldfacing )
+    npc.on_facing_changed();
   return new BLong( i_facing );
 }
 

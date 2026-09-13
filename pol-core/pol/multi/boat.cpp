@@ -827,7 +827,8 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
   chr->position_changed();
   if ( chr->has_active_client() )
   {
-    if ( oldpos.realm() != chr->stored_realm() )
+    bool crossed_realms = ( oldpos.realm() != chr->stored_realm() );
+    if ( crossed_realms )
     {
       Core::send_new_subserver( chr->client );
       Core::send_owncreate( chr->client, chr );
@@ -849,6 +850,18 @@ void UBoat::move_boat_mobile( Mobile::Character* chr, const Core::Pos4d& newpos 
       // should be consolidated.
       Core::send_objects_newly_inrange_on_boat( chr->client, this->serial );
     }
+
+    // After both branches: the older clients above were sent a goxyz, the newer
+    // ones a season packet by realm_changed(), and either stops the weather.
+    // Forced, because an unpainted zone in either realm is the same background
+    // region, so an ordinary check would see no change.
+    //
+    // Only on a realm crossing. A pre-7.0.9.0 client is also sent a goxyz on
+    // every ordinary step and turn, and repainting there would put a weather
+    // packet - and the journal line that comes with it - on every step. That
+    // belongs in do_tellmoves, and wants testing against a real client first.
+    if ( crossed_realms )
+      chr->check_weather_region_change( true );
   }
   chr->move_reason = Mobile::Character::MULTIMOVE;
   // multis are visible before a client accepts objects, we need to resend them

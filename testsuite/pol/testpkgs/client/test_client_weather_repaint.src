@@ -1,0 +1,413 @@
+// Several ordinary events resend the character's position, and a client that
+// gets one stops drawing weather. The core repaints afterwards so the sky
+// survives; each case here proves one of those paths.
+//
+// The shape is the same every time: stand in a weather region so there is a
+// sky to lose, swallow what walking in sent, trigger the event, then wait for
+// the weather to come back. Without the repaint the wait times out, which is
+// exactly the regression these guard.
+//
+// TestWeatherStorm is defined in regions/weather.cfg. It sits in open water no
+// client otherwise visits, so nothing else can be sending these packets - and
+// because it is water, anything that checks walkheight there has to be forced.
+//
+// The repaints this does not reach yet - login, the version handshake, the
+// gargoyle fly toggle, a boat crossing realms, two of the light fixes and
+// npc::Face() - are listed in the pull request, with what each would need.
+//
+// The first two need more than a case: startclient selects the character
+// before it attaches a brain, so nothing sent during login can raise an
+// event. Reaching them means recording what the client last received and
+// asking it afterwards, rather than watching for it.
+
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+const STORM_REGION := "TestWeatherStorm";
+const STORM_X := 177;
+const STORM_Y := 177;
+const STORM_TYPE := 1;
+const STORM_SEVERITY := 10;
+
+const HOME_X := 100;
+const HOME_Y := 50;
+
+// A human body to turn into; what to turn back into is read off the character.
+const BODY_FEMALE := 0x191;
+
+const CLIENT_ID := 0;
+
+// The whole resync request: the message type and two unread bytes.
+const RESYNC_PACKET := "220000";
+const SEASON_DESOLATION := 4;
+// What the rest of the suite runs in, put back after the season case.
+const SEASON_DEFAULT := 0;
+
+// Any override at all, so setlightlevel has something to do; cleared again
+// with -1, which is what the core reads as "no override".
+const TEST_LIGHT := 12;
+const NO_LIGHT_OVERRIDE := -1;
+
+// TestLightDark in regions/light.cfg, and the level it carries. Away from the
+// storm, so the background weather region applies and it holds no
+// LightOverride of its own - which is the case the light fix is about.
+const DARK_X := 111;
+const DARK_Y := 111;
+const DARK_LEVEL := 25;
+
+var char;
+
+// takes ownership of the client events, which is what puts them in this queue
+var clientcon := getClientConnection();
+
+program test_client_weather_repaint()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+
+// The storm rather than the "no weather" the core sends on leaving a region.
+function check_storm( ev, what )
+  if ( CInt( ev.weather ) != STORM_TYPE )
+    return ret_error( $"{what}: repainted weather {ev.weather}, wanted {STORM_TYPE}" );
+  endif
+  if ( CInt( ev.severity ) != STORM_SEVERITY )
+    return ret_error( $"{what}: repainted severity {ev.severity}, wanted {STORM_SEVERITY}" );
+  endif
+  return 1;
+endfunction
+
+
+function wait_weather( what, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or ev.type != EVT_WEATHER or CInt( ev.id ) != CLIENT_ID )
+      continue;
+    endif
+    return check_storm( ev, what );
+  endwhile
+  return ret_error( $"{what}: the client was never sent the weather again" );
+endfunction
+
+
+// Resurrection sends the season first and the weather second, so waiting for one
+// at a time would throw the other away. Only that a season arrived is asserted;
+// which one depends on the realm.
+function wait_season_and_weather( what, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var got_season := 0;
+  var got_weather := 0;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or CInt( ev.id ) != CLIENT_ID )
+      continue;
+    endif
+    if ( ev.type == EVT_SEASON )
+      got_season := 1;
+    elseif ( ev.type == EVT_WEATHER )
+      var res := check_storm( ev, what );
+      if ( !res )
+        return res;
+      endif
+      got_weather := 1;
+    endif
+    if ( got_season && got_weather )
+      return 1;
+    endif
+  endwhile
+  if ( !got_weather )
+    return ret_error( $"{what}: the client was never sent the weather again" );
+  endif
+  return ret_error( $"{what}: the client was never sent a season" );
+endfunction
+
+
+function wait_light( level, what, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( !ev or ev.type != EVT_LIGHT or CInt( ev.id ) != CLIENT_ID )
+      continue;
+    endif
+    if ( CInt( ev.level ) != level )
+      return ret_error( $"{what}: light {ev.level}, wanted {level}" );
+    endif
+    return 1;
+  endwhile
+  return ret_error( $"{what}: the client was never sent the light level again" );
+endfunction
+
+
+// Fails if the event turns up at all, for the cases whose fix is that a packet is
+// no longer sent. Polls, so a negative assertion costs what it was asked for.
+function no_event_for( type, what, timeout := QUIET_SECS )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( POLL_INTERVAL );
+    if ( ev and ev.type == type and CInt( ev.id ) == CLIENT_ID )
+      return ret_error( $"{what}: the client was sent a {type} it should not have been" );
+    endif
+  endwhile
+  return 1;
+endfunction
+
+
+// Weather and light raise no event unless a test asks for them: before this
+// they raised none at all, and the rest of the suite is written against that
+// silence. Turned on only while a case is standing in the storm.
+function watch_weather( on )
+  clientcon.sendevent( struct{ todo := "weather_events", arg := on, id := CLIENT_ID } );
+endfunction
+
+
+// Drain first, so the toggle above has landed before anything can be sent, then
+// wait for the packet walking in causes: draining blindly would let a late one
+// satisfy the wait the case makes afterwards.
+function enter_storm()
+  watch_weather( 1 );
+  // Pinned, not trusted to weather.cfg: test_uoregion leaves this region off,
+  // and a filtered run can order that package first. Nobody is standing in it
+  // yet, so this reaches no client.
+  var pinned := SetRegionWeatherLevel( STORM_REGION, STORM_TYPE, STORM_SEVERITY, 0, -1 );
+  if ( !pinned )
+    watch_weather( 0 );
+    return ret_error( $"could not set up {STORM_REGION}: {pinned}" );
+  endif
+  drain_events();
+
+  // Every exit from here on goes through leave_storm: it disarms the toggle
+  // and takes the character home, and a case left standing in the storm turns
+  // one failure into a run of them.
+  if ( !MoveObjectToLocation( char, STORM_X, STORM_Y, 0,
+                              flags := MOVEOBJECT_FORCELOCATION ) )
+    return leave_storm( ret_error( "could not move into the weather region" ) );
+  endif
+  var res := wait_weather( "entering the storm" );
+  if ( !res )
+    return leave_storm( res );
+  endif
+  drain_events();
+  return 1;
+endfunction
+
+
+function leave_storm( res )
+  var moved := MoveObjectToLocation( char, HOME_X, HOME_Y, 0,
+                                     flags := MOVEOBJECT_FORCELOCATION );
+  drain_events();
+  watch_weather( 0 );
+  if ( res && !moved )
+    return ret_error( "could not take the character back out of the weather region" );
+  endif
+  return res;
+endfunction
+
+
+// enter_storm for the light region: walking in changes the level, so waiting
+// for that proves the events are armed before the case starts.
+function enter_dark()
+  watch_weather( 1 );
+  drain_events();
+  if ( !MoveObjectToLocation( char, DARK_X, DARK_Y, 0,
+                              flags := MOVEOBJECT_FORCELOCATION ) )
+    return leave_dark( ret_error( "could not move into the light region" ) );
+  endif
+  var res := wait_light( DARK_LEVEL, "entering the dark" );
+  if ( !res )
+    return leave_dark( res );
+  endif
+  drain_events();
+  return 1;
+endfunction
+
+
+function leave_dark( res )
+  MoveObjectToLocation( char, HOME_X, HOME_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  drain_events();
+  watch_weather( 0 );
+  return res;
+endfunction
+
+
+// Killing the shared character is the most destructive thing here, so every
+// path out of that case goes through this - the same shape as revive() in
+// test_client_speech_raw.src. Forced, because the storm is water and
+// walkheight has no reason to accept it.
+function revive( res )
+  var corpse := char.getcorpse();
+  Resurrect( char, RESURRECT_FORCELOCATION );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return res;
+endfunction
+
+
+// chr.graphic := is the member form of setgraphic, which is what a polymorph
+// spell uses.
+exported function weather_repaint_setgraphic( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  var oldgraphic := char.graphic;
+  char.graphic := BODY_FEMALE;
+  res := wait_weather( "setgraphic" );
+  char.graphic := oldgraphic;
+  return leave_storm( res );
+endfunction
+
+
+exported function weather_repaint_color( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  // Derived, not fixed: setcolor only tells anyone when the colour differs.
+  var oldcolor := char.color;
+  var newcolor := 0x8FF;
+  if ( oldcolor == newcolor )
+    newcolor := 0x8FE;
+  endif
+  char.color := newcolor;
+  res := wait_weather( "colour change" );
+  char.color := oldcolor;
+  return leave_storm( res );
+endfunction
+
+
+// Death and resurrection both resend the position, and the season goes with
+// the resurrection: one sent while the character was dead does not stick, so a
+// client that logged in as a ghost has none.
+exported function weather_repaint_resurrect( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  ApplyRawDamage( char, GetVital( char, "Life" ) / 100 + 10 );
+  if ( !char.dead )
+    return leave_storm( revive( ret_error( "the character did not die" ) ) );
+  endif
+  res := wait_weather( "death" );
+  if ( !res )
+    return leave_storm( revive( res ) );
+  endif
+
+  drain_events();
+  var corpse := char.getcorpse();
+  if ( !Resurrect( char, RESURRECT_FORCELOCATION ) )
+    return leave_storm( revive( ret_error( "the character could not be resurrected" ) ) );
+  endif
+  res := wait_season_and_weather( "resurrection" );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return leave_storm( res );
+endfunction
+
+
+// The client asks to be resynchronised and the core answers with the position,
+// which is what costs it the weather.
+exported function weather_repaint_resync( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  clientcon.sendevent( struct{ todo := "raw_packet", arg := RESYNC_PACKET, id := CLIENT_ID } );
+  if ( !waitForClient( CLIENT_ID, { EVT_PACKET_SENT } ) )
+    return leave_storm( ret_error( "the client never put the resync request on the wire" ) );
+  endif
+  res := wait_weather( "resync request" );
+  return leave_storm( res );
+endfunction
+
+
+// Turning to the way you already face is not a change and no longer resends
+// the position. The own client is never told it moved either way, so the
+// weather is the discriminator: without the guard the resend would cost the
+// client its sky and the repaint would put it back.
+exported function facing_unchanged_is_quiet( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  // setfacing rather than the member form: it applies the same guard but says
+  // whether it turned. can_face refuses when frozen, paralyzed or out of
+  // stamina, and a refusal would satisfy the assertion below for the wrong
+  // reason - the exact vacuous pass this case exists to avoid.
+  if ( !char.setfacing( char.facing ) )
+    return leave_storm( ret_error( "the character refused to turn" ) );
+  endif
+  res := no_event_for( EVT_WEATHER, "same-direction turn" );
+  return leave_storm( res );
+endfunction
+
+
+// A season sent by a script leaves the client with neither weather nor light,
+// and the core no longer records that it still has them. The next unforced
+// region check repairs it, even though the region has not changed.
+//
+// setlightlevel is the trigger because it runs check_region_changes() without
+// moving: move_character_to nulls the weather region itself, so a move would
+// repaint whether or not setseason had invalidated anything.
+exported function weather_repaint_after_setseason( unused resources )
+  var res := enter_storm();
+  if ( !res )
+    return res;
+  endif
+
+  char.setseason( SEASON_DESOLATION, 0 );
+  drain_events();
+
+  char.setlightlevel( TEST_LIGHT, 0 );
+  res := wait_weather( "light change after setseason" );
+  char.setlightlevel( NO_LIGHT_OVERRIDE, 0 );
+  // Put the season back: nothing asserts on it today, but EVT_SEASON is not
+  // gated the way the weather events are, so a later case would inherit this.
+  char.setseason( SEASON_DEFAULT, 0 );
+  return leave_storm( res );
+endfunction
+
+
+// A season packet resets the client's light, and the core sends one on
+// resurrection. Outside a weather region carrying a LightOverride - which is
+// everywhere on this shard - nothing used to put the level back, so the client
+// kept whatever the packet had left it on.
+exported function light_restored_after_season( unused resources )
+  var res := enter_dark();
+  if ( !res )
+    return res;
+  endif
+
+  ApplyRawDamage( char, GetVital( char, "Life" ) / 100 + 10 );
+  if ( !char.dead )
+    return leave_dark( revive( ret_error( "the character did not die" ) ) );
+  endif
+  drain_events();
+
+  var corpse := char.getcorpse();
+  if ( !Resurrect( char, RESURRECT_FORCELOCATION ) )
+    return leave_dark( revive( ret_error( "the character could not be resurrected" ) ) );
+  endif
+  res := wait_light( DARK_LEVEL, "resurrection" );
+  if ( corpse )
+    DestroyItem( corpse );
+  endif
+  drain_events();
+  return leave_dark( res );
+endfunction

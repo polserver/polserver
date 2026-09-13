@@ -254,10 +254,14 @@ void handle_client_version( Client* client, PKTBI_BD* msg )
       client->setClientType( CLIENTTYPE_4000 );
 
     if ( settingsManager.ssopt.core_sends_season )
+    {
       send_season_info(
           client );  // Scott 10/11/2007 added for login fixes and handling 1.x clients.
                      // Season info needs to check client version to keep from crashing 1.x
                      // version not set until shortly after login complete.
+      if ( client->getversiondetail().major >= 1 )
+        client->chr->check_weather_region_change( true );
+    }
     // send_feature_enable(client); //dave commented out 8/21/03, unexpected problems with people
     // sending B9 via script with this too.
     if ( client->acctSupports( Plib::ExpansionVersion::AOS ) )
@@ -367,6 +371,7 @@ void handle_msg_BF( Client* client, PKTBI_BF* msg )
       client->chr->movemode = (Plib::MOVEMODE)( client->chr->movemode ^ Plib::MOVEMODE_FLY );
       send_move_mobile_to_nearby_cansee( client->chr );
       send_goxyz( client, client->chr );
+      client->chr->check_weather_region_change( true );
     }
     break;
   case PKTBI_BF::TYPE_CLIENTTYPE:
