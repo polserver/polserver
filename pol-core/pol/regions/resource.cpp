@@ -419,7 +419,7 @@ void read_resources_dat()
 void ResourceDef::write( Clib::StreamWriter& sw ) const
 {
   sw.begin( "GlobalResourcePool", name() );
-  sw.add( "Units", current_units_ );
+  sw.add<"Units">( current_units_ );
   sw.end();
 
   for ( auto region : regions_ )
@@ -442,8 +442,8 @@ size_t ResourceDef::estimateSize() const
 void ResourceRegion::write( Clib::StreamWriter& sw, const std::string& resource_name ) const
 {
   sw.begin( "RegionalResourcePool", resource_name );
-  sw.add( "Name", name_ );
-  sw.add( "Units", units_ );
+  sw.add<"Name">( name_ );
+  sw.add<"Units">( units_ );
   sw.comment( "\t(regions/{}.cfg: Capacity is {})", resource_name, capacity_ );
   sw.end();
 }

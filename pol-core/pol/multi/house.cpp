@@ -681,6 +681,7 @@ void UHouse::readProperties( Clib::ConfigElem& elem )
 
 void UHouse::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   base::printProperties( sw );
 
   for ( const auto& component : components_ )
@@ -688,16 +689,16 @@ void UHouse::printProperties( Clib::StreamWriter& sw ) const
     Items::Item* item = component.get();
     if ( item != nullptr && !item->orphan() )
     {
-      sw.add( "Component", Clib::hexintv( item->serial ) );
+      sw.add_hex<"Component">( item->serial );
     }
   }
-  sw.add( "Custom", custom );
+  sw.add<"Custom">( custom );
   if ( custom )
   {
     CurrentDesign.printProperties( sw, "Current" );
     WorkingDesign.printProperties( sw, "Working" );
     BackupDesign.printProperties( sw, "Backup" );
-    sw.add( "DesignRevision", revision );
+    sw.add<"DesignRevision">( revision );
   }
 }
 

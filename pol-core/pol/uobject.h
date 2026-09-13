@@ -23,6 +23,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 #include "clib/boostutils.h"
@@ -262,7 +263,9 @@ public:
   virtual bool script_isa( unsigned isatype ) const;
   virtual const char* target_tag() const;
 
-  virtual const char* classname() const = 0;
+  /// A string_view rather than a char pointer: this is written once per object in a save, and
+  /// a pointer would have its length measured again for every one of them.
+  virtual std::string_view classname() const = 0;
 
   virtual size_t estimatedSize() const;
   virtual bool get_method_hook( const char* methodname, Bscript::Executor* ex, ExportScript** hook,

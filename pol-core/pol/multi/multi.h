@@ -20,6 +20,8 @@
 // unsigned int is z << 16 | objtype
 
 #ifndef ITEM_H
+#include <string_view>
+
 #include "pol/item/item.h"
 #endif
 
@@ -121,7 +123,7 @@ public:
 protected:
   explicit UMulti( const Items::ItemDesc& itemdesc );
 
-  const char* classname() const override;
+  std::string_view classname() const override;
 
   friend class ref_ptr<UMulti>;
 

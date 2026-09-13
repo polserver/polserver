@@ -32,9 +32,10 @@ struct PolConfig
   bool watch_rpm;
   bool watch_sysload;
   bool log_sysload;
-  bool watch_mapcache;
   bool check_integrity;
   bool inhibit_saves;
+  bool log_worldsave_details;
+  unsigned short worldsave_threads;
   bool log_script_cycles;
   bool count_resource_tiles;
   bool web_server;

@@ -13,6 +13,7 @@
 
 #include <stddef.h>
 #include <string>
+#include <string_view>
 
 #include "bscript/bobject.h"
 #include "clib/boostutils.h"
@@ -288,7 +289,7 @@ public:
 
   bool script_isa( unsigned isatype ) const override;
   const char* target_tag() const override;
-  const char* classname() const override;
+  std::string_view classname() const override;
   Bscript::BObjectImp* custom_script_method( const char* methodname,
                                              Core::UOExecutor& ex ) override;
   Bscript::BObject call_custom_method( const char* methodname, Bscript::BObjectImpRefVec& pmore );

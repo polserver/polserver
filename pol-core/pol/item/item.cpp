@@ -316,7 +316,7 @@ Realms::Realm* Item::toplevel_realm() const
   return base::toplevel_realm();
 }
 
-const char* Item::classname() const
+std::string_view Item::classname() const
 {
   return "Item";
 }
@@ -389,6 +389,7 @@ unsigned short Item::maxhp() const
 
 void Item::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   using namespace fmt;
 
   base::printProperties( sw );
@@ -397,126 +398,126 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
   std::string suffix = name_suffix();
 
   if ( amount_ != 1 )
-    sw.add( "Amount", amount_ );
+    sw.add<"Amount">( amount_ );
 
   // Where the item is, not something it carries: only a worn item and the equipment a corpse
   // renders have a layer, and the loader reads this back as one of the two.
   if ( u8 worn_on = location().layer(); worn_on != 0 )
-    sw.add( "Layer", (int)worn_on );
+    sw.add<"Layer">( (int)worn_on );
 
   // Same category as Layer: which cell of a container's grid the item occupies. Zero for every
   // shard not using slots -- relocate refuses to record one there -- so nothing new is written
   // into their world files.
   if ( u8 slot = location().slot(); slot != 0 )
-    sw.add( "SlotIndex", (int)slot );
+    sw.add<"SlotIndex">( (int)slot );
 
   if ( movable() != default_movable() )
-    sw.add( "Movable", movable() );
+    sw.add<"Movable">( movable() );
 
   if ( invisible() != default_invisible() )
-    sw.add( "Invisible", invisible() );
+    sw.add<"Invisible">( invisible() );
 
   if ( cursed() != default_cursed() )
-    sw.add( "Cursed", cursed() );
+    sw.add<"Cursed">( cursed() );
 
   if ( const Core::UContainer* cont = container(); cont != nullptr )
-    sw.add( "Container", Clib::hexintv( cont->serial ) );
+    sw.add_hex<"Container">( cont->serial );
 
   if ( !on_use_script_.get().empty() )
-    sw.add( "OnUseScript", on_use_script_.get() );
+    sw.add<"OnUseScript">( on_use_script_.get() );
 
   if ( equip_script_ != itemdesc().equip_script )
-    sw.add( "EquipScript", equip_script_.get() );
+    sw.add<"EquipScript">( equip_script_.get() );
 
   if ( unequip_script_ != itemdesc().unequip_script )
-    sw.add( "UnequipScript", unequip_script_.get() );
+    sw.add<"UnequipScript">( unequip_script_.get() );
 
   if ( !snoop_script_.get().empty() )
-    sw.add( "SnoopScript", snoop_script_.get() );
+    sw.add<"SnoopScript">( snoop_script_.get() );
 
   if ( decayat_gameclock_ != 0 )
-    sw.add( "DecayAt", decayat_gameclock_ );
+    sw.add<"DecayAt">( decayat_gameclock_ );
 
   if ( has_sellprice_() )
-    sw.add( "SellPrice", sellprice_() );
+    sw.add<"SellPrice">( sellprice_() );
   if ( has_buyprice_() )
-    sw.add( "BuyPrice", buyprice_() );
+    sw.add<"BuyPrice">( buyprice_() );
 
   if ( newbie() != default_newbie() )
-    sw.add( "Newbie", newbie() );
+    sw.add<"Newbie">( newbie() );
 
   if ( insured() != default_insured() )
-    sw.add( "Insured", insured() );
+    sw.add<"Insured">( insured() );
   // new prop stuff
   if ( has_fire_resist() )
-    sw.add( "FireResist", fire_resist().value );
+    sw.add<"FireResist">( fire_resist().value );
   if ( has_cold_resist() )
-    sw.add( "ColdResist", cold_resist().value );
+    sw.add<"ColdResist">( cold_resist().value );
   if ( has_energy_resist() )
-    sw.add( "EnergyResist", energy_resist().value );
+    sw.add<"EnergyResist">( energy_resist().value );
   if ( has_poison_resist() )
-    sw.add( "PoisonResist", poison_resist().value );
+    sw.add<"PoisonResist">( poison_resist().value );
   if ( has_physical_resist() )
-    sw.add( "PhysicalResist", physical_resist().value );
+    sw.add<"PhysicalResist">( physical_resist().value );
 
   if ( has_fire_damage() )
-    sw.add( "FireDamage", fire_damage().value );
+    sw.add<"FireDamage">( fire_damage().value );
   if ( has_cold_damage() )
-    sw.add( "ColdDamage", cold_damage().value );
+    sw.add<"ColdDamage">( cold_damage().value );
   if ( has_energy_damage() )
-    sw.add( "EnergyDamage", energy_damage().value );
+    sw.add<"EnergyDamage">( energy_damage().value );
   if ( has_poison_damage() )
-    sw.add( "PoisonDamage", poison_damage().value );
+    sw.add<"PoisonDamage">( poison_damage().value );
   if ( has_physical_damage() )
-    sw.add( "PhysicalDamage", physical_damage().value );
+    sw.add<"PhysicalDamage">( physical_damage().value );
   if ( has_lower_reagent_cost() )
-    sw.add( "LowerReagentCost", lower_reagent_cost().value );
+    sw.add<"LowerReagentCost">( lower_reagent_cost().value );
   if ( has_spell_damage_increase() )
-    sw.add( "SpellDamageIncrease", spell_damage_increase().value );
+    sw.add<"SpellDamageIncrease">( spell_damage_increase().value );
   if ( has_faster_casting() )
-    sw.add( "FasterCasting", faster_casting().value );
+    sw.add<"FasterCasting">( faster_casting().value );
   if ( has_faster_cast_recovery() )
-    sw.add( "FasterCastRecovery", faster_cast_recovery().value );
+    sw.add<"FasterCastRecovery">( faster_cast_recovery().value );
   if ( has_defence_increase() )
-    sw.add( "DefenceIncrease", defence_increase().value );
+    sw.add<"DefenceIncrease">( defence_increase().value );
   if ( has_defence_increase_cap() )
-    sw.add( "DefenceIncreaseCap", defence_increase_cap().value );
+    sw.add<"DefenceIncreaseCap">( defence_increase_cap().value );
   if ( has_lower_mana_cost() )
-    sw.add( "LowerManaCost", lower_mana_cost().value );
+    sw.add<"LowerManaCost">( lower_mana_cost().value );
   if ( has_hit_chance() )
-    sw.add( "HitChance", hit_chance().value );
+    sw.add<"HitChance">( hit_chance().value );
   if ( has_fire_resist_cap() )
-    sw.add( "FireResistCap", fire_resist_cap().value );
+    sw.add<"FireResistCap">( fire_resist_cap().value );
   if ( has_cold_resist_cap() )
-    sw.add( "ColdResistCap", cold_resist_cap().value );
+    sw.add<"ColdResistCap">( cold_resist_cap().value );
   if ( has_energy_resist_cap() )
-    sw.add( "EnergyResistCap", energy_resist_cap().value );
+    sw.add<"EnergyResistCap">( energy_resist_cap().value );
   if ( has_physical_resist_cap() )
-    sw.add( "PhysicalResistCap", physical_resist_cap().value );
+    sw.add<"PhysicalResistCap">( physical_resist_cap().value );
   if ( has_poison_resist_cap() )
-    sw.add( "PoisonResistCap", poison_resist_cap().value );
+    sw.add<"PoisonResistCap">( poison_resist_cap().value );
   if ( has_luck() )
-    sw.add( "Luck", luck().value );
+    sw.add<"Luck">( luck().value );
   if ( has_swing_speed_increase() )
-    sw.add( "SwingSpeedIncrease", swing_speed_increase().value );
+    sw.add<"SwingSpeedIncrease">( swing_speed_increase().value );
   if ( has_min_attack_range_increase() )
-    sw.add( "MinAttackRangeIncrease", min_attack_range_increase().value );
+    sw.add<"MinAttackRangeIncrease">( min_attack_range_increase().value );
   if ( has_max_attack_range_increase() )
-    sw.add( "MaxAttackRangeIncrease", max_attack_range_increase().value );
+    sw.add<"MaxAttackRangeIncrease">( max_attack_range_increase().value );
   // end new prop stuf
   if ( maxhp_mod_ )
-    sw.add( "MaxHp_mod", maxhp_mod_ );
+    sw.add<"MaxHp_mod">( maxhp_mod_ );
   if ( hp_ != itemdesc().maxhp )
-    sw.add( "Hp", hp_ );
+    sw.add<"Hp">( hp_ );
   double quali = quality();
   if ( quali != getItemdescQuality() )
-    sw.add( "Quality", quali );
+    sw.add<"Quality">( quali );
   if ( !suffix.empty() )
-    sw.add( "NameSuffix", suffix );
+    sw.add<"NameSuffix">( suffix );
   if ( no_drop() != default_no_drop() )
-    sw.add( "NoDrop", no_drop() );
+    sw.add<"NoDrop">( no_drop() );
   if ( has_weight_multiplier_mod() )
-    sw.add( "WeightMultiplierMod", weight_multiplier_mod() );
+    sw.add<"WeightMultiplierMod">( weight_multiplier_mod() );
 }
 
 void Item::printDebugProperties( Clib::StreamWriter& sw ) const

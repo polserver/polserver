@@ -257,10 +257,15 @@ void Spellbook::add( Item* item )
 
 void Spellbook::printProperties( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   base::printProperties( sw );
 
   for ( int i = 0; i < 8; ++i )
-    sw.add( fmt::format( FMT_COMPILE( "Spellbits{}" ), i ), (int)bitwise_contents[i] );
+  {
+    sw.key_fmt( "Spellbits{}"_cf, i );
+    sw.raw( "{}"_cf, (int)bitwise_contents[i] );
+    sw.eol();
+  }
 }
 
 

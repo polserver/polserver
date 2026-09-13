@@ -37,6 +37,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <string_view>
 #include <vector>
 
 #include "bscript/bobject.h"
@@ -128,8 +129,6 @@ void ClientCreateChar( Network::Client* client, PKTIN_00* msg );
 void ClientCreateCharKR( Network::Client* client, PKTIN_8D* msg );
 void ClientCreateChar70160( Network::Client* client, PKTIN_F8* msg );
 void createchar2( Accounts::Account* acct, unsigned index );
-void write_characters( SaveContext& sc );
-void write_npcs( SaveContext& sc );
 }  // namespace Core
 namespace Module
 {
@@ -322,8 +321,13 @@ public:
   bool get_method_hook( const char* methodname, Bscript::Executor* ex, Core::ExportScript** hook,
                         unsigned int* PC ) const override;
 
+  /// Everything a world save writes for this mobile: the mobile itself into one file, its worn
+  /// items split between that file and the equipment one. This is one indivisible piece of a
+  /// save, which is what lets the two files be written in parallel.
+  void printForSave( Clib::StreamWriter& sw_mobile, Clib::StreamWriter& sw_equip ) const;
+
 protected:
-  const char* classname() const override;
+  std::string_view classname() const override;
   void printOn( Clib::StreamWriter& sw ) const override;
   void printSelfOn( Clib::StreamWriter& sw ) const override;
   void printProperties( Clib::StreamWriter& sw ) const override;
@@ -742,9 +746,6 @@ public:
   void readAttributesAndVitals( Clib::ConfigElem& elem );
 
 protected:
-  friend void Core::write_characters( Core::SaveContext& sc );
-  friend void Core::write_npcs( Core::SaveContext& sc );
-
   void printWornItems( Clib::StreamWriter& sw_pc, Clib::StreamWriter& sw_equip ) const;
 
   // CREATION

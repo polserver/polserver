@@ -6,6 +6,24 @@
 	</header>
 	<version name="POL100.3.0">
 		<entry>
+			<date>09-13-2026</date>
+			<author>AsYlum, Turley:</author>
+			<change type="Fixed">the shard could wedge when uo::SaveWorldState() was called again while the previous<br/>
+save was still finishing - two scripts saving in the same pass is enough.</change>
+			<change type="Added">pol.cfg WorldSaveThreads (default 0) sets how many threads a world save uses; 0 picks<br/>
+a number from the cpus the server is allowed to use, which inside a container is not<br/>
+what the machine has.</change>
+			<change type="Added">pol.cfg LogWorldSaveDetails (default 0) logs where a save spent its time and what each<br/>
+data file received.</change>
+			<change type="Removed">objects.txt, written empty and read back empty since the world was split into the files<br/>
+that replaced it.</change>
+			<change type="Improved">world save speed - a large shard that used to freeze for seconds while it saved now<br/>
+freezes for a fraction of one, and no single big data file decides how long that is.</change>
+			<change type="Note">the data files hold the same data, but the elements inside storage.txt, items.txt,<br/>
+multis.txt, datastore.txt, pcs.txt, npcs.txt and the equip files are no longer written<br/>
+in a fixed order - two saves of an unchanged world can differ in block order.</change>
+		</entry>
+		<entry>
 			<date>09-08-2026</date>
 			<author>Nando:</author>
 			<change type="Changed">Runtime script errors now report the eScript call stack, each frame naming its source<br/>
@@ -1397,8 +1415,8 @@ See the Racalac Escript Guide for additional details.</change>
 			<date>07-28-2024</date>
 			<author>Kevin:</author>
 			<change type="Added">Array script method `filter(FunctionObject testFn)`.</change>
-			<change type="Added">The compiler now supports any expression as the callee for a function call,</change>
-			<change type="eg">`var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.<br/>
+			<change type="Added">The compiler now supports any expression as the callee for a function call, eg:<br/>
+`var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.<br/>
 For now, only function references (ie. a variable that holds or a function<br/>
 that returns a `@FunctionObject`) can be called in this manner.</change>
 		</entry>
@@ -2080,8 +2098,8 @@ Script will be started non-critical or critical depending on the caller's state.
 Blocks until the program part ends.<br/>
 Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.</change>
 			<change type="Added">ExportScript object<br/>
-the script will remain loaded as long as the object exists.</change>
-			<change type="member">.exported_functions array of exported function names<br/>
+the script will remain loaded as long as the object exists.<br/>
+member .exported_functions array of exported function names<br/>
 method .call(functionname, args:={})<br/>
 Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.<br/>
 Like LoadExportedScript critical state depends on the caller's script.<br/>

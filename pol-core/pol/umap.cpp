@@ -88,28 +88,30 @@ void Map::printProperties( Clib::StreamWriter& sw ) const
 {
   base::printProperties( sw );
   Range2d area = getrange();
-  sw.add( "xwest", area.nw().x() );
-  sw.add( "ynorth", area.nw().y() );
-  sw.add( "xeast", area.se().x() );
-  sw.add( "ysouth", area.se().y() );
-  sw.add( "gumpwidth", gumpsize.x() );
-  sw.add( "gumpheight", gumpsize.y() );
-  sw.add( "facetid", facetid );
+  sw.add<"xwest">( area.nw().x() );
+  sw.add<"ynorth">( area.nw().y() );
+  sw.add<"xeast">( area.se().x() );
+  sw.add<"ysouth">( area.se().y() );
+  sw.add<"gumpwidth">( gumpsize.x() );
+  sw.add<"gumpheight">( gumpsize.y() );
+  sw.add<"facetid">( facetid );
 
-  sw.add( "editable", editable );
+  sw.add<"editable">( editable );
 
   printPinPoints( sw );
 }
 
 void Map::printPinPoints( Clib::StreamWriter& sw ) const
 {
+  using namespace fmt::literals;
   int i = 0;
-  sw.add( "NumPins", pin_points.size() );
+  sw.add<"NumPins">( pin_points.size() );
 
   for ( auto itr = pin_points.begin(); itr != pin_points.end(); ++itr, ++i )
   {
-    sw.add( fmt::format( FMT_COMPILE( "Pin{}" ), i ),
-            fmt::format( FMT_COMPILE( "{},{}" ), itr->x(), itr->y() ) );
+    sw.key_fmt( "Pin{}"_cf, i );
+    sw.raw( "{},{}"_cf, itr->x(), itr->y() );
+    sw.eol();
   }
 }
 
