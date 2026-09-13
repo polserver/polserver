@@ -382,18 +382,21 @@ class MoveRequestPacket(Packet):
   cmd = 0x02
   length = 7
 
-  def fill(self, direction, sequence):
+  def fill(self, direction, sequence, key=0):
     '''!
     @param direction int: The direction code (0-7)
     @param sequence int: The sequence code (0-255)
+    @param key int: The fastwalk prevention key to spend on this step, 0 when
+                    the client has none left
     '''
     self.direction = direction
     self.sequence = sequence
+    self.key = key
 
   def encodeChild(self):
     self.euchar(self.direction)
     self.euchar(self.sequence)
-    self.euint(0) #Fastwalk prevention key
+    self.euint(self.key)
 
 
 class AttackRequestPacket(SerialOnlyPacket):
@@ -3680,6 +3683,32 @@ class OpenUrlPacket(Packet):
     # the whole field rather than up to the terminator, so the length is accounted
     # for either way; dstring stops at the null the core leaves after the url
     self.url = self.dstring(self.length - 3)
+
+
+class RejectCharacterLogonPacket(Packet):
+  ''' Why the server will not have this character in the world. The core only
+  ever sends the idle warning '''
+
+  cmd = 0x53
+  length = 2
+
+  ## the only one the core sends, see PKTOUT_53_WARN_CHARACTER_IDLE
+  WARN_CHARACTER_IDLE = 0x07
+
+  def decodeChild(self):
+    self.reason = self.duchar()
+
+
+class KREncryptionResponsePacket(Packet):
+  ''' The answer to a KR client's encryption request, a fixed blob the core
+  writes the same way every time. A 2D client never asks for one '''
+
+  cmd = 0xe3
+  length = 77
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.rpb(74)
 
 
 ################################################################################
