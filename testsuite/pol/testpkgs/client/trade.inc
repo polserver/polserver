@@ -154,7 +154,7 @@ function lift_item( serial )
   if ( !ev )
     return ret_error( $"client 0 did not lift 0x{serial:x}: {ev}" );
   endif
-  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, QUIET_SECS );
   if ( ev )
     return ret_error( $"lifting 0x{serial:x} was rejected: reason {ev.reason}" );
   endif

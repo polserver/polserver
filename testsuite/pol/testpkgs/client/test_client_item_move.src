@@ -1940,7 +1940,7 @@ function destroy_lifted_item( item )
   DestroyItem( item );
 
   if ( was_held )
-    waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+    waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, QUIET_SECS );
   endif
 endfunction
 
@@ -1957,7 +1957,7 @@ function lift_item_succeeded( byref err, serial )
   endwhile
 
   // TODO: see top
-  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, QUIET_SECS );
   if ( ev )
     return err := ret_error( $"Got unexpected move (lift) item rejected: reason = {ev.reason}" );
   endif

@@ -271,12 +271,12 @@ const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 // thing it costs is how far past its deadline a wait for nothing runs. Waiting
 // a whole second at a time is what made the negative assertions below cost a
 // second more than they were asked for.
-const POLL_INTERVAL := 0.1;
+const POLL_INTERVAL := 0.02;
 
 // The default window of the "nobody was told this" assertions. It has to stay
 // comfortably above a round trip to the test client - that is all a wrongly
 // sent message needs to show up - without being paid on every single call.
-const QUIET_SECS := 0.75;
+const QUIET_SECS := 0.25;
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";

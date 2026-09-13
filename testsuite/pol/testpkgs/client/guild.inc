@@ -22,7 +22,7 @@ include "speech";
 // event that arrives after this leaks into the next case's answer, so it wants
 // to stay comfortably above a client round trip. POLL_INTERVAL comes from
 // communication.inc.
-const SETTLE_QUIET := 500;
+const SETTLE_QUIET := 250;
 
 // where speech_setup() leaves the two characters
 const CHAR_X := 100;

@@ -230,11 +230,15 @@ function set_warmode( id, war )
   while ( who.warmode != war and ReadMillisecondClock() < deadline )
     Clear_Event_Queue();
     clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := id } );
-    var ev := waitForClient( id, { EVT_WAR_MODE }, 2 );
+    var ev := waitForClient( id, { EVT_WAR_MODE }, QUIET_SECS );
     if ( ev and CInt( ev.war ) != war )
       return ret_error( $"client {id} answered war mode {ev.war}, expected {war}" );
     endif
-    sleepms( 200 );
+    // Sleep only before asking again: the flag is usually already set.
+    if ( who.warmode == war )
+      break;
+    endif
+    sleepms( POLL_INTERVAL * 1000 );
   endwhile
 
   if ( who.warmode != war )

@@ -105,7 +105,7 @@ exported function test_client_attack_destroy_item( resources )
     return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
   endif
 
-  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Client still swings at 0x{ev.defender:x}" );
   endif
@@ -183,7 +183,7 @@ exported function test_client_attack_normal_item( resources )
 
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "attack", arg := item.serial, id := 0 } );
-  var ev := waitForClient( 0, { EVT_ATTACK }, 2 );
+  var ev := waitForClient( 0, { EVT_ATTACK }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Got a highlight of 0x{ev.serial:x} for a not attackable item" );
   endif
@@ -232,7 +232,7 @@ exported function test_client_attack_kill_item( resources )
     return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
   endif
 
-  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Client still swings at 0x{ev.defender:x}" );
   endif
@@ -378,7 +378,7 @@ exported function test_client_attack_item_dblclick( resources )
   // out of warmode a double click is no attack
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "double_click", arg := item.serial, id := 0 } );
-  var ev := waitForClient( 0, { EVT_ATTACK }, 2 );
+  var ev := waitForClient( 0, { EVT_ATTACK }, QUIET_SECS );
   if ( ev )
     return ret_error( $"double click attacked outside of warmode: 0x{ev.serial:x}" );
   endif
