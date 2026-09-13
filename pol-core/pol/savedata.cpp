@@ -248,8 +248,8 @@ void WriteGottenItem( Items::Item* item, Clib::StreamWriter& sw )
 }
 
 /// The mobiles a save has to write, in the order the object hash lists them. Collected once and
-/// shared: the hash holds every item as well, so finding a few thousand mobiles used to walk
-/// millions of nodes three times over.
+/// shared between the parts that need them: the hash holds every item as well, so each walk over
+/// it to pick out a few thousand mobiles costs millions of nodes.
 struct MobileSnapshot
 {
   std::vector<Mobile::Character*> pcs;
@@ -329,10 +329,11 @@ void write_gotten_items( Clib::StreamWriter& sw_items, const MobileSnapshot& mob
 }
 
 /// Drop the working design of any custom house left mid-edit, before the save decides what there
-/// is to write. The commit destroys the house's editable component items, which are ordinary
-/// top-level items, so collecting first would hand a worker an item it then formats after it has
-/// been freed. Doing it here also keeps destroy_item, which touches the object hash, off the
-/// worker threads.
+/// is to write. Only on shutdown, because a working design belongs to the client editing it and
+/// there is no client to accept it after a restart; an ordinary save leaves the editor alone.
+/// The commit destroys the house's editable component items, which are ordinary top-level items,
+/// so collecting first would hand a worker an item it then formats after it has been freed. Doing
+/// it here also keeps destroy_item, which touches the object hash, off the worker threads.
 void settle_pending_house_commits()
 {
   if ( !Clib::exit_signalled )

@@ -76,8 +76,8 @@ public:
     fmt::format_to( std::back_inserter( _mbuff ), "{} {}\n"_cf, a, b );
     maybe_flush();
   }
-  /// A hex value, which is most of what add_fmt used to be asked for. One format call for the
-  /// whole line rather than a key, a value and a newline written separately.
+  /// A hex value. One format call for the whole line rather than a key, a value and a newline
+  /// written separately.
   template <FixedKey Key, typename T>
   void add_hex( T&& value )
   {
@@ -210,10 +210,10 @@ public:
   size_t bytes_written() const { return _bytes_written + _mbuff.size(); }
 
   /// How much text piles up before it is written. stdio buffering is off, so this is the size of
-  /// the write() the kernel sees - a megabyte, against the hundreds of thousands of small writes
-  /// a large save used to make. Public because a block handed to append() at this size goes
-  /// straight to the file instead of being copied in, so a detached writer hands its buffer over
-  /// at exactly this size rather than at a constant of its own.
+  /// the write() the kernel sees: one per megabyte rather than one per property. Public because a
+  /// block handed to append() at this size goes straight to the file instead of being copied in,
+  /// so a detached writer hands its buffer over at exactly this size rather than at a constant of
+  /// its own.
   static constexpr size_t FLUSH_THRESHOLD = 0x100000;
 
 protected:

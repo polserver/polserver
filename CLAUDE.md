@@ -105,8 +105,8 @@ A new flag is a user-visible change, so also add a changelog entry — see **Con
 - **Describe the effect, not the implementation.** Use names the reader knows: `uo::Distance()`, `chr.facing`, `servspecopt.cfg` `StartingGold`. Leave out C++ classes and functions, source files, the root cause, how the bug was found, and spec, issue or commit references.
 - **Fixed:** say what went wrong and when it happened. Add the new behaviour only if it isn't obvious. Don't open with "Fixed a bug where".
 - **Changed:/Removed:** if a working script or config now behaves differently or stops working, say what to use instead.
-- **One idea per tag line.** Use `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Note:`. Say each fact once; a second sentence must add something the admin needs.
-- **Format:** plain text. Nothing renders Markdown, so backticks around code names show as literal backticks (which reads fine), and `**bold**`, lists or links show as raw syntax. Wrap at 100 columns. Right-align the tags so every colon is in column 10, start the text one space after the colon (column 12), and indent continuation lines 11 spaces so they line up with it. Pad the tag rather than moving the text: `Changed:` gets 2 spaces in front, `Fixed:` gets 4, `Note:` gets 5.
+- **One idea per tag line.** Use `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Note:`, `Improved:`. Say each fact once; a second sentence must add something the admin needs.
+- **Format:** plain text. Nothing renders Markdown, so backticks around code names show as literal backticks (which reads fine), and `**bold**`, lists or links show as raw syntax. Wrap at 100 columns. Right-align the tags so every colon is in column 10, start the text one space after the colon (column 12), and indent continuation lines 11 spaces so they line up with it. Pad the tag rather than moving the text: `Improved:` gets 1 space in front, `Changed:` gets 2, `Fixed:` gets 4, `Note:` gets 5.
   ```
   09-05-2026 Nando:
       Added: a new thing

@@ -98,7 +98,6 @@ void PolConfig::read( bool initial_load )
         Clib::clamp_convert<unsigned char>( elem.remove_ushort( "DefaultPriority", 10 ) );
   }
   verbose = elem.remove_bool( "Verbose", false );
-  watch_mapcache = elem.remove_bool( "WatchMapCache", false );
   loglevel = elem.remove_ushort( "LogLevel", 0 );
   loginserver_timeout_mins = elem.remove_ushort( "LoginServerTimeout", 10 );
   // floored at one second: zero would drop a peer the moment its buffer filled once

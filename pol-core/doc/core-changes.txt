@@ -1029,8 +1029,8 @@
            See the Racalac Escript Guide for additional details.
 07-28-2024 Kevin:
     Added: Array script method `filter(FunctionObject testFn)`.
-    Added: The compiler now supports any expression as the callee for a function call,
-           eg: `var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.
+    Added: The compiler now supports any expression as the callee for a function call, eg:
+           `var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.
            For now, only function references (ie. a variable that holds or a function
            that returns a `@FunctionObject`) can be called in this manner.
 07-21-2024 Kukkino:
@@ -1396,7 +1396,7 @@
            Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.
     Added: ExportScript object
            the script will remain loaded as long as the object exists.
-           member: .exported_functions array of exported function names
+           member .exported_functions array of exported function names
            method .call(functionname, args:={})
            Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.
            Like LoadExportedScript critical state depends on the caller's script.

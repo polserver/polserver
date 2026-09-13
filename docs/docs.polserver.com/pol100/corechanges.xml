@@ -1415,8 +1415,8 @@ See the Racalac Escript Guide for additional details.</change>
 			<date>07-28-2024</date>
 			<author>Kevin:</author>
 			<change type="Added">Array script method `filter(FunctionObject testFn)`.</change>
-			<change type="Added">The compiler now supports any expression as the callee for a function call,</change>
-			<change type="eg">`var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.<br/>
+			<change type="Added">The compiler now supports any expression as the callee for a function call, eg:<br/>
+`var func := @FunctionObject; func( 1, 2, 3 )` or `func( 1 )( 2 )( 3 )`.<br/>
 For now, only function references (ie. a variable that holds or a function<br/>
 that returns a `@FunctionObject`) can be called in this manner.</change>
 		</entry>
@@ -2098,8 +2098,8 @@ Script will be started non-critical or critical depending on the caller's state.
 Blocks until the program part ends.<br/>
 Returns array{ExportScript, return value} return value is the return value of the program or 1 if nothing was returned.</change>
 			<change type="Added">ExportScript object<br/>
-the script will remain loaded as long as the object exists.</change>
-			<change type="member">.exported_functions array of exported function names<br/>
+the script will remain loaded as long as the object exists.<br/>
+member .exported_functions array of exported function names<br/>
 method .call(functionname, args:={})<br/>
 Calls and blocks current script a exported function and returns the return value or 1 if no return value was given.<br/>
 Like LoadExportedScript critical state depends on the caller's script.<br/>

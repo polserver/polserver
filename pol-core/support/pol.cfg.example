@@ -437,10 +437,41 @@ WebServerLocalOnly=1
 #IgnoreLoadErrors=0
 
 #
+# CountResourceTiles: at startup, scan every realm for the landtiles each resource
+# in regions/resource.cfg claims, and log the totals per resource and per region.
+# Costs a full pass over every map tile of every realm, so it lengthens startup.
+# Default 0
+#
+#CountResourceTiles=0
+
+#
 # InhibitSaves: Don't ever save world state
 # Default 0
 #
 #InhibitSaves=0
+
+#
+# LogWorldSaveDetails: log a breakdown of every world save - how long the world was
+# stopped, how long the save spent writing and how long it spent waiting for a file,
+# how long flushing and committing took, what each part of the save cost, how many
+# pieces it was split into and how big its largest piece was, and how many bytes each
+# data file received. Use it to find which file a slow save is really spending its
+# time on. uo::SaveWorldState() returns most of these on a struct, without the waiting
+# time and the per-part piece counts.
+# Default 0
+#
+#LogWorldSaveDetails=0
+
+#
+# WorldSaveThreads: how many threads a world save spreads itself over.
+# 0 uses half the cpus this server is actually allowed to use, and never fewer than
+# two - inside a container that is not half of what the machine has. Setting it higher
+# than the container may run makes saves slower rather than faster. The startup log
+# prints the number chosen next to both cpu counts; set this only if that choice is
+# wrong for your host.
+# Default 0
+#
+#WorldSaveThreads=0
 
 #
 # AccountDataSave:
