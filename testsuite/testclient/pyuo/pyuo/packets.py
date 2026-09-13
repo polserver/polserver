@@ -3080,9 +3080,8 @@ class QuestArrowPacket(Packet):
     self.active = bool(self.duchar())
     self.x = self.dushort()
     self.y = self.dushort()
-    # the id is the one field the core writes in host order rather than network order,
-    # so it is read back the same way
-    self.arrowid = struct.unpack('<I', self.rpb(4))[0]
+    ## which arrow, so several can be up at once
+    self.arrowid = self.duint()
 
 
 class MultiPlacementPacket(Packet):
