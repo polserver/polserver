@@ -230,11 +230,17 @@ function set_warmode( id, war )
   while ( who.warmode != war and ReadMillisecondClock() < deadline )
     Clear_Event_Queue();
     clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := id } );
-    var ev := waitForClient( id, { EVT_WAR_MODE }, 2 );
+    var ev := waitForClient( id, { EVT_WAR_MODE }, QUIET_SECS );
     if ( ev and CInt( ev.war ) != war )
       return ret_error( $"client {id} answered war mode {ev.war}, expected {war}" );
     endif
-    sleepms( 200 );
+    // Only wait before asking again. The core sets the flag as it answers, so
+    // the common case is that it is already set here, and sleeping on the way
+    // out of the loop was the whole cost of every call that worked first time.
+    if ( who.warmode == war )
+      break;
+    endif
+    sleepms( POLL_INTERVAL * 1000 );
   endwhile
 
   if ( who.warmode != war )

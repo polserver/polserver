@@ -271,12 +271,24 @@ const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 // thing it costs is how far past its deadline a wait for nothing runs. Waiting
 // a whole second at a time is what made the negative assertions below cost a
 // second more than they were asked for.
-const POLL_INTERVAL := 0.1;
+//
+// That overshoot is now a large share of the window rather than a rounding
+// error, so it is kept near the floor the core allows.
+const POLL_INTERVAL := 0.02;
 
 // The default window of the "nobody was told this" assertions. It has to stay
 // comfortably above a round trip to the test client - that is all a wrongly
 // sent message needs to show up - without being paid on every single call.
-const QUIET_SECS := 0.75;
+//
+// The client used to answer in about 60ms, all of it spent in poll intervals on
+// the way there and back: the harness, the brain and the client thread each sat
+// out a timer before looking at what had arrived. All three now block until
+// something arrives instead, and a client test case that does nothing but a
+// round trip went from ~150ms to ~10ms - so a round trip is now some 5ms, and
+// this window is fifty times it where it used to be twelve. Shortening it
+// further is not worth much: at 39 negative assertions the whole family costs a
+// few seconds, and the value has to keep enough room for a loaded CI box.
+const QUIET_SECS := 0.25;
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";

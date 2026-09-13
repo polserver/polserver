@@ -98,7 +98,7 @@ exported function chr_update_range()
       break;
     endif
   endwhile
-  while ( waitForClient( 0, {}, 1 ) )
+  while ( waitForClient( 0, {}, QUIET_SECS ) )
   endwhile
   MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
   if ( i == 0 )
@@ -141,7 +141,7 @@ exported function item_update_range( resmngr )
       break;
     endif
   endwhile
-  while ( waitForClient( 0, {}, 1 ) )
+  while ( waitForClient( 0, {}, QUIET_SECS ) )
   endwhile
   if ( i == 0 )
     return ret_error( "item was never visible" );
