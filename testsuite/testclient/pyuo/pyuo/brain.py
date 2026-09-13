@@ -40,6 +40,8 @@ class Brain:
     self.started = threading.Event()
     self.events = collections.deque()
     self.eventsLock = threading.Lock()
+    ## Set by the client thread on an event and by the harness on a todo.
+    self.wakeup = threading.Event()
     ## Client reference
     self.client = client
     ## Reference to current player
@@ -84,19 +86,21 @@ class Brain:
         self.log.info('Main loop terminated.')
         break
 
-      # Wait for events
-      self.processEvents()
-      if not len(self.events) and self.timeout:
-        start = time.time()
-        timeout = start + self.timeout
-        while time.time() < timeout:
+      # Block on the wakeup rather than poll: this decides how fast a brain reacts.
+      if self.timeout:
+        deadline = time.monotonic() + self.timeout
+        while True:
           self.processEvents()
-          # an order that arrived while we were idling should not have to sit
-          # out the rest of the wait: this loop is what decides how long a
-          # driven brain takes to react to anything asked of it
           if self.hasWork():
             break
-          time.sleep(0.01)
+          remaining = deadline - time.monotonic()
+          if remaining <= 0:
+            break
+          # Clear before the last look at the queues, so a wakeup in between is kept.
+          self.wakeup.clear()
+          if self.hasWork() or self.hasEvents():
+            continue
+          self.wakeup.wait(remaining)
 
   def onEvent(self, ev):
     raise RuntimeError('needs to be overridden')
@@ -104,13 +108,18 @@ class Brain:
   def processEvents(self):
     ''' Process event queue, internal '''
     with self.eventsLock:
-      if not len(self.events):
+      if not self.events:
         return
-      events = self.events.copy()
-      self.events.clear()
-    while len(events):
-      ev = events.popleft()
-      self.onEvent(ev)
+      # Swap rather than copy, so the producer waits only for the swap.
+      events = self.events
+      self.events = collections.deque()
+    while events:
+      self.onEvent(events.popleft())
+
+  def hasEvents(self):
+    ''' Whether anything is queued for processEvents(), internal '''
+    with self.eventsLock:
+      return len(self.events) > 0
 
 
   def event(self, ev):
@@ -120,6 +129,7 @@ class Brain:
 
     with self.eventsLock:
       self.events.append(ev)
+    self.wakeup.set()
 
   def setTimeout(self, timeout):
     ''' Sets the new timeout in seconds for the main loop '''
@@ -248,169 +258,93 @@ class Event:
   def typestr(self):
     ''' keep in sync with testscript
         unique type strings '''
-    if self.type==Event.EVT_INIT:
-      return "init"
-    if self.type==Event.EVT_HP_CHANGED:
-      return "hp_changed"
-    elif self.type==Event.EVT_MANA_CHANGED:
-      return "mana_changed"
-    elif self.type==Event.EVT_STAM_CHANGED:
-      return "stam_changed"
-    elif self.type==Event.EVT_SPEECH:
-      return "speech"
-    elif self.type==Event.EVT_NOTORIETY:
-      return "notoriety"
-    elif self.type==Event.EVT_MOVED:
-      return "moved"
-    elif self.type==Event.EVT_NEW_MOBILE:
-      return "new_mobile"
-    elif self.type==Event.EVT_NEW_ITEM:
-      return "new_item"
-    elif self.type==Event.EVT_REMOVED_OBJ:
-      return "removed_obj"
-    elif self.type==Event.EVT_OUT_OF_RANGE_OBJ:
-      return "out_of_range_obj"
-    elif self.type==Event.EVT_OBJ_REVISION:
-      return "obj_revision"
-    elif self.type==Event.EVT_EFFECT:
-      return "effect"
-    elif self.type==Event.EVT_SOUND:
-      return "sound"
-    elif self.type==Event.EVT_MUSIC:
-      return "music"
-    elif self.type==Event.EVT_DAMAGE:
-      return "damage"
-    elif self.type==Event.EVT_BUFF:
-      return "buff"
-    elif self.type==Event.EVT_CHAR_PROFILE:
-      return "char_profile"
-    elif self.type==Event.EVT_ANIMATION:
-      return "animation"
-    elif self.type==Event.EVT_QUEST_ARROW:
-      return "quest_arrow"
-    elif self.type==Event.EVT_MULTI_PLACEMENT:
-      return "multi_placement"
-    elif self.type==Event.EVT_MENU:
-      return "menu"
-    elif self.type==Event.EVT_TIP_WINDOW:
-      return "tip_window"
-    elif self.type==Event.EVT_TOOLTIP:
-      return "tooltip"
-    elif self.type==Event.EVT_OPEN_URL:
-      return "open_url"
-    elif self.type==Event.EVT_SEASON:
-      return "season"
-    elif self.type==Event.EVT_SKILLS:
-      return "skills"
-    elif self.type==Event.EVT_MULTI_PLACED:
-      return "multi_placed"
-    elif self.type==Event.EVT_REFRESH_OBJ:
-      return "refresh_obj"
-    elif self.type==Event.EVT_PROMPT:
-      return "prompt"
-    elif self.type==Event.EVT_WEATHER:
-      return "weather"
-    elif self.type==Event.EVT_LIGHT:
-      return "light"
-    elif self.type==Event.EVT_CLOSE_WINDOW:
-      return "close_window"
-    elif self.type==Event.EVT_GUMP_REPLY:
-      return "gump_reply"
-    elif self.type==Event.EVT_DIALOG_REPLY:
-      return "dialog_reply"
-    elif self.type==Event.EVT_PACKET_SENT:
-      return "packet_sent"
-    elif self.type==Event.EVT_ALL_NAMES:
-      return "all_names"
-    elif self.type==Event.EVT_WORLDMAP:
-      return "worldmap"
-    elif self.type==Event.EVT_TEXT_ENTRY:
-      return "text_entry"
-    elif self.type==Event.EVT_SELECT_COLOR:
-      return "select_color"
-    elif self.type==Event.EVT_RESURRECT_MENU:
-      return "resurrect_menu"
-    elif self.type==Event.EVT_RACE_CHANGER:
-      return "race_changer"
-    elif self.type==Event.EVT_BOOK:
-      return "book"
-    elif self.type==Event.EVT_BOOK_PAGE:
-      return "book_page"
-    elif self.type==Event.EVT_POPUP:
-      return "popup"
-    elif self.type==Event.EVT_VENDOR_SELL_LIST:
-      return "vendor_sell_list"
-    elif self.type==Event.EVT_EXIT:
-      return "exit"
-    elif self.type==Event.EVT_LIST_OBJS:
-      return "list_objs"
-    elif self.type==Event.EVT_LIST_EQUIPPED_ITEMS:
-      return "list_equipped_items"
-    elif self.type==Event.EVT_OPEN_BACKPACK:
-      return "open_bp"
-    elif self.type==Event.EVT_TARGET:
-      return "target"
-    elif self.type==Event.EVT_NEW_SUBSERVER:
-      return "new_subserver"
-    elif self.type==Event.EVT_DISABLE_ITEM_LOGGING:
-      return "disable_item_logging"
-    elif self.type==Event.EVT_BOAT_MOVED:
-      return "boat_moved"
-    elif self.type==Event.EVT_OWNCREATE:
-      return "owncreate"
-    elif self.type==Event.EVT_DOUBLE_CLICK:
-      return "double_click"
-    elif self.type==Event.EVT_LIFT_ITEM:
-      return "lift_item"
-    elif self.type==Event.EVT_MOVE_ITEM_REJECTED:
-      return "move_item_rejected"
-    elif self.type==Event.EVT_DROP_ITEM:
-      return "drop_item"
-    elif self.type==Event.EVT_WEAR_ITEM:
-      return "wear_item"
-    elif self.type==Event.EVT_CANCEL_TARGET:
-      return "cancel_target"
-    elif self.type==Event.EVT_BUY_ITEMS:
-      return "buy_items"
-    elif self.type==Event.EVT_SELL_ITEMS:
-      return "sell_items"
-    elif self.type==Event.EVT_RACE_CHANGE:
-      return "race_change"
-    elif self.type==Event.EVT_BOAT_MOVE:
-      return "boat_move"
-    elif self.type==Event.EVT_DROP_APPROVED:
-      return "drop_approved"
-    elif self.type==Event.EVT_GUMP:
-      return "gump"
-    elif self.type==Event.EVT_AOS_TOOLTIP:
-      return "aos_tooltip"
-    elif self.type==Event.EVT_OPEN_PAPERDOLL:
-      return "open_paperdoll"
-    elif self.type==Event.EVT_AUTO_DELETE_OBJS:
-      return "auto_delete_objs"
-    elif self.type==Event.EVT_ATTACK:
-      return "attack"
-    elif self.type==Event.EVT_WAR_MODE:
-      return "war_mode"
-    elif self.type==Event.EVT_FIGHT_OCCURING:
-      return "fight_occuring"
-    elif self.type==Event.EVT_STATUS_BAR:
-      return "status_bar"
-    elif self.type==Event.EVT_TRADE:
-      return "trade"
-    elif self.type==Event.EVT_CLILOC:
-      return "cliloc"
-    elif self.type==Event.EVT_PARTY:
-      return "party"
-    elif self.type==Event.EVT_HOUSE_DESIGN:
-      return "house_design"
-    elif self.type==Event.EVT_HOUSE_EDIT:
-      return "house_edit"
-    elif self.type==Event.EVT_HOUSE_REV:
-      return "house_rev"
-    elif self.type==Event.EVT_SPELLBOOK:
-      return "spellbook"
-    elif self.type==Event.EVT_MAP:
-      return "map"
-    elif self.type==Event.EVT_MAP_PIN:
-      return "map_pin"
+    return TYPESTR.get(self.type)
+
+
+# Event names the test scripts match on. Kept in step with the EVT_* constants in
+# testsuite/pol/testpkgs/client/communication.inc.
+TYPESTR = {
+  Event.EVT_INIT: "init",
+  Event.EVT_HP_CHANGED: "hp_changed",
+  Event.EVT_MANA_CHANGED: "mana_changed",
+  Event.EVT_STAM_CHANGED: "stam_changed",
+  Event.EVT_SPEECH: "speech",
+  Event.EVT_NOTORIETY: "notoriety",
+  Event.EVT_MOVED: "moved",
+  Event.EVT_NEW_MOBILE: "new_mobile",
+  Event.EVT_NEW_ITEM: "new_item",
+  Event.EVT_REMOVED_OBJ: "removed_obj",
+  Event.EVT_OUT_OF_RANGE_OBJ: "out_of_range_obj",
+  Event.EVT_OBJ_REVISION: "obj_revision",
+  Event.EVT_EFFECT: "effect",
+  Event.EVT_SOUND: "sound",
+  Event.EVT_MUSIC: "music",
+  Event.EVT_DAMAGE: "damage",
+  Event.EVT_BUFF: "buff",
+  Event.EVT_CHAR_PROFILE: "char_profile",
+  Event.EVT_ANIMATION: "animation",
+  Event.EVT_QUEST_ARROW: "quest_arrow",
+  Event.EVT_MULTI_PLACEMENT: "multi_placement",
+  Event.EVT_MENU: "menu",
+  Event.EVT_TIP_WINDOW: "tip_window",
+  Event.EVT_TOOLTIP: "tooltip",
+  Event.EVT_OPEN_URL: "open_url",
+  Event.EVT_SEASON: "season",
+  Event.EVT_SKILLS: "skills",
+  Event.EVT_MULTI_PLACED: "multi_placed",
+  Event.EVT_REFRESH_OBJ: "refresh_obj",
+  Event.EVT_PROMPT: "prompt",
+  Event.EVT_WEATHER: "weather",
+  Event.EVT_LIGHT: "light",
+  Event.EVT_CLOSE_WINDOW: "close_window",
+  Event.EVT_GUMP_REPLY: "gump_reply",
+  Event.EVT_DIALOG_REPLY: "dialog_reply",
+  Event.EVT_PACKET_SENT: "packet_sent",
+  Event.EVT_ALL_NAMES: "all_names",
+  Event.EVT_WORLDMAP: "worldmap",
+  Event.EVT_TEXT_ENTRY: "text_entry",
+  Event.EVT_SELECT_COLOR: "select_color",
+  Event.EVT_RESURRECT_MENU: "resurrect_menu",
+  Event.EVT_RACE_CHANGER: "race_changer",
+  Event.EVT_BOOK: "book",
+  Event.EVT_BOOK_PAGE: "book_page",
+  Event.EVT_POPUP: "popup",
+  Event.EVT_VENDOR_SELL_LIST: "vendor_sell_list",
+  Event.EVT_EXIT: "exit",
+  Event.EVT_LIST_OBJS: "list_objs",
+  Event.EVT_LIST_EQUIPPED_ITEMS: "list_equipped_items",
+  Event.EVT_OPEN_BACKPACK: "open_bp",
+  Event.EVT_TARGET: "target",
+  Event.EVT_NEW_SUBSERVER: "new_subserver",
+  Event.EVT_DISABLE_ITEM_LOGGING: "disable_item_logging",
+  Event.EVT_BOAT_MOVED: "boat_moved",
+  Event.EVT_OWNCREATE: "owncreate",
+  Event.EVT_DOUBLE_CLICK: "double_click",
+  Event.EVT_LIFT_ITEM: "lift_item",
+  Event.EVT_MOVE_ITEM_REJECTED: "move_item_rejected",
+  Event.EVT_DROP_ITEM: "drop_item",
+  Event.EVT_WEAR_ITEM: "wear_item",
+  Event.EVT_CANCEL_TARGET: "cancel_target",
+  Event.EVT_BUY_ITEMS: "buy_items",
+  Event.EVT_SELL_ITEMS: "sell_items",
+  Event.EVT_RACE_CHANGE: "race_change",
+  Event.EVT_BOAT_MOVE: "boat_move",
+  Event.EVT_DROP_APPROVED: "drop_approved",
+  Event.EVT_GUMP: "gump",
+  Event.EVT_AOS_TOOLTIP: "aos_tooltip",
+  Event.EVT_OPEN_PAPERDOLL: "open_paperdoll",
+  Event.EVT_AUTO_DELETE_OBJS: "auto_delete_objs",
+  Event.EVT_ATTACK: "attack",
+  Event.EVT_WAR_MODE: "war_mode",
+  Event.EVT_FIGHT_OCCURING: "fight_occuring",
+  Event.EVT_STATUS_BAR: "status_bar",
+  Event.EVT_TRADE: "trade",
+  Event.EVT_CLILOC: "cliloc",
+  Event.EVT_PARTY: "party",
+  Event.EVT_HOUSE_DESIGN: "house_design",
+  Event.EVT_HOUSE_EDIT: "house_edit",
+  Event.EVT_HOUSE_REV: "house_rev",
+  Event.EVT_SPELLBOOK: "spellbook",
+  Event.EVT_MAP: "map",
+  Event.EVT_MAP_PIN: "map_pin",
+}
