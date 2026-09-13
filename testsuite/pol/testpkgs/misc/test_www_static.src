@@ -1,4 +1,4 @@
-// Shard tests for the webserver's static-file path (specs/webserver/05, phase A):
+// Shard tests for the webserver's static-file path:
 // send_binary/send_html, the error pages, 403 escaping, and 405 dispatch.
 // The assets live in testpkgs/webserver/www/ and are served at /pkg/webserver/...
 use os;
@@ -82,8 +82,8 @@ endfunction
 // rejected. This also demonstrates the page is validated *before* URL-decoding:
 // non-dot-segment escapes like '%20' reach the server as a literal '%'.
 // (Dot-segment traversal such as '../' or '%2e%2e/' cannot be tested here --
-// libcurl normalizes those client-side before the request is sent; see the
-// note in specs/webserver/05-static-file-tests.md.)
+// libcurl normalizes those client-side before the request is sent, so
+// test_www_raw.src covers them with a raw client.)
 exported function test_static_403_percent()
   var res := get_extended( "/pkg/webserver/bad%20name.html" );
   if ( res.status != 403 )
@@ -156,7 +156,7 @@ endfunction
 
 exported function test_static_connection_header()
   var res := get_extended( "/pkg/webserver/static.html" );
-  // TODO spec 01 (keep-alive): accept "keep-alive" once it lands
+  // TODO: accept "keep-alive" once the webserver supports persistent connections
   var actual := res.headers["connection"];
   if ( actual != "close" )
     return ret_error( $"connection header '{actual}', expecting 'close'" );

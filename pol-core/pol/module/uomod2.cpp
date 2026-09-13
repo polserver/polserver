@@ -1000,8 +1000,8 @@ BObjectImp* UOExecutorModule::mf_SendDialogGump(
       DEBUGLOGLN(
           "Script Error in '{}' PC={}: \n"
           "\tCall to function UO::SendDialogGump():\n"
-          "\tThe execution of this script can't be blocked!",
-          scriptname(), exec.PC );
+          "\tThe execution of this script can't be blocked!{}",
+          scriptname(), exec.PC, exec.script_stack_block() );
       return new Bscript::BError( "Script can't be blocked" );
     }
     auto len = msg->offset;
@@ -1696,8 +1696,8 @@ BObjectImp* UOExecutorModule::mf_SendTextEntryGump()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::SendTextEntryGump():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2292,8 +2292,8 @@ BObjectImp* UOExecutorModule::mf_SendInstaResDialog()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::SendInstaResDialog():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2361,8 +2361,8 @@ BObjectImp* UOExecutorModule::mf_SelectColor()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::SelectColor():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -2925,8 +2925,8 @@ BObjectImp* UOExecutorModule::mf_SendPopUpMenu()
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
         "\tCall to function UO::SendPopupMenu():\n"
-        "\tThe execution of this script can't be blocked!",
-        scriptname(), exec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        scriptname(), exec.PC, exec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

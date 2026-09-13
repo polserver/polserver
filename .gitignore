@@ -17,3 +17,4 @@ compile_commands.json
 CLAUDE.local.md
 .venv
 specs/
+shard-specs/

@@ -1,7 +1,7 @@
 // Shard tests for webserver behavior that needs a raw TCP client (rawhttp.src)
 // because libcurl cannot send these requests: malformed request lines (400),
 // header floods (400), literal dot-segment traversal (403 -- libcurl
-// normalizes ../ away client-side, see specs/webserver/05) and '"' in the
+// normalizes ../ away client-side) and '"' in the
 // page name (403 + html escaping).
 use os;
 include "testutil";

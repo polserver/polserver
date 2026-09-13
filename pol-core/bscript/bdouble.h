@@ -13,7 +13,7 @@ namespace Pol::Bscript
 // Syzygy). Every numeric comparison in the VM goes through these two, so `==` and `<` and the
 // `<=`, `>`, `>=` that BObjectImp derives from them agree: `<` excludes the band `==` accepts,
 // so no two values are ever both equal and less. The compiler's constant folder inherits the
-// same answers by calling the same operators (see specs/escript/03).
+// same answers by calling the same operators.
 inline constexpr double escript_number_epsilon = 0.00000001;
 
 inline bool numbers_equal( double a, double b )

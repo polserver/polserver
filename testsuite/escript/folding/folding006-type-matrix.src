@@ -3,8 +3,7 @@
 // own operator implementations, and once through variables, which the VM applies them itself --
 // and reports only when the two disagree. A passing run prints just the tally.
 //
-// This is the sweep specs/escript/03 calls for, cut down to one representative value per type;
-// the operand edge cases live in folding001-003.
+// It uses one representative value per type; the operand edge cases live in folding001-003.
 
 var l;
 var r;

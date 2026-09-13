@@ -221,8 +221,8 @@ BObjectImp* UnicodeExecutorModule::mf_RequestInputUC()
       DEBUGLOGLN(
           "Script Error in '{}' PC={}: \n"
           "\tCall to function Unicode::RequestInputUC():\n"
-          "\tThe execution of this script can't be blocked!",
-          scriptname(), exec.PC );
+          "\tThe execution of this script can't be blocked!{}",
+          scriptname(), exec.PC, exec.script_stack_block() );
       return new Bscript::BError( "Script can't be blocked" );
     }
 

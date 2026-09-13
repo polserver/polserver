@@ -1,6 +1,6 @@
-// The unary operators, folded and unfolded. `!` on a Real literal used to fold to a Real zero
-// while the VM produces an Integer, which is the kind of divergence that survives every test
-// that only ever looks at one of the two forms. See specs/escript/03.
+// The unary operators, folded and unfolded. Both forms are printed side by side because a
+// divergence such as `!` on a Real literal folding to a Real zero, where the VM gives an
+// Integer, survives any test that looks at only one of them.
 
 var i := 2;
 var d := 2.1;

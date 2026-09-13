@@ -1,6 +1,6 @@
 // Integer arithmetic has no undefined cases: overflow wraps, shift counts are masked to 0-31,
-// and INT_MIN / -1 is INT_MIN rather than a hardware trap. Folding `(-2147483647-1) / -1` used
-// to crash ecompile outright, and evaluating it killed the running script. See specs/escript/03.
+// and INT_MIN / -1 is INT_MIN rather than a hardware trap, which would crash ecompile when
+// folding `(-2147483647-1) / -1` and kill the script evaluating it.
 //
 // As in folding001, each line is the folded form followed by the same expression through
 // variables.

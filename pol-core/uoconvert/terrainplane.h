@@ -15,14 +15,13 @@ class UoClientFiles;
 namespace Pol::UoConvert
 {
 // Precomputed per-tile smoothed-terrain data for a whole realm, built once from the
-// already-in-RAM raw map. It replaces the ~36 raw cell fetches ProcessSolidBlock did
-// per tile (one safe_getmapinfo directly plus eight through get_lowestadjacentz, each
-// four rawmapinfo lookups) with flat array reads, and lets create_maptile share the
-// same work. Every tile's smoothed z is now computed exactly once.
+// already-in-RAM raw map. Reading it costs one array lookup per tile where the raw map
+// costs ~36 cell fetches (one safe_getmapinfo plus eight get_lowestadjacentz calls of
+// four rawmapinfo lookups each), and create_maptile shares the same work, so every
+// tile's smoothed z is computed exactly once.
 //
 // All arrays are width*height, row-major (idx = y*width + x). The plane is immutable
-// after build(), so concurrent const reads are safe (spec 04 parallelizes the block
-// loop over it).
+// after build(), so the parallel block loop can read it from every worker.
 struct TerrainPlane
 {
   int width = 0;

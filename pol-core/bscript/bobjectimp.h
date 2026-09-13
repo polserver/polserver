@@ -310,7 +310,7 @@ inline BObjectImp::BObjectType BObjectImp::type() const
 
 /**
  * Decides what a binary operator means for an operand pair that no type implemented a rule for,
- * i.e. one where the dispatch came back empty. See specs/escript/15.
+ * i.e. one where the dispatch came back empty.
  *
  * A Boolean counts as 1 or 0 in arithmetic, so the operation is retried through the numeric rules
  * rather than restated here; `+` with a String on either side concatenates, which is what a String

@@ -78,7 +78,7 @@ class CoreChanges:
 
     RELEASERE = re.compile(r'^-*\s*(POL[0-9.-A-Za-z_]+)\s*-*$')
     CHANGERE = re.compile(r'^([0-9]{1,2}-[0-9]{1,2}(?:-(?:[0-9]{2}){1,2})?)(?:\s+(.*))?:?$')
-    CHANGEFIRST = re.compile(r'^(\s+)([A-za-z]+)(\s*):(\s+)(.*)$')
+    CHANGEFIRST = re.compile(r'^(\s+)([A-Za-z]+)(\s*):(\s+)(.*)$')
     CHANGELINE = re.compile(r'^(\s+)(.*)$')
     ENDRE = re.compile(r'^=+$')
 

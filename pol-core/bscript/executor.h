@@ -501,6 +501,12 @@ public:
   // throws: a failure to collect the detail degrades to a message-only report.
   std::string execution_error_report( size_t onPC, const std::string& what );
 
+  // The same stack as a block ready to append to a one-line diagnostic: a leading newline, then
+  // one indented frame per line. A PC names an instruction nobody can look up in a source file;
+  // this is what lets a report say which line, and which caller, is responsible. Never throws,
+  // and returns an empty string rather than let a diagnostic fail to be a diagnostic.
+  std::string script_stack_block();
+
   bool attach_debugger( std::weak_ptr<ExecutorDebugListener> listener = {},
                         bool set_attaching = true );
   void detach_debugger();
@@ -538,7 +544,7 @@ public:
 
 private:
   // Applies the operator policy for an operand pair no type had a rule for, and reports the
-  // no-rule case once per program with the script and PC. See specs/escript/15.
+  // no-rule case once per program with the script and PC.
   BObjectImp* operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right );
 
   ref_ptr<EScriptProgram> prog_;

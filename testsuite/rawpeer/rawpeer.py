@@ -24,9 +24,9 @@ opened fresh per SEND and closed at the end.
     REFUSED   could not connect at all
 
 The distinction matters more than it looks. A test that merely fires bytes and
-checks the shard is alive passes just as well when nothing ever connected -- the
-failure mode specs/testsuite/05-harness-traps.md is about. CLOSED is positive
-evidence that the core read the bytes and decided something about them.
+checks the shard is alive passes just as well when nothing ever connected.
+CLOSED is positive evidence that the core read the bytes and decided something
+about them.
 
 Note the 4-byte crypt seed: a fresh connection is in RECV_STATE_CRYPTSEED_WAIT, so
 the first four bytes are consumed as the seed and never parsed as a message

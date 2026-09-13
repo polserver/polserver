@@ -98,7 +98,7 @@ program tests()
         var res := script[1].call( func, { resources } );
         resources.cleanup();
         if ( res != 1 )
-          syslog( "      failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
+          syslog( $"      failed: {res}", 0, CONSOLE_COLOR_RED );
           trace_dump();
           exitcode := 1;
           continue;

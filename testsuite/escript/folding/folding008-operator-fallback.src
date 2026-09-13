@@ -1,7 +1,6 @@
 // What a binary operator means when no type in the pair implemented a rule for it. A Boolean
 // counts as 1 or 0 in arithmetic, `+` with a String on either side concatenates, and anything
-// else is an error naming the operator and both types -- where all of it used to return the
-// LEFT operand unchanged and say nothing. See specs/escript/15.
+// else is an error naming the operator and both types.
 //
 // As in the other folding tests, each line prints the folded form and the same expression through
 // variables, so the compiler and the VM have to agree.

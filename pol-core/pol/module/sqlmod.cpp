@@ -46,8 +46,8 @@ BObjectImp* SQLExecutorModule::background_connect( weak_ptr<Core::UOExecutor> uo
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        uoexec->scriptname(), uoexec->PC );
+        "\tThe execution of this script can't be blocked!{}",
+        uoexec->scriptname(), uoexec->PC, uoexec->script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
   Core::networkManager.sql_service->push(
@@ -109,8 +109,8 @@ Bscript::BObjectImp* SQLExecutorModule::background_select( weak_ptr<Core::UOExec
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        uoexec->scriptname(), uoexec->PC );
+        "\tThe execution of this script can't be blocked!{}",
+        uoexec->scriptname(), uoexec->PC, uoexec->script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
   Core::networkManager.sql_service->push(
@@ -167,8 +167,8 @@ Bscript::BObjectImp* SQLExecutorModule::background_query( weak_ptr<Core::UOExecu
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        uoexec->scriptname(), uoexec->PC );
+        "\tThe execution of this script can't be blocked!{}",
+        uoexec->scriptname(), uoexec->PC, uoexec->script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

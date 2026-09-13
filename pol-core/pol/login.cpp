@@ -191,8 +191,7 @@ void loginserver_login( Network::Client* client, PKTIN_80* msg )
     {
       // Re-resolved per login so a server that moves is picked up without a restart.
       // Still a blocking lookup on the login path, and with single-threaded login that
-      // path is the listener thread, so a slow resolver delays every pending login;
-      // resolving asynchronously is its own change (specs/sockets/10).
+      // path is the listener thread, so a slow resolver delays every pending login.
       const auto addrs = Clib::resolve_ipv4( server->hostname );
       if ( addrs.empty() )
       {

@@ -2,9 +2,9 @@
 // with literal operands, which the optimizer folds at compile time, and once through variables,
 // which the VM evaluates. The two halves of a line must always match.
 //
-// These are the comparisons that used to disagree: the folder compared int-to-float and
-// float-to-float with a tolerance while BLong::operator== compared exactly, and `<` excluded
-// no tolerance at all, so `==` and `>=` could contradict each other. See specs/escript/03.
+// These are the comparisons most likely to disagree. `==` compares Reals with a tolerance,
+// whichever side the Real is on, and `<` must exclude the same band, or `==` and `>=` would
+// contradict each other.
 
 var two := 2;
 var over := 2.000000001;

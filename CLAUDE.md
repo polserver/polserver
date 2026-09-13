@@ -97,6 +97,39 @@ A new flag is a user-visible change, so also add a changelog entry — see **Con
 
 - User-visible changes need a changelog entry. Edit the **source** file `pol-core/doc/core-changes.txt` (add your entry at the top of the current `-- POLxxx --` version block, same format as existing entries), then regenerate the derived XML with `python doctools/buildcorechanges.py` — it rewrites `docs/docs.polserver.com/pol100/corechanges.xml` (including its `datemodified`). **Do not hand-edit `corechanges.xml`; it is generated, not authored.** Commit both files.
 
+### Writing a changelog entry
+
+`core-changes.txt` is read by shard admins, script writers and players. Keep it concise and about what they can see.
+
+- **Is an entry needed?** Only if a running shard behaves differently: script functions or members, config options, packets and client behaviour, log output, crashes. Refactors, internal fixes, tests, CI, and doc-only changes get no entry.
+- **Describe the effect, not the implementation.** Use names the reader knows: `uo::Distance()`, `chr.facing`, `servspecopt.cfg` `StartingGold`. Leave out C++ classes and functions, source files, the root cause, how the bug was found, and spec, issue or commit references.
+- **Fixed:** say what went wrong and when it happened. Add the new behaviour only if it isn't obvious. Don't open with "Fixed a bug where".
+- **Changed:/Removed:** if a working script or config now behaves differently or stops working, say what to use instead.
+- **One idea per tag line.** Use `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Note:`. Say each fact once; a second sentence must add something the admin needs.
+- **Format:** plain text. Nothing renders Markdown, so backticks around code names show as literal backticks (which reads fine), and `**bold**`, lists or links show as raw syntax. Wrap at 100 columns. Right-align the tags so every colon is in column 10, start the text one space after the colon (column 12), and indent continuation lines 11 spaces so they line up with it. Pad the tag rather than moving the text: `Changed:` gets 2 spaces in front, `Fixed:` gets 4, `Note:` gets 5.
+  ```
+  09-05-2026 Nando:
+      Added: a new thing
+    Changed: a changed thing, whose description runs long enough that it wraps onto
+             a second line
+       Note: something else
+  ```
+  The generator recognises `-- POLxxx --`, `MM-DD-YYYY Author:` and indented `Tag: text` lines. It stops with an error on an unindented line that is neither of the first two, and only warns about an indented line with no tag above it, so read its output.
+  **A wrapped line must not start with a single word of plain letters followed by a colon and a space** (`params: …`). The generator reads that as a new tag and the docs page shows a separate change row. Re-wrap so the line starts with a different word, quote the name (`` `params`: ``), or reword it (`the params member: …`).
+- **One block per PR,** at the top of the current version block, dated at or near the merge. Never add to someone else's block, even if the date and author match. A multi-commit branch writes its entries once, at the end. Don't edit entries that have already been merged; add a new one instead.
+
+### Code comments
+
+A comment is for someone reading the code years from now, with no access to how it was written.
+
+- **Never point at planning material.** No `specs/…` paths, spec numbers, "finding 3", "chunk B", "step 2", review notes or conversations. `specs/` is gitignored and exists on one machine only, so these references lead nowhere for everyone else. If the reference carried a reason, write the reason. If it didn't, drop it. A public issue link is fine only when the reader needs the original report to understand the code.
+- **Describe the code as it is, not its history.** Leave out "used to", "was changed to", "now" and "fixed". Where the change came from belongs in the commit message and `core-changes.txt`.
+- **Say why, not what.** Comment a constraint, invariant or trap that the code cannot show, for example "deregister by a plain call, not RAII: unwinding would hide the death this detects". Don't restate a name, a signature or the next line.
+- **Keep it short.** One or two lines is normal. A paragraph usually means the reasoning belongs in the commit message. Match the surrounding comment density.
+- **Tests follow the same rules.** A header saying what behaviour the test pins, and why that matters, is useful. Where the test came from is not.
+
+Before committing, check that the diff has no such references: `git diff | grep -nE '^\+.*(specs/|\bspec [0-9]|\bfinding [0-9])'`.
+
 ## Key External Dependencies
 
 Vendored/fetched into `lib/` via CMake: Boost (headers + stacktrace), ANTLR4, libcurl, zlib, fmt, MariaDB Connector/C (bundled SQL backend), efsw, cppdap. Don't pin versions from memory — check `cmake/*.cmake`.

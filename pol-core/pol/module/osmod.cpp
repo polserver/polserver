@@ -636,8 +636,8 @@ BObjectImp* OSExecutorModule::mf_OpenConnection()
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        this_uoexec.scriptname(), this_uoexec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        this_uoexec.scriptname(), this_uoexec.PC, this_uoexec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -804,8 +804,8 @@ BObjectImp* OSExecutorModule::mf_HTTPRequest()
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        this_uoexec.scriptname(), this_uoexec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        this_uoexec.scriptname(), this_uoexec.PC, this_uoexec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1228,8 +1228,8 @@ BObjectImp* OSExecutorModule::mf_PerformanceMeasure()
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        this_uoexec.scriptname(), this_uoexec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        this_uoexec.scriptname(), this_uoexec.PC, this_uoexec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 
@@ -1602,8 +1602,8 @@ BObjectImp* OSExecutorModule::mf_SendEmail()
   {
     DEBUGLOGLN(
         "Script Error in '{}' PC={}: \n"
-        "\tThe execution of this script can't be blocked!",
-        this_uoexec.scriptname(), this_uoexec.PC );
+        "\tThe execution of this script can't be blocked!{}",
+        this_uoexec.scriptname(), this_uoexec.PC, this_uoexec.script_stack_block() );
     return new Bscript::BError( "Script can't be blocked" );
   }
 

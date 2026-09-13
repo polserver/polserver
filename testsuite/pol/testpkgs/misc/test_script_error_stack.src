@@ -1,0 +1,71 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+
+program testscripterrorstack()
+  return 1;
+endprogram
+
+// A runtime script error names the .ecl and a program counter, which is not a place anyone can
+// open. It carries the eScript call stack too, resolved through the debug information to the
+// source line -- and to the CALLER's line, which for this family is often the real answer: the
+// frame that made the bad call is rarely the frame that produced the bad value.
+//
+// These go to debug.log, not pol.log, and only when EnableDebugLog is on. This shard's pol.cfg
+// sets it; a default shard does not.
+//
+// The wrong-parameter site stands in for the whole family here because it is the one reachable
+// from an ordinary script. The "execution of this script can't be blocked" messages need a
+// run-to-completion executor (a syshook), and the VM's own "Fatal error:" reports need a
+// corrupted program -- neither is provokable from a test script.
+const DEBUG_LOG := "::log/debug.log";
+
+function bad_call_from_a_helper()
+  return PerformanceMeasure( "not an integer", 1 );
+endfunction
+
+exported function script_error_names_caller()
+  // debug.log is created by its first message, so on a run where nothing has written to it yet
+  // there is no file to mark -- the same starting point as an empty one.
+  var mark := log_mark( DEBUG_LOG );
+  if ( mark == error )
+    mark := 0;
+  endif
+
+  var res := bad_call_from_a_helper();
+  if ( res != error )
+    return $"expected the bad call to fail, got {res}";
+  endif
+
+  var lines := log_since( mark, DEBUG_LOG );
+  if ( lines == error )
+    return lines;
+  endif
+
+  // The message runs to several lines; the frames follow its last one.
+  var at := log_find( lines, "got datatype String" );
+  if ( !at )
+    return "the parameter error was not written to debug.log";
+  endif
+  if ( at + 2 > lines.size() )
+    return "the error carries no stack: nothing follows it in the log";
+  endif
+
+  // Innermost first: the frame that made the call, then the frame that called it.
+  var inner := lines[at + 1];
+  var outer := lines[at + 2];
+
+  if ( !inner.find( "bad_call_from_a_helper" ) )
+    return $"innermost frame is not the calling function: {inner}";
+  endif
+  if ( !inner.find( "test_script_error_stack.src:" ) )
+    return $"innermost frame names no source file: {inner}";
+  endif
+  if ( !outer.find( "script_error_names_caller" ) )
+    return $"outer frame is not the caller: {outer}";
+  endif
+
+  return 1;
+endfunction
