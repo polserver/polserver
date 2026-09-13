@@ -36,7 +36,7 @@ int unload_all_scripts();  // returns # of scripts unloaded
 void log_all_script_cycle_counts( bool clear_counters );
 void clear_script_profile_counters();
 
-bool script_loaded( ScriptDef& sd );
+bool script_loaded( const ScriptDef& sd );
 }
 }
 #endif  // SCRSTORE_H

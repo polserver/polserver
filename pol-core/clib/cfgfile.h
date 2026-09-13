@@ -14,6 +14,8 @@
 
 #include <set>
 #include <string>
+#include <string_view>
+#include <vector>
 #include <time.h>
 
 #include "clib/maputil.h"
@@ -53,7 +55,13 @@ protected:
   void init( const char* i_filename, const char* allowed_types_str );
   friend class ConfigElem;
   friend class ConfigSection;
-  bool readline( std::string& strbuf );
+  /**
+   * The next line of the file, trailing newline included, or false at end of file.
+   *
+   * The view points into this object's own read buffer and stays valid only until the next call.
+   */
+  bool readline( std::string_view& line );
+  bool refill_buffer();
   bool read_properties( ConfigElem& elem );
   bool _read( ConfigElem& elem );
   void display_error( const std::string& msg, bool show_curline = true,
@@ -67,6 +75,12 @@ private:
   FILE* fp;
   int _element_line_start;  // what line in the file did this elem start on?
   int _cur_line;
+
+  std::vector<char> _buffer;  // allocated on the first read, not on open
+  size_t _buffer_pos = 0;     // first byte not yet handed out
+  size_t _buffer_len = 0;     // bytes of _buffer that hold file content
+  std::string _split_line;    // a line that straddled two reads
+  std::string _sanitized;     // a line that was not valid utf8, rewritten
 
   using AllowedTypesCont = std::set<std::string, ci_cmp_pred>;
   AllowedTypesCont allowed_types_;
