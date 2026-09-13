@@ -785,6 +785,7 @@ class PolServer:
     elif ev.type==Event.EVT_PROMPT:
       res["serial"]=ev.serial
       res["msgid"]=ev.msgid
+      res["unicode"]=1 if ev.unicode else 0
     elif ev.type==Event.EVT_REFRESH_OBJ:
       res["serial"]=ev.serial
       res["graphic"]=ev.graphic
@@ -792,6 +793,7 @@ class PolServer:
     elif ev.type==Event.EVT_MULTI_PLACED:
       res["res"]=1 if ev.res else 0
     elif ev.type==Event.EVT_MULTI_PLACEMENT:
+      res["allow"]=1 if ev.allow else 0
       res["cursorid"]=ev.cursorid
       res["multiid"]=ev.multiid
       res["xoffset"]=ev.xoffset

@@ -1074,7 +1074,8 @@ class Client(threading.Thread):
       po = packets.PromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=False))
 
     elif isinstance(pkt, packets.UnicodePromptPacket):
       assert self.lc
@@ -1086,7 +1087,8 @@ class Client(threading.Thread):
       po = packets.UnicodePromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=True))
 
     elif isinstance(pkt, packets.QuestArrowPacket):
       assert self.lc
@@ -1098,8 +1100,9 @@ class Client(threading.Thread):
       # kept so placeMulti() can answer it: the script that asked for the cursor is
       # suspended until a 0x6C carrying this same cursor id comes back
       self.multi_placement = {'cursorid': pkt.cursorid, 'multiid': pkt.multiid}
-      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, cursorid=pkt.cursorid,
-          multiid=pkt.multiid, xoffset=pkt.xoffset, yoffset=pkt.yoffset, hue=pkt.hue))
+      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, allow=pkt.allow,
+          cursorid=pkt.cursorid, multiid=pkt.multiid, xoffset=pkt.xoffset,
+          yoffset=pkt.yoffset, hue=pkt.hue))
 
     elif isinstance(pkt, packets.MenuPacket):
       assert self.lc
