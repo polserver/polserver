@@ -1489,7 +1489,9 @@ class DrawObjectPacket(Packet):
         break
       graphic = self.dushort()
       layer = self.duchar()
+      # The top bit says a hue follows. It is not part of the graphic.
       if graphic & 0x8000:
+        graphic &= 0x7fff
         color = self.dushort()
       else:
         color = 0
@@ -1522,11 +1524,13 @@ class CorpseEquipmentPacket(Packet):
   ''' Corpse clothing / equipment '''
 
   cmd = 0x89
-  equip = []
 
   def decodeChild(self):
     self.length = self.dushort()
     self.serial = self.duint()
+
+    # Per instance: a class attribute would be shared by every corpse.
+    self.equip = []
 
     while True:
       layer = self.duchar()
@@ -2004,7 +2008,8 @@ class UnicodeSpeechRequestPacket(Packet):
 
     self.length = 1 + 2 + 1 + 2 + 2 + 4
     if tokens:
-      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) / 8
+      # Floor division: a length is whole bytes.
+      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) // 8
       self.length = self.length + token_byte_length + len(self.text)+1
     else:
       self.length = self.length + len(self.text)*2+2
@@ -2249,7 +2254,8 @@ class GeneralInfoPacket(Packet):
 
     def checkArgLen(expLen):
       if len(args) != expLen:
-        raise TypeError("Subcommand {:02x} takes {} positional argument(s) " + \
+        # Implicit concatenation, so format() applies to the whole message.
+        raise TypeError("Subcommand {:02x} takes {} positional argument(s) "
             "but {} were given".format(self.sub, expLen, len(args)))
 
     if self.sub == self.SUB_LOGIN:
@@ -3031,6 +3037,7 @@ class SmoothBoatPacket(Packet):
     self.count = self.dushort()
     self.objs=[]
     for i in range(self.count):
+      # Say which object ran out, not a bare length mismatch.
       try:
         self.objs.append({
          'serial':self.duint(),
@@ -3038,9 +3045,9 @@ class SmoothBoatPacket(Packet):
          'y':self.dushort(),
          'z':self.dsshort(),
         })
-      except Exception as e:
-        self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
-        break
+      except EOFError as e:
+        raise EOFError('0xf6 claims {} objects but ran out at {} (packet length {}): {}'.format(
+            self.count, i, self.length, e)) from e
 
 class MultipleNewObjectInfoPacket(Packet):
   ''' Draws multiple objects '''

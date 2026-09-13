@@ -1035,7 +1035,7 @@ class PolServer:
       res['x']=ev.x
       res['y']=ev.y
     else:
-      raise NotImplementedError("Unknown event {}",format(ev.type))
+      raise NotImplementedError("Unknown event {}".format(ev.type))
 
     self.send(json.dumps(res))
 
