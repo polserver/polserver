@@ -757,10 +757,22 @@ class MoveRejectPacket(Packet):
 
 
 class MoveAckPacket(Packet):
-  ''' Acnowledge move request and update notoriety '''
+  ''' Acnowledge move request and update notoriety.
+
+  The same id going the other way is the client asking the server to send
+  everything in range again.
+  '''
 
   cmd = 0x22
   length = 3
+
+  def fill(self):
+    ''' A resync request carries nothing but its two zero bytes '''
+    pass
+
+  def encodeChild(self):
+    self.euchar(0)
+    self.euchar(0)
 
   def decodeChild(self):
     self.sequence = self.duchar()
@@ -922,6 +934,22 @@ class SendSkillsPacket(Packet):
   When sent by client, sets skill lock for a single skill '''
 
   cmd = 0x3a
+
+  def fill(self, skillid, lock):
+    '''! Sets the lock state of one skill
+    @param skillid int: the skill, counted from zero as uoskills.cfg numbers them
+    @param lock int: 0 up, 1 down, 2 locked. The core refuses anything above 2.
+
+    Only read when CoreHandledLocks is on; with it off the core drops the packet.
+    '''
+    self.skillid = skillid
+    self.lock = lock
+    self.length = 6
+
+  def encodeChild(self):
+    self.eulen()
+    self.eushort(self.skillid)
+    self.euchar(self.lock)
 
   def decodeChild(self):
     self.length = self.dushort()
@@ -1658,7 +1686,8 @@ class TipWindowPacket(Packet):
   def decodeChild(self):
     self.length = self.dushort()
     self.flag = self.duchar()
-    self.tipid = self.duint()
+    self.dushort() # unk4,5, which the core leaves zero
+    self.tipid = self.dushort()
     msgSize = self.dushort()
     self.msg = self.dstring(msgSize)
 
@@ -3497,6 +3526,112 @@ class MapNewPacket(MapPacket):
   def decodeChild(self):
     super().decodeChild()
     self.facetid = self.dushort()
+
+
+class PromptPacket(Packet):
+  ''' The ascii prompt: the server asks for a line of text, the client sends back
+  what was typed.
+
+  RequestInput() picks between this and the unicode 0xC2 by whether its prompt
+  text needs more than ascii, so a plain prompt is answered here.
+  '''
+
+  cmd = 0x9a
+
+  def fill(self, serial, msgid, text):
+    self.serial = serial
+    self.msgid = msgid
+    self.text = text
+    # serial, msgid and type, then the text and the terminator the core insists on
+    self.length = 15 + len(self.text) + 1
+
+  def encodeChild(self):
+    self.eulen()
+    self.euint(self.serial)
+    self.euint(self.msgid)
+    # any non-zero type means the client typed something; zero is how it cancels
+    self.euint(1)
+    self.estring(self.text, len(self.text))
+    self.euchar(0)
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    self.msgid = self.duint()
+    self.type = self.duint()
+    # the server sends the text empty, so this is one byte of nothing
+    self.text = self.dstring(self.length - 15)
+
+
+class HelpRequestPacket(Packet):
+  ''' The help button on the paperdoll, which runs the shard's misc/help script '''
+
+  cmd = 0x9b
+  length = 258
+
+  def fill(self):
+    ''' The body is 257 bytes the core never reads '''
+    pass
+
+  def encodeChild(self):
+    self.buf += b'\x00' * 257
+
+
+class GetTipPacket(Packet):
+  ''' Asks for the tip before or after the one the client last saw '''
+
+  cmd = 0xa7
+  length = 4
+
+  def fill(self, lasttip=0, next=True):
+    self.lasttip = lasttip
+    self.next = next
+
+  def encodeChild(self):
+    self.eushort(self.lasttip)
+    self.euchar(1 if self.next else 0)
+
+
+class RequestTooltipPacket(Packet):
+  ''' Asks for one object's tooltip (the pre-AOS single request, not 0xD6) '''
+
+  cmd = 0xb6
+  length = 9
+
+  def fill(self, serial, lang='ENU'):
+    self.serial = serial
+    self.lang = lang
+
+  def encodeChild(self):
+    self.euint(self.serial)
+    self.euchar(0)
+    self.estring(self.lang, 3)
+
+
+class TooltipTextPacket(Packet):
+  ''' The answer to 0xB6: the item's Tooltip line from itemdesc.cfg '''
+
+  cmd = 0xb7
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.serial = self.duint()
+    # WriteFlipped puts the text on the wire big endian, which is what ducstringz
+    # reads without flipped
+    self.text = self.ducstringz(limit=self.length)
+
+
+class OpenUrlPacket(Packet):
+  ''' Tells the client to open a url in a browser '''
+
+  cmd = 0xa5
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    # the whole field rather than up to the terminator, so the length is accounted
+    # for either way; dstring stops at the null the core leaves after the url
+    self.url = self.dstring(self.length - 3)
+
 
 ################################################################################
 # Build packet list when this module is imported, must stay at the end

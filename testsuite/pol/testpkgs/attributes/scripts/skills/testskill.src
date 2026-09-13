@@ -1,0 +1,7 @@
+use uo;
+
+// Started by Start_Skill_Script, which hands it the character using the skill and nothing else.
+// The cprop is how the test sees that it ran; every case starts from a fresh npc.
+program testskill( who )
+  SetObjProperty( who, "TestSkillRan", 1 );
+endprogram

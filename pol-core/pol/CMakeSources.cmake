@@ -435,9 +435,8 @@ set (pol_sources  # sorted !
   textcmd.h
   tildecmd.cpp
   tildecmd.h
-  tiplist.h
-  tiplstwn.cpp
   tips.cpp
+  tips.h
   tooltips.cpp
   tooltips.h
   ufunc.cpp

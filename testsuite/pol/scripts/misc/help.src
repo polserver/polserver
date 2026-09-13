@@ -1,0 +1,7 @@
+use uo;
+
+// The help button, packet 0x9B. The core hands this script the character that pressed it and
+// nothing else, so all it can do is answer - which is what the test listens for.
+program help( who )
+  SendSysMessage( who, $"help for {who.name}" );
+endprogram

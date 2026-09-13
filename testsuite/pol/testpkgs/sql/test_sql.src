@@ -207,3 +207,47 @@ exported function sqlquery_field_refusals()
   endif
   return 1;
 endfunction
+
+// mysql_close gives the connection's handle back. Every other case here shares the connection
+// the program block opened, so this one opens and closes one of its own - which is also why
+// nothing else in the file reaches mysql_close: it is only called on the error paths above,
+// and a passing run takes none of them.
+exported function sql_close()
+  var own := mysql_connect( "127.0.0.1", "root", "root" );
+  if ( !own )
+    return ret_error( $"failed to connect: {own}" );
+  endif
+
+  var res := mysql_close( own );
+  if ( res != 1 )
+    return ret_error( $"mysql_close answered {res}" );
+  endif
+
+  // the connection object outlives its handle, and says so rather than being unusable
+  var query := mysql_query( own, "SELECT 1" );
+  if ( query )
+    return ret_error( "a closed connection still answered a query" );
+  endif
+  if ( query.errortext != "No active MYSQL object instance." )
+    return ret_error( $"the closed connection refused with: {query.errortext}" );
+  endif
+
+  // closing one that is already closed is not an error
+  res := mysql_close( own );
+  if ( res != 1 )
+    return ret_error( $"closing an already closed connection answered {res}" );
+  endif
+  return 1;
+endfunction
+
+// Anything that is not a connection is refused before the close is attempted.
+exported function sql_close_bad_param()
+  var res := mysql_close( 1 );
+  if ( res )
+    return ret_error( "an integer was accepted as a connection" );
+  endif
+  if ( res.errortext != "Invalid parameters" )
+    return ret_error( $"mysql_close refused it with: {res.errortext}" );
+  endif
+  return 1;
+endfunction

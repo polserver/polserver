@@ -1,0 +1,15 @@
+// WriteHtml, which writes the status line and the Content-Type header itself rather than
+// leaving them to WriteStatus and WriteHeader the way test.src does, and QueryIP, the address
+// the request came from.
+//
+// what - "ip" answers with QueryIP(), anything else with a fixed marker
+use os;
+use http;
+
+program HTMLPage()
+  if ( QueryParam( "what" ) == "ip" )
+    WriteHtml( QueryIP() );
+  else
+    WriteHtml( "<html><body>polcore writehtml test</body></html>" );
+  endif
+endprogram

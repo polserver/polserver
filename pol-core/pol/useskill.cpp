@@ -40,7 +40,7 @@ void handle_use_skill( Network::Client* client, PKTIN_12* msg )
     return;
   const Mobile::Attribute* attrib = uoskill.pAttr;
 
-  if ( !attrib->disable_core_checks && !CanUseSkill( client ) )
+  if ( !attrib->disable_core_checks && !CanUseSkill( client->chr ) )
     return;
   if ( !attrib->script_.empty() )
   {
@@ -84,10 +84,8 @@ bool StartSkillScript( Network::Client* client, const Mobile::Attribute* attrib 
   return false;
 }
 
-bool CanUseSkill( Network::Client* client )
+bool CanUseSkill( Mobile::Character* chr )
 {
-  Mobile::Character* chr = client->chr;
-
   if ( chr->dead() )
   {
     private_say_above( chr, chr, "I am dead and cannot do that." );
@@ -100,7 +98,8 @@ bool CanUseSkill( Network::Client* client )
   }
   if ( poltime() < chr->disable_skills_until() )
   {
-    send_sysmessage( client, "You must wait to perform another action." );
+    if ( chr->has_active_client() )
+      send_sysmessage( chr->client, "You must wait to perform another action." );
     return false;
   }
   if ( chr->frozen() )

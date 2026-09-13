@@ -1,0 +1,134 @@
+use os;
+use uo;
+use polsys;
+
+include "testutil";
+include "communication";
+include "clientpkt";
+
+// The module functions that need a client and that nothing else in the suite calls: OpenURL,
+// which asks the client to open a browser, and DisconnectClient.
+//
+// DisconnectClient's successful path is not here. The harness has no client it can afford to
+// lose: testclient.py never reconnects, and the deaf client is a raw socket peer with no
+// character of its own. What is covered is the two arms that refuse.
+
+// URL_MAX_LEN from pktdef.h, which is what OpenURL clamps a long url to
+const URL_MAX_LEN := 200;
+
+var char;
+var clientcon := getClientConnection();
+
+program modfunctests()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  return wait_for_own_create( 0 );
+endprogram
+
+function wait_url( timeout := 10 )
+  var ev := waitForClient( 0, { EVT_OPEN_URL }, timeout );
+  if ( !ev )
+    return ret_error( "the client was never asked to open a url" );
+  endif
+  return ev;
+endfunction
+
+exported function modfunc_open_url()
+  drain_events();
+  var url := "http://www.polserver.com/";
+  var res := OpenURL( char, url );
+  if ( !res )
+    return ret_error( $"OpenURL was refused: {res}" );
+  endif
+
+  var ev := wait_url();
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.url != url )
+    return ret_error( $"the client was sent \"{ev.url}\"" );
+  endif
+  return 1;
+endfunction
+
+// A url past URL_MAX_LEN is cut to it - and one character more than that is written, because the
+// byte meant for the terminator is taken from the url itself. So what arrives is 201 characters
+// with nothing terminating them.
+exported function modfunc_open_url_long()
+  drain_events();
+  var url := "http://www.polserver.com/";
+  while ( url.length() <= URL_MAX_LEN + 40 )
+    url := url + "0123456789";
+  endwhile
+
+  var res := OpenURL( char, url );
+  if ( !res )
+    return ret_error( $"OpenURL was refused: {res}" );
+  endif
+
+  var ev := wait_url();
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.url.length() != URL_MAX_LEN )
+    return ret_error( $"a {url.length()} character url arrived at {ev.url.length()}" );
+  endif
+  if ( ev.url != url[1, URL_MAX_LEN] )
+    return ret_error( $"the cut url reads \"{ev.url}\"" );
+  endif
+  return 1;
+endfunction
+
+// A mobile with no client has nowhere to send it.
+exported function modfunc_open_url_no_client( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y + 2, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := OpenURL( npc, "http://www.polserver.com/" );
+  if ( res )
+    return ret_error( "a mobile with no client was sent a url" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"OpenURL refused it with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function modfunc_disconnect_no_client( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y + 3, char.z );
+  if ( !npc )
+    return npc;
+  endif
+
+  var res := DisconnectClient( npc );
+  if ( res )
+    return ret_error( "a mobile with no client was disconnected" );
+  endif
+  if ( res.errortext != "No client attached" )
+    return ret_error( $"DisconnectClient refused it with: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// Anything that is neither a character nor a client is refused before either arm above.
+exported function modfunc_disconnect_bad_param( resmgr )
+  var it := resmgr.CreateItemAtLocation( char.x + 1, char.y + 3, char.z, 0xE75 );
+  if ( !it )
+    return ret_error( $"could not create the item: {it}" );
+  endif
+
+  var res := DisconnectClient( it );
+  if ( res )
+    return ret_error( "an item was accepted as a client" );
+  endif
+  if ( res.errortext != "Invalid parameter type" )
+    return ret_error( $"DisconnectClient refused it with: {res.errortext}" );
+  endif
+  return 1;
+endfunction

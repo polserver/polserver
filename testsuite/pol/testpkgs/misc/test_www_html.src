@@ -1,0 +1,45 @@
+// WriteHtml and QueryIP, the two http.em functions the other webserver cases walk past:
+// test_www.src drives WriteStatus, WriteHeader and WriteHtmlRaw instead, which are what a page
+// uses when it wants to write the response itself.
+use os;
+include "testutil";
+
+program test_www_html()
+  return 1;
+endprogram
+
+// WriteHtml writes the whole response: the status line, a Content-Type of its own, and the body.
+exported function www_write_html()
+  var res := www_get( "/pkg/webserver/htmlpage.ecl" );
+  if ( res.status != 200 )
+    return ret_error( $"htmlpage returned status {res.status}, expecting 200" );
+  endif
+
+  var ctype := res.headers["content-type"];
+  if ( ctype != "text/html" )
+    return ret_error( $"htmlpage content-type '{ctype}', expecting 'text/html'" );
+  endif
+  if ( !res.body.find( "polcore writehtml test" ) )
+    return ret_error( $"htmlpage body '{res.body}' does not carry the marker" );
+  endif
+
+  // WriteHtml puts a newline after the body of its own accord, which is one of the things
+  // WriteHtmlRaw leaves to the page
+  if ( res.body[res.body.length()] != "\n" )
+    return ret_error( "the body did not end in the newline WriteHtml adds" );
+  endif
+  return 1;
+endfunction
+
+// QueryIP is the peer the request came from, which for the shard asking itself is the loopback.
+exported function www_query_ip()
+  var res := www_get( "/pkg/webserver/htmlpage.ecl?what=ip" );
+  if ( res.status != 200 )
+    return ret_error( $"the ip page returned status {res.status}, expecting 200" );
+  endif
+  // the trailing newline is WriteHtml's, not part of the address
+  if ( res.body != "127.0.0.1\n" )
+    return ret_error( $"QueryIP answered '{res.body}', expecting 127.0.0.1" );
+  endif
+  return 1;
+endfunction
