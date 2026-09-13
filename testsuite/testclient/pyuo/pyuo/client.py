@@ -582,6 +582,9 @@ class Client(threading.Thread):
   VERSION = '7.0.9.1'
   ## Language sent to server
   LANG = 'ENU'
+  ## How many fastwalk keys the client holds. The server seeds the queue with six
+  ## and the sixth is dropped, which is what the real client does with them.
+  FASTWALK_SLOTS = 5
 
   def __init__(self, id=None):
     super().__init__()
@@ -628,6 +631,11 @@ class Client(threading.Thread):
     self.moveLock = threading.Lock()
     ## Unacknowledged moves
     self.unmoves = collections.deque()
+    ## The fastwalk keys the server has handed out, zero for an empty slot. The
+    ## core does not run fastwalk prevention - it never sends either of the two
+    ## packets that fill this - so it stays empty and every move goes out with a
+    ## key of 0, which is what the protocol says to send when the queue is dry.
+    self.fastwalk = [0] * self.FASTWALK_SLOTS
 
     ## Reference to player, character instance
     self.player = None
@@ -1310,8 +1318,14 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_HOUSE_DESIGN, serial=pkt.serial,
         revision=pkt.revision, numtiles=pkt.numtiles, planecount=pkt.planecount,
         planes=pkt.planes, tiles=pkt.tiles))
+    elif isinstance(pkt, packets.RejectCharacterLogonPacket):
+      # nothing waits on this: it is the idle warning, and the connection goes
+      # with it. Named so it does not come out as an unhandled packet.
+      self.log.info("server refused the character: reason %d", pkt.reason)
+    elif isinstance(pkt, packets.KREncryptionResponsePacket):
+      self.log.info("server answered a KR encryption request")
     else:
-      self.log.warn("Unhandled packet {}".format(pkt.__class__))
+      self.log.warning("Unhandled packet %s", pkt.__class__)
 
   @status('game')
   @clientthread
@@ -1647,6 +1661,15 @@ class Client(threading.Thread):
   def handleGeneralInfoPacket(self, pkt):
     if pkt.sub == packets.GeneralInfoPacket.SUB_CURSORMAP:
       self.cursor = pkt.cursor
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_FASTWALK:
+      # The server seeding the fastwalk queue. Six keys arrive but only five are
+      # kept: there are five slots and the sixth is dropped, which by convention
+      # is the one the first move request uses.
+      keys = list(pkt.keys[:self.FASTWALK_SLOTS])
+      self.fastwalk = keys + [0] * ( self.FASTWALK_SLOTS - len(keys) )
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_ADDFWKEY:
+      # One key back for a move the server accepted
+      self.pushFastwalk(pkt.key)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_MAPDIFF:
       pass
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
@@ -2320,9 +2343,34 @@ class Client(threading.Thread):
       if self.moveid > 0xff:
         self.moveid = 1
       po = packets.MoveRequestPacket()
-      po.fill(dir.id, self.moveid)
+      po.fill(dir.id, self.moveid, self.popFastwalk())
       self.unmoves.append(po)
       self.queue(po)
+
+  def pushFastwalk(self, key):
+    ''' Puts a key back in the first free slot.
+
+    First free in, first taken out - the queue is neither a stack nor a ring,
+    which is what the client the protocol was read off does.
+    '''
+    for i, slot in enumerate(self.fastwalk):
+      if not slot:
+        self.fastwalk[i] = key
+        return
+    # Every slot full: the server has handed out more than it took back. The
+    # real client has nowhere to put it either, so the key is dropped.
+    self.log.debug('fastwalk queue full, dropping key 0x%X', key)
+
+  def popFastwalk(self):
+    '''! Takes the first key the queue holds, leaving its slot empty.
+    @return int: the key, 0 when the queue is dry - which is what the server
+                 reads as the client having outrun its acknowledgements
+    '''
+    for i, slot in enumerate(self.fastwalk):
+      if slot:
+        self.fastwalk[i] = 0
+        return slot
+    return 0
 
   @logincomplete
   def waitForTarget(self, timeout=None):
