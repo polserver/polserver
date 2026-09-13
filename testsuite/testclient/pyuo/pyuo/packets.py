@@ -1493,7 +1493,11 @@ class DrawObjectPacket(Packet):
         break
       graphic = self.dushort()
       layer = self.duchar()
+      # The top bit says a hue follows, it is not part of the graphic id - the
+      # core sets it on every coloured item, see send_owncreate() in ufunc.cpp.
+      # Leaving it in made every coloured worn item read as graphic + 0x8000.
       if graphic & 0x8000:
+        graphic &= 0x7fff
         color = self.dushort()
       else:
         color = 0
@@ -1526,11 +1530,16 @@ class CorpseEquipmentPacket(Packet):
   ''' Corpse clothing / equipment '''
 
   cmd = 0x89
-  equip = []
 
   def decodeChild(self):
     self.length = self.dushort()
     self.serial = self.duint()
+
+    # Bound to the instance here, not shared by the class. It was a class
+    # attribute that this appended to and nothing ever cleared, so every corpse
+    # the process decoded piled up in one list and the second corpse was handed
+    # the first one's equipment along with its own.
+    self.equip = []
 
     while True:
       layer = self.duchar()
@@ -2008,7 +2017,9 @@ class UnicodeSpeechRequestPacket(Packet):
 
     self.length = 1 + 2 + 1 + 2 + 2 + 4
     if tokens:
-      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) / 8
+      # floor division: a length is a whole number of bytes, and a float one
+      # travelled all the way to the length check the receiving side makes
+      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) // 8
       self.length = self.length + token_byte_length + len(self.text)+1
     else:
       self.length = self.length + len(self.text)*2+2
@@ -2253,7 +2264,9 @@ class GeneralInfoPacket(Packet):
 
     def checkArgLen(expLen):
       if len(args) != expLen:
-        raise TypeError("Subcommand {:02x} takes {} positional argument(s) " + \
+        # implicit concatenation, so format() applies to the whole message - the
+        # explicit + bound it to the second half and left the first unfilled
+        raise TypeError("Subcommand {:02x} takes {} positional argument(s) "
             "but {} were given".format(self.sub, expLen, len(args)))
 
     if self.sub == self.SUB_LOGIN:
@@ -3035,6 +3048,9 @@ class SmoothBoatPacket(Packet):
     self.count = self.dushort()
     self.objs=[]
     for i in range(self.count):
+      # Reading past the end used to be caught here and turned into a break,
+      # which left readCount short of length and so came back out of decode() as
+      # a bare length mismatch. Say which object ran out and let it through.
       try:
         self.objs.append({
          'serial':self.duint(),
@@ -3042,9 +3058,9 @@ class SmoothBoatPacket(Packet):
          'y':self.dushort(),
          'z':self.dsshort(),
         })
-      except Exception as e:
-        self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
-        break
+      except EOFError as e:
+        raise EOFError('0xf6 claims {} objects but ran out at {} (packet length {}): {}'.format(
+            self.count, i, self.length, e)) from e
 
 class MultipleNewObjectInfoPacket(Packet):
   ''' Draws multiple objects '''
