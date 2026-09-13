@@ -6,18 +6,7 @@
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>09-08-2026</date>
-			<author>Nando:</author>
-			<change type="Changed">Runtime script errors now report the eScript call stack, each frame naming its source<br/>
-file and line where the script was compiled with debug information, instead of a<br/>
-program counter alone. Covers the no-rule operator report and the VM's fatal errors<br/>
-in pol.log, and the wrong-parameter and &quot;script can't be blocked&quot; messages in<br/>
-debug.log.</change>
-			<change type="Fixed">&quot;Return without GOSUB!&quot; went to stderr only, so a shard run as a service never saw<br/>
-it. It goes to pol.log now.</change>
-		</entry>
-		<entry>
-			<date>09-06-2026</date>
+			<date>09-13-2026</date>
 			<author>AsYlum, Turley:</author>
 			<change type="Fixed">the shard could wedge when uo::SaveWorldState() was called again while the previous<br/>
 save was still finishing - two scripts saving in the same pass is enough.</change>
@@ -33,6 +22,17 @@ freezes for a fraction of one, and no single big data file decides how long that
 			<change type="Note">the data files hold the same data, but the elements inside storage.txt, items.txt,<br/>
 multis.txt, datastore.txt, pcs.txt, npcs.txt and the equip files are no longer written<br/>
 in a fixed order - two saves of an unchanged world can differ in block order.</change>
+		</entry>
+		<entry>
+			<date>09-08-2026</date>
+			<author>Nando:</author>
+			<change type="Changed">Runtime script errors now report the eScript call stack, each frame naming its source<br/>
+file and line where the script was compiled with debug information, instead of a<br/>
+program counter alone. Covers the no-rule operator report and the VM's fatal errors<br/>
+in pol.log, and the wrong-parameter and &quot;script can't be blocked&quot; messages in<br/>
+debug.log.</change>
+			<change type="Fixed">&quot;Return without GOSUB!&quot; went to stderr only, so a shard run as a service never saw<br/>
+it. It goes to pol.log now.</change>
 		</entry>
 		<entry>
 			<date>09-05-2026</date>
