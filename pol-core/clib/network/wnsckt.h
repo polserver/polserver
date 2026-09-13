@@ -129,7 +129,7 @@ private:
   // atomic: close() may be called while another thread does I/O (aux connections
   // close from the reader thread while transmit tasks send); this keeps the
   // handle reads/writes race-free, but a concurrent sender can still lose the
-  // race and act on an already-closed descriptor (specs/sockets/06).
+  // race and act on an already-closed descriptor.
   std::atomic<SOCKET> _sck;
 
   int _options;

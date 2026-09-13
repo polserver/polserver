@@ -198,8 +198,8 @@ std::unique_ptr<Expression> ConstantFolder::fold( BinaryOperator& op, Report& re
   if ( !applied )
   {
     // No type in the pair had a rule. The same policy the VM applies decides what the expression
-    // means (specs/escript/15); unlike the VM we can say so at compile time, where it is cheap and
-    // the author is still looking.
+    // means; unlike the VM we can say so at compile time, where it is cheap and the author is
+    // still looking.
     std::string no_rule_message;
     applied = apply_operator_fallback( op.token_id, lhs.object().impref(), rhs.object().impref(),
                                        &no_rule_message );

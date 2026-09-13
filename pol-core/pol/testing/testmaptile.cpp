@@ -26,11 +26,11 @@ void maptile_geometry_test()
   T_MAPTILE( Plib::maptile_blocks_across( 1448 ), 23u, "maptile_blocks_across(1448) == ceil" );
 
   // exact multiples of MAPTILE_CHUNK (e.g. Britannia's 6144) must be
-  // unaffected -- same result as the old floor-shift formula.
+  // unaffected -- same result as a floor shift.
   T_MAPTILE( Plib::maptile_blocks_across( 6144 ), 96u, "maptile_blocks_across(6144) == exact" );
   T_MAPTILE( Plib::maptile_blocks_across( 64 ), 1u, "maptile_blocks_across(64) == exact" );
 
-  // the spec's worked collision example, in reverse: with the ceil-rounded
+  // with the ceil-rounded
   // stride, the partial-column block and the start of the next row must
   // land on distinct indices.
   T_MAPTILE( block_index( 1448, 22, 0 ) != block_index( 1448, 0, 1 ), true,

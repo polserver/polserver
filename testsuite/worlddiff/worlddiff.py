@@ -38,8 +38,8 @@ import sys
 # (savedata.cpp: write_items/write_multis), and the load reads them back in file order into
 # the same vectors via add_item_to_world's zone.items.push_back - so file order IS zone
 # vector order, which every WorldIterator walk hands to scripts as the result order of
-# ListItemsNearLocation and friends. specs/items/08 reworks exactly those insert/erase
-# helpers, so this file is the one place that would notice it reordering them.
+# ListItemsNearLocation and friends. A change to those insert/erase helpers that reorders
+# the vectors is noticed here and nowhere else.
 #
 # The exception is the files written by walking objStorageManager.objecthash, an
 # unordered_map whose iteration order is an STL implementation detail. It was in fact stable

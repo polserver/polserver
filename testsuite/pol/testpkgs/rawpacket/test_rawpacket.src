@@ -17,7 +17,7 @@
 //
 //  * The helper reports CLOSED / OPEN / REFUSED rather than "did not crash". REFUSED
 //    fails the test, so a run where nothing ever reached the shard cannot look like a
-//    pass -- the trap catalogued in specs/testsuite/05-harness-traps.md.
+//    pass.
 //  * test_rawpkt_partial_open is a deliberate control: it is the one case whose
 //    correct answer is OPEN. If the helper ever reported CLOSED unconditionally, every
 //    other assertion here would be worthless and that one would fail.

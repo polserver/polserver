@@ -9,7 +9,7 @@ program testoperatorreport()
 endprogram
 
 // An operator applied to an operand pair no type has a rule for reports itself to pol.log, once,
-// with the script and PC. See specs/escript/15.
+// with the script and PC.
 //
 // The once is the point: POL's log queue is unbounded, so a no-rule operator inside a loop would
 // otherwise flood it. The report is deduplicated per compiled script, which is why this is the

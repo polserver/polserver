@@ -118,6 +118,18 @@ A new flag is a user-visible change, so also add a changelog entry — see **Con
   **A wrapped line must not start with a single word of plain letters followed by a colon and a space** (`params: …`). The generator reads that as a new tag and the docs page shows a separate change row. Re-wrap so the line starts with a different word, quote the name (`` `params`: ``), or reword it (`the params member: …`).
 - **One block per PR,** at the top of the current version block, dated at or near the merge. Never add to someone else's block, even if the date and author match. A multi-commit branch writes its entries once, at the end. Don't edit entries that have already been merged; add a new one instead.
 
+### Code comments
+
+A comment is for someone reading the code years from now, with no access to how it was written.
+
+- **Never point at planning material.** No `specs/…` paths, spec numbers, "finding 3", "chunk B", "step 2", review notes or conversations. `specs/` is gitignored and exists on one machine only, so these references lead nowhere for everyone else. If the reference carried a reason, write the reason. If it didn't, drop it. A public issue link is fine only when the reader needs the original report to understand the code.
+- **Describe the code as it is, not its history.** Leave out "used to", "was changed to", "now" and "fixed". Where the change came from belongs in the commit message and `core-changes.txt`.
+- **Say why, not what.** Comment a constraint, invariant or trap that the code cannot show, for example "deregister by a plain call, not RAII: unwinding would hide the death this detects". Don't restate a name, a signature or the next line.
+- **Keep it short.** One or two lines is normal. A paragraph usually means the reasoning belongs in the commit message. Match the surrounding comment density.
+- **Tests follow the same rules.** A header saying what behaviour the test pins, and why that matters, is useful. Where the test came from is not.
+
+Before committing, check that the diff has no such references: `git diff | grep -nE '^\+.*(specs/|\bspec [0-9]|\bfinding [0-9])'`.
+
 ## Key External Dependencies
 
 Vendored/fetched into `lib/` via CMake: Boost (headers + stacktrace), ANTLR4, libcurl, zlib, fmt, MariaDB Connector/C (bundled SQL backend), efsw, cppdap. Don't pin versions from memory — check `cmake/*.cmake`.

@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """Measure UO login-handshake service latency against a running POL shard.
 
-Step 0 of specs/sockets/12-batched-login-poll.md: the claim under test is that
-UoClientListener::run() discovers readiness for the listen socket and every
-pending login socket with 1+N separate poll() calls, so a login packet waits
-up to (listener timeout) + N ms before anyone looks at it.
+Times one login round trip while N idle clients hold pending logins, so a
+per-socket cost in UoClientListener::run() shows up as latency growing with N.
 
 This speaks only enough of the protocol to time one round trip:
 

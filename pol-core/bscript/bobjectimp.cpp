@@ -400,23 +400,23 @@ BObjectImp* BObjectImp::selfPlusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfPlusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfPlusObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfPlusObj( const Double& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfPlusObj( const String& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfPlusObj( const ObjArray& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 void BObjectImp::selfPlusObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -454,19 +454,19 @@ BObjectImp* BObjectImp::selfMinusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfMinusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfMinusObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfMinusObj( const Double& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfMinusObj( const String& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 void BObjectImp::selfMinusObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -499,15 +499,15 @@ BObjectImp* BObjectImp::selfTimesObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfTimesObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfTimesObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfTimesObj( const Double& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 void BObjectImp::selfTimesObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -535,15 +535,15 @@ BObjectImp* BObjectImp::selfDividedByObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfDividedByObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfDividedByObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfDividedByObj( const Double& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 void BObjectImp::selfDividedByObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -571,15 +571,15 @@ BObjectImp* BObjectImp::selfModulusObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfModulusObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfModulusObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfModulusObj( const Double& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 void BObjectImp::selfModulusObjImp( BObjectImp& objimp, BObject& obj )
 {
@@ -607,11 +607,11 @@ BObjectImp* BObjectImp::selfBitShiftRightObjImp( const BObjectImp& objimp ) cons
 }
 BObjectImp* BObjectImp::selfBitShiftRightObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitShiftRightObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 {
@@ -619,11 +619,11 @@ BObjectImp* BObjectImp::selfBitShiftLeftObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitShiftLeftObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitAndObjImp( const BObjectImp& objimp ) const
 {
@@ -631,11 +631,11 @@ BObjectImp* BObjectImp::selfBitAndObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitAndObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitAndObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitOrObjImp( const BObjectImp& objimp ) const
 {
@@ -643,11 +643,11 @@ BObjectImp* BObjectImp::selfBitOrObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitOrObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitOrObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitXorObjImp( const BObjectImp& objimp ) const
 {
@@ -655,11 +655,11 @@ BObjectImp* BObjectImp::selfBitXorObjImp( const BObjectImp& objimp ) const
 }
 BObjectImp* BObjectImp::selfBitXorObj( const BObjectImp& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::selfBitXorObj( const BLong& /*objimp*/ ) const
 {
-  return nullptr;  // no rule for this pair; see specs/escript/15
+  return nullptr;  // no rule for this pair
 }
 BObjectImp* BObjectImp::bitnot() const
 {

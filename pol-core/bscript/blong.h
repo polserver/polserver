@@ -105,10 +105,9 @@ public:  // Class Machinery
   std::string getStringRep() const override;
 
   // eScript Integer arithmetic is defined here rather than left to C++, whose signed overflow,
-  // INT_MIN/-1 and out-of-range shift counts are all undefined behavior. These reproduce what the
-  // VM has always produced on x86 -- two's-complement wrap, shift counts masked to 0-31 -- so no
-  // script changes meaning, and the compiler's constant folder gets the same answers by calling
-  // the same operators (see specs/escript/03).
+  // INT_MIN/-1 and out-of-range shift counts are all undefined behavior. These give x86's answers
+  // -- two's-complement wrap, shift counts masked to 0-31 -- and the compiler's constant folder
+  // gets the same answers by calling the same operators.
   static constexpr int wrap_add( int a, int b )
   {
     return static_cast<int>( static_cast<unsigned>( a ) + static_cast<unsigned>( b ) );

@@ -544,7 +544,7 @@ public:
 
 private:
   // Applies the operator policy for an operand pair no type had a rule for, and reports the
-  // no-rule case once per program with the script and PC. See specs/escript/15.
+  // no-rule case once per program with the script and PC.
   BObjectImp* operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right );
 
   ref_ptr<EScriptProgram> prog_;
