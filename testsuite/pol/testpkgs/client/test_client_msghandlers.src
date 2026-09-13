@@ -267,5 +267,17 @@ exported function msghandler_prompt( resmgr )
   if ( answer != PROMPT_ANSWER )
     return ret_error( $"the client typed \"{answer}\"" );
   endif
+  // RequestInput picks the plain packet unless its text needs more than ascii, and the two
+  // reach the script as the same event - this is what says which one went out
+  var ev := wait_event( EVT_PROMPT, "the prompt itself" );
+  if ( !ev )
+    return ev;
+  endif
+  if ( CInt( ev.unicode ) )
+    return ret_error( "an ascii prompt went out in the unicode form" );
+  endif
+  if ( CInt( ev.serial ) != CInt( it.serial ) )
+    return ret_error( $"the prompt names 0x{ev.serial:x}, expected 0x{it.serial:x}" );
+  endif
   return 1;
 endfunction
