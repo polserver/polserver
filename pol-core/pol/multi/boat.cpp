@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <iterator>
 #include <string>
 
 #include "bscript/barray.h"
@@ -1336,7 +1337,8 @@ void UBoat::rescan_components()
 /**
  * Puts the components read from a save into the slots of the boat's shape, which move_components()
  * and transform_components() pair them with by index. A component listed more than once keeps its
- * last place: any extra copy comes from the travellers, which are read ahead of the components.
+ * last place: an extra copy is first read from the travellers, ahead of the components, and every
+ * later save keeps it ahead.
  */
 void UBoat::align_components()
 {
@@ -1344,19 +1346,18 @@ void UBoat::align_components()
     return;
 
   std::vector<Component> loaded;
-  for ( auto itr = Components.rbegin(); itr != Components.rend(); ++itr )
+  for ( auto itr = Components.begin(); itr != Components.end(); ++itr )
   {
-    if ( std::find( loaded.begin(), loaded.end(), *itr ) == loaded.end() )
+    if ( std::find( std::next( itr ), Components.end(), *itr ) == Components.end() )
       loaded.push_back( *itr );
   }
-  std::reverse( loaded.begin(), loaded.end() );
   Components.clear();
 
   for ( const auto& componentshape : boatshape().Componentshapes )
   {
-    auto itr =
-        std::find_if( loaded.begin(), loaded.end(),
-                      [&]( const Component& c ) { return c->objtype_ == componentshape.objtype; } );
+    auto itr = std::find_if( loaded.begin(), loaded.end(),
+                             [&]( const Component& c )
+                             { return c != nullptr && c->objtype_ == componentshape.objtype; } );
     if ( itr == loaded.end() )
     {
       // an empty slot, so that the components after it keep theirs

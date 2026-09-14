@@ -45,6 +45,11 @@ const Core::Vec3d TURNED_TILLERMAN_DELTA( -4, 0, 0 );
 const Core::Vec3d TURNED_PORTPLANK_DELTA( 0, -2, 0 );
 const Core::Vec3d TURNED_STARBOARDPLANK_DELTA( 0, 2, 0 );
 const Core::Vec3d TURNED_HOLD_DELTA( 4, 0, 0 );
+// Turning gives each component the graphic of its slot; the itemdesc graphic is 0x1 for all four,
+// so a plank counts as retracted.
+constexpr u16 TURNED_TILLERMAN_GRAPHIC = 0x3e55;
+constexpr u16 TURNED_PORTPLANK_GRAPHIC = 0x3e8a;
+constexpr u16 TURNED_STARBOARDPLANK_GRAPHIC = 0x3e85;
 constexpr u16 TURNED_HOLD_GRAPHIC = 0x3e65;
 
 // Multiid 0 with a second hold, for the one case that needs two components sharing an objtype: the
@@ -108,6 +113,9 @@ bool require( bool ok, const std::string& what )
   return ok;
 }
 
+// The element outlives the file it is read from, so what it reports goes here instead.
+Clib::StubConfigSource elem_source;
+
 // Reads the one element of a config file written from body.
 bool read_elem( const std::string& name, const std::string& body, const std::string& type,
                 Clib::ConfigElem& elem )
@@ -118,7 +126,9 @@ bool read_elem( const std::string& name, const std::string& body, const std::str
     ofs << body;
   }
   Clib::ConfigFile cf( path.c_str(), type.c_str() );
-  return cf.read( elem );
+  const bool read = cf.read( elem );
+  elem.set_source( &elem_source );
+  return read;
 }
 
 // Loads a boat at pos from a Multi element holding the given property lines, as the world load
@@ -243,8 +253,15 @@ void boat_load_test()
                  at( boat, p.hold, TURNED_HOLD_DELTA );
         },
         true, "a boat with a component listed twice turns every component to its offset" );
-    UnitTest( [&]() { return p.hold->graphic; }, TURNED_HOLD_GRAPHIC,
-              "a boat with a component listed twice gives each component its turned graphic" );
+    UnitTest(
+        [&]()
+        {
+          return p.tillerman->graphic == TURNED_TILLERMAN_GRAPHIC &&
+                 p.portplank->graphic == TURNED_PORTPLANK_GRAPHIC &&
+                 p.starboardplank->graphic == TURNED_STARBOARDPLANK_GRAPHIC &&
+                 p.hold->graphic == TURNED_HOLD_GRAPHIC;
+        },
+        true, "a boat with a component listed twice gives every component its turned graphic" );
 
     if ( !destroy( boat ) )
       return;

@@ -144,7 +144,9 @@ pick per item on every call, and skips and logs a color it cannot read.</change>
 			<change type="Fixed">after a restart, the parts of a boat - tillerman, planks, hold, ropes, hull pieces -<br/>
 could take each other's places on every step or turn, and the last of them stay<br/>
 behind, when the world save listed a part twice or out of order, or was missing one<br/>
-that had been destroyed. Such a boat is put right as the world loads.</change>
+that had been destroyed. Such a boat is put right as the world loads, except that when<br/>
+the destroyed part was one of several of its kind, such as a rope, the others of that<br/>
+kind after it each move up one place.</change>
 		</entry>
 		<entry>
 			<date>09-13-2026</date>
