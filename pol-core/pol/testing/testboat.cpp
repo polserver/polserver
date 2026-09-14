@@ -24,11 +24,10 @@
 #include "pol/testing/testenv.h"
 #include "pol/uworld.h"
 
-// A boat moves its components by pairing them, in order, with the component lines of its shape in
-// boats.cfg. A save can still list a component twice or out of order - one that was also saved as a
-// traveller does both - and loading that as it stands sends every component after it to another
-// one's offset on every step. These load such saves and check where each component ends up once
-// the boat moves.
+// A boat moves and turns its components by pairing them, in order, with the component lines of its
+// shape in boats.cfg. These load saves whose component list does not line up with that shape - a
+// component listed twice, one listed as a traveller as well, one missing - and check where each
+// component ends up once the boat moves or turns.
 
 namespace Pol::Testing
 {
@@ -36,11 +35,32 @@ namespace
 {
 constexpr u32 BOAT_OBJTYPE = 0x11000;  // a small boat, multiid 0, per the test shard's itemdesc.cfg
 
-// Where the test shard's boats.cfg puts each component of multiid 0, relative to the boat.
+// Where the test shard's boats.cfg puts each component, relative to the boat: multiid 0 faces
+// north, and multiid 1 is the same boat turned right.
 const Core::Vec3d TILLERMAN_DELTA( 1, 4, 0 );
 const Core::Vec3d PORTPLANK_DELTA( -2, 0, 0 );
 const Core::Vec3d STARBOARDPLANK_DELTA( 2, 0, 0 );
 const Core::Vec3d HOLD_DELTA( 0, -4, 0 );
+const Core::Vec3d TURNED_TILLERMAN_DELTA( -4, 0, 0 );
+const Core::Vec3d TURNED_PORTPLANK_DELTA( 0, -2, 0 );
+const Core::Vec3d TURNED_STARBOARDPLANK_DELTA( 0, 2, 0 );
+const Core::Vec3d TURNED_HOLD_DELTA( 4, 0, 0 );
+constexpr u16 TURNED_HOLD_GRAPHIC = 0x3e65;
+
+// Multiid 0 with a second hold, for the one case that needs two components sharing an objtype: the
+// test shard's boats.cfg has one component of each.
+const std::string two_hold_shape =
+    "Boat\n"
+    "{\n"
+    "  TillerMan                   0x3e4e  1  4  0\n"
+    "  PortGangplankExtended       0x3ed5 -2  0  0\n"
+    "  PortGangplankRetracted      0x3eb1 -2  0  0\n"
+    "  StarboardGangplankExtended  0x3ed4  2  0  0\n"
+    "  StarboardGangplankRetracted 0x3eb2  2  0  0\n"
+    "  Hold                        0x3eae  0 -4  0\n"
+    "  Hold                        0x3eae  0 -3  0\n"
+    "}\n";
+const Core::Vec3d SECOND_HOLD_DELTA( 0, -3, 0 );
 
 const std::string testdir = unittest_path( "boat" );
 
@@ -52,27 +72,57 @@ struct Parts
   Items::Item* hold;
 };
 
-// The components as a save would find them: in the world, all standing on the same spot.
+// A component as a save would find it: in the world, standing wherever the boat is.
+Items::Item* part_at( u32 objtype, const Core::Pos4d& pos )
+{
+  auto* item = Items::Item::create( objtype );
+  (void)Items::place_at( *item, pos );
+  return item;
+}
+
 Parts parts_at( const Core::Pos4d& pos )
 {
-  auto make = [&]( u32 objtype )
-  {
-    auto* item = Items::Item::create( objtype );
-    (void)Items::place_at( *item, pos );
-    return item;
-  };
   const auto& extobj = Core::settingsManager.extobj;
-  return Parts{ make( extobj.tillerman ), make( extobj.port_plank ), make( extobj.starboard_plank ),
-                make( extobj.hold ) };
+  return Parts{ part_at( extobj.tillerman, pos ), part_at( extobj.port_plank, pos ),
+                part_at( extobj.starboard_plank, pos ), part_at( extobj.hold, pos ) };
 }
 
-std::string serial( const Items::Item* item )
+std::string component( const Items::Item* item )
 {
-  return fmt::format( "{:#x}", item->serial );
+  return fmt::format( "Component {:#x}", item->serial );
 }
 
-// Loads a boat at pos from a Multi element holding the given property lines, the way the world
-// load does.
+std::string traveller( const Items::Item* item )
+{
+  return fmt::format( "Traveller {:#x}", item->serial );
+}
+
+// Reported only when it fails. Each of these is a step a case cannot go on without.
+bool require( bool ok, const std::string& what )
+{
+  if ( !ok )
+  {
+    UnitTest::inc_failures();
+    UnitTest::report_failure( what, "false", "true" );
+  }
+  return ok;
+}
+
+// Reads the one element of a config file written from body.
+bool read_elem( const std::string& name, const std::string& body, const std::string& type,
+                Clib::ConfigElem& elem )
+{
+  const std::string path = testdir + "/" + name;
+  {
+    std::ofstream ofs( path );
+    ofs << body;
+  }
+  Clib::ConfigFile cf( path.c_str(), type.c_str() );
+  return cf.read( elem );
+}
+
+// Loads a boat at pos from a Multi element holding the given property lines, as the world load
+// reads one from multis.txt.
 Multi::UBoat* load_boat( const Core::Pos4d& pos, const std::vector<std::string>& lines )
 {
   std::string body =
@@ -83,16 +133,13 @@ Multi::UBoat* load_boat( const Core::Pos4d& pos, const std::vector<std::string>&
     body += "  " + line + "\n";
   body += "}\n";
 
-  const std::string path = testdir + "/multis.txt";
-  {
-    std::ofstream ofs( path );
-    ofs << body;
-  }
-  Clib::ConfigFile cf( path.c_str(), "Multi" );
   Clib::ConfigElem elem;
-  cf.read( elem );
+  if ( !require( read_elem( "multis.txt", body, "Multi", elem ), "the saved boat reads" ) )
+    return nullptr;
 
   auto* multi = Multi::UMulti::create( Items::find_itemdesc( BOAT_OBJTYPE ) );
+  if ( !require( multi != nullptr, "the saved boat is created" ) )
+    return nullptr;
   multi->readProperties( elem );
   Core::add_multi_to_world( multi );
   return multi->as_boat();
@@ -111,21 +158,41 @@ size_t saved_component_count( const Multi::UBoat* boat )
   return count;
 }
 
-void destroy( Multi::UBoat* boat )
+// Moves the boat one tile, which puts every component it has a slot for at that slot's offset.
+bool step( Multi::UBoat* boat )
 {
-  Bscript::BObject res( Multi::destroy_boat( boat ) );
+  return require( boat->move_to( boat->pos() + Core::Vec2d( 1, 0 ), Core::MOVEITEM_FORCELOCATION ),
+                  "the boat moves" );
 }
 
-// Steps the boat once, which puts every component it has a slot for at that slot's offset.
-void step( Multi::UBoat* boat )
+// A boat left standing would take the next case's components aboard as travellers.
+bool destroy( Multi::UBoat* boat )
 {
-  (void)boat->move_to( boat->pos() + Core::Vec2d( 1, 0 ), Core::MOVEITEM_FORCELOCATION );
+  Bscript::BObject res( Multi::destroy_boat( boat ) );
+  return require( res.isTrue(), "the boat is destroyed" );
 }
 
 bool at( const Multi::UBoat* boat, const Items::Item* item, const Core::Vec3d& delta )
 {
   return item->pos() == boat->pos() + delta;
 }
+
+// Puts a shape in place of multiid 0's for as long as it lives. The table deletes what it holds at
+// shutdown, so the test shard's own shape has to be back by then.
+class ShapeSwap
+{
+public:
+  explicit ShapeSwap( Multi::BoatShape* shape ) : _original( Core::gamestate.boatshapes[0] )
+  {
+    Core::gamestate.boatshapes[0] = shape;
+  }
+  ~ShapeSwap() { Core::gamestate.boatshapes[0] = _original; }
+  ShapeSwap( const ShapeSwap& ) = delete;
+  ShapeSwap& operator=( const ShapeSwap& ) = delete;
+
+private:
+  Multi::BoatShape* _original;
+};
 }  // namespace
 
 void boat_load_test()
@@ -134,14 +201,14 @@ void boat_load_test()
   auto* realm = Core::gamestate.Realms[0];
   const Core::Pos4d pos( 10, 50, -4, realm );
 
-  // the tillerman listed twice, as a component
+  // the tillerman listed twice
   {
     auto p = parts_at( pos );
     auto* boat = load_boat(
-        pos, { "Component " + serial( p.tillerman ), "Component " + serial( p.tillerman ),
-               "Component " + serial( p.portplank ), "Component " + serial( p.starboardplank ),
-               "Component " + serial( p.hold ) } );
-    step( boat );
+        pos, { component( p.tillerman ), component( p.tillerman ), component( p.portplank ),
+               component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat || !step( boat ) )
+      return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 4 ),
               "a component listed twice is kept once" );
@@ -154,17 +221,43 @@ void boat_load_test()
     UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
               "the last component after a component listed twice still moves with the boat" );
 
-    destroy( boat );
+    if ( !destroy( boat ) )
+      return;
+  }
+
+  // the same save, turned instead of moved
+  {
+    auto p = parts_at( pos );
+    auto* boat = load_boat(
+        pos, { component( p.tillerman ), component( p.tillerman ), component( p.portplank ),
+               component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat || !require( boat->turn( Multi::UBoat::RIGHT ), "the boat turns" ) )
+      return;
+
+    UnitTest(
+        [&]()
+        {
+          return at( boat, p.tillerman, TURNED_TILLERMAN_DELTA ) &&
+                 at( boat, p.portplank, TURNED_PORTPLANK_DELTA ) &&
+                 at( boat, p.starboardplank, TURNED_STARBOARDPLANK_DELTA ) &&
+                 at( boat, p.hold, TURNED_HOLD_DELTA );
+        },
+        true, "a boat with a component listed twice turns every component to its offset" );
+    UnitTest( [&]() { return p.hold->graphic; }, TURNED_HOLD_GRAPHIC,
+              "a boat with a component listed twice gives each component its turned graphic" );
+
+    if ( !destroy( boat ) )
+      return;
   }
 
   // the port plank listed as a traveller as well, which puts it ahead of the tillerman
   {
     auto p = parts_at( pos );
     auto* boat = load_boat(
-        pos, { "Traveller " + serial( p.portplank ), "Component " + serial( p.tillerman ),
-               "Component " + serial( p.portplank ), "Component " + serial( p.starboardplank ),
-               "Component " + serial( p.hold ) } );
-    step( boat );
+        pos, { traveller( p.portplank ), component( p.tillerman ), component( p.portplank ),
+               component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat || !step( boat ) )
+      return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 4 ),
               "a component also listed as a traveller is kept once" );
@@ -172,20 +265,54 @@ void boat_load_test()
               "a component read out of order moves to its own offset" );
     UnitTest( [&]() { return at( boat, p.portplank, PORTPLANK_DELTA ); }, true,
               "a component also listed as a traveller moves to its own offset" );
-    UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
-              "the components after one read out of order keep their offsets" );
+    UnitTest(
+        [&]() {
+          return at( boat, p.starboardplank, STARBOARDPLANK_DELTA ) &&
+                 at( boat, p.hold, HOLD_DELTA );
+        },
+        true, "the components after one read out of order keep their offsets" );
 
-    destroy( boat );
+    if ( !destroy( boat ) )
+      return;
   }
 
-  // no port plank at all
+  // a component that shares its objtype with another, listed twice with the extra copy first: it
+  // has to stay in its own slot rather than take the first one of its objtype
+  {
+    Clib::ConfigElem shapeelem;
+    if ( !require( read_elem( "boats.cfg", two_hold_shape, "Boat", shapeelem ),
+                   "the two-hold shape reads" ) )
+      return;
+    Multi::BoatShape shape( shapeelem );
+    ShapeSwap swap( &shape );
+
+    auto p = parts_at( pos );
+    auto* second_hold = part_at( Core::settingsManager.extobj.hold, pos );
+    auto* boat = load_boat(
+        pos, { component( second_hold ), component( p.tillerman ), component( p.portplank ),
+               component( p.starboardplank ), component( p.hold ), component( second_hold ) } );
+    if ( !boat || !step( boat ) )
+      return;
+
+    UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 5 ),
+              "a component that shares its objtype, listed twice, is kept once" );
+    UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
+              "the first of two components sharing an objtype keeps its slot" );
+    UnitTest( [&]() { return at( boat, second_hold, SECOND_HOLD_DELTA ); }, true,
+              "the second of two components sharing an objtype keeps its slot" );
+
+    if ( !destroy( boat ) )
+      return;
+  }
+
+  // no port plank at all, as when one was destroyed before the save
   {
     auto p = parts_at( pos );
     p.portplank->destroy();
     auto* boat = load_boat(
-        pos, { "Component " + serial( p.tillerman ), "Component " + serial( p.starboardplank ),
-               "Component " + serial( p.hold ) } );
-    step( boat );
+        pos, { component( p.tillerman ), component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat || !step( boat ) )
+      return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 3 ),
               "a missing component is not made up" );
@@ -194,16 +321,17 @@ void boat_load_test()
     UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
               "the last component after a missing one keeps its offset" );
 
-    destroy( boat );
+    if ( !destroy( boat ) )
+      return;
   }
 
   // a well-formed save, the case every shard loads
   {
     auto p = parts_at( pos );
-    auto* boat = load_boat(
-        pos, { "Component " + serial( p.tillerman ), "Component " + serial( p.portplank ),
-               "Component " + serial( p.starboardplank ), "Component " + serial( p.hold ) } );
-    step( boat );
+    auto* boat = load_boat( pos, { component( p.tillerman ), component( p.portplank ),
+                                   component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat || !step( boat ) )
+      return;
 
     UnitTest(
         [&]()
@@ -215,7 +343,7 @@ void boat_load_test()
         },
         true, "a well-formed save moves every component to its offset" );
 
-    destroy( boat );
+    (void)destroy( boat );
   }
 }
 }  // namespace Pol::Testing
