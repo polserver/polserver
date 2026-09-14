@@ -144,18 +144,11 @@ function wait_for_parties( partycmd, timeout := 10 )
   return ret_error( $"client {missing} never got party command {partycmd} within {timeout}s" );
 endfunction
 
-// As with no_speech_for(), the whole window is always paid, so it is kept to a
-// round trip rather than to a couple of seconds.
-function no_party_for( id, partycmd, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_PARTY or CInt( ev.id ) != id or CInt( ev.partycmd ) != partycmd )
-      continue;
-    endif
-    return ret_error( $"client {id} got party command {partycmd}, which was not meant for it" );
-  endwhile
-  return 1;
+// Asserts a client is sent no party packet of that command. A barrier, not a window
+// - see no_event_before_sync() in communication.inc.
+function no_party_for( id, partycmd )
+  return no_event_before_sync( sync_con(), id, { EVT_PARTY },
+      @( ev ) { return ( CInt( ev.partycmd ) == partycmd ) ? $"got party command {partycmd}, which was not meant for it" : 0; } );
 endfunction
 
 // The hooks of config/party.cfg, which record every call in a global property
@@ -167,8 +160,27 @@ var PARTY_HOOKS := { "CanAddToParty", "CanRemoveMember", "CanLeaveParty", "OnPar
 
 // What a hook was called with the last time it ran, or an empty result if it
 // has not run since the last forget_hooks()
+// What a hook recorded when it ran, or an error if it has not run.
 function hook_call( name )
   return GetGlobalProperty( "#PartyHook" + name );
+endfunction
+
+// The same, but waits for it. A hook is a script of its own, so nothing the clients
+// are told proves it has run yet - not even a barrier, which speaks only for what the
+// core had already sent. Reading the property straight out worked only as long as
+// some unrelated wait above happened to leave the hook time to run.
+//
+// Asserting a hook did NOT run still needs hook_call(): there is nothing to wait for,
+// and every such site here is already ordered behind an assertion that the work it
+// belongs to has happened.
+function wait_hook_call( name, timeout := 2 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var call := hook_call( name );
+  while ( !call and ReadMillisecondClock() < deadline )
+    Sleepms( POLL_INTERVAL * 1000 );
+    call := hook_call( name );
+  endwhile
+  return call;
 endfunction
 
 function forget_hooks()

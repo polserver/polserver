@@ -454,22 +454,12 @@ function wait_for_speech( id, text, timeout := 10 )
   return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
 endfunction
 
-// Asserts a client is told nothing carrying the given text.
-//
-// The whole window is always paid, so it is kept to the round trip a wrongly
-// sent message would need rather than to a comfortable-looking couple of
-// seconds. Most callers have already waited out something else the core sends,
-// which proves it has sent everything it was going to.
-function no_speech_for( id, text, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
-      continue;
-    endif
-    return ret_error( $"client {id} heard \"{text}\", which was not meant for it" );
-  endwhile
-  return 1;
+// Asserts a client is told nothing carrying the given text. Rides the barrier, so
+// it proves the shard had sent nothing more rather than waiting to see; what that
+// does and does not cover is on no_event_before_sync() above.
+function no_speech_for( id, text )
+  return no_event_before_sync( sync_con(), id, { EVT_SPEECH },
+      @( ev ) { return ( ev.msg == text ) ? $"heard \"{text}\", which was not meant for it" : 0; } );
 endfunction
 
 // Waits for a client to be told about its own character, which is how a test

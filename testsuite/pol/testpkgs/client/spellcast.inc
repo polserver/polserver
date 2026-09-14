@@ -309,18 +309,12 @@ function wait_for_book( id, timeout := 10 )
   return ev;
 endfunction
 
-// That no such packet arrives, for the cases where the core answers with a
-// refusal or with nothing at all.
-function no_book_for( id, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_SPELLBOOK or CInt( ev.id ) != id )
-      continue;
-    endif
-    return ret_error( $"client {id} was sent the contents of book 0x{ev.serial:x}" );
-  endwhile
-  return 1;
+// That no such packet arrives, for the cases where the core answers with a refusal
+// or with nothing at all. A barrier, not a window - see no_event_before_sync() in
+// communication.inc.
+function no_book_for( id )
+  return no_event_before_sync( sync_con(), id, { EVT_SPELLBOOK },
+      @( ev ) { return $"was sent the contents of book 0x{ev.serial:x}"; } );
 endfunction
 
 // Whether a spell's bit is set in the eight content bytes the packet carries.
