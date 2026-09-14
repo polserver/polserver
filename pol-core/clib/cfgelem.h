@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -19,20 +20,6 @@
 
 namespace Pol::Clib
 {
-/// Case-insensitive FNV-1a over ASCII. constexpr so a literal name at the call site is hashed
-/// at compile time. Never returns 0: ConfigProps spends that value on marking a removed slot.
-constexpr u32 ci_hash( std::string_view s )
-{
-  u32 h = 2166136261u;
-  for ( char c : s )
-  {
-    const char lowered = ( c >= 'A' && c <= 'Z' ) ? static_cast<char>( c + ( 'a' - 'A' ) ) : c;
-    h ^= static_cast<u32>( static_cast<unsigned char>( lowered ) );
-    h *= 16777619u;
-  }
-  return h != 0 ? h : 1u;
-}
-
 /// A property name plus its hash. Implicit constructors so a call site can pass a plain literal
 /// and get the hash folded into a constant; a name built at runtime works, it just pays to hash.
 class PropKey
@@ -45,15 +32,16 @@ public:
   constexpr std::string_view name() const { return name_; }
   constexpr u32 hash() const { return hash_; }
 
+  /// Case-insensitive, like the hash; the hash compare ahead of it is only a cheap rejection.
+  friend bool operator==( const PropKey& a, const PropKey& b )
+  {
+    return a.hash_ == b.hash_ && ci_equal( a.name_, b.name_ );
+  }
+
 private:
   std::string_view name_;
   u32 hash_;
 };
-
-inline bool ci_equal( std::string_view a, std::string_view b )
-{
-  return a.size() == b.size() && strnicmp( a.data(), b.data(), a.size() ) == 0;
-}
 
 /**
  * An element's properties, in the order the file listed them.
@@ -266,5 +254,12 @@ protected:
 };
 
 }  // namespace Pol::Clib
+
+/// The key already carries its hash, so this hands out the one PropKey folded at compile time.
+template <>
+struct std::hash<Pol::Clib::PropKey>
+{
+  constexpr size_t operator()( const Pol::Clib::PropKey& key ) const noexcept { return key.hash(); }
+};
 
 #endif
