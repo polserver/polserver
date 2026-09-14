@@ -386,6 +386,10 @@ class TestBrain(brain.Brain):
           brain.Event(brain.Event.EVT_PACKET_SENT,
             clientid = self.id
             ))
+      elif todo=="sync":
+        # A barrier: the client thread raises the answer when the core's echo arrives,
+        # which is behind everything already queued.
+        self.client.syncPing(arg)
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -910,6 +914,8 @@ class PolServer:
     elif (ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY or
         ev.type==Event.EVT_PACKET_SENT):
       pass
+    elif ev.type==Event.EVT_SYNC:
+      res['token']=ev.token
     elif ev.type==Event.EVT_WORLDMAP:
       res['subcmd']=ev.subcmd
       res['locations']=1 if ev.locations else 0

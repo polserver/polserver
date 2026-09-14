@@ -1,0 +1,89 @@
+// The barrier the negative assertions are built on. client_sync() asks the client
+// to ping the shard, and the echo comes back behind everything already queued.
+
+include "speech";
+include "clientpkt";
+
+program test_sync()
+  return speech_setup();
+endprogram
+
+// The plain barrier comes back within a round trip, not a timed window.
+exported function sync_returns( unused resmgr )
+  Clear_Event_Queue();
+  var started := ReadMillisecondClock();
+  var res := client_sync( clientcon, 0 );
+  if ( !res )
+    return res;
+  endif
+  var took := ReadMillisecondClock() - started;
+  if ( took > 250 )
+    return ret_error( $"the barrier took {took}ms, which is a quiet window and not a round trip" );
+  endif
+  return 1;
+endfunction
+
+// A message sent before the barrier must be seen by it, so this assertion has to
+// fail. If it passes, every no_event_before_sync() assertion is vacuous.
+exported function sync_is_behind_a_send( unused resmgr )
+  var text := "barrier probe " + CStr( ReadMillisecondClock() );
+
+  Clear_Event_Queue();
+  var res := SendSysMessage( char, text );
+  if ( !res )
+    return ret_error( $"Could not send the system message: {res}" );
+  endif
+
+  res := no_event_before_sync( clientcon, 0, { EVT_SPEECH },
+      @( ev ) { return ( ev.msg == text ) ? "was told the probe" : 0; } );
+  if ( res )
+    return ret_error( "the barrier came back before a message that was sent ahead of it" );
+  endif
+  // and for the right reason: a timed-out barrier would be an error too
+  if ( !Find( res.errortext, "was told the probe", 1 ) )
+    return ret_error( $"the barrier failed, but not on the probe: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+// Each barrier is answered by the client it was sent to.
+exported function sync_two_clients( unused resmgr )
+  Clear_Event_Queue();
+  var res := client_sync( clientcon, 0 );
+  if ( !res )
+    return res;
+  endif
+  res := client_sync( clientcon, 1 );
+  if ( !res )
+    return res;
+  endif
+  // and again in the other order, so neither is answering the other's ping
+  res := client_sync( clientcon, 1 );
+  if ( !res )
+    return res;
+  endif
+  return client_sync( clientcon, 0 );
+endfunction
+
+// The 30s keep-alive uses cookie 0, which the barrier never hands out, so its echo
+// must not answer an outstanding barrier.
+exported function sync_ignores_a_stray_echo( unused resmgr )
+  Clear_Event_Queue();
+  var pkt := CreatePacket( 0x73, 2 );
+  if ( !pkt )
+    return ret_error( $"could not build a ping packet: {pkt}" );
+  endif
+  pkt.SetInt8( 1, 0 );
+  var res := send_packet( clientcon, 0, pkt );
+  if ( !res )
+    return res;
+  endif
+
+  // the echo of that ping is on its way; the barrier below is queued behind it and
+  // must still be the thing that answers
+  res := client_sync( clientcon, 0 );
+  if ( !res )
+    return ret_error( $"a barrier after a stray ping did not come back: {res}" );
+  endif
+  return 1;
+endfunction
