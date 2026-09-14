@@ -72,11 +72,8 @@ function lift_allowed( serial )
   if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
     return ret_error( $"client 0 did not send the lift of 0x{serial:x}" );
   endif
-  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"lifting 0x{serial:x} was refused: reason {ev.reason}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_MOVE_ITEM_REJECTED },
+      @( ev ) { return $"had the lift of 0x{serial:x} refused: reason {ev.reason}"; } );
 endfunction
 
 function lift_denied( serial )
@@ -103,11 +100,8 @@ function dblclick_not_refused( serial )
   if ( !waitForClient( 0, { EVT_DOUBLE_CLICK } ) )
     return ret_error( $"client 0 did not send the double click of 0x{serial:x}" );
   endif
-  var ev := waitForClient( 0, { EVT_SPEECH }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"double clicking 0x{serial:x} was refused: {ev.msg}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_SPEECH },
+      @( ev ) { return $"had the double click of 0x{serial:x} refused: {ev.msg}"; } );
 endfunction
 
 // The bank box, which is what this whole mechanism exists for: a container filed in a storage area
@@ -449,14 +443,10 @@ exported function bankbox_change_is_announced()
     if ( !opened )
       res := ret_error( $"SendOpenSpecialContainer failed: {opened}" );
     else
-      // Showing the container announces the container's own revision, and that packet is in flight
-      // rather than queued - clearing the queue does not catch it. Drain it here, or the wait below
-      // passes on it and never looks at the item at all.
+      // Showing the container sends its own revision, which is in flight rather than
+      // queued. The barrier waits it out, so the wait below sees the item.
       Clear_Event_Queue();
-      var stale := waitForClient( 0, { EVT_OBJ_REVISION }, QUIET_SECS );
-      while ( stale )
-        stale := waitForClient( 0, { EVT_OBJ_REVISION }, QUIET_SECS );
-      endwhile
+      client_sync( clientcon, 0 );
 
       item.name := "a renamed thing";
 
@@ -595,14 +585,10 @@ exported function worldbox_removal_reaches_viewer()
     endif
 
     // Taking the chest out of sight is itself announced, correctly and for the chest's own serial.
-    // That packet is in flight rather than queued, so clearing the queue does not catch it: without
-    // draining it the wait below is answered by the chest going away, one serial below the item,
-    // and never looks at the item at all.
+    // That packet is in flight rather than queued. The barrier waits it out, so the
+    // wait below is not answered by the chest going away.
     Clear_Event_Queue();
-    var stale := waitForClient( 0, { EVT_REMOVED_OBJ }, QUIET_SECS );
-    while ( stale )
-      stale := waitForClient( 0, { EVT_REMOVED_OBJ }, QUIET_SECS );
-    endwhile
+    client_sync( clientcon, 0 );
 
     DestroyItem( item );
     destroyed := 1;
