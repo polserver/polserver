@@ -384,12 +384,18 @@ function client_sync( clientcon, id, timeout := 5 )
   return no_event_before_sync( clientcon, id, {}, 0, timeout );
 endfunction
 
-// wait for events of given types and of given client id
+// Waits for an event of one of the given types from the given client. The timeout
+// bounds the whole call, so unrelated events cannot extend it.
 function waitForClient( id, types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( 1 )
-    var ev := Wait_For_Event( timeout );
-    if ( !ev )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( ev.id != id || !( ev.type in types ) )
       continue;
@@ -459,12 +465,17 @@ function drain_events( quiet := QUIET_SECS )
   return 1;
 endfunction
 
-function waitForClients( types )
-  // wait for events of given types of any client
+// The same, for an event of any client.
+function waitForClients( types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( 1 )
-    var ev := Wait_For_Event( 10 );
-    if ( !ev )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( !( ev.type in types ) )
       continue;
