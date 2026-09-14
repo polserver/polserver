@@ -275,3 +275,17 @@ add_test(NAME unittest_pol
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( unittest_pol PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
+
+# Everything above that names ${CMAKE_BINARY_DIR}/coretest as its working directory
+# also writes to it: the shard tests boot a server there, unittest_pol runs the
+# in-process suite there, and ecompile_watch_test rewrites .src files under it. The
+# fixtures order the shard tests against each other but say nothing about the other
+# two, which require no fixture at all, so ctest -jN is free to start them on top of
+# a running shard test. The collisions read as real regressions - missing .dbg files,
+# or a config file the other run had already deleted - so name the directory as the
+# resource it is and let ctest serialise them.
+set(CORETEST_LOCK_TESTS shard_test_1 shard_test_2 unittest_pol)
+if (${Python3_FOUND})
+  list(APPEND CORETEST_LOCK_TESTS shard_test_roundtrip ecompile_watch_test)
+endif()
+set_tests_properties(${CORETEST_LOCK_TESTS} PROPERTIES RESOURCE_LOCK coretest)
