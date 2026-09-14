@@ -27,9 +27,12 @@ namespace Pol::Clib
 using namespace std::literals;
 namespace
 {
-bool commentline( const std::string& str )
+/// Blank or a comment, asked of a line that ltrim_view() has already trimmed: deciding it here
+/// rather than after splitnamevalue() keeps a line that is going to be dropped from being taken
+/// apart first.
+bool ignored_line( std::string_view content )
 {
-  return ( ( str[0] == '#' ) || ( str.compare( 0, 2, "//"sv ) == 0 ) );
+  return content.empty() || content[0] == '#' || content.compare( 0, 2, "//"sv ) == 0;
 }
 }  // namespace
 
@@ -481,13 +484,11 @@ bool ConfigFile::read_properties( ConfigElem& elem )
 
     line = sanitizeUnicodeWithIso( line, &_sanitized );
 
-    splitnamevalue( line, propname, propvalue );
-
-    if ( propname.empty() ||  // empty line
-         commentline( propname ) )
-    {
+    const std::string_view content = ltrim_view( line );
+    if ( ignored_line( content ) )
       continue;
-    }
+
+    splitnamevalue_trimmed( content, propname, propvalue );
 
     if ( propname == "}"sv )
       return true;
@@ -520,13 +521,11 @@ bool ConfigFile::_read( ConfigElem& elem )
 
     line = sanitizeUnicodeWithIso( line, &_sanitized );
 
-    splitnamevalue( line, elem.type_, elem.rest_ );
-
-    if ( elem.type_.empty() ||  // empty line
-         commentline( elem.type_ ) )
-    {
+    const std::string_view content = ltrim_view( line );
+    if ( ignored_line( content ) )
       continue;
-    }
+
+    splitnamevalue_trimmed( content, elem.type_, elem.rest_ );
 
     _element_line_start = _cur_line;
 
