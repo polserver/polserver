@@ -38,11 +38,11 @@ exported function chat_public_reaches_all( unused resmgn )
     endif
   endforeach
 
-  var call := hook_call( "OnPublicChat" );
+  var call := wait_hook_call( "OnPublicChat" );
   if ( !call or call.member != char.serial or call.text != "hello party" )
     return party_fail( $"OnPublicChat was called with {call}" );
   endif
-  call := hook_call( "ChangePublicChat" );
+  call := wait_hook_call( "ChangePublicChat" );
   if ( !call or call.text != "hello party" )
     return party_fail( $"ChangePublicChat was called with {call}" );
   endif
@@ -80,14 +80,14 @@ exported function chat_private_reaches_one( unused resmgn )
   endif
 
   // the hooks are given the text as it was sent, without the prefix
-  var call := hook_call( "OnPrivateChat" );
+  var call := wait_hook_call( "OnPrivateChat" );
   if ( !call or call.member != char.serial or call.tomember != char2.serial )
     return party_fail( $"OnPrivateChat was called with {call}" );
   endif
   if ( call.text != "just you" )
     return party_fail( $"OnPrivateChat was given \"{call.text}\"" );
   endif
-  call := hook_call( "ChangePrivateChat" );
+  call := wait_hook_call( "ChangePrivateChat" );
   if ( !call or call.text != "just you" )
     return party_fail( $"ChangePrivateChat was called with {call}" );
   endif
@@ -124,7 +124,7 @@ exported function chat_number_is_private( unused resmgn )
     return party_fail( res.errortext );
   endif
 
-  var call := hook_call( "OnPrivateChat" );
+  var call := wait_hook_call( "OnPrivateChat" );
   if ( !call or call.tomember != char2.serial or call.text != "hello" )
     return party_fail( $"OnPrivateChat was called with {call}" );
   endif
@@ -164,7 +164,7 @@ exported function chat_public_rewritten( unused resmgn )
   if ( !res )
     return party_fail( res.errortext );
   endif
-  res := no_party_for( 1, PARTYCMD_MSG, 1 );
+  res := no_party_for( 1, PARTYCMD_MSG );
   if ( !res )
     return party_fail( res.errortext );
   endif

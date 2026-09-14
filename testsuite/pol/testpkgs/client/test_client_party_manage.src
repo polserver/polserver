@@ -83,11 +83,11 @@ exported function manage_leader_kicks( unused resmgn )
     return party_fail( "the party outlived its last member" );
   endif
 
-  var call := hook_call( "CanRemoveMember" );
+  var call := wait_hook_call( "CanRemoveMember" );
   if ( !call or call.leader != char.serial or call.member != char2.serial )
     return party_fail( $"CanRemoveMember was called with {call}" );
   endif
-  call := hook_call( "OnLeaveParty" );
+  call := wait_hook_call( "OnLeaveParty" );
   if ( !call or call.who != char2.serial or call.fromwho != char.serial )
     return party_fail( $"OnLeaveParty was called with {call}" );
   endif
@@ -116,7 +116,7 @@ exported function manage_member_leaves( unused resmgn )
     return party_fail( res.errortext );
   endif
 
-  var call := hook_call( "CanLeaveParty" );
+  var call := wait_hook_call( "CanLeaveParty" );
   if ( !call or call.member != char2.serial )
     return party_fail( $"CanLeaveParty was called with {call}" );
   endif
@@ -125,7 +125,7 @@ exported function manage_member_leaves( unused resmgn )
   endif
 
   // the member left of its own accord, and the hook is told so
-  call := hook_call( "OnLeaveParty" );
+  call := wait_hook_call( "OnLeaveParty" );
   if ( !call or call.who != char2.serial or call.fromwho != char2.serial )
     return party_fail( $"OnLeaveParty was called with {call}" );
   endif
@@ -206,7 +206,7 @@ exported function manage_invite_refused( unused resmgn )
     return party_fail( res.errortext );
   endif
 
-  var call := hook_call( "CanAddToParty" );
+  var call := wait_hook_call( "CanAddToParty" );
   if ( !call or call.leader != char.serial or call.member != char2.serial )
     return party_fail( $"CanAddToParty was called with {call}" );
   endif
@@ -238,7 +238,7 @@ exported function manage_loot_permission( unused resmgn )
     return party_fail( $"partycanloot is {char.partycanloot} after allowing" );
   endif
 
-  var call := hook_call( "OnLootPermChange" );
+  var call := wait_hook_call( "OnLootPermChange" );
   if ( !call or call.who != char.serial or call.canloot != 1 )
     return party_fail( $"OnLootPermChange was called with {call}" );
   endif
