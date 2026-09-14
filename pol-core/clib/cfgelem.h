@@ -63,6 +63,7 @@ public:
   {
     count_ = 0;
     live_ = 0;
+    mask_ = 0;
     by_name_valid_ = false;
   }
   bool empty() const { return live_ == 0; }
@@ -74,9 +75,11 @@ public:
       entries_.emplace_back();
       hashes_.push_back( 0 );
     }
+    const u32 hash = ci_hash( name );
     entries_[count_].first.assign( name );
     entries_[count_].second.assign( value );
-    hashes_[count_] = ci_hash( name );
+    hashes_[count_] = hash;
+    mask_ |= bit_of( hash );
     ++count_;
     ++live_;
     by_name_valid_ = false;
@@ -85,6 +88,10 @@ public:
   size_t find( PropKey key ) const
   {
     const u32 hash = key.hash();
+    // readProperties() probes far more names than an element carries, so reject most of the
+    // misses before the scan: a name the element never held cannot have set its bit.
+    if ( !( mask_ & bit_of( hash ) ) )
+      return npos;
     // The hash compare carries the search and the name compare only confirms a hit, so a
     // collision costs one strnicmp rather than a wrong answer.
     for ( size_t i = 0; i < count_; ++i )
@@ -143,10 +150,15 @@ public:
   size_t estimateSize() const;
 
 private:
+  static constexpr u64 bit_of( u32 hash ) { return 1ull << ( hash & 63 ); }
+
   std::vector<u32> hashes_;  // 0 marks a removed slot; parallel to entries_
   std::vector<std::pair<std::string, std::string>> entries_;
   size_t count_ = 0;  // slots in use, tombstones included
   size_t live_ = 0;
+  // One bit per name held, by the low bits of its hash. A removal leaves its bit set, which only
+  // costs a scan that finds nothing.
+  u64 mask_ = 0;
 
   std::vector<size_t> by_name_;  // slots in name order, only if take_first() was ever asked
   size_t by_name_pos_ = 0;

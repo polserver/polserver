@@ -25,28 +25,32 @@ namespace Pol::Clib
 {
 void splitnamevalue( std::string_view istr, std::string& propname, std::string& propvalue )
 {
+  splitnamevalue_trimmed( ltrim_view( istr ), propname, propvalue );
+}
+
+void splitnamevalue_trimmed( std::string_view istr, std::string& propname, std::string& propvalue )
+{
   constexpr std::string_view space = " \t\r\n";
   constexpr auto npos = std::string_view::npos;
 
-  // assign() rather than substr(): the caller's strings keep their buffers, which is the point of
-  // taking them by reference in the first place.
-  const auto start = istr.find_first_not_of( space );
-  if ( start == npos )
+  if ( istr.empty() )
   {
     propname.clear();
     propvalue.clear();
     return;
   }
 
-  const auto delimpos = istr.find_first_of( " \t\r\n=", start + 1 );
+  // assign() rather than substr(): the caller's strings keep their buffers, which is the point of
+  // taking them by reference in the first place.
+  const auto delimpos = istr.find_first_of( " \t\r\n=", 1 );
   if ( delimpos == npos )
   {
-    propname.assign( istr.substr( start ) );
+    propname.assign( istr );
     propvalue.clear();
     return;
   }
 
-  propname.assign( istr.substr( start, delimpos - start ) );
+  propname.assign( istr.substr( 0, delimpos ) );
 
   const auto valuestart = istr.find_first_not_of( space, delimpos + 1 );
   const auto valueend = istr.find_last_not_of( space );
