@@ -352,14 +352,18 @@ void MultiPlacementCursor::send_placemulti( Network::Client* client, unsigned in
   Network::PktHelper::PacketOut<Network::PktOut_99> msg;
   msg->Write<u8>( 0x1u );
   msg->WriteFlipped<u32>( cursorid_ );
-  msg->offset += 12;  // 12x u8 unk
+  // Five fields the client reads off the wire and then never looks at again. Zeroing
+  // the region rather than filling it is what the other emulators do.
+  msg->offset += 12;
   u16 multiid = Items::find_multidesc( objtype ).multiid;
   multiid +=
       static_cast<u16>( ( flags & Multi::CRMULTI_FACING_MASK ) >> Multi::CRMULTI_FACING_SHIFT );
-  msg->WriteFlipped<u16>( multiid );
+  // Where the ghosted preview is drawn, and then what to draw it as. The z has no
+  // parameter of its own and goes out as zero.
   msg->WriteFlipped<s16>( xoffset );
   msg->WriteFlipped<s16>( yoffset );
-  msg->offset += 2;  // u16 maybe_zoffset
+  msg->offset += 2;
+  msg->WriteFlipped<u16>( multiid );
   if ( client->ClientType & Network::CLIENTTYPE_7090 )
     msg->WriteFlipped<u32>( hue );
   msg.Send( client );

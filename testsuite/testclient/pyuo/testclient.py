@@ -808,6 +808,7 @@ class PolServer:
       res["multiid"]=ev.multiid
       res["xoffset"]=ev.xoffset
       res["yoffset"]=ev.yoffset
+      res["zoffset"]=ev.zoffset
       res["hue"]=ev.hue
     elif ev.type==Event.EVT_MENU:
       res["menuid"]=ev.menuid

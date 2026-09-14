@@ -3154,8 +3154,15 @@ class QuestArrowPacket(Packet):
 class MultiPlacementPacket(Packet):
   ''' A cursor for placing a multi, see MultiPlacementCursor in the core
 
-  The offsets say where the multi sits relative to the tile the cursor is over,
-  and the hue is only written for a client that can be sent one.
+  The offsets say where the ghosted preview sits relative to the tile the cursor
+  is over, multiid is the graphic it is drawn as, and the hue is only written for
+  a client that can be sent one.
+
+  Read this against the packet the real client parses, not against the core: the
+  five fields between the cursor id and the offsets are dead there, and the core
+  used to write the multi id into the first offset, leaving the graphic the
+  preview is drawn with at zero. Mirroring the core is what kept the suite from
+  seeing it.
   '''
 
   cmd = 0x99
@@ -3164,11 +3171,11 @@ class MultiPlacementPacket(Packet):
   def decodeChild(self):
     self.allow = bool(self.duchar())
     self.cursorid = self.duint()
-    self.rpb(12)                      # unknown, never written by the core
-    self.multiid = self.dushort()
+    self.rpb(12)                      # five fields the client reads and discards
     self.xoffset = self.dsshort()
     self.yoffset = self.dsshort()
-    self.rpb(2)                       # maybe a z offset, never written
+    self.zoffset = self.dsshort()     # no parameter behind it, so always zero
+    self.multiid = self.dushort()
     self.hue = self.duint()
 
 

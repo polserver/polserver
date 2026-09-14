@@ -1115,7 +1115,7 @@ class Client(threading.Thread):
       self.multi_placement = {'cursorid': pkt.cursorid, 'multiid': pkt.multiid}
       self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, allow=pkt.allow,
           cursorid=pkt.cursorid, multiid=pkt.multiid, xoffset=pkt.xoffset,
-          yoffset=pkt.yoffset, hue=pkt.hue))
+          yoffset=pkt.yoffset, zoffset=pkt.zoffset, hue=pkt.hue))
 
     elif isinstance(pkt, packets.MenuPacket):
       assert self.lc

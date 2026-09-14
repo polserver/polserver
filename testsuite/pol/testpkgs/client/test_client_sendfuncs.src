@@ -315,6 +315,15 @@ exported function sendfuncs_multi_placement()
   if ( CInt( shown.xoffset ) != PLACE_XOFF or CInt( shown.yoffset ) != PLACE_YOFF )
     return ret_error( $"the offsets arrived as {shown.xoffset},{shown.yoffset}" );
   endif
+  // The z has no parameter behind it and goes out as zero. It is asserted because it
+  // is what tells the four fields apart: the multi id used to be written where the x
+  // offset belongs, which pushed both offsets one field along and left the graphic
+  // the preview is drawn with at zero. Reading the multi id, both offsets and this
+  // zero in their own places is what says the packet is laid out as the client reads
+  // it, and not one field early.
+  if ( CInt( shown.zoffset ) != 0 )
+    return ret_error( $"the cursor carried z {shown.zoffset}, expected 0" );
+  endif
   if ( CInt( shown.hue ) != PLACE_HUE )
     return ret_error( $"the cursor is hue {shown.hue}, expected {PLACE_HUE}" );
   endif
