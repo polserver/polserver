@@ -151,20 +151,11 @@ function wait_for_text( id, text, timeout := 10 )
   return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
 endfunction
 
-// Asserts a client is *not* told the given text. This one always burns its whole
-// window, so keep it short - but above a client round trip.
-function no_text_for( id, text, secs := 0.75 )
-  var deadline := ReadMillisecondClock() + secs * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 0.1 );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id )
-      continue;
-    endif
-    if ( ev.msg == text )
-      return ret_error( $"client {id} heard \"{text}\" after all" );
-    endif
-  endwhile
-  return 1;
+// Asserts a client is *not* told the given text. It used to burn a window to say so
+// and paid it on every call; a barrier says the shard had nothing more to send.
+function no_text_for( id, text )
+  return no_event_before_sync( clientcon, id, { EVT_SPEECH },
+      @( ev ) { return ( ev.msg == text ) ? $"heard \"{text}\" after all" : 0; } );
 endfunction
 
 // one listing of everything a client can see, on the connection these tests share

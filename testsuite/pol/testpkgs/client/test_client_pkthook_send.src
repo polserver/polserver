@@ -175,8 +175,9 @@ exported function pkthook_send_suppresses( resmgn )
   arm_hook( PKTHOOK_0x77, PKTHOOK_0x77_LOG, struct{ serial := npc.serial, suppress := 1 } );
   nudge( npc );
 
-  // give the update every chance to arrive before saying it did not
-  SleepMS( 1000 );
+  // the update either went out ahead of this or was suppressed; either way the
+  // listing below is asked for only once the shard has nothing left to send
+  client_sync( clientcon, 0 );
   var objs := pkthook_client_objs( 0 );
   disarm_hook( PKTHOOK_0x77 );
   if ( !objs )
