@@ -1334,42 +1334,41 @@ void UBoat::rescan_components()
 }
 
 /**
- * Puts the components read from a save into the slots of the boat's shape. move_components() and
- * transform_components() pair the two lists by index, so a component a save lists twice, or out of
- * order, would otherwise send every component after it to another one's offset for good.
- *
- * A slot is filled by the first component of its objtype in saved order, which keeps components
- * that share an objtype in the slots they were created for. A slot with no component left for it
- * stays empty rather than taking the next one's; a component with no slot is kept, and stays put.
+ * Puts the components read from a save into the slots of the boat's shape, which move_components()
+ * and transform_components() pair them with by index. A component listed more than once keeps its
+ * last place: any extra copy comes from the travellers, which are read ahead of the components.
  */
 void UBoat::align_components()
 {
-  if ( !Core::gamestate.boatshapes.count( multiid_ ) )
+  if ( !BoatShapeExists( multiid_ ) )
     return;
 
   std::vector<Component> loaded;
-  loaded.swap( Components );
+  for ( auto itr = Components.rbegin(); itr != Components.rend(); ++itr )
+  {
+    if ( std::find( loaded.begin(), loaded.end(), *itr ) == loaded.end() )
+      loaded.push_back( *itr );
+  }
+  std::reverse( loaded.begin(), loaded.end() );
+  Components.clear();
 
   for ( const auto& componentshape : boatshape().Componentshapes )
   {
-    auto itr = std::find_if( loaded.begin(), loaded.end(),
-                             [&]( const Component& c )
-                             { return c != nullptr && c->objtype_ == componentshape.objtype; } );
+    auto itr =
+        std::find_if( loaded.begin(), loaded.end(),
+                      [&]( const Component& c ) { return c->objtype_ == componentshape.objtype; } );
     if ( itr == loaded.end() )
     {
+      // an empty slot, so that the components after it keep theirs
       Components.emplace_back();
       continue;
     }
-    Items::Item* item = itr->get();
-    Components.emplace_back( item );
-    std::erase_if( loaded, [item]( const Component& c ) { return c.get() == item; } );
+    Components.push_back( *itr );
+    loaded.erase( itr );
   }
 
-  for ( const auto& component : loaded )
-  {
-    if ( component != nullptr && !is_component( component.get() ) )
-      Components.push_back( component );
-  }
+  // a component with no slot is kept, and stays put
+  Components.insert( Components.end(), loaded.begin(), loaded.end() );
 }
 
 void UBoat::reread_components()
