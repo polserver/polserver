@@ -9,6 +9,8 @@
 
 #include "pol/uobject.h"
 
+#include "pol/loadstats.h"
+
 #include <atomic>
 #include <iosfwd>
 #include <stddef.h>
@@ -584,7 +586,12 @@ void UObject::readProperties( Clib::ConfigElem& elem )
     max_attack_range_increase( max_attack_range_increase().setAsMod( mod_value ) );
 
 
-  proplist_.readProperties( elem );
+  {
+    // Timed here and not inside proplist.cpp: runecl compiles that file and has no loader to
+    // report on.
+    LoadPhase phase( &worldLoadStats.cprops_ns );
+    proplist_.readProperties( elem );
+  }
 }
 
 void UObject::printSelfOn( Clib::StreamWriter& sw ) const

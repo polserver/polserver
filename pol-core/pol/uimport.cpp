@@ -46,6 +46,7 @@
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/loaddata.h"
+#include "pol/loadstats.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/npc.h"
 #include "pol/multi/house.h"
@@ -83,20 +84,32 @@ void read_guilds_dat();
 // Dave changed 3/8/3 to use objecthash
 void read_character( Clib::ConfigElem& elem )
 {
-  CharacterRef chr( new Mobile::Character( elem.remove_ushort( "OBJTYPE" ) ) );
+  const u16 objtype = elem.remove_ushort( "OBJTYPE" );
+  LoadPhase create_phase( &worldLoadStats.create_ns );
+  CharacterRef chr( new Mobile::Character( objtype ) );
+  create_phase.stop();
 
   try
   {
-    // note chr->logged_in is true..
-    chr->readProperties( elem );
+    {
+      // note chr->logged_in is true..
+      LoadPhase phase( &worldLoadStats.props_ns );
+      chr->readProperties( elem );
+    }
 
     // Allows the realm to recognize this char as offline
-    chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    {
+      LoadPhase phase( &worldLoadStats.place_ns );
+      chr->stored_realm()->add_mobile( *chr, Realms::WorldChangeReason::PlayerLoad );
+    }
 
     chr->clear_dirty();
 
     // readProperties gets the serial, so we can't add to the objecthash until now.
-    objStorageManager.objecthash.Insert( chr.get() );
+    {
+      LoadPhase phase( &worldLoadStats.create_ns );
+      objStorageManager.objecthash.Insert( chr.get() );
+    }
   }
   catch ( std::exception& )
   {
@@ -109,17 +122,29 @@ void read_character( Clib::ConfigElem& elem )
 // Dave changed 3/8/3 to use objecthash
 void read_npc( Clib::ConfigElem& elem )
 {
-  NpcRef npc( new Mobile::NPC( elem.remove_ushort( "OBJTYPE" ), elem ) );
+  const u16 objtype = elem.remove_ushort( "OBJTYPE" );
+  LoadPhase create_phase( &worldLoadStats.create_ns );
+  NpcRef npc( new Mobile::NPC( objtype, elem ) );
+  create_phase.stop();
 
   try
   {
-    npc->readProperties( elem );
+    {
+      LoadPhase phase( &worldLoadStats.props_ns );
+      npc->readProperties( elem );
+    }
 
-    SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
+    {
+      LoadPhase phase( &worldLoadStats.place_ns );
+      SetCharacterWorldPosition( npc.get(), Realms::WorldChangeReason::NpcLoad );
+    }
     npc->clear_dirty();
 
     ////HASH
-    objStorageManager.objecthash.Insert( npc.get() );
+    {
+      LoadPhase phase( &worldLoadStats.create_ns );
+      objStorageManager.objecthash.Insert( npc.get() );
+    }
     ////
   }
   catch ( std::exception& )
@@ -171,10 +196,16 @@ Items::Item* read_item( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Item (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return nullptr;
   }
-  if ( gamestate.old_objtype_conversions.count( objtype ) )
-    objtype = gamestate.old_objtype_conversions[objtype];
+  // One lookup: it runs per item, almost always to find there is no conversion for this objtype.
+  if ( const auto itr = gamestate.old_objtype_conversions.find( objtype );
+       itr != gamestate.old_objtype_conversions.end() )
+    objtype = itr->second;
 
-  Items::Item* item = Items::Item::create( objtype, serial );
+  Items::Item* item = nullptr;
+  {
+    LoadPhase phase( &worldLoadStats.create_ns );
+    item = Items::Item::create( objtype, serial );
+  }
   if ( item == nullptr )
   {
     ERROR_PRINTLN( "Unable to create item: objtype={:#x}, serial={:#x}", objtype, serial );
@@ -182,17 +213,15 @@ Items::Item* read_item( Clib::ConfigElem& elem )
       throw std::runtime_error( "Item::create failed!" );
     return nullptr;
   }
-  item->readProperties( elem );
+  {
+    LoadPhase phase( &worldLoadStats.props_ns );
+    item->readProperties( elem );
+  }
 
   item->clear_dirty();
 
   return item;
 }
-
-#define USE_PARENT_CONTS 1
-
-using ContStack = std::stack<UContainer*>;
-static ContStack parent_conts;
 
 void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
 {
@@ -213,6 +242,7 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
   }
 
   ItemRef itemref( item );  // dave 1/28/3 prevent item from being destroyed before function ends
+  LoadPhase phase( &worldLoadStats.place_ns );
   if ( container_serial == 0 )
   {
     // The multi registration relocate() does is a no-op here: multis.txt is read after items.txt,
@@ -226,44 +256,24 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       item->destroy();
       return;
     }
-    if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
-      parent_conts.push( static_cast<UContainer*>( item ) );
+  }
+  else if ( IsCharacter( container_serial ) )  // it's equipped on a character
+  {
+    Mobile::Character* chr = system_find_mobile( container_serial );
+    if ( chr != nullptr )
+    {
+      equip_loaded_item( chr, item );
+    }
+    else
+    {
+      defer_item_insertion( item, container_serial, saved_layer, saved_slot );
+    }
   }
   else
   {
-    if ( IsCharacter( container_serial ) )  // it's equipped on a character
-    {
-      Mobile::Character* chr = system_find_mobile( container_serial );
-      if ( chr != nullptr )
-      {
-        equip_loaded_item( chr, item );
-      }
-      else
-      {
-        defer_item_insertion( item, container_serial, saved_layer, saved_slot );
-      }
-      return;
-    }
-    Items::Item* cont_item = nullptr;
-    // bool new_parent_cont = false;
-
-    while ( !parent_conts.empty() )
-    {
-      UContainer* cont = parent_conts.top();
-      if ( cont->serial == container_serial )
-      {
-        cont_item = cont;
-        break;
-      }
-
-      parent_conts.pop();
-    }
-
+    Items::Item* cont_item = loaded_container_stack.find( container_serial );
     if ( cont_item == nullptr )
-    {
       cont_item = system_find_item( container_serial );
-      // new_parent_cont = true;
-    }
 
     if ( cont_item )
     {
@@ -274,6 +284,10 @@ void read_global_item( Clib::ConfigElem& elem, int /*sysfind_flags*/ )
       defer_item_insertion( item, container_serial, saved_layer, saved_slot );
     }
   }
+
+  // Whatever happened to it, if it is a container its own contents are the next thing in the file.
+  // Pushed for every item, not only top-level ones: nested containers are most of a storage file.
+  loaded_container_stack.push( item );
 }
 
 void read_system_vars( Clib::ConfigElem& elem )
@@ -338,18 +352,29 @@ void read_multi( Clib::ConfigElem& elem )
     ERROR_PRINTLN( "Multi (Serial {:#x}) has no OBJTYPE property, omitting.", serial );
     return;
   }
-  if ( gamestate.old_objtype_conversions.count( objtype ) )
-    objtype = gamestate.old_objtype_conversions[objtype];
+  if ( const auto itr = gamestate.old_objtype_conversions.find( objtype );
+       itr != gamestate.old_objtype_conversions.end() )
+    objtype = itr->second;
 
-  Multi::UMulti* multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
+  Multi::UMulti* multi = nullptr;
+  {
+    LoadPhase phase( &worldLoadStats.create_ns );
+    multi = Multi::UMulti::create( Items::find_itemdesc( objtype ), serial );
+  }
   if ( multi == nullptr )
   {
     ERROR_PRINTLN( "Unable to create multi: objtype={:#x}, serial={:#x}", objtype, serial );
     throw std::runtime_error( "Multi::create failed!" );
   }
-  multi->readProperties( elem );
+  {
+    LoadPhase phase( &worldLoadStats.props_ns );
+    multi->readProperties( elem );
+  }
 
-  add_multi_to_world( multi );
+  {
+    LoadPhase phase( &worldLoadStats.place_ns );
+    add_multi_to_world( multi );
+  }
 }
 
 std::string elapsed( clock_t start, clock_t end )
@@ -371,8 +396,14 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     Tools::Timer<> timer;
 
     unsigned int nobjects = 0;
-    while ( cf.read( elem ) )
+    worldLoadStats.reset();
+    for ( ;; )
     {
+      {
+        LoadPhase phase( &worldLoadStats.parse_ns );
+        if ( !cf.read( elem ) )
+          break;
+      }
       if ( --num_until_dot == 0 )
       {
         INFO_PRINT( "." );
@@ -416,6 +447,7 @@ void slurp( const char* filename, const char* tags, int sysfind_flags )
     timer.stop();
 
     INFO_PRINTLN( " {} elements in {} ms.", nobjects, timer.ellapsed() );
+    worldLoadStats.log( filename, nobjects );
   }
 }
 
@@ -607,6 +639,7 @@ int read_data()
   std::string storagendtfile = Plib::systemstate.config.world_data_path + "storage.ndt";
 
   stateManager.gflag_in_system_load = true;
+  worldLoadStats.enabled = Plib::systemstate.config.log_worldload_details;
   if ( Clib::FileExists( storagendtfile ) )
   {
     ERROR_PRINTLN(
@@ -649,8 +682,7 @@ int read_data()
   if ( stateManager.stored_last_char_serial < GetCurrentCharSerialNumber() )
     SetCurrentCharSerialNumber( stateManager.stored_last_char_serial );
 
-  while ( !parent_conts.empty() )
-    parent_conts.pop();
+  loaded_container_stack.clear();
 
   for ( const auto& citr : objStorageManager.objecthash )
   {
@@ -665,6 +697,7 @@ int read_data()
   }
 
   stateManager.gflag_in_system_load = false;
+  worldLoadStats.enabled = false;
   return 0;
 }
 

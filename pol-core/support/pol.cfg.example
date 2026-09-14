@@ -463,6 +463,17 @@ WebServerLocalOnly=1
 #LogWorldSaveDetails=0
 
 #
+# LogWorldLoadDetails: log a breakdown of reading each world data file at startup -
+# how long went on parsing the file, on creating the objects (and how much of that
+# on the object hash), on reading their properties (and how much of that on custom
+# properties), and on placing them in the world. Reported as a total and per
+# element, since a file can be slow because it is big or because each of its
+# elements is dear. Use it to find what a slow startup is spending its time on.
+# Default 0
+#
+#LogWorldLoadDetails=0
+
+#
 # WorldSaveThreads: how many threads a world save spreads itself over.
 # 0 uses half the cpus this server is actually allowed to use, and never fewer than
 # two - inside a container that is not half of what the machine has. Setting it higher

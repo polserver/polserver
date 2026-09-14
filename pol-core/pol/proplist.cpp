@@ -9,7 +9,9 @@
 
 #include <stddef.h>
 
+#include <algorithm>
 #include <ranges>
+#include <utility>
 
 #include "bscript/barray.h"
 #include "bscript/berror.h"
@@ -351,18 +353,30 @@ size_t PropertyList::estimatedSize() const
   return size;
 }
 
+std::pair<PropertyList::Properties::iterator, bool> PropertyList::locate(
+    const boost_utils::cprop_name_flystring& name )
+{
+  auto itr = std::lower_bound( properties.begin(), properties.end(), name, ByName{} );
+  return { itr, itr != properties.end() && itr->first == name };
+}
+
+std::pair<PropertyList::Properties::const_iterator, bool> PropertyList::locate(
+    const boost_utils::cprop_name_flystring& name ) const
+{
+  auto itr = std::lower_bound( properties.begin(), properties.end(), name, ByName{} );
+  return { itr, itr != properties.end() && itr->first == name };
+}
+
 bool PropertyList::getprop( const std::string& propname, std::string& propval ) const
 {
   if ( Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().cpropRead( this, propname );
 
-  Properties::const_iterator itr = properties.find( boost_utils::cprop_name_flystring( propname ) );
-  if ( itr == properties.end() )
-  {
+  const auto [itr, found] = locate( boost_utils::cprop_name_flystring( propname ) );
+  if ( !found )
     return false;
-  }
 
-  propval = ( *itr ).second;
+  propval = itr->second;
   return true;
 }
 void PropertyList::setprop( const std::string& propname, const std::string& propvalue )
@@ -370,7 +384,12 @@ void PropertyList::setprop( const std::string& propname, const std::string& prop
   if ( Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().cpropWrite( this, propname );
 
-  properties[boost_utils::cprop_name_flystring( propname )] = propvalue;
+  const boost_utils::cprop_name_flystring name( propname );
+  auto [itr, found] = locate( name );
+  if ( found )
+    itr->second = propvalue;
+  else
+    properties.emplace( itr, name, propvalue );
 }
 
 void PropertyList::eraseprop( const std::string& propname )
@@ -378,20 +397,43 @@ void PropertyList::eraseprop( const std::string& propname )
   if ( Plib::systemstate.config.profile_cprops )
     CPropProfiler::instance().cpropErase( this, propname );
 
-  properties.erase( boost_utils::cprop_name_flystring( propname ) );
+  const auto [itr, found] = locate( boost_utils::cprop_name_flystring( propname ) );
+  if ( found )
+    properties.erase( itr );
 }
 
 void PropertyList::copyprops( const PropertyList& from )
 {
-  // dave 4/25/3 map insert won't overwrite with new values, so remove those first and then
-  // reinsert.
-  if ( !properties.empty() )
+  if ( from.properties.empty() )
+    return;
+  if ( properties.empty() )
   {
-    for ( const auto& prop : from.properties )
-      properties.erase( prop.first );
+    properties = from.properties;
+    return;
   }
 
-  properties.insert( from.properties.begin(), from.properties.end() );
+  // Both sides are sorted, so this is one merge; the incoming value wins wherever they disagree.
+  Properties merged;
+  merged.reserve( properties.size() + from.properties.size() );
+
+  auto mine = properties.begin();
+  auto theirs = from.properties.begin();
+  while ( mine != properties.end() && theirs != from.properties.end() )
+  {
+    if ( ByName{}( *mine, *theirs ) )
+      merged.push_back( *mine++ );
+    else if ( ByName{}( *theirs, *mine ) )
+      merged.push_back( *theirs++ );
+    else  // the same name on both sides: theirs wins
+    {
+      merged.push_back( *theirs++ );
+      ++mine;
+    }
+  }
+  merged.insert( merged.end(), mine, properties.end() );
+  merged.insert( merged.end(), theirs, from.properties.end() );
+
+  properties.swap( merged );
 }
 
 void PropertyList::clear()

@@ -960,6 +960,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
 [LogSysLoad=(1/0 {default 0})]
 [InhibitSaves=(1/0 {default 0})]
 [LogWorldSaveDetails=(1/0 {default 0})]
+[LogWorldLoadDetails=(1/0 {default 0})]
 [WorldSaveThreads=(int threads {default 0})]
 [LogScriptCycles=(1/0 {default 0})]
 [ProfileCProps=(1/0 {default 0})]
@@ -1027,6 +1028,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>Hint: LogLevel can be used to debug issues at startup of POL and various other places (unloadall for example). By setting this higher than 1, up to 11 (just sounds good), it will force printing of better information to help you find out problems during Loading and such. Setting it for example, above 0, core will start spitting out "Checkpoint" data during startup to say what it is about to load/process. Such as the configuration, load realms, load multis, etc etc.</explain>
     <explain>DiscardOldEvents: if set instead of discarding new event if queue is full it discards oldest event and adds the new event</explain>
     <explain>LogWorldSaveDetails: log a breakdown of every world save - how long the world was stopped, how long the save spent writing and how long it spent waiting for a file (both summed over the threads that did it), how long flushing and committing took, what each part of the save cost, how many pieces it was split into and how big its largest piece was, and how many bytes each data file received. Use it to find which file a slow save is spending its time on. uo::SaveWorldState() returns most of these on a struct, without the waiting time and the per-part piece counts.</explain>
+    <explain>LogWorldLoadDetails: log a breakdown of reading each world data file at startup - how long went on parsing the file, on creating the objects (and how much of that on the object hash), on reading their properties (and how much of that on custom properties), and on placing them in the world. Reported as a total and per element, since a file can be slow because it is big or because each of its elements is dear. Use it to find what a slow startup is spending its time on.</explain>
     <explain>WorldSaveThreads: how many threads a world save spreads itself over. 0 (default) uses half the cpus this server is actually allowed to use, and never fewer than two - inside a container that is not half of what the machine has. Setting it higher than the container may run makes saves slower rather than faster. The startup log prints the number chosen next to both cpu counts, so set this only if that choice is wrong for your host.</explain>
     <explain>AccountDataSave: -1 : old behaviour, saves accounts.txt immediately after an account change, 0 : saves only during worldsave (if needed), >0 : saves every X seconds and during worldsave (if needed)</explain>
     <explain>UseSingleThreadLogin: if set all prelogin clients are handled inside the listener thread and not inside an extra thread this will reduce the amount of thread creates and destroys</explain>

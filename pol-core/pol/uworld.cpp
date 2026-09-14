@@ -32,7 +32,9 @@ void add_item_to_world( Items::Item* item )
 {
   Zone& zone = item->stored_realm()->getzone( item->pos().xy() );
 
-  passert( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
+  // Paranoid, not plain passert: this is a linear scan of the zone, and INC_PASSERT is on in
+  // release builds, so filling a dense 64x64 zone as the world loads costs O(items^2).
+  passert_paranoid( std::find( zone.items.begin(), zone.items.end(), item ) == zone.items.end() );
 
   item->stored_realm()->add_toplevel_item( *item );
   zone.items.push_back( item );
@@ -126,7 +128,8 @@ void SetCharacterWorldPosition( Mobile::Character* chr, Realms::WorldChangeReaso
 
   auto set_pos = [&]( ZoneCharacters& set )
   {
-    passert( std::find( set.begin(), set.end(), chr ) == set.end() );
+    // Paranoid for the same reason as add_item_to_world's scan above.
+    passert_paranoid( std::find( set.begin(), set.end(), chr ) == set.end() );
     set.push_back( chr );
   };
 
