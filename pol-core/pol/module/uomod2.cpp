@@ -812,9 +812,11 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
     unsigned int buyprice;
 
+    // Skipped, not a return: the items before it are already in vendor_bought and are only paid
+    // for once the loop ends.
     Item* item = backpack->find_toplevel( serial );
     if ( item == nullptr )
-      return;
+      continue;
     if ( item->newbie() )
       continue;
     if ( item->inuse() )

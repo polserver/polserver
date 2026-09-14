@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+09-14-2026 Ins:
+    Fixed: a sale through a vendor's sell window that named an item no longer at the top of the
+           seller's backpack - put in a bag or used up after the window opened - gave the
+           vendor every item listed before it without paying for them, and sold nothing listed
+           after it. The rest of the sale goes through now, without that item.
 09-13-2026 Turley:
     Fixed: The tip window showed the name of the file the tip came from instead of what was
            written in it, and before that showed nothing at all.
