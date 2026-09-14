@@ -402,6 +402,82 @@ exported function sell_pays_in_stacks( resmgr )
   return ret_error( $"the sale paid into {stacks - before} new stacks, expected two" );
 endfunction
 
+function gold_in_pack()
+  var gold_objtype := GetObjtypeByName( "goldcoin" );
+  var total := 0;
+  foreach thing in ( EnumerateItemsInContainer( char.backpack ) )
+    if ( thing.objtype == gold_objtype )
+      total := total + thing.amount;
+    endif
+  endforeach
+  return total;
+endfunction
+
+exported function sell_skips_item_not_in_pack( resmgr )
+  // The answer to a sell window can name an item the pack no longer holds at its top level: the
+  // player put it in a bag after the list went out. That item is not sold, and every other item
+  // in the answer still is, and is paid for - including the ones listed after it.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var first := make_sellable( resmgr, "listed before", 5 );
+  if ( !first )
+    return first;
+  endif
+  var put_away := make_sellable( resmgr, "put away", 11 );
+  if ( !put_away )
+    return put_away;
+  endif
+  var last := make_sellable( resmgr, "listed after", 7 );
+  if ( !last )
+    return last;
+  endif
+  var bag := resmgr.CreateItemInContainer( char.backpack, 0xE75 );
+  if ( !bag )
+    return ret_error( $"failed to create the bag: {bag}" );
+  endif
+
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var moved := MoveItemToContainer( put_away, bag );
+  if ( !moved )
+    return ret_error( $"failed to put the item in the bag: {moved}" );
+  endif
+  var gold_before := gold_in_pack();
+
+  var res := sell( vendor.npc.serial, { struct{ serial := first.serial, amount := 1 },
+                                         struct{ serial := put_away.serial, amount := 1 },
+                                         struct{ serial := last.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+
+  var attempts := 50;
+  while ( attempts-- )
+    if ( last.container == vendor.bought )
+      break;
+    endif
+    Sleepms( 100 );
+  endwhile
+  if ( first.container != vendor.bought )
+    return ret_error( $"the item listed before is in {first.container}, expected the vendor" );
+  endif
+  if ( last.container != vendor.bought )
+    return ret_error( $"the item listed after is in {last.container}, expected the vendor" );
+  endif
+  if ( put_away.container != bag )
+    return ret_error( $"the item put away was moved to {put_away.container}" );
+  endif
+  var paid := gold_in_pack() - gold_before;
+  if ( paid != 12 )
+    return ret_error( $"the sale paid {paid} gold, expected 12" );
+  endif
+  return 1;
+endfunction
+
 exported function buy_back_a_sold_item( resmgr )
   // Buying something out of the container the vendor keeps what it bought in, rather than out of
   // the one it offers for sale. Only a sale can put something there.

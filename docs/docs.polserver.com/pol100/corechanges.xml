@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-13-2026</datemodified>
+		<datemodified>09-14-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-14-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">a sale through a vendor's sell window that named an item no longer at the top of the<br/>
+seller's backpack - put in a bag or used up after the window opened - gave the<br/>
+vendor every item listed before it without paying for them, and sold nothing listed<br/>
+after it. The rest of the sale goes through now, without that item.</change>
+		</entry>
 		<entry>
 			<date>09-13-2026</date>
 			<author>Turley:</author>
