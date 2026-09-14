@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+09-19-2026 AsYlum:
+    Fixed: a script blocked in Wait_For_Event() could sit out its whole timeout instead of waking
+           when the event arrived, and on Linux a scheduled task could likewise run late. Both
+           happened when the signal that wakes the thread was sent while that thread had finished
+           a pass but not yet gone back to waiting, which is the ordinary case and not a rare
+           one. A shard with little else running is where it shows, since nothing else was due to
+           wake the thread sooner.
 09-18-2026 AsYlum:
     Added: damage_increase and damage_increase_mod on characters and items, completing the set of
            AOS properties that already held spell_damage_increase. itemdesc.cfg and NPC templates
