@@ -1333,6 +1333,45 @@ void UBoat::rescan_components()
   }
 }
 
+/**
+ * Puts the components read from a save into the slots of the boat's shape. move_components() and
+ * transform_components() pair the two lists by index, so a component a save lists twice, or out of
+ * order, would otherwise send every component after it to another one's offset for good.
+ *
+ * A slot is filled by the first component of its objtype in saved order, which keeps components
+ * that share an objtype in the slots they were created for. A slot with no component left for it
+ * stays empty rather than taking the next one's; a component with no slot is kept, and stays put.
+ */
+void UBoat::align_components()
+{
+  if ( !Core::gamestate.boatshapes.count( multiid_ ) )
+    return;
+
+  std::vector<Component> loaded;
+  loaded.swap( Components );
+
+  for ( const auto& componentshape : boatshape().Componentshapes )
+  {
+    auto itr = std::find_if( loaded.begin(), loaded.end(),
+                             [&]( const Component& c )
+                             { return c != nullptr && c->objtype_ == componentshape.objtype; } );
+    if ( itr == loaded.end() )
+    {
+      Components.emplace_back();
+      continue;
+    }
+    Items::Item* item = itr->get();
+    Components.emplace_back( item );
+    std::erase_if( loaded, [item]( const Component& c ) { return c.get() == item; } );
+  }
+
+  for ( const auto& component : loaded )
+  {
+    if ( component != nullptr && !is_component( component.get() ) )
+      Components.push_back( component );
+  }
+}
+
 void UBoat::reread_components()
 {
   for ( auto& component : Components )
@@ -1409,6 +1448,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       }
     }
   }
+  align_components();
   reread_components();
   rescan_components();
 

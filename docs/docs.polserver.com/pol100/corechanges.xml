@@ -139,6 +139,13 @@ odds, then a value inside it when that entry is a range. EquipFromTemplate() mak
 pick per item on every call, and skips and logs a color it cannot read.</change>
 		</entry>
 		<entry>
+			<date>09-14-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">after a restart, a boat's tillerman, planks or hold could take each other's places on<br/>
+every step or turn, and the last of them stay behind, when the world save listed one<br/>
+of them twice or out of order. Such a boat is put right as the world loads.</change>
+		</entry>
+		<entry>
 			<date>09-13-2026</date>
 			<author>Turley:</author>
 			<change type="Fixed">The tip window showed the name of the file the tip came from instead of what was<br/>
