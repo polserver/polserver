@@ -163,6 +163,9 @@ const EVT_RACE_CHANGER := "race_changer";
 // one, or writes the title and author back with the "book" todo; only a page it asked for is
 // answered, so nothing is armed here.
 const EVT_BOOK := "book";
+// The answer to a ping the harness asked for, rather than anything the shard sent of
+// its own accord. See client_sync() below for what it is good for.
+const EVT_SYNC := "sync";
 const EVT_BOOK_PAGE := "book_page";
 const BOOK_READ := "read";
 const BOOK_WRITE := "write";
@@ -305,6 +308,110 @@ function getClientConnection()
   var proc := GetProcess( res );
   proc.sendevent( struct{ ownership := GetProcess() } );
   return proc;
+endfunction
+
+// The connection the barrier below pings down, for the helpers that take no
+// clientcon of their own. Read straight out of the global property rather than
+// through getClientConnection(): that one also hands the client's events to whoever
+// calls it, and a helper has no business moving ownership around.
+var sync_con_cached := 0;
+function sync_con()
+  if ( !sync_con_cached )
+    var pid := GetGlobalProperty( "#clientcon" );
+    if ( !pid )
+      return 0;
+    endif
+    sync_con_cached := GetProcess( pid );
+  endif
+  return sync_con_cached;
+endfunction
+
+// Tokens are strings: every number that comes back through the client connection is
+// a Double, and comparing those would need a CInt at each site. The pid makes it
+// unique across scripts and the counter across nested calls and across both clients,
+// so a token can never match a barrier other than its own.
+var sync_seq := 0;
+function sync_send( clientcon, id )
+  if ( !clientcon )
+    return ret_error( "no client connection to synchronise against" );
+  endif
+  sync_seq += 1;
+  var token := $"{GetPid()}.{sync_seq}";
+  clientcon.sendevent( struct{ todo := "sync", arg := token, id := id } );
+  return token;
+endfunction
+
+// Everything the shard had already sent this client has arrived by the time this
+// returns, and nothing matching `types` was among it.
+//
+// A 0x73 keep-alive is echoed back verbatim and unconditionally, so an echo carrying
+// a cookie of our own is queued behind everything the core had already handed out
+// for this client - every client's bytes go through one queue - and is read by the
+// client after all of it. Waiting for that echo is a proof where a quiet window was
+// a guess, and it costs a round trip instead of QUIET_SECS.
+//
+// `matcher` is called only for an event whose type is in `types` and whose id
+// matches, so it may read that type's own members without checking first. It answers
+// the text of the complaint, or 0 for "not this one". An empty `types` matches
+// nothing at all - that is client_sync() below, and the only place it is meant.
+//
+// What this does NOT prove: anything a timer, a task, an NPC or a script started by
+// the handler sends later, and anything sent to another client. Assertions that wait
+// on one of those keep a timed window and say so.
+function no_event_before_sync( clientcon, id, types, matcher := 0, timeout := 5 )
+  var token := sync_send( clientcon, id );
+  if ( !token )
+    return token;
+  endif
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  // an error is falsy in eScript, so what was found is tracked by a flag of its
+  // own rather than by whether `offender` holds anything
+  var found := 0;
+  var offender := 0;
+  while ( 1 )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
+      break;
+    endif
+    // the whole remaining window rather than a poll interval: the wait ends the
+    // moment an event arrives, so this is exact instead of quantised, and unlike
+    // waitForClient() a stream of events cannot push the deadline back
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
+    endif
+    if ( ev.type == EVT_SYNC and ev.token == token )
+      // keep draining to the barrier even once something was found: the answer was
+      // already on its way, so it costs nothing and it leaves the queue clean
+      if ( found )
+        return offender;
+      endif
+      return 1;
+    endif
+    if ( found or !( ev.type in types ) or CInt( ev.id ) != id )
+      continue;
+    endif
+    // a function reference is falsy too, so the caller's matcher is recognised by
+    // its type rather than by being truthy. TypeOf() answers "FunctionReference";
+    // "FunctionObject" is only what one prints as.
+    var why;
+    if ( TypeOf( matcher ) == "FunctionReference" )
+      why := matcher.call( ev );
+    else
+      why := $"was sent a {ev.type} it should not have been";
+    endif
+    if ( why )
+      found := 1;
+      offender := ret_error( $"client {id} {why}" );
+    endif
+  endwhile
+  return ret_error( $"client {id} never answered the barrier within {timeout}s\n{GetProcess().stacktrace()}" );
+endfunction
+
+// Waits until everything the shard had already sent this client has arrived, with
+// nothing forbidden. A barrier with no assertion attached.
+function client_sync( clientcon, id, timeout := 5 )
+  return no_event_before_sync( clientcon, id, {}, 0, timeout );
 endfunction
 
 // wait for events of given types and of given client id

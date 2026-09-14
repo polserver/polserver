@@ -387,6 +387,13 @@ class TestBrain(brain.Brain):
           brain.Event(brain.Event.EVT_PACKET_SENT,
             clientid = self.id
             ))
+      elif todo=="sync":
+        # A barrier. The answer is raised by the client thread when the core's echo
+        # comes back, not from here, which is the whole point: everything the core
+        # had already queued for this client is ahead of that echo. Anything the
+        # caller sent before this todo is ahead of the ping too, since both travel
+        # this one connection and are drained in order.
+        self.client.syncPing(arg)
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -918,6 +925,8 @@ class PolServer:
     elif (ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY or
         ev.type==Event.EVT_PACKET_SENT):
       pass
+    elif ev.type==Event.EVT_SYNC:
+      res['token']=ev.token
     elif ev.type==Event.EVT_WORLDMAP:
       res['subcmd']=ev.subcmd
       res['locations']=1 if ev.locations else 0

@@ -254,6 +254,9 @@ class Event:
   EVT_LIGHT = 139
   EVT_TOOLTIP = 140
   EVT_OPEN_URL = 141
+  # Not a packet the shard sent of its own accord: the answer to a ping the harness
+  # asked for, which is what makes it a barrier. See client_sync() in communication.inc.
+  EVT_SYNC = 142
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -357,4 +360,5 @@ TYPESTR = {
   Event.EVT_SPELLBOOK: "spellbook",
   Event.EVT_MAP: "map",
   Event.EVT_MAP_PIN: "map_pin",
+  Event.EVT_SYNC: "sync",
 }
