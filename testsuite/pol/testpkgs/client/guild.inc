@@ -18,17 +18,6 @@ include "communication";
 include "guildutil";
 include "speech";
 
-// How long the shard has to stay silent before settle() calls it quiet. A stale
-// event that arrives after this leaks into the next case's answer, so it wants
-// to stay comfortably above a client round trip. POLL_INTERVAL comes from
-// communication.inc.
-//
-// Measured at some 5ms since the client stopped waiting out a poll interval at
-// each of the three hops between it and here - see QUIET_SECS, which is the
-// same reasoning. This is paid by all forty callers of settle(), and only after
-// the last event: the deadline restarts whenever one arrives.
-const SETTLE_QUIET := 250;
-
 // where speech_setup() leaves the two characters
 const CHAR_X := 100;
 const CHAR_Y := 50;
@@ -76,35 +65,73 @@ endfunction
 // heard it. `want` is one flag per client, in client order.
 //
 // Both clients are served in the same breath, so which of them heard something
-// cannot be settled by a wait followed by an assertion that nothing else came:
-// the wait would already have thrown the other client's event away. This
-// listens once and sorts the result afterwards, and once everything expected
-// has arrived it listens a moment longer - anything wrongly sent would have
-// gone out with the rest.
+// cannot be settled by a wait followed by an assertion that nothing else came: the
+// wait would already have thrown the other client's event away. This listens once
+// and sorts the result afterwards.
 //
-// The poll is a tenth of a second rather than a whole one: a wait ends the
-// moment an event arrives, so the interval only decides how far past the
-// deadline the last idle wait runs. A whole second of that on every call is
-// most of what the guild tests spend their time on.
-function check_heard( text, want, timeout := 10, grace := 500 )
+// What says nothing else was sent is a barrier on each client, put behind whatever
+// was expected: anything wrongly sent went out ahead of the echoes, so by the time
+// both are back it has already arrived and been sorted with the rest. That replaces
+// the half second of grace this paid on every call, expected traffic or not - four
+// of its callers expect nothing at all and spent the whole window proving it.
+function check_heard( text, want, timeout := 10 )
   var found := { 0, 0 };
   var wanted := want[1] + want[2];
-  // with nothing expected there is nothing to wait for, so the whole window is
-  // spent listening for what should not come
-  var deadline := ReadMillisecondClock() + ( wanted ? timeout * 1000 : grace );
-  var settled := 0;
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var idx;
+  var ev;
+  var remaining;
 
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
+  // Collect what is expected first, so the barrier below is queued behind it. With
+  // nothing expected there is nothing to wait for and the barrier is the whole test.
+  while ( wanted )
+    remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
+      break;
+    endif
+    ev := Wait_For_Event( remaining / 1000.0 );
     if ( ev and ev.type == EVT_SPEECH and ev.msg == text )
-      var idx := CInt( ev.id ) + 1;
+      idx := CInt( ev.id ) + 1;
       if ( idx >= 1 and idx <= 2 )
         found[idx] := ev;
       endif
     endif
-    if ( !settled and wanted and ( !want[1] or found[1] ) and ( !want[2] or found[2] ) )
-      settled := 1;
-      deadline := ReadMillisecondClock() + grace;
+    if ( ( !want[1] or found[1] ) and ( !want[2] or found[2] ) )
+      break;
+    endif
+  endwhile
+
+  // Both pings go out before either answer is waited for, so the two barriers cost
+  // one round trip between them rather than two.
+  var token0 := sync_send( sync_con(), 0 );
+  var token1 := sync_send( sync_con(), 1 );
+  if ( !token0 or !token1 )
+    return ret_error( $"could not put a barrier behind \"{text}\"" );
+  endif
+  var seen0 := 0, seen1 := 0;
+  deadline := ReadMillisecondClock() + 2000;
+  while ( !seen0 or !seen1 )
+    remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
+      return ret_error( $"the clients never answered the barrier behind \"{text}\"" );
+    endif
+    ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
+    endif
+    if ( ev.type == EVT_SYNC )
+      if ( ev.token == token0 )
+        seen0 := 1;
+      elseif ( ev.token == token1 )
+        seen1 := 1;
+      endif
+      continue;
+    endif
+    if ( ev.type == EVT_SPEECH and ev.msg == text )
+      idx := CInt( ev.id ) + 1;
+      if ( idx >= 1 and idx <= 2 )
+        found[idx] := ev;
+      endif
     endif
   endwhile
 
@@ -137,14 +164,17 @@ endfunction
 // the queue, not the connection, and what the test client has already sent
 // arrives afterwards. Draining until the quiet window has passed with nothing
 // arriving leaves only the events a case caused itself.
-function settle( quiet := SETTLE_QUIET )
-  var deadline := ReadMillisecondClock() + quiet;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet;
-    endif
-  endwhile
-  return 1;
+// Two rounds of it, and the second is not belt and braces. The first says that
+// everything the core had sent has reached the clients - which is exactly what makes
+// the clicks pyuo answers with already queued, ahead of the second ping. The second
+// then says the core's replies to those have arrived as well. One round would leave
+// the clicks in flight and prove nothing about what they will draw.
+function settle()
+  var res := drain_events();
+  if ( !res )
+    return res;
+  endif
+  return drain_events();
 endfunction
 
 // The colour the server drew a character's name in, asked the way a player
