@@ -119,17 +119,20 @@ function wait_for_trades( action, expected := 0, expected2 := 0, timeout := 10 )
   return ret_error( $"client {missing} received no trade action {action} within {timeout}s" );
 endfunction
 
-// Asserts that no client hears about the trade window at all.
-function wait_for_no_trade( timeout := 2 )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
-    if ( !ev or ev.type != EVT_TRADE )
-      continue;
-    endif
-    return ret_error( $"client {ev.id} was told about the trade window: action {ev.action}" );
-  endwhile
-  return 1;
+// Asserts that neither client hears about the trade window at all. A barrier each,
+// since this names no client and either one being told is the failure; see
+// no_event_before_sync() in communication.inc for what that proves.
+//
+// It waited two seconds before, and paid them on every one of its six call sites,
+// which was most of what the trade-open cases cost.
+function wait_for_no_trade()
+  var res := no_event_before_sync( sync_con(), 0, { EVT_TRADE },
+      @( ev ) { return $"was told about the trade window: action {ev.action}"; } );
+  if ( !res )
+    return res;
+  endif
+  return no_event_before_sync( sync_con(), 1, { EVT_TRADE },
+      @( ev ) { return $"was told about the trade window: action {ev.action}"; } );
 endfunction
 
 // Accepts or un-accepts the trade for the given client. Only a client can do
