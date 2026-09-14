@@ -480,14 +480,25 @@ endfunction
 // Reads events until none have come for a while. Only for putting the queue
 // back into a known state after something went wrong - it costs its whole
 // window every time it is called.
-function drain_events( quiet := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + quiet * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet * 1000;
-    endif
-  endwhile
-  return 1;
+// Throws away everything the shard has already sent, so that what a case waits for
+// next is its own and not the tail of whatever set it up.
+//
+// This used to wait for a quiet quarter second and take silence as the end of the
+// traffic, which is what most of the client package's remaining time was. A barrier
+// per client says the same thing and says it exactly: once both echoes are back,
+// everything queued for either client has arrived, and the barrier discarded it on
+// the way through. Both are needed because this takes no id and the package runs
+// two clients, connected in setup.src for its whole life.
+//
+// What it cannot do is wait for a script the shard started - a hook, an NPC, a spell.
+// A case that needs one of those has to wait for its effect itself; see
+// wait_hook_call() in party.inc for what that looks like.
+function drain_events()
+  var res := client_sync( sync_con(), 0, 2 );
+  if ( !res )
+    return res;
+  endif
+  return client_sync( sync_con(), 1, 2 );
 endfunction
 
 // The same, for an event of any client. Takes its timeout the same way, where it
