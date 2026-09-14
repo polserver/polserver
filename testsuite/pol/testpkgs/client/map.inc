@@ -214,18 +214,10 @@ function pin_stream( mp, id := 0, quiet := QUIET_SECS )
   return text;
 endfunction
 
-// Asserts a client is sent no gump packet at all. The whole window is paid, so
-// it is kept to what a packet that was really sent would need to arrive.
-function no_map_for( id := 0, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_MAP or CInt( ev.id ) != id )
-      continue;
-    endif
-    return ret_error( $"client {id} was sent a map it should not have been" );
-  endwhile
-  return 1;
+// Asserts a client is sent no map gump at all. Uses the barrier; see
+// no_event_before_sync() in communication.inc.
+function no_map_for( id := 0 )
+  return no_event_before_sync( sync_con(), id, { EVT_MAP } );
 endfunction
 
 // Asks a map to start plotting and checks it says it has. A toggle is the only

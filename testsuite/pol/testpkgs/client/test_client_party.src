@@ -54,7 +54,7 @@ exported function party_invite_and_accept( unused resmgn )
   endif
 
   // the party came into being with the invitation, and the hook saw it
-  var call := hook_call( "OnPartyCreate" );
+  var call := wait_hook_call( "OnPartyCreate" );
   if ( !call or call.leader != char.serial )
     return party_fail( $"OnPartyCreate was called with {call}" );
   endif
@@ -93,7 +93,7 @@ exported function party_invite_and_accept( unused resmgn )
     return party_fail( "the two characters are not in the same party" );
   endif
 
-  call := hook_call( "OnAddToParty" );
+  call := wait_hook_call( "OnAddToParty" );
   if ( !call or call.who != char2.serial )
     return party_fail( $"OnAddToParty was called with {call}" );
   endif
@@ -132,11 +132,11 @@ exported function party_decline_invite( unused resmgn )
     return party_fail( "the declined party is still there" );
   endif
 
-  var call := hook_call( "OnDecline" );
+  var call := wait_hook_call( "OnDecline" );
   if ( !call or call.who != char2.serial )
     return party_fail( $"OnDecline was called with {call}" );
   endif
-  call := hook_call( "OnDisband" );
+  call := wait_hook_call( "OnDisband" );
   if ( !call or call.leader != char.serial )
     return party_fail( $"OnDisband was called with {call}" );
   endif
@@ -169,7 +169,7 @@ exported function party_decline_timeout( unused resmgn )
     return party_fail( "the party outlived the invitation" );
   endif
 
-  var call := hook_call( "OnDecline" );
+  var call := wait_hook_call( "OnDecline" );
   if ( !call or call.who != char2.serial )
     return party_fail( $"OnDecline was called with {call}" );
   endif
