@@ -444,14 +444,15 @@ endfunction
 // Reads events until none have come for a while. Only for putting the queue
 // back into a known state after something went wrong - it costs its whole
 // window every time it is called.
-function drain_events( quiet := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + quiet * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet * 1000;
-    endif
-  endwhile
-  return 1;
+// Throws away everything the shard has already sent both clients, with a barrier
+// each. It cannot wait for a script the shard started; see wait_hook_call() in
+// party.inc.
+function drain_events()
+  var res := client_sync( sync_con(), 0, 2 );
+  if ( !res )
+    return res;
+  endif
+  return client_sync( sync_con(), 1, 2 );
 endfunction
 
 // The same, for an event of any client.
