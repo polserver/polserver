@@ -3,7 +3,9 @@
     Fixed: after a restart, the parts of a boat - tillerman, planks, hold, ropes, hull pieces -
            could take each other's places on every step or turn, and the last of them stay
            behind, when the world save listed a part twice or out of order, or was missing one
-           that had been destroyed. Such a boat is put right as the world loads.
+           that had been destroyed. Such a boat is put right as the world loads, except that when
+           the destroyed part was one of several of its kind, such as a rope, the others of that
+           kind after it each move up one place.
 09-13-2026 Turley:
     Fixed: The tip window showed the name of the file the tip came from instead of what was
            written in it, and before that showed nothing at all.
