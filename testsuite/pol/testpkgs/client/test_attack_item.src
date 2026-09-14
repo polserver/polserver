@@ -320,8 +320,8 @@ exported function test_client_item_statrequest( resources )
   if ( !normal )
     return ret_error( $"Could not create item: {normal}" );
   endif
-  if ( ( ev := request_status( normal.serial, 2 ) ) )
-    return ret_error( $"plain item answered a status request: {ev}" );
+  if ( !( ev := no_status_for( normal.serial, "a plain item" ) ) )
+    return ev;
   endif
 
   // and neither has an attackable item that the client cannot see
@@ -329,8 +329,8 @@ exported function test_client_item_statrequest( resources )
                                       flags := MOVEOBJECT_FORCELOCATION ) ) )
     return ret_error( $"Could not move the player: {ev}" );
   endif
-  if ( ( ev := request_status( item.serial, 2 ) ) )
-    return ret_error( $"out of range item answered a status request: {ev}" );
+  if ( !( ev := no_status_for( item.serial, "an item out of range" ) ) )
+    return ev;
   endif
 
   return 1;
@@ -649,6 +649,16 @@ endfunction
 
 // asks the client to request the status of the given serial and returns the
 // answer of the server, or an error if none arrives
+// Asserts no status comes back. The request is handled before the ping behind it,
+// so an answer would be queued ahead of the echo.
+function no_status_for( serial, what )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "request_status", arg := serial, id := 0 } );
+  return no_event_before_sync( clientcon, 0, { EVT_STATUS_BAR },
+      @( ev ) { return ( ev.serial == serial ) ?
+          $"answered a status request for {what}" : 0; } );
+endfunction
+
 function request_status( serial, timeout := 10 )
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "request_status", arg := serial, id := 0 } );
