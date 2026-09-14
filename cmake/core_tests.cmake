@@ -285,3 +285,11 @@ add_test(NAME unittest_pol
   WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
 )
 set_tests_properties( unittest_pol PROPERTIES FIXTURES_REQUIRED "client;shard;uoconvert;ecompile")
+
+# Everything that runs in coretest also writes to it, and the fixtures order only
+# the shard tests. The lock stops ctest -jN starting one on top of another.
+set(CORETEST_LOCK_TESTS shard_test_1 shard_test_2 unittest_pol)
+if (${Python3_FOUND})
+  list(APPEND CORETEST_LOCK_TESTS shard_test_roundtrip ecompile_watch_test)
+endif()
+set_tests_properties(${CORETEST_LOCK_TESTS} PROPERTIES RESOURCE_LOCK coretest)
