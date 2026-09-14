@@ -402,6 +402,7 @@ set (pol_sources  # sorted !
   threadwatch.h
   testing/poltest.cpp
   testing/poltest.h
+  testing/testboat.cpp
   testing/testclamp.cpp
   testing/testcfgfile.cpp
   testing/testclibmisc.cpp
