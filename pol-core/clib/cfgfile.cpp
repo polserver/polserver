@@ -46,12 +46,11 @@ size_t ConfigElemBase::estimateSize() const
 
 size_t ConfigProps::estimateSize() const
 {
-  size_t size = Clib::memsize( hashes_ ) + Clib::memsize( by_name_ ) +
-                entries_.capacity() * sizeof( entries_[0] );
   // Tombstoned slots past the live count still hold their string buffers, so they count too.
-  for ( const auto& entry : entries_ )
-    size += entry.first.capacity() + entry.second.capacity();
-  return size;
+  return Clib::memsize( hashes_ ) + Clib::memsize( by_name_ ) +
+         Clib::memsize(
+             entries_, []( const auto& entry )
+             { return sizeof( entry ) + entry.first.capacity() + entry.second.capacity(); } );
 }
 
 size_t ConfigElem::estimateSize() const
