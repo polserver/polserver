@@ -154,11 +154,8 @@ function lift_item( serial )
   if ( !ev )
     return ret_error( $"client 0 did not lift 0x{serial:x}: {ev}" );
   endif
-  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"lifting 0x{serial:x} was rejected: reason {ev.reason}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_MOVE_ITEM_REJECTED },
+      @( ev ) { return $"had the lift of 0x{serial:x} rejected: reason {ev.reason}"; } );
 endfunction
 
 // Drops the item client 0 is holding onto a mobile. Does not wait for the drop
