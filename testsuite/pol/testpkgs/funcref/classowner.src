@@ -1,0 +1,16 @@
+use os;
+
+include "owner-class";
+
+var owner;
+
+// Two instances of this script run at once with different `owner` values. Both hand an Owner
+// instance to the test script, which calls who() on each from its own executor.
+program classowner( args )
+  owner := args[2];
+  GetProcess( args[1] ).SendEvent( struct{ type := "instance",
+                                           owner := owner,
+                                           inst := Owner() } );
+  Wait_For_Event( 10 );
+  return 1;
+endprogram
