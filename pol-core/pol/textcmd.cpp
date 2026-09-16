@@ -20,6 +20,8 @@
 #include <string.h>
 #include <string>
 #include <time.h>
+#include <utility>
+#include <vector>
 
 #include "bscript/berror.h"
 #include "bscript/blong.h"
@@ -32,6 +34,7 @@
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/opnew.h"
+#include "clib/random.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
 #include "clib/spinlock.h"
@@ -85,6 +88,57 @@ void register_command( const std::string& cmd, TextCmdFunc f )
 void register_command( const std::string& cmd, ParamTextCmdFunc f )
 {
   gamestate.paramtextcmds.insert( ParamTextCmds::value_type( cmd, f ) );
+}
+
+namespace
+{
+// A single number of a colour slot. strtoul takes the base from the prefix, so 0x461 and 1701 both
+// read, and it stops at trailing text the way the one-colour form always has.
+bool parse_color_value( const std::string& str, u16* value )
+{
+  std::string trimmed = Clib::strtrim( str );
+  if ( trimmed.empty() || !isdigit( static_cast<unsigned char>( trimmed[0] ) ) )
+    return false;
+  *value = Clib::clamp_convert<u16>( strtoul( trimmed.c_str(), nullptr, 0 ) );
+  return true;
+}
+
+// One entry of a colour slot: "1701", or "1701-1754" for an inclusive range.
+bool parse_color_entry( const std::string& entry, std::pair<u16, u16>* range )
+{
+  auto dash = entry.find( '-' );
+  if ( dash == std::string::npos )
+  {
+    if ( !parse_color_value( entry, &range->first ) )
+      return false;
+    range->second = range->first;
+    return true;
+  }
+  return parse_color_value( entry.substr( 0, dash ), &range->first ) &&
+         parse_color_value( entry.substr( dash + 1 ), &range->second );
+}
+}  // namespace
+
+std::vector<std::pair<u16, u16>> parse_equip_colors( const std::string& spec, bool* malformed )
+{
+  std::vector<std::pair<u16, u16>> choices;
+  *malformed = false;
+  if ( Clib::strtrim( spec ).empty() )
+    return choices;
+
+  for ( std::string::size_type pos = 0;; )
+  {
+    auto comma = spec.find( ',', pos );
+    std::pair<u16, u16> range;
+    if ( parse_color_entry( spec.substr( pos, comma - pos ), &range ) )
+      choices.push_back( range );
+    else
+      *malformed = true;
+    if ( comma == std::string::npos )
+      break;
+    pos = comma + 1;
+  }
+  return choices;
 }
 
 bool FindEquipTemplate( const std::string& template_name, Clib::ConfigElem& elem )
@@ -141,11 +195,24 @@ Bscript::BObjectImp* equip_from_template( Mobile::Character* chr, const std::str
           continue;
         }
       }
-      std::string color_str;
+      // The colour slot is the whole rest of the line: it may hold commas and spaces.
+      std::string color_spec;
       unsigned short color = 0;
-      if ( is >> color_str )
+      if ( std::getline( is >> std::ws, color_spec ) )
       {
-        color = static_cast<unsigned short>( strtoul( color_str.c_str(), nullptr, 0 ) );
+        bool malformed = false;
+        auto choices = parse_equip_colors( color_spec, &malformed );
+        if ( malformed )
+        {
+          ERROR_PRINTLN( "Bad color '{}' for '{}' in equip.cfg template '{}'", color_spec, ot_str,
+                         template_name );
+        }
+        if ( !choices.empty() )
+        {
+          const auto& range = choices[Clib::random_int( static_cast<int>( choices.size() ) - 1 )];
+          color =
+              static_cast<unsigned short>( Clib::random_int_range( range.first, range.second ) );
+        }
       }
       Items::Item* it = Items::Item::create( objtype );
       if ( it != nullptr )

@@ -2,9 +2,19 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-13-2026</datemodified>
+		<datemodified>09-17-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-17-2026</date>
+			<author>AsYlum:</author>
+			<change type="Added">equip.cfg color slots accept an inclusive range written low-high, and a comma separated<br/>
+list whose entries are single colors or ranges, so one template can dress two characters<br/>
+differently. `Equip Robe 1701-1754` gives a hue anywhere in that band, and<br/>
+`Equip Sandals 1940, 1965, 1109, 1150-1154` picks one of the four entries with equal<br/>
+odds, then a value inside it when that entry is a range. EquipFromTemplate() makes the<br/>
+pick per item on every call, and skips and logs a color it cannot read.</change>
+		</entry>
 		<entry>
 			<date>09-13-2026</date>
 			<author>Turley:</author>

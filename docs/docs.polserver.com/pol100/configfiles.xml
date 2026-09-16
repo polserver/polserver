@@ -13,7 +13,7 @@
       <list>elipsis ... : repeat entries are allowed.</list>
       <bottom>This means the punctuation in these cases should NOT be in the actual config files used by POL, they only appear here for information purposes. Exception: curly braces { } are used to define an element in a config file. These must be present in the actual file.</bottom>
     </desc>
-    <datemodified>09/13/2026</datemodified>
+    <datemodified>09/17/2026</datemodified>
 </fileheader>
 
 
@@ -837,13 +837,16 @@ ArmorZone
     <structure>
 Equipment (templatename)
 {
-    [Armor  (item name or objtype) [(color)]]
-    [Weapon (item name or objtype) [(color)]]
-    [Equip  (item name or objtype) [(color)]]
+    [Armor  (item name or objtype) [(colors)]]
+    [Weapon (item name or objtype) [(colors)]]
+    [Equip  (item name or objtype) [(colors)]]
 }
 [Equipment...]
 </structure>
     <explain>Note 'Armor', 'Weapon', and 'Equip' are all equvilent, they no longer hold any seperate meaning.</explain>
+    <explain>'colors' is a single color (0x461), an inclusive range written low-high (1701-1754), or a comma separated list whose entries are either of those (1940, 1965, 1109, 1150-1154). Values may be decimal or hex, and spaces around the '-' and ',' are allowed.</explain>
+    <explain>A list entry is picked at random, every entry equally likely however wide a range it covers. A picked range then gives a value anywhere between its ends. The pick is made per item each time the template runs, so one template dresses two characters differently.</explain>
+    <explain>An entry that cannot be read is skipped and reported in the log; the item is still created, and is left uncolored if nothing in its color slot could be read.</explain>
     <explain>Careful with comment lines in this file, they might cause problems.</explain>
 </cfgfile>
 
