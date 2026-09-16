@@ -8,6 +8,7 @@ endprogram
 
 var glob := 1;
 var myOtherGlob := "myOtherGlob";
+var cb_glob := "cb";
 
 exported function test_call()
   var res := run_script_to_completion( ":testfuncref:external", @user_func );
@@ -175,3 +176,122 @@ function embedded_globals()
   }();
 endfunction
 
+
+// A script that calls one of its own function references while it is executing inside another
+// script's function has to switch the program context back: the jump target is an offset in the
+// function reference's program, not in the one currently loaded.
+exported function test_call_back_into_caller()
+  var h := start_callback_script();
+
+  if ( !h )
+    return h;
+  endif
+
+  // the reference has to go through a variable: `h.callee( ... )` is a method call on the struct
+  var callee := h.callee;
+  var res := callee( @my_own_func );
+
+  h.proc.SendEvent( 1 );
+
+  return ret_error_not_equal( res, "p1|mine:cb", $"wrong program context: {res}" );
+endfunction
+
+// A function reference built while this executor was inside another program carries that
+// program but this executor's pid, so a pid comparison alone does not detect it.
+exported function test_ref_made_in_ext_prog()
+  var h := start_callback_script();
+
+  if ( !h )
+    return h;
+  endif
+
+  var maker := h.maker;
+  var remote := maker();
+  var res := remote();
+
+  h.proc.SendEvent( 1 );
+
+  return ret_error_not_equal( res, "p1", $"wrong program context: {res}" );
+endfunction
+
+// Two instances of one class, created by two different scripts, must not share globals when the
+// same method is called on both from this executor.
+exported function test_classinst_globals()
+  var one := start_owner_script( "one" );
+
+  if ( !one )
+    return one;
+  endif
+
+  var two := start_owner_script( "two" );
+
+  if ( !two )
+    return two;
+  endif
+
+  var res := { one.inst.who(), two.inst.who() };
+
+  one.proc.SendEvent( 1 );
+  two.proc.SendEvent( 1 );
+
+  return ret_error_not_equal( res, { "one", "two" },
+                              $"class method ran against the wrong script's globals: {res}" );
+endfunction
+
+// Constructing through a constructor function reference received from another program must build
+// the instance from that program, not from the one this executor is running.
+exported function test_classinst_ctor_ref()
+  var one := start_owner_script( "one" );
+
+  if ( !one )
+    return one;
+  endif
+
+  var ctor := one.inst.function;
+  var fresh := ctor.new();
+  var res := fresh.who();
+
+  one.proc.SendEvent( 1 );
+
+  return ret_error_not_equal( res, "one", $"instance built from the wrong program: {res}" );
+endfunction
+
+function start_callback_script()
+  var proc := start_script( ":testfuncref:callback", GetPid() );
+
+  if ( !proc )
+    return proc;
+  endif
+
+  var ev := wait_for_event( 1 );
+
+  if ( !ev )
+    return ret_error( $"no event from callback script: {ev}" );
+  elseif ( ev.type != "ready" )
+    return ret_error( $"Unexpected event {ev}" );
+  endif
+
+  return struct{ proc := proc, callee := ev.callee, maker := ev.maker };
+endfunction
+
+function start_owner_script( owner )
+  var proc := start_script( ":testfuncref:classowner", { GetPid(), owner } );
+
+  if ( !proc )
+    return proc;
+  endif
+
+  var ev := wait_for_event( 1 );
+
+  if ( !ev )
+    return ret_error( $"no event from classowner script: {ev}" );
+  elseif ( ev.type != "instance" )
+    return ret_error( $"Unexpected event {ev}" );
+  endif
+
+  return struct{ proc := proc, inst := ev.inst, owner := ev.owner };
+endfunction
+
+function my_own_func()
+  return $"mine:{cb_glob}";
+endfunction

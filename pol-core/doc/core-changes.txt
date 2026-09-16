@@ -1,4 +1,12 @@
 -- POL100.3.0 --
+09-17-2026 AsYlum:
+    Fixed: Crash or wrong results when a script called one of its own function references
+           while it was running inside a function of another script.
+    Fixed: Class instances of the same class created by different scripts shared the first
+           one's global variables once a method had been called on any of them.
+    Fixed: Calling .new() on a constructor function reference received from another script
+           built the instance from the calling script instead, which could shut the shard
+           down with an assertion failure.
 09-13-2026 Turley:
     Fixed: The tip window showed the name of the file the tip came from instead of what was
            written in it, and before that showed nothing at all.

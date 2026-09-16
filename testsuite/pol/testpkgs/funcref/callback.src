@@ -1,0 +1,23 @@
+use os;
+
+var p1_glob := "p1";
+
+program callback( test_pid )
+  GetProcess( test_pid ).SendEvent( struct{ type := "ready",
+                                            callee := @Callee,
+                                            maker := @MakeRemoteRef } );
+  Wait_For_Event( 10 );
+  return 1;
+endprogram
+
+// Runs on the *caller's* executor. `cb` is a function reference that executor built in its own
+// program, so calling it has to switch the program context back to that program.
+function Callee( cb )
+  return $"{p1_glob}|{cb()}";
+endfunction
+
+// Hands back a function reference built while the caller's executor is inside this program: its
+// program differs from the caller's, but its pid is the caller's.
+function MakeRemoteRef()
+  return @() { return p1_glob; };
+endfunction
