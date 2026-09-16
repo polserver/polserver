@@ -8,6 +8,17 @@
 		<entry>
 			<date>09-20-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">Crash or wrong results when a script called one of its own function references<br/>
+while it was running inside a function of another script.</change>
+			<change type="Fixed">Class instances of the same class created by different scripts shared the first<br/>
+one's global variables once a method had been called on any of them.</change>
+			<change type="Fixed">Calling .new() on a constructor function reference received from another script<br/>
+built the instance from the calling script instead, which could shut the shard<br/>
+down with an assertion failure.</change>
+		</entry>
+		<entry>
+			<date>09-20-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">uo::SendQuestArrow() sent a different arrow id than the one it returned, so a packet log<br/>
 or an outgoing packet hook saw a number that did not match. Arrows themselves were<br/>
 unaffected.</change>

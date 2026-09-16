@@ -48,7 +48,7 @@ unsigned BClassInstance::index() const
   return index_;
 }
 
-BFunctionRef* BClassInstance::makeMethod( const char* method_name )
+std::optional<unsigned> BClassInstance::findMethodIndex( const char* method_name ) const
 {
   const auto& methods = prog_->class_descriptors[index_].methods;
   auto method_itr =
@@ -63,10 +63,19 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
                     } );
 
   if ( method_itr == methods.end() )
+    return {};
+
+  return method_itr->second.function_reference_index;
+}
+
+BFunctionRef* BClassInstance::makeMethod( const char* method_name )
+{
+  auto funcref_index = findMethodIndex( method_name );
+
+  if ( !funcref_index )
     return nullptr;
 
-  return new BFunctionRef( prog_, pid_, method_itr->second.function_reference_index, globals,
-                           ValueStackCont{} );
+  return new BFunctionRef( prog_, pid_, *funcref_index, globals, ValueStackCont{} );
 }
 
 const char* BClassInstance::typetag() const
@@ -99,6 +108,8 @@ bool BClassInstance::isTrue() const
 BObjectImp* BClassInstance::call_method( const char* method_name, Executor& ex )
 {
   BFunctionRef* funcr = nullptr;
+  // owns a method function reference built for this call; the members below are borrowed instead
+  BObjectRef method_owner;
 
   BObjectImp* callee{ nullptr };
   // Prefer members over class methods by checking contents first.
@@ -116,32 +127,31 @@ BObjectImp* BClassInstance::call_method( const char* method_name, Executor& ex )
   }
   else
   {
-    // Have we already looked up this method?
-    Executor::ClassMethodKey key{ ex.prog_, index(), method_name };
+    // Have we already looked up this method? The cache holds the method's index only: a cached
+    // function reference would carry the globals and pid of whichever instance was called first,
+    // and every later instance of the class would then run its methods against that instance's
+    // script. The key is keyed on this instance's program, not on the executor's, because an
+    // executor runs another program's code for the length of an external call.
+    Executor::ClassMethodKey key{ prog_, index(), method_name };
     auto cache_itr = ex.class_methods.find( key );
+    std::optional<unsigned> funcref_index;
+
     if ( cache_itr != ex.class_methods.end() )
+      funcref_index = cache_itr->second;
+    else if ( ( funcref_index = findMethodIndex( method_name ) ) )
+      ex.class_methods[key] = *funcref_index;
+
+    // Does the class define this method?
+    if ( funcref_index )
     {
       // Switch the callee to the function reference: if the
       // funcr->validCall fails, we will go into the funcref
       // ins_call_method, giving the error about invalid parameter counts.
-      funcr = cache_itr->second->impptr_if<BFunctionRef>();
+      method_owner.set(
+          new BFunctionRef( prog_, pid_, *funcref_index, globals, ValueStackCont{} ) );
+      funcr = method_owner->impptr<BFunctionRef>();
       callee = funcr;
       method_name = getObjMethod( MTH_CALL_METHOD )->code;
-    }
-    else
-    {
-      // Does the class define this method?
-      funcr = makeMethod( method_name );
-
-      if ( funcr != nullptr )
-      {
-        // Cache the method for future lookups
-        ex.class_methods[key] = BObjectRef( funcr );
-
-        // Switch the callee to the function reference.
-        callee = funcr;
-        method_name = getObjMethod( MTH_CALL_METHOD )->code;
-      }
     }
   }
 

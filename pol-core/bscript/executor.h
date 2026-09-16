@@ -571,7 +571,7 @@ protected:
     bool operator<( const ClassMethodKey& other ) const;
   };
 
-  std::map<ClassMethodKey, BObjectRef /*function ref*/> class_methods;
+  std::map<ClassMethodKey, unsigned /*function reference index*/> class_methods;
 };
 
 inline const std::string& Executor::scriptname() const
