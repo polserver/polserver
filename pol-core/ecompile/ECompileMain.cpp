@@ -1,5 +1,6 @@
 #include "ecompile/ECompileMain.h"
 
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <exception>
@@ -10,10 +11,12 @@
 #include <string>
 #include <system_error>
 #include <time.h>
+#include <vector>
 
 #include <fmt/std.h>
 
 #include "ecompile/EfswFileWatchListener.h"
+#include "ecompile/ProgressIndicator.h"
 
 #include "bscript/compiler/Compiler.h"
 #include "bscript/compiler/Profile.h"
@@ -90,6 +93,9 @@ void ECompileMain::showHelp()
 #ifdef WIN32
       "       -Pdir        set or change the EM and INC files Environment Variables\n"
 #endif
+      "       -p           progress mode: replace per-script output with one line that\n"
+      "                    updates in place, and show the summary at the end. The count\n"
+      "                    covers every script considered, including up-to-date ones\n"
       "       -q           quiet mode (suppress normal output)\n"
       "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
       "       -ri [dir]    (as '-r' but only compile .inc files)\n"
@@ -115,6 +121,7 @@ static char** s_argv;
 
 int debug = 0;
 bool quiet = false;
+bool progress_mode = false;
 bool keep_building = false;
 bool force_update = false;
 bool format_source = false;
@@ -133,9 +140,15 @@ struct Summary
   unsigned UpToDateScripts = 0;
   unsigned CompiledScripts = 0;
   unsigned ScriptsWithCompileErrors = 0;
+  // Written directly from the compile worker threads, unlike the counters above, which the
+  // threaded path accumulates locally and folds in once the pool has drained.
+  std::atomic<unsigned long> TotalErrors{ 0 };
+  std::atomic<unsigned long> TotalWarnings{ 0 };
   size_t ThreadCount = 0;
   Compiler::Profile profile;
 } summary;
+
+std::unique_ptr<ProgressIndicator> progress;
 
 Compiler::SourceFileCache em_parse_tree_cache( summary.profile );
 Compiler::SourceFileCache inc_parse_tree_cache( summary.profile );
@@ -155,6 +168,33 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
   return compiler;
 }
 
+// What the compiler reported for the file this thread has in hand. A file that fails before
+// reaching the compiler -- a filespec that is not a script, an .ecl that cannot be written --
+// still owes the run one error, and this is how that is told apart from double counting.
+thread_local unsigned file_error_count = 0;
+
+void accumulate_report_counts( const Compiler::Compiler& compiler )
+{
+  file_error_count += compiler.error_count();
+  summary.TotalErrors += compiler.error_count();
+  summary.TotalWarnings += compiler.warning_count();
+}
+
+/// Makes a failed file count for at least one error, whether or not it got far enough to
+/// produce a diagnostic.
+void count_failed_file()
+{
+  if ( !file_error_count )
+    ++summary.TotalErrors;
+}
+
+/// Whether to print the per-script lines: -q drops them, -p replaces them with one line that
+/// is redrawn in place.
+bool show_script_chatter()
+{
+  return !quiet && !progress_mode;
+}
+
 void load_packages()
 {
   // No need to load packages if only formatting sources
@@ -172,13 +212,14 @@ void load_packages()
 
 void compile_inc( const std::string& path )
 {
-  if ( !quiet )
+  if ( show_script_chatter() )
     INFO_PRINTLN( "Compiling: {}", path );
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
   compiler->set_include_compile_mode();
   bool res = compiler->compile_file( path );
+  accumulate_report_counts( *compiler );
 
   if ( !res )
     throw std::runtime_error( "Error compiling file" );
@@ -200,19 +241,20 @@ bool format_file( const std::string& path )
     return true;
   }
 
-  if ( !quiet )
+  if ( show_script_chatter() )
     INFO_PRINTLN( "Formatting: {}", path );
 
   std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
   bool success =
       compiler->format_file( path.c_str(), ext.compare( ".em" ) == 0, format_source_inplace );
+  accumulate_report_counts( *compiler );
 
   if ( expect_compile_failure )
   {
     if ( !success )  // good, it failed
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Formatting failed as expected." );
       return true;
     }
@@ -371,7 +413,7 @@ bool compile_file( const std::string& path )
     }
     if ( all_old )
     {
-      if ( !quiet && compilercfg.DisplayUpToDateScripts )
+      if ( show_script_chatter() && compilercfg.DisplayUpToDateScripts )
         INFO_PRINTLN( "{} is up-to-date.", filename_ecl );
       return false;
     }
@@ -379,12 +421,13 @@ bool compile_file( const std::string& path )
 
 
   {
-    if ( !quiet )
+    if ( show_script_chatter() )
       INFO_PRINTLN( "Compiling: {}", path );
 
     std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
     bool success = compiler->compile_file( path.c_str() );
+    accumulate_report_counts( *compiler );
 
     em_parse_tree_cache.keep_some();
     inc_parse_tree_cache.keep_some();
@@ -393,7 +436,7 @@ bool compile_file( const std::string& path )
     {
       if ( !success )  // good, it failed
       {
-        if ( !quiet )
+        if ( show_script_chatter() )
           INFO_PRINTLN( "Compilation failed as expected." );
         return true;
       }
@@ -405,7 +448,7 @@ bool compile_file( const std::string& path )
       throw std::runtime_error( "Error compiling file" );
 
 
-    if ( !quiet )
+    if ( show_script_chatter() )
       INFO_PRINTLN( "Writing:   {}", filename_ecl );
 
     if ( !compiler->write_ecl( filename_ecl ) )
@@ -415,33 +458,33 @@ bool compile_file( const std::string& path )
 
     if ( compilercfg.GenerateListing )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Writing:   {}", filename_lst );
       compiler->write_listing( filename_lst );
     }
     else if ( Clib::FileExists( filename_lst.c_str() ) )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Deleting:  {}", filename_lst );
       Clib::RemoveFile( filename_lst );
     }
 
     if ( compilercfg.GenerateAbstractSyntaxTree )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Writing:   {}", filename_ast );
       compiler->write_string_tree( filename_ast );
     }
     else if ( Clib::FileExists( filename_ast.c_str() ) )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Deleting:  {}", filename_ast );
       Clib::RemoveFile( filename_ast );
     }
 
     if ( compilercfg.GenerateDebugInfo )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
       {
         INFO_PRINTLN( "Writing:   {}", filename_dbg );
         if ( compilercfg.GenerateDebugTextInfo )
@@ -451,20 +494,20 @@ bool compile_file( const std::string& path )
     }
     else if ( Clib::FileExists( filename_dbg.c_str() ) )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Deleting:  {}", filename_dbg );
       Clib::RemoveFile( filename_dbg );
     }
 
     if ( compilercfg.GenerateDependencyInfo )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Writing:   {}", filename_dep );
       compiler->write_included_filenames( filename_dep );
     }
     else if ( Clib::FileExists( filename_dep.c_str() ) )
     {
-      if ( !quiet )
+      if ( show_script_chatter() )
         INFO_PRINTLN( "Deleting:  {}", filename_dep );
       Clib::RemoveFile( filename_dep );
     }
@@ -474,6 +517,7 @@ bool compile_file( const std::string& path )
 
 bool process_file( const std::string& path )
 {
+  file_error_count = 0;
   if ( format_source )
     return format_file( path );
   return compile_file( path );
@@ -494,6 +538,7 @@ void process_file_wrapper( const std::string& path,
   {
     ++summary.CompiledScripts;
     ++summary.ScriptsWithCompileErrors;
+    count_failed_file();
     if ( !keep_building )
       throw;
   }
@@ -589,8 +634,15 @@ int readargs( int argc, char** argv )
         break;
       }
 
+      case 'p':
+        progress_mode = true;
+        compilercfg.DisplayFileOutcome = false;
+        compilercfg.DisplaySummary = true;
+        break;
+
       case 'q':
         quiet = true;
+        compilercfg.DisplayFileOutcome = false;
         break;
 
       case 'w':
@@ -728,10 +780,12 @@ void apply_configuration()
   inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
-void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
-                   const std::function<void( const std::string& )>& callback )
+/// Walks the trees and answers what would be compiled. Collecting before compiling is what
+/// makes a total known, and it keeps a command line that names several trees to one total.
+std::vector<std::string> collect_files( const std::vector<fs::path>& basedirs, bool inc_files )
 {
-  std::set<std::string> files;
+  std::vector<std::string> result;
+  std::set<std::string> seen;
   for ( const auto& basedir : basedirs )
   {
     if ( !fs::is_directory( basedir ) )
@@ -741,7 +795,7 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
           dir_itr != fs::recursive_directory_iterator(); ++dir_itr )
     {
       if ( Clib::exit_signalled )
-        return;
+        return result;
       if ( auto fn = dir_itr->path().filename().string(); !fn.empty() && *fn.begin() == '.' )
       {
         if ( dir_itr->is_directory() )
@@ -755,25 +809,31 @@ void recurse_call( const std::vector<fs::path>& basedirs, bool inc_files,
       if ( inc_files )
       {
         if ( !ext.compare( ".inc" ) )
-          if ( files.insert( file ).second )
-            callback( file );
+          if ( seen.insert( file ).second )
+            result.push_back( file );
       }
       else if ( !ext.compare( ".src" ) || !ext.compare( ".hsr" ) ||
                 ( compilercfg.CompileAspPages && !ext.compare( ".asp" ) ) )
       {
-        if ( files.insert( file ).second )
-          callback( file );
+        if ( seen.insert( file ).second )
+          result.push_back( file );
       }
     }
   }
+  return result;
 }
 
-void process_dirs( const std::vector<fs::path>& dirs, bool compile_inc )
+void process_files( const std::vector<std::string>& files )
 {
   if ( !compilercfg.ThreadedCompilation )
   {
-    recurse_call( dirs, compile_inc,
-                  []( const std::string& file ) { process_file_wrapper( file ); } );
+    for ( const auto& file : files )
+    {
+      if ( Clib::exit_signalled )
+        return;
+      progress->advance( file );
+      process_file_wrapper( file );
+    }
     return;
   }
   std::atomic<unsigned> compiled_scripts( 0 );
@@ -786,13 +846,14 @@ void process_dirs( const std::vector<fs::path>& dirs, bool compile_inc )
       thread_count = static_cast<unsigned>( compilercfg.NumberOfThreads );
     threadhelp::TaskThreadPool pool( thread_count, "ecompile" );
     summary.ThreadCount = pool.size();
-    auto callback = [&]( const std::string& file )
+    for ( const auto& queued : files )
     {
       pool.push(
-          [&, file]()
+          [&, file = queued]()
           {
             if ( !par_keep_building || Clib::exit_signalled )
               return;
+            progress->advance( file );
             try
             {
               if ( process_file( file ) )
@@ -804,6 +865,7 @@ void process_dirs( const std::vector<fs::path>& dirs, bool compile_inc )
             {
               ++compiled_scripts;
               ++error_scripts;
+              count_failed_file();
               ERROR_PRINTLN( "failed to compile {}: {}", file, e.what() );
               if ( !keep_building )
                 par_keep_building = false;
@@ -814,12 +876,12 @@ void process_dirs( const std::vector<fs::path>& dirs, bool compile_inc )
               Clib::force_backtrace();
             }
           } );
-    };
-    recurse_call( dirs, compile_inc, callback );
+    }
   }
-  summary.CompiledScripts = compiled_scripts;
-  summary.UpToDateScripts = uptodate_scripts;
-  summary.ScriptsWithCompileErrors = error_scripts;
+  // Accumulate: one command line can name several trees, and each gets its own pool.
+  summary.CompiledScripts += compiled_scripts;
+  summary.UpToDateScripts += uptodate_scripts;
+  summary.ScriptsWithCompileErrors += error_scripts;
 }
 
 void DisplaySummary( const Tools::Timer<>& timer )
@@ -838,6 +900,19 @@ void DisplaySummary( const Tools::Timer<>& timer )
   if ( summary.UpToDateScripts )
     tmp += fmt::format( "    {} script{} already up-to-date.\n", summary.UpToDateScripts,
                         ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
+
+  {
+    // Warnings are counted whether or not they were displayed, so only claim a total the user
+    // could have seen.
+    auto errors = summary.TotalErrors.load();
+    tmp += fmt::format( "    {} error{}", errors, ( errors == 1 ? "" : "s" ) );
+    if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
+    {
+      auto warnings = summary.TotalWarnings.load();
+      tmp += fmt::format( ", {} warning{}", warnings, ( warnings == 1 ? "" : "s" ) );
+    }
+    tmp += ".\n";
+  }
 
   if ( show_timing_details )
   {
@@ -1015,6 +1090,10 @@ void EnterWatchMode()
         summary.CompiledScripts = 0;
         summary.UpToDateScripts = 0;
         summary.ScriptsWithCompileErrors = 0;
+        summary.TotalErrors = 0;
+        summary.TotalWarnings = 0;
+        progress =
+            std::make_unique<ProgressIndicator>( progress_mode && !quiet, to_compile.size() );
         em_parse_tree_cache.clear();
         inc_parse_tree_cache.clear();
 
@@ -1032,6 +1111,7 @@ void EnterWatchMode()
           std::set<fs::path> new_dependencies;
           try
           {
+            progress->advance( filepath.generic_string() );
             process_file_wrapper( filepath.generic_string(), &removed_dependencies,
                                   &new_dependencies );
           }
@@ -1065,6 +1145,7 @@ void EnterWatchMode()
         }
 
         timer.stop();
+        progress->clear();
         if ( compilercfg.DisplaySummary && !quiet )
         {
           DisplaySummary( timer );
@@ -1075,13 +1156,17 @@ void EnterWatchMode()
   }
 }
 
-/**
- * Runs the compilation threads
- */
-void AutoCompile()
+/// One group of scripts named by the command line, compiled together.
+struct Batch
 {
-  bool save = compilercfg.OnlyCompileUpdatedScripts;
-  compilercfg.OnlyCompileUpdatedScripts = compilercfg.UpdateOnlyOnAutoCompile;
+  std::vector<std::string> files;
+  bool autocompile = false;   // -A[u]: compile under its own OnlyCompileUpdatedScripts setting
+  bool update_only = false;   // what -A[u] asked for, read when the batch was collected
+};
+
+/// The scripts of the main script root and of every enabled package.
+Batch collect_autocompile()
+{
   std::vector<fs::path> dirs;
   compiled_dirs.emplace( fs::canonical( compilercfg.PolScriptRoot ) );
 
@@ -1091,8 +1176,24 @@ void AutoCompile()
     compiled_dirs.emplace( fs::canonical( pkg->dir() ) );
     dirs.emplace_back( pkg->dir() );
   }
-  process_dirs( dirs, false );
-  compilercfg.OnlyCompileUpdatedScripts = save;
+  return Batch{ collect_files( dirs, false ), true, compilercfg.UpdateOnlyOnAutoCompile };
+}
+
+// forspec() takes a plain function pointer, so the sink cannot be captured.
+std::vector<std::string>* forspec_sink = nullptr;
+
+/// The files a filespec on the command line names; on Windows it may be a wildcard.
+Batch collect_filespec( const char* spec )
+{
+  Batch batch;
+#ifdef _WIN32
+  forspec_sink = &batch.files;
+  Clib::forspec( spec, []( const char* pathname ) { forspec_sink->emplace_back( pathname ); } );
+  forspec_sink = nullptr;
+#else
+  batch.files.emplace_back( spec );
+#endif
+  return batch;
 }
 
 /**
@@ -1107,6 +1208,7 @@ bool run( int argc, char** argv, int* res )
   // Determine the run mode and do the compile itself
   Tools::Timer<> timer;
   bool any = false;
+  std::vector<Batch> batches;
 
   for ( int i = 1; i < argc; i++ )
   {
@@ -1121,7 +1223,7 @@ bool run( int argc, char** argv, int* res )
         compilercfg.UpdateOnlyOnAutoCompile = ( argv[i][2] == 'u' );
         any = true;
 
-        AutoCompile();
+        batches.push_back( collect_autocompile() );
       }
       else if ( argv[i][1] == 'r' )
       {
@@ -1134,7 +1236,7 @@ bool run( int argc, char** argv, int* res )
           dir.assign( argv[i] );
 
         compiled_dirs.emplace( fs::canonical( dir ) );
-        process_dirs( { dir }, compile_inc );
+        batches.push_back( Batch{ collect_files( { dir }, compile_inc ), false, false } );
       }
       else if ( argv[i][1] == 'C' )
       {
@@ -1145,22 +1247,42 @@ bool run( int argc, char** argv, int* res )
     else
     {
       any = true;
-#ifdef _WIN32
-      Clib::forspec( argv[i], []( const char* pathname ) { process_file_wrapper( pathname ); } );
-#else
-      process_file_wrapper( argv[i] );
-#endif
+      batches.push_back( collect_filespec( argv[i] ) );
     }
   }
 
   if ( !any && compilercfg.AutoCompileByDefault )
   {
     any = true;
-    AutoCompile();
+    batches.push_back( collect_autocompile() );
+  }
+
+  size_t total = 0;
+  for ( const auto& batch : batches )
+    total += batch.files.size();
+  // -F prints the formatted source to stdout, which a line redrawn over it would corrupt.
+  progress = std::make_unique<ProgressIndicator>(
+      progress_mode && !quiet && !( format_source && !format_source_inplace ), total );
+  // Blanks the line however we leave: without -b the first error throws straight out of here.
+  struct ProgressScope
+  {
+    ~ProgressScope() { progress.reset(); }
+  } progress_scope;
+
+  for ( const auto& batch : batches )
+  {
+    if ( Clib::exit_signalled )
+      break;
+    bool save = compilercfg.OnlyCompileUpdatedScripts;
+    if ( batch.autocompile )
+      compilercfg.OnlyCompileUpdatedScripts = batch.update_only;
+    process_files( batch.files );
+    compilercfg.OnlyCompileUpdatedScripts = save;
   }
 
   // Execution is completed: start final/cleanup tasks
   timer.stop();
+  progress->clear();
 
   if ( any && compilercfg.DisplaySummary && !quiet )
   {

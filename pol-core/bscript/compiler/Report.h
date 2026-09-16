@@ -59,6 +59,7 @@ public:
   [[noreturn]] inline void fatal( const SourceLocation& source_location,
                                   fmt::format_string<Args...>&& format, Args&&... args )
   {
+    ++errors;
     auto msg = fmt::format( format, std::forward<Args>( args )... );
     report_error( source_location, msg );
     throw std::runtime_error( msg );

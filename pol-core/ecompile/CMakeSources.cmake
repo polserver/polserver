@@ -6,5 +6,7 @@ set (ecompile_sources  # sorted !
   ecompile.rc
   EfswFileWatchListener.cpp
   EfswFileWatchListener.h
+  ProgressIndicator.cpp
+  ProgressIndicator.h
   resource.h
 )

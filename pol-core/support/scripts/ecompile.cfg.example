@@ -121,6 +121,13 @@ GenerateDependencyInfo=1
 DisplayUpToDateScripts=0
 
 #
+# Display the 'xxx/script.src: N errors, M warnings.' line after each script.
+# The -q and -p command line options turn this off.
+# Default is 1
+#
+DisplayFileOutcome=1
+
+#
 # OptimizeObjectMembers
 # Default is 1
 #
