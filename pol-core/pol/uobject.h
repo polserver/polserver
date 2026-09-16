@@ -356,6 +356,7 @@ public:
                 ValueModPack::DEFAULT );
   DYN_PROPERTY( max_attack_range_increase, ValueModPack, PROP_MAX_ATTACK_RANGE_INCREASE,
                 ValueModPack::DEFAULT );
+  DYN_PROPERTY( damage_increase, ValueModPack, PROP_DAMAGE_INCREASE, ValueModPack::DEFAULT );
 
 
 private:

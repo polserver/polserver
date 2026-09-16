@@ -160,7 +160,8 @@ endfunction
 
 exported function apply_aos_misc_mod()
   var aos := { "faster_cast_recovery", "faster_casting", "hit_chance", "lower_mana_cost", "lower_reagent_cost",
-               "luck", "spell_damage_increase", "swing_speed_increase", "min_attack_range_increase", "max_attack_range_increase" };
+               "luck", "spell_damage_increase", "swing_speed_increase", "min_attack_range_increase", "max_attack_range_increase",
+               "damage_increase" };
   reset( aos, 0 );
   var res := apply_to_equipped( aos );
   if ( !res )

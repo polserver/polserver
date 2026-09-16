@@ -134,6 +134,10 @@ exported function load_save_uobject()
                  {
                    "MaxAttackRangeIncreaseMod",
                    { "max_attack_range_increase_mod", 27 }
+                 },
+                 {
+                   "DamageIncreaseMod",
+                   { "damage_increase_mod", 28 }
                  } };
 
   if ( testrun == 1 )

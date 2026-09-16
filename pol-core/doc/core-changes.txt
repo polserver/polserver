@@ -1,4 +1,16 @@
 -- POL100.3.0 --
+09-18-2026 AsYlum:
+    Added: damage_increase and damage_increase_mod on characters and items, completing the set of
+           AOS properties that already held spell_damage_increase. itemdesc.cfg and NPC templates
+           accept DamageIncrease and DamageIncreaseMod, an equipped item's value adds to the
+           wearer's total, and that total is sent in the status bar field that until now always
+           reported zero. The core stores and shows the value; what it does to damage is left to
+           scripts, as with the other properties in this family.
+     Note: weapon.dmg_mod is unchanged. It stays a flat addition to a weapon's rolled damage and
+           is not counted into damage_increase, so give a weapon its own DamageIncrease if it
+           should grant both.
+    Fixed: the script debugger listed only the first 59 members of a mobile, cutting off
+           everything from the resist caps onward. It lists them all now.
 09-17-2026 AsYlum:
     Added: equip.cfg color slots accept an inclusive range written low-high, and a comma separated
            list whose entries are single colors or ranges, so one template can dress two characters

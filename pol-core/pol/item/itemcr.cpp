@@ -237,6 +237,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
       item->min_attack_range_increase().setAsValue( id.min_attack_range_increase ) );
   item->max_attack_range_increase(
       item->max_attack_range_increase().setAsValue( id.max_attack_range_increase ) );
+  item->damage_increase( item->damage_increase().setAsValue( id.damage_increase ) );
 
   // new mods
   item->defence_increase( item->defence_increase().setAsMod( id.defence_increase_mod ) );
@@ -262,6 +263,7 @@ Item* Item::create( const ItemDesc& id, u32 serial )
       item->min_attack_range_increase().setAsMod( id.min_attack_range_increase_mod ) );
   item->max_attack_range_increase(
       item->max_attack_range_increase().setAsMod( id.max_attack_range_increase_mod ) );
+  item->damage_increase( item->damage_increase().setAsMod( id.damage_increase_mod ) );
 
   // if ItemDesc is a dynamic one desc could differ and would be lost
   const ItemDesc& origid = find_itemdesc( item->objtype_ );

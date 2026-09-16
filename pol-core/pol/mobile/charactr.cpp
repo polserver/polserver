@@ -2621,6 +2621,8 @@ void Character::updateEquipableProperties( Items::Item* item )
   if ( item->has_max_attack_range_increase() )
     max_attack_range_increase(
         max_attack_range_increase().addToValue( item->max_attack_range_increase() ) );
+  if ( item->has_damage_increase() )
+    damage_increase( damage_increase().addToValue( item->damage_increase() ) );
 
   // calc defence increase if lower than cap
   if ( item->has_defence_increase() )
@@ -2691,6 +2693,8 @@ void Character::resetEquipableProperties()
     min_attack_range_increase( min_attack_range_increase().setAsValue( 0 ) );
   if ( has_max_attack_range_increase() )
     max_attack_range_increase( max_attack_range_increase().setAsValue( 0 ) );
+  if ( has_damage_increase() )
+    damage_increase( damage_increase().setAsValue( 0 ) );
 }
 
 void Character::showarmor() const

@@ -13,6 +13,7 @@
 
 #include <chrono>
 #include <fstream>
+#include <iterator>
 #include <stddef.h>
 #include <string>
 
@@ -47,11 +48,9 @@ namespace Pol::Core
 using namespace Bscript;
 using namespace std::chrono_literals;
 
-// 14 members
 const char* poldbg_base_members[] = { "x",       "y",      "z",     "name",   "objtype",
                                       "graphic", "serial", "color", "facing", "height",
                                       "weight",  "multi",  "realm", "dirty" };
-// 58 members
 const char* poldbg_itemref_members[] = {  //
     "amount",
     "layer",
@@ -111,11 +110,12 @@ const char* poldbg_itemref_members[] = {  //
     "physical_resist_cap",
     "luck_mod",
     "swing_speed_increase",
-    "swing_speed_increase_mod"
+    "swing_speed_increase_mod",
+    "damage_increase",
+    "damage_increase_mod"
 
 };
 
-// 55 members
 const char* poldbg_mobileref_members[] = {  //
     "warmode",
     "gender",
@@ -206,7 +206,9 @@ const char* poldbg_mobileref_members[] = {  //
     "luck_mod",
     "swing_speed_increase",
     "swing_speed_increase_mod",
-    "parrychance_mod"
+    "parrychance_mod",
+    "damage_increase",
+    "damage_increase_mod"
 
 
 };
@@ -1183,14 +1185,14 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
   int i;
   if ( strrep.find( "ItemRef" ) != std::string::npos )
   {
-    for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
+    for ( i = 0; i < static_cast<int>( std::size( poldbg_base_members ) ); i++ )
     {
       memname = poldbg_base_members[i];
       results.push_back( fmt::format( "{} {}", memname,
                                       var.get_member( memname ).get()->impptr()->getStringRep() ) );
     }
 
-    for ( i = 0; i < 58; i++ )  // i = 27 members
+    for ( i = 0; i < static_cast<int>( std::size( poldbg_itemref_members ) ); i++ )
     {
       memname = poldbg_itemref_members[i];
       results.push_back( fmt::format( "{} {}", memname,
@@ -1200,14 +1202,14 @@ std::string DebugContext::cmd_localvarmembers( const std::string& rest, Results&
 
   else if ( strrep.find( "MobileRef" ) != std::string::npos )
   {
-    for ( i = 0; i < 14; i++ )  // i = member count for poldbg_base_members
+    for ( i = 0; i < static_cast<int>( std::size( poldbg_base_members ) ); i++ )
     {
       memname = poldbg_base_members[i];
       results.push_back( fmt::format( "{} {}", memname,
                                       var.get_member( memname ).get()->impptr()->getStringRep() ) );
     }
 
-    for ( i = 0; i < 59; i++ )  // i = 59 members
+    for ( i = 0; i < static_cast<int>( std::size( poldbg_mobileref_members ) ); i++ )
     {
       memname = poldbg_mobileref_members[i];
       results.push_back( fmt::format( "{} {}", memname,

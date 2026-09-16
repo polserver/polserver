@@ -2,9 +2,24 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-17-2026</datemodified>
+		<datemodified>09-18-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-18-2026</date>
+			<author>AsYlum:</author>
+			<change type="Added">damage_increase and damage_increase_mod on characters and items, completing the set of<br/>
+AOS properties that already held spell_damage_increase. itemdesc.cfg and NPC templates<br/>
+accept DamageIncrease and DamageIncreaseMod, an equipped item's value adds to the<br/>
+wearer's total, and that total is sent in the status bar field that until now always<br/>
+reported zero. The core stores and shows the value; what it does to damage is left to<br/>
+scripts, as with the other properties in this family.</change>
+			<change type="Note">weapon.dmg_mod is unchanged. It stays a flat addition to a weapon's rolled damage and<br/>
+is not counted into damage_increase, so give a weapon its own DamageIncrease if it<br/>
+should grant both.</change>
+			<change type="Fixed">the script debugger listed only the first 59 members of a mobile, cutting off<br/>
+everything from the resist caps onward. It lists them all now.</change>
+		</entry>
 		<entry>
 			<date>09-17-2026</date>
 			<author>AsYlum:</author>
