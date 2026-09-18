@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+09-17-2026 AsYlum:
+    Added: equip.cfg color slots accept an inclusive range written low-high, and a comma separated
+           list whose entries are single colors or ranges, so one template can dress two characters
+           differently. `Equip Robe 1701-1754` gives a hue anywhere in that band, and
+           `Equip Sandals 1940, 1965, 1109, 1150-1154` picks one of the four entries with equal
+           odds, then a value inside it when that entry is a range. EquipFromTemplate() makes the
+           pick per item on every call, and skips and logs a color it cannot read.
 09-13-2026 Turley:
     Fixed: The tip window showed the name of the file the tip came from instead of what was
            written in it, and before that showed nothing at all.

@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>09/03/2026</datemodified>
+    <datemodified>09/17/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -1444,11 +1444,10 @@ const ENUMERATE_ROOT_ONLY     := 0x2; // Do not list contents of sub-containers.
   <parameter name="character" value="Character Reference" />
   <parameter name="template" value="String" />
   <explain>Creates equipment for a character, using EQUIP.CFG. </explain>
-  <explain>Notes: Element properties in EQUIP.CFG can have the following formats:
-      Equip [hex_objtype] [hex_color]
-      Armor [armor_template_name]
-      Weapon [weapon_template_name]
-      Note that object type and color must be in hex format (0xHHHH) </explain>
+  <explain>Notes: Element properties in EQUIP.CFG have the format
+      Equip [item name or objtype] [colors]
+      with 'Armor' and 'Weapon' meaning the same as 'Equip'. Objtypes and colors may be decimal or hex (0xHHHH).</explain>
+  <explain>The color is optional, and may be a single value, an inclusive range written low-high, or a comma separated list whose entries are either of those. A list entry is picked at random, and a picked range gives a value anywhere between its ends, so the same template can dress two characters differently.</explain>
     <explain>Will not create an item that is not equippable.</explain>
   <return>1 on success</return>
   <error>"Invalid parameter"</error>

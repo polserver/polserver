@@ -118,6 +118,7 @@ void www_test();
 void clibmisc_test();
 void clibutil_test();
 void cfgfile_test();
+void equip_colors_test();
 void uop_test();
 void tokens_test();
 void dynthreadpool_test();

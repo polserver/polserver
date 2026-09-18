@@ -92,3 +92,60 @@ exported function equip_template_refusals( resmgr )
   endif
   return 1;
 endfunction
+
+// The colour slot may hold a range or a comma separated list, and the pick happens per item on
+// every run, so the same template dresses two characters differently. Every draw has to land on a
+// colour the template allows, and a range has to actually vary rather than always yield an end.
+exported function equip_template_random_colors( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", 46, 46, 0 );
+  if ( !npc )
+    return npc;
+  endif
+
+  // what the RandomColorEquipment pants line lists: three fixed hues and a range of five
+  var allowed := dictionary;
+  allowed[1940] := 1;
+  allowed[1965] := 1;
+  allowed[1109] := 1;
+  var hue := 1150;
+  while ( hue <= 1154 )
+    allowed[hue] := 1;
+    hue := hue + 1;
+  endwhile
+
+  var shirt_hues := dictionary;
+  var pants_hues := dictionary;
+  var draw;
+  for ( draw := 1; draw <= 20; draw := draw + 1 )
+    var res := EquipFromTemplate( npc, "RandomColorEquipment" );
+    if ( res != 1 )
+      return ret_error( $"the random color template answered {res}" );
+    endif
+
+    var shirt := GetEquipmentByLayer( npc, 5 );
+    var pants := GetEquipmentByLayer( npc, 4 );
+    if ( !shirt || !pants )
+      return ret_error( $"draw {draw} left a layer empty" );
+    endif
+    if ( shirt.color < 1701 || shirt.color > 1754 )
+      return ret_error( $"the ranged color came out as {shirt.color}, outside 1701-1754" );
+    endif
+    if ( !allowed.exists( pants.color ) )
+      return ret_error( $"the list color came out as {pants.color}, which is not one of its entries" );
+    endif
+
+    shirt_hues[shirt.color] := 1;
+    pants_hues[pants.color] := 1;
+    DestroyItem( shirt );
+    DestroyItem( pants );
+  endfor
+
+  // 20 draws all landing on one value would mean the entries past the first are never reached
+  if ( shirt_hues.size() < 2 )
+    return ret_error( $"20 draws from 1701-1754 all gave the same color" );
+  endif
+  if ( pants_hues.size() < 2 )
+    return ret_error( $"20 draws from the color list all gave the same color" );
+  endif
+  return 1;
+endfunction
