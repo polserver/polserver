@@ -16,8 +16,9 @@ namespace Pol::Testing
 {
 namespace
 {
-// The colour slot of an equip.cfg line, rendered as "low-high[,low-high...]" in hex, with a
-// trailing "!" when an entry was dropped as unreadable.
+// The colour slot of an equip.cfg line, rendered back in the config's own syntax with the values in
+// hex: "value" or "low-high", comma separated, with a trailing "!" when an entry was dropped as
+// unreadable.
 std::string parsed( const std::string& spec )
 {
   bool malformed = false;
@@ -27,7 +28,8 @@ std::string parsed( const std::string& spec )
   {
     if ( !out.empty() )
       out += ',';
-    out += fmt::format( "{:#x}-{:#x}", range.first, range.second );
+    out += range.first == range.second ? fmt::format( "{:#x}", range.first )
+                                       : fmt::format( "{:#x}-{:#x}", range.first, range.second );
   }
   if ( malformed )
     out += '!';
@@ -52,30 +54,33 @@ void equip_colors_test()
   check( "   ", "" );
 
   // single value, decimal or hex, as before
-  check( "1701", "0x6a5-0x6a5" );
-  check( "0x461", "0x461-0x461" );
-  check( "0x21 whatever", "0x21-0x21" );
+  check( "1701", "0x6a5" );
+  check( "0x461", "0x461" );
+  check( "0x21 whatever", "0x21" );
 
   // range
   check( "1701-1754", "0x6a5-0x6da" );
   check( "1150 - 1154", "0x47e-0x482" );
   check( "0x461-0x470", "0x461-0x470" );
+  // one colour wide is the same thing as writing that colour
+  check( "1701-1701", "0x6a5" );
+  // reversed is kept as written; the pick swaps it
   check( "1754-1701", "0x6da-0x6a5" );
 
   // list, with and without a range in it
-  check( "1940, 1965, 1109", "0x794-0x794,0x7ad-0x7ad,0x455-0x455" );
-  check( "1940 ,1965", "0x794-0x794,0x7ad-0x7ad" );
-  check( "1940, 1965, 1109, 1150-1154", "0x794-0x794,0x7ad-0x7ad,0x455-0x455,0x47e-0x482" );
+  check( "1940, 1965, 1109", "0x794,0x7ad,0x455" );
+  check( "1940 ,1965", "0x794,0x7ad" );
+  check( "1940, 1965, 1109, 1150-1154", "0x794,0x7ad,0x455,0x47e-0x482" );
 
   // a value wider than a colour is clamped rather than wrapped
-  check( "0xffffff", "0xffff-0xffff" );
+  check( "0xffffff", "0xffff" );
 
   // unreadable entries are dropped, whatever else is on the line
   check( "1701-", "!" );
   check( "-5", "!" );
   check( "abc", "!" );
-  check( "1940,,1965", "0x794-0x794,0x7ad-0x7ad!" );
-  check( "1940, abc", "0x794-0x794!" );
+  check( "1940,,1965", "0x794,0x7ad!" );
+  check( "1940, abc", "0x794!" );
 }
 
 }  // namespace Pol::Testing
