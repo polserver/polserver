@@ -11,6 +11,8 @@
            a pass but not yet gone back to waiting, which is the ordinary case and not a rare
            one. A shard with little else running is where it shows, since nothing else was due to
            wake the thread sooner.
+    Fixed: polsys::ReloadConfiguration() left config/combat.cfg alone, so an edit to it did
+           nothing until the next restart. It is re-read with the other files now.
 09-18-2026 AsYlum:
     Added: damage_increase and damage_increase_mod on characters and items, completing the set of
            AOS properties that already held spell_damage_increase. itemdesc.cfg and NPC templates
