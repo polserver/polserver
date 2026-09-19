@@ -293,3 +293,26 @@ if (${Python3_FOUND})
   list(APPEND CORETEST_LOCK_TESTS shard_test_roundtrip ecompile_watch_test)
 endif()
 set_tests_properties(${CORETEST_LOCK_TESTS} PROPERTIES RESOURCE_LOCK coretest)
+
+# Order within the family: unittest_pol wants the shard as ecompile left it, and
+# ecompile_watch_test rewrites .src files, so it runs last. DEPENDS only orders;
+# a failed dependency does not skip the dependent.
+set_tests_properties(shard_test_1 PROPERTIES DEPENDS unittest_pol)
+if (${Python3_FOUND})
+  set_tests_properties(ecompile_watch_test PROPERTIES DEPENDS shard_test_roundtrip)
+endif()
+
+# shard_test_1 is mostly waiting and gates the family, so a parallel run starts
+# it first and the escript suite runs underneath it.
+set_tests_properties(shard_test_1 PROPERTIES COST 600)
+
+# pol plus four mostly blocked python helpers. Two slots leave half of a
+# four-core runner for the escript suite.
+set(SHARD_TEST_1_PROCESSORS "2" CACHE STRING
+    "process slots ctest -j charges shard_test_1")
+mark_as_advanced(SHARD_TEST_1_PROCESSORS)
+set_tests_properties(shard_test_1 PROPERTIES PROCESSORS ${SHARD_TEST_1_PROCESSORS})
+
+# ctest's own bound, so a wedged shard reports a timeout. Kept above the
+# execute_process timeout in core_tests_start.cmake so that message wins.
+set_tests_properties(shard_test_1 PROPERTIES TIMEOUT 1200)
