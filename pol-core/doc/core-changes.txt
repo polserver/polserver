@@ -31,6 +31,8 @@
            a pass but not yet gone back to waiting, which is the ordinary case and not a rare
            one. A shard with little else running is where it shows, since nothing else was due to
            wake the thread sooner.
+    Fixed: polsys::ReloadConfiguration() left config/combat.cfg alone, so an edit to it did
+           nothing until the next restart. It is re-read with the other files now.
 09-19-2026 AsYlum:
     Added: ecompile -p replaces the line-per-script output with a single line that is redrawn in
            place, and prints the compilation summary at the end. Its count covers every script

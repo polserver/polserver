@@ -1,0 +1,106 @@
+// The war mode throttle, which the test shard otherwise never exercises.
+//
+// combat.cfg WarModeDelay is 0 here: the client tests change war mode constantly
+// and at the core default of one second every one of those changes costs a second
+// of retrying. This turns the throttle back on for the length of one case, at the
+// default value, so turning it off elsewhere does not quietly delete its coverage.
+
+use os;
+use uo;
+
+include "testutil";
+include "communication";
+
+const CFG_PATH := "::config/combat.cfg";
+
+// The core's own default, so what is proven here is the shipped behaviour. It is
+// also what the restore at the end waits out, so there is no reason to go higher.
+const GUARD_DELAY := 1;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_client_warmode_delay()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// Puts client 0 in or out of war mode, repeating while the core still throttles.
+// A request inside the window is answered with a movement packet and changes
+// nothing, so it is worth repeating rather than failing on.
+function force_warmode( war )
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( char.warmode != war and ReadMillisecondClock() < deadline )
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := 0 } );
+    waitForClient( 0, { EVT_WAR_MODE }, QUIET_SECS );
+    if ( char.warmode == war )
+      break;
+    endif
+    sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+  if ( char.warmode != war )
+    return ret_error( $"the core has war mode {char.warmode}, expected {war}" );
+  endif
+  return 1;
+endfunction
+
+// Split out so the caller can put the config back on every path out of it.
+function check_throttle()
+  // The first change after the throttle is armed goes through.
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 1, id := 0 } );
+  var ev := waitForClient( 0, { EVT_WAR_MODE } );
+  if ( !ev )
+    return ret_error( "the core refused the first war mode change" );
+  endif
+  if ( CInt( ev.war ) != 1 )
+    return ret_error( $"client answered war mode {ev.war}, expected 1" );
+  endif
+  if ( !char.warmode )
+    return ret_error( "the client was told war mode was set but the core has it clear" );
+  endif
+
+  // The next one inside the window is dropped: the core answers it with a movement
+  // packet instead of the war mode one and leaves the mode alone. The barrier is
+  // what says that answer is not merely late - it rides the same connection, so a
+  // war mode packet would be queued ahead of it.
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 0, id := 0 } );
+  var res := no_event_before_sync( clientcon, 0, { EVT_WAR_MODE } );
+  if ( !res )
+    return res;
+  endif
+  if ( !char.warmode )
+    return ret_error( "a war mode change inside the throttle window was applied anyway" );
+  endif
+  return 1;
+endfunction
+
+exported function warmode_delay_throttles( unused resmgn )
+  // Out of war mode to start with, while changes are still free.
+  var res := force_warmode( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var original := set_cfg_key( CFG_PATH, "WarModeDelay", GUARD_DELAY );
+  if ( !original )
+    return original;
+  endif
+
+  res := check_throttle();
+
+  // Put the shard back whatever the check made of it, and wait the window this test
+  // armed back out: the character's own deadline outlives the config change, so the
+  // next case to touch war mode would otherwise be the one that pays for it.
+  restore_cfg( CFG_PATH, original );
+  var restored := force_warmode( 0 );
+  if ( !res )
+    return res;
+  endif
+  return restored;
+endfunction

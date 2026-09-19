@@ -228,35 +228,13 @@ function notoriety_of( id, chr, x, y )
   return ret_error( $"client {id} never saw {chr.name} again" );
 endfunction
 
-// Rewrites one setting of config/servspecopt.cfg and reloads it. Unlike
-// party.cfg, servspecopt.cfg is re-read by ReloadConfiguration, so a case can
-// look at both sides of a flag - it just has to put the file back, whatever
-// happens. Returns the original contents, to hand to restore_ssopt().
+// servspecopt.cfg is one of the files ReloadConfiguration re-reads, so a case can
+// look at both sides of a flag - it just has to put the file back, whatever happens.
+// Returns the original contents, to hand to restore_ssopt().
 function set_ssopt( key, value )
-  var original := ReadFile( "::config/servspecopt.cfg" );
-  if ( original == error )
-    return ret_error( $"could not read config/servspecopt.cfg: {original}" );
-  endif
-
-  var rewritten := array{};
-  foreach line in ( original )
-    if ( Find( line, key, 1 ) != 1 )
-      rewritten.append( line );
-    endif
-  endforeach
-  rewritten.append( $"{key}={value}" );
-
-  var res := WriteFile( "::config/servspecopt.cfg", rewritten );
-  if ( res == error )
-    return ret_error( $"could not write config/servspecopt.cfg: {res}" );
-  endif
-
-  ReloadConfiguration();
-  return original;
+  return set_cfg_key( "::config/servspecopt.cfg", key, value );
 endfunction
 
 function restore_ssopt( original )
-  WriteFile( "::config/servspecopt.cfg", original );
-  ReloadConfiguration();
-  return 1;
+  return restore_cfg( "::config/servspecopt.cfg", original );
 endfunction
