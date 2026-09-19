@@ -289,3 +289,37 @@ if (${Python3_FOUND})
   list(APPEND CORETEST_LOCK_TESTS shard_test_roundtrip ecompile_watch_test)
 endif()
 set_tests_properties(${CORETEST_LOCK_TESTS} PROPERTIES RESOURCE_LOCK coretest)
+
+# The lock above serialises that family but says nothing about the order, and these
+# are not order independent: unittest_pol wants the shard as ecompile left it, and
+# ecompile_watch_test rewrites .src files under coretest, so it has to come last.
+# Five separate ctest invocations imposed this ordering by being five; one parallel
+# run has to say it out loud. DEPENDS is ordering only - a failed dependency does
+# not skip the dependent - which is what is wanted here.
+set_tests_properties(shard_test_1 PROPERTIES DEPENDS unittest_pol)
+if (${Python3_FOUND})
+  set_tests_properties(ecompile_watch_test PROPERTIES DEPENDS shard_test_roundtrip)
+endif()
+
+# shard_test_1 is minutes of mostly waiting on core timers, and it gates the rest of
+# the family, so it has to be the first thing a parallel run starts - the escript
+# suite's CPU then runs underneath it instead of after it. The dependency graph
+# already sorts it ahead of the escript tests, which have no dependencies at all;
+# this says so outright and outweighs whatever a developer's stale
+# Testing/Temporary/CTestCostData.txt claims. CI has none: bin-build/.gitignore
+# keeps Testing and CTest* out of the tree.
+set_tests_properties(shard_test_1 PROPERTIES COST 600)
+
+# It is pol plus four python helpers (see core_tests_start.cmake), nearly all of them
+# blocked on a socket or a timer, so charging it every slot would defeat the point and
+# charging it one would be a lie. Two leaves half a four-core runner for the escript
+# suite. Raise it if the escript tests are seen to slow the shard test down.
+set(SHARD_TEST_1_PROCESSORS "2" CACHE STRING
+    "process slots ctest -j charges shard_test_1")
+mark_as_advanced(SHARD_TEST_1_PROCESSORS)
+set_tests_properties(shard_test_1 PROPERTIES PROCESSORS ${SHARD_TEST_1_PROCESSORS})
+
+# ctest's own bound, so a wedged shard is reported as a timeout rather than as the
+# SEND_ERROR core_tests_start.cmake raises when its execute_process gives up. Kept
+# above that one so the inner message wins when both could fire.
+set_tests_properties(shard_test_1 PROPERTIES TIMEOUT 2400)
