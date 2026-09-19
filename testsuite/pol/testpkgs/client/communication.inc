@@ -527,13 +527,21 @@ endfunction
 // given, everything it has seen otherwise. Drops whatever is queued first, so
 // the answer cannot be an older listing.
 //
-// A client answers this out of its own loop, without regard for the packets
-// still on their way to it - the core hands those to a queue that a thread of
-// its own writes out - so a listing can be older than the change it is being
-// asked about. A caller looking for one object being there, or being gone, has
-// to be able to ask again and must go through client_finds_obj() or
-// client_lost_obj() rather than pick through the answer of a single listing.
+// The listing is taken behind a barrier, so it describes everything the core had
+// already sent this client and a single answer can be read straight. What it still
+// cannot speak for is anything sent later - by a timer, a task, an NPC or a script
+// the change started - and a caller waiting on one of those wants client_finds_obj()
+// or client_lost_obj(), which ask again until the deadline.
 function list_client_objs( clientcon, id, cont_serial := 0, timeout := 10 )
+  // Level with the core before asking. The client answers this out of its own loop
+  // and knows nothing of the packets still queued for it, so a listing taken straight
+  // after a change can describe the state before it - and a caller that only checks
+  // whether something is present reads that stale answer as a success. The barrier
+  // costs a round trip and makes the answer mean what it says.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   var todo := struct{ todo := "list_objects", id := id };
   if ( cont_serial )
@@ -601,12 +609,19 @@ endfunction
 // Asks a client what it thinks a mobile is wearing. Drops whatever is queued
 // first, so the answer cannot be an older listing.
 //
-// The same race as list_client_objs(): the client answers out of its own loop
-// and knows nothing of the packets still on their way to it, so a listing taken
-// straight after equipping something can be older than the equip. A caller
-// asking whether a layer is filled, or empty, has to go through
-// client_finds_layer() or client_lost_layer().
+// Behind the same barrier as list_client_objs(), so the answer describes everything
+// the core had already sent. A layer filled by something a timer or a script puts
+// there later still wants client_finds_layer() or client_lost_layer().
 function list_client_equipment( clientcon, id, serial, timeout := 10 )
+  // Level with the core before asking. The client answers this out of its own loop
+  // and knows nothing of the packets still queued for it, so a listing taken straight
+  // after a change can describe the state before it - and a caller that only checks
+  // whether something is present reads that stale answer as a success. The barrier
+  // costs a round trip and makes the answer mean what it says.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "list_equipped_items", arg := serial, id := id } );
   return waitForClient( id, { EVT_LIST_EQUIPPED_ITEMS }, timeout );
