@@ -243,3 +243,46 @@ function move_client( id, dir )
   endif
   return 1;
 endfunction
+
+// With container slots, every item offered into the trade window takes a slot of its own there.
+// The slot it had in the backpack means nothing here, and two items can arrive with the same one.
+exported function trade_items_take_free_slots( resmgn )
+  // Slots are still off here, so both items are created under slot 0.
+  var first := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  var second := resmgn.CreateItemInContainer( char.backpack, 0x1F03 );
+  if ( !first or !second )
+    return ret_error( "failed to create the items to offer" );
+  endif
+  first.movable := 1;
+  second.movable := 1;
+  var res := resmgn.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  res := open_trade();
+  if ( !res )
+    return res;
+  endif
+
+  var slots := array{};
+  foreach item in ( { first, second } )
+    res := MoveItemToSecureTradeWin( item, char );
+    if ( !res )
+      close_trades();
+      return ret_error( $"Could not offer an item: {res}" );
+    endif
+  endforeach
+  foreach item in ( { first, second } )
+    var slot := client_slot( clientcon, item.serial, char.tradewindow.serial );
+    if ( slot == error )
+      close_trades();
+      return slot;
+    endif
+    slots.append( slot );
+  endforeach
+  close_trades();
+  if ( slots[1] == slots[2] )
+    return ret_error( $"both items were filed under slot {slots[1]} of the trade window" );
+  endif
+  return 1;
+endfunction

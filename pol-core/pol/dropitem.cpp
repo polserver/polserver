@@ -19,8 +19,6 @@
  *                         Changes for multi related source file relocation
  * - 2009/09/06 Turley:    Changed Version checks to bitfield client->ClientType
  * - 2009/11/19 Turley:    removed sysmsg after CanInsert call (let scripter handle it) - Tomi
- *
- * @note FIXME: Does STW use slots with KR or newest 2d? If so, we must do slot checks there too.
  */
 
 
@@ -174,10 +172,6 @@ bool place_item_in_secure_trade_container( Network::Client* client, Items::Item*
     return false;
   }
 
-  // FIXME : Add Grid Index Default Location Checks here.
-  // Remember, if index fails, move to the ground. That is, IF secure trade uses
-  // grid index.
-
   return do_place_item_in_secure_trade_container( client, item, cont, dropon, pos, 0 );
 }
 
@@ -210,9 +204,6 @@ Bscript::BObjectImp* place_item_in_secure_trade_container( Network::Client* clie
     return new Bscript::BError( "Could not insert item into container." );
   }
 
-  // FIXME : Add Grid Index Default Location Checks here.
-  // Remember, if index fails, move to the ground.
-
   if ( do_place_item_in_secure_trade_container( client, item, cont, dropon,
                                                 cont->get_random_location(), 1 ) )
     return new Bscript::BLong( 1 );
@@ -231,7 +222,9 @@ bool do_place_item_in_secure_trade_container( Network::Client* client, Items::It
 
   send_remove_object_to_inrange( item );
 
-  if ( !Items::relocate( *item, Items::InContainer{ cont, pos, item->slot_index() } ) )
+  // The item was extricated from its container on the way here, so its slot_index() is 0.
+  // Items::move_into gives it a free slot instead of filing every offered item under that one.
+  if ( !Items::move_into( *item, *cont, pos ) )
   {
     client->restart();
     return false;
