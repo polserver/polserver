@@ -63,7 +63,7 @@ size_t getCurrentMemoryUsage();
 /// Never answers zero.
 unsigned int available_cpus();
 
-/// Whether stdout is a terminal, so redrawing a line in place means something.
+/// Whether stdout is a terminal.
 bool stdout_is_tty();
 
 

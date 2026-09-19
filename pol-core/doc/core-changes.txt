@@ -5,6 +5,8 @@
            considered, up-to-date ones included, and it draws nothing when output is redirected.
     Added: the compilation summary now ends with the number of errors and warnings for the whole
            run. The warning total appears only when warnings are displayed, with -w or -y.
+     Note: an error inside an include counts once for every script that includes it, so one
+           broken .inc can push the run total into the thousands.
     Added: ecompile.cfg DisplayFileOutcome (default 1) prints the "script.src: N errors" line
            after each script. -q and -p set it to 0.
     Fixed: ecompile -q still printed one "script.src: N errors" line per script.

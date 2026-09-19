@@ -95,7 +95,7 @@ void ECompileMain::showHelp()
 #endif
       "       -p           progress mode: replace per-script output with one line that\n"
       "                    updates in place, and show the summary at the end. The count\n"
-      "                    covers every script considered, including up-to-date ones\n"
+      "                    covers every script considered, including up-to-date ones.\n"
       "       -q           quiet mode (suppress normal output)\n"
       "       -r [dir]     recurse folder [from 'dir'] (defaults to current folder)\n"
       "       -ri [dir]    (as '-r' but only compile .inc files)\n"
@@ -142,8 +142,8 @@ struct Summary
   unsigned ScriptsWithCompileErrors = 0;
   // Written directly from the compile worker threads, unlike the counters above, which the
   // threaded path accumulates locally and folds in once the pool has drained.
-  std::atomic<unsigned long> TotalErrors{ 0 };
-  std::atomic<unsigned long> TotalWarnings{ 0 };
+  std::atomic<unsigned> TotalErrors{ 0 };
+  std::atomic<unsigned> TotalWarnings{ 0 };
   size_t ThreadCount = 0;
   Compiler::Profile profile;
 } summary;
@@ -170,7 +170,7 @@ std::unique_ptr<Compiler::Compiler> create_compiler()
 
 // What the compiler reported for the file this thread has in hand. A file that fails before
 // reaching the compiler -- a filespec that is not a script, an .ecl that cannot be written --
-// still owes the run one error, and this is how that is told apart from double counting.
+// still owes the run one error.
 thread_local unsigned file_error_count = 0;
 
 void accumulate_report_counts( const Compiler::Compiler& compiler )
@@ -180,8 +180,6 @@ void accumulate_report_counts( const Compiler::Compiler& compiler )
   summary.TotalWarnings += compiler.warning_count();
 }
 
-/// Makes a failed file count for at least one error, whether or not it got far enough to
-/// produce a diagnostic.
 void count_failed_file()
 {
   if ( !file_error_count )
@@ -248,7 +246,6 @@ bool format_file( const std::string& path )
 
   bool success =
       compiler->format_file( path.c_str(), ext.compare( ".em" ) == 0, format_source_inplace );
-  accumulate_report_counts( *compiler );
 
   if ( expect_compile_failure )
   {
@@ -261,6 +258,9 @@ bool format_file( const std::string& path )
 
     throw std::runtime_error( "Formatting succeeded (-e indicates failure was expected)" );
   }
+
+  // Not before the -e check: a failure the run asked for is not one of the run's errors.
+  accumulate_report_counts( *compiler );
 
   if ( !success )
     throw std::runtime_error( "Error formatting file" );
@@ -427,7 +427,6 @@ bool compile_file( const std::string& path )
     std::unique_ptr<Compiler::Compiler> compiler = create_compiler();
 
     bool success = compiler->compile_file( path.c_str() );
-    accumulate_report_counts( *compiler );
 
     em_parse_tree_cache.keep_some();
     inc_parse_tree_cache.keep_some();
@@ -443,6 +442,9 @@ bool compile_file( const std::string& path )
 
       throw std::runtime_error( "Compilation succeeded (-e indicates failure was expected)" );
     }
+
+    // Not before the -e check: a failure the run asked for is not one of the run's errors.
+    accumulate_report_counts( *compiler );
 
     if ( !success )
       throw std::runtime_error( "Error compiling file" );
@@ -780,8 +782,7 @@ void apply_configuration()
   inc_parse_tree_cache.configure( compilercfg.IncParseTreeCacheSize );
 }
 
-/// Walks the trees and answers what would be compiled. Collecting before compiling is what
-/// makes a total known, and it keeps a command line that names several trees to one total.
+/// Walks the trees and answers what would be compiled, so the run knows its total up front.
 std::vector<std::string> collect_files( const std::vector<fs::path>& basedirs, bool inc_files )
 {
   std::vector<std::string> result;
@@ -825,6 +826,9 @@ std::vector<std::string> collect_files( const std::vector<fs::path>& basedirs, b
 
 void process_files( const std::vector<std::string>& files )
 {
+  if ( files.empty() )
+    return;
+
   if ( !compilercfg.ThreadedCompilation )
   {
     for ( const auto& file : files )
@@ -902,10 +906,10 @@ void DisplaySummary( const Tools::Timer<>& timer )
                         ( summary.UpToDateScripts == 1 ? " was" : "s were" ) );
 
   {
-    // Warnings are counted whether or not they were displayed, so only claim a total the user
-    // could have seen.
     auto errors = summary.TotalErrors.load();
     tmp += fmt::format( "    {} error{}", errors, ( errors == 1 ? "" : "s" ) );
+    // Warnings are counted whether or not they were displayed, so only claim a total the user
+    // could have seen.
     if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
     {
       auto warnings = summary.TotalWarnings.load();
@@ -1160,8 +1164,8 @@ void EnterWatchMode()
 struct Batch
 {
   std::vector<std::string> files;
-  bool autocompile = false;   // -A[u]: compile under its own OnlyCompileUpdatedScripts setting
-  bool update_only = false;   // what -A[u] asked for, read when the batch was collected
+  bool autocompile = false;  // -A[u]: compile under its own OnlyCompileUpdatedScripts setting
+  bool update_only = false;  // what -A[u] asked for, read when the batch was collected
 };
 
 /// The scripts of the main script root and of every enabled package.
@@ -1273,11 +1277,15 @@ bool run( int argc, char** argv, int* res )
   {
     if ( Clib::exit_signalled )
       break;
-    bool save = compilercfg.OnlyCompileUpdatedScripts;
+    // Restored on the way out: without -b the first error throws straight past here.
+    struct SettingScope
+    {
+      bool save = compilercfg.OnlyCompileUpdatedScripts;
+      ~SettingScope() { compilercfg.OnlyCompileUpdatedScripts = save; }
+    } setting_scope;
     if ( batch.autocompile )
       compilercfg.OnlyCompileUpdatedScripts = batch.update_only;
     process_files( batch.files );
-    compilercfg.OnlyCompileUpdatedScripts = save;
   }
 
   // Execution is completed: start final/cleanup tasks

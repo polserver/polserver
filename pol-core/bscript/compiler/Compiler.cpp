@@ -114,8 +114,7 @@ bool Compiler::compile_file( const std::string& filename )
   }
   errors = report.error_count();
   warnings = report.warning_count();
-  // A failure the Report never counted still cost the user a file: an unreadable
-  // include, or an I/O error thrown past the diagnostics.
+  // A failure the Report never counted still cost the user a file.
   if ( !success && !errors )
     errors = 1;
   return success;
