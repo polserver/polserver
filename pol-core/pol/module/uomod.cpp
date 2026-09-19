@@ -338,13 +338,13 @@ static bool item_create_params_ok( u32 objtype, int amount )
          amount > 0 && amount <= 60000L;
 }
 
-// `inserted`, when given, is set to true once the amount is in the container. The container's
-// OnInsert script runs after that, and can still destroy what it was given, which makes this return
-// an error all the same.
+// `taken`, when given, is set to true once the container has taken the amount: it went in, or a
+// CanInsert script accepted it and then disposed of it itself. This can still return an error
+// after that, since the scripts that run later are free to destroy what was given.
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                        unsigned short amount, bool force_stacking,
                                        std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod,
-                                       bool* inserted = nullptr )
+                                       bool* taken = nullptr )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
@@ -390,8 +390,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         int newamount = item->getamount();
         newamount += amount;
         item->setamount( static_cast<unsigned short>( newamount ) );
-        if ( inserted != nullptr )
-          *inserted = true;
+        if ( taken != nullptr )
+          *taken = true;
 
         update_item_to_inrange( item );
         refresh_owner_statbar( item );
@@ -461,6 +461,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
       }
       if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
       {
+        if ( taken != nullptr )
+          *taken = true;
         return new BError( "Item was destroyed in CanInsert Script" );
       }
 
@@ -474,8 +476,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         item->destroy();
         return new BError( "Could not add the item to the container." );
       }
-      if ( inserted != nullptr )
-        *inserted = true;
+      if ( taken != nullptr )
+        *taken = true;
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert

@@ -14,21 +14,36 @@ before it without paying for them, and sold nothing listed after it. With<br/>
 servspecopt.cfg ScriptedMerchantHandlers=1 the whole answer was dropped instead, and<br/>
 the vendor's script never got SYSEVENT_MERCHANT_BOUGHT. The rest of the sale goes<br/>
 through, without that item.</change>
-			<change type="Changed">a sell answer only sells what its own sell window listed, and each item once. Nothing<br/>
-that came into the pack after the list went out, no objtype that<br/>
-VENDOR_BUYABLE_CONTAINER_FILTER kept off the list, and nothing named in answer to a buy<br/>
-window is sold. The shopping list a script gets with ScriptedMerchantHandlers=1 keeps<br/>
-to the same rules.</change>
+			<change type="Changed">a sell answer only sells what its own sell window listed, each item once, and only<br/>
+while that window is open: nothing that came into the pack after the list went out, no<br/>
+objtype VENDOR_BUYABLE_CONTAINER_FILTER kept off the list, and nothing named in answer<br/>
+to a buy window. To buy from a player, open a sell window with SendSellWindow(). An<br/>
+item an outgoing packet hook adds to the list is not sold either; give it a buyprice<br/>
+so that the core lists it.</change>
+			<change type="Changed">SendSellWindow() returns an error when the list does not fit into one packet, rather<br/>
+than 1 for a window that never opened.</change>
 			<change type="Fixed">a container sold through a sell window took along whatever the player had put in it<br/>
 after the window opened, for the price of the container alone.</change>
 			<change type="Fixed">a sell entry for an amount of 0 sold the whole stack for nothing.</change>
 			<change type="Fixed">a sell answer claiming more entries than it carried was read past its end, which could<br/>
 sell items it did not name.</change>
+			<change type="Changed">the shopping list a script gets with ScriptedMerchantHandlers=1 leaves out what the core<br/>
+would not sell: items the window did not list, repeats, amounts of 0, containers that<br/>
+are no longer empty, and items no longer at the top of the pack.</change>
+			<change type="Fixed">answering a sell window after a buy window for another vendor had opened closed that<br/>
+buy window, which then sold nothing.</change>
+			<change type="Fixed">an item that VENDOR_BUYABLE_CONTAINER_FILTER leaves off the sell list could still keep<br/>
+the list from being sent, when its name was too long for the packet.</change>
 			<change type="Fixed">gold from a sale that did not fit into the seller's backpack was lost, while the<br/>
 vendor's SYSEVENT_MERCHANT_BOUGHT still reported it paid. It is put at their feet.</change>
 			<change type="Fixed">a sale worth more than 2147483647 gold wrapped round, paying a fraction of its worth or<br/>
 reporting a negative amount. An item that would take a sale past that is not sold.</change>
 			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, a sold item took its backpack slot into the<br/>
+vendor's container, and was not sold when that container had fewer slots; what was<br/>
+left of a stack sold in part lost its slot.</change>
+			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, a bought item, the gold paid for a sale, and<br/>
+everything CreateItemInContainer(), CreateItemInBackpack() and CreateItemInInventory()<br/>
+made went into slot 0, whatever was already there.<br/>
 vendor's container and was not sold when that container had fewer slots, what was left<br/>
 of a stack sold in part lost its slot, and a bought item went into slot 0 of the<br/>
 buyer's pack whatever was already there.</change>

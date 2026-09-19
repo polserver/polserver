@@ -1023,6 +1023,7 @@ const VENDOR_SEND_AOS_TOOLTIP   := 0x01;</code></explain>
   <error>"Parameter 1 invalid" if !(vendor.isa(POLCLASS_NPC))</error>
   <error>"Parameter 2 must be a container"</error>
   <error>"Character has no backpack"</error>
+  <error>"The sell list is too long to send" when what the character could sell does not fit into one packet. No window is opened.</error>
   <related>Character</related>
   <related>Container</related>
 </function>

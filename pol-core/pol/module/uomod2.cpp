@@ -372,6 +372,8 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
     return;
   }
   client->gd->vendor.clear();
+  // A sell window keeps its vendor in the field just cleared, so it closes as well.
+  client->gd->vendor_sell_offer.reset();
 
   UContainer* for_sale = client->gd->vendor_for_sale.get();
   if ( for_sale == nullptr || for_sale->orphan() )
@@ -584,6 +586,8 @@ void buyhandler( Client* client, PKTBI_3B* msg )
     return;
   }
   client->gd->vendor.clear();
+  // A sell window keeps its vendor in the field just cleared, so it closes as well.
+  client->gd->vendor_sell_offer.reset();
 
   UContainer* for_sale = client->gd->vendor_for_sale.get();
   if ( for_sale == nullptr || for_sale->orphan() )
@@ -632,10 +636,10 @@ void buyhandler( Client* client, PKTBI_3B* msg )
   send_clear_vendorwindow( client, vendor );
 }
 
-// Returns the serials the list offers. A list too long for the packet is not sent, and offers
-// nothing.
-std::set<u32> send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom,
-                               UContainer* buyable, bool send_aos_tooltip )
+// Returns the serials the list offers, or nothing when the list is too long for its packet and so
+// is not sent.
+std::optional<std::set<u32>> send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom,
+                                              UContainer* buyable, bool send_aos_tooltip )
 {
   std::set<u32> offered;
   unsigned short num_items = 0;
@@ -664,11 +668,6 @@ std::set<u32> send_vendorsell( Client* client, NPC* merchant, UContainer* sellfr
       unsigned int buyprice;
       if ( !item->getbuyprice( buyprice ) )
         continue;
-      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
-      if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
-      {
-        return {};
-      }
       if ( buyable != nullptr )
       {
         for ( buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
@@ -679,6 +678,11 @@ std::set<u32> send_vendorsell( Client* client, NPC* merchant, UContainer* sellfr
         }
         if ( buyable_itr == buyable_end )
           continue;
+      }
+      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
+      if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
+      {
+        return {};
       }
 
       msg->Write<u32>( item->serial_ext );
@@ -769,13 +773,15 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 
-  std::set<u32> offered =
+  std::optional<std::set<u32>> offered =
       send_vendorsell( chr->client, merchant, chr->backpack(), merchant_buyable, send_aos_tooltip );
+  if ( !offered )
+    return new BError( "The sell list is too long to send" );
 
   chr->client->gd->vendor.set( merchant );
   chr->client->gd->vendor_bought.set( merchant_bought );
   chr->client->gd->vendor_sell_offer =
-      ClientGameData::SellOffer{ merchant->serial, std::move( offered ) };
+      ClientGameData::SellOffer{ merchant->serial, std::move( *offered ) };
 
   return new BLong( 1 );
 }
@@ -783,7 +789,7 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 extern BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                               unsigned short amount, bool force_stacking,
                                               std::optional<Core::Pos2d> pos,
-                                              UOExecutorModule* uoemod, bool* inserted );
+                                              UOExecutorModule* uoemod, bool* taken );
 extern BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& pos );
 
 namespace
@@ -801,18 +807,24 @@ void close_sell_window( Client* client )
   client->gd->vendor_sell_offer.reset();
 }
 
-// The sell window an answer is for. With none open the answer is ignored and the vendor fields,
-// which an open buy window shares, are left alone. An answer naming some other vendor, or one to a
-// window whose vendor or container is gone, closes the window.
+// The sell window an answer is for. With none open the answer is ignored. The vendor fields are
+// shared with the buy window, so once a window for another vendor holds them the sell window is
+// only forgotten, and they are left to that window. An answer naming some other vendor, or one to
+// a window whose vendor or container is gone, closes the window.
 std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* msg )
 {
-  const auto& offer = client->gd->vendor_sell_offer;
+  auto& offer = client->gd->vendor_sell_offer;
   if ( !offer )
     return {};
   NPC* vendor = client->gd->vendor.get();
+  if ( vendor != nullptr && vendor->serial != offer->vendor_serial )
+  {
+    offer.reset();
+    return {};
+  }
   UContainer* bought = client->gd->vendor_bought.get();
   if ( vendor == nullptr || vendor->orphan() || vendor->serial_ext != msg->vendor_serial ||
-       vendor->serial != offer->vendor_serial || bought == nullptr || bought->orphan() )
+       bought == nullptr || bought->orphan() )
   {
     close_sell_window( client );
     return {};
@@ -834,8 +846,8 @@ size_t sell_answer_entries( const PKTIN_9F* msg )
 }
 
 // The item an entry of an answer names, if it may still be sold: one the window listed and the
-// answer has not named before, asked for in some amount, and still what the list took it for - at
-// the top of the pack, not a newbie item, not in use, and not a container with anything in it.
+// answer has not named before, asked for in some amount, and still sellable - at the top of the
+// pack, not a newbie item, not in use, and not a container with anything in it.
 Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount )
 {
   if ( amount == 0 || offered.erase( serial ) == 0 )
@@ -898,20 +910,21 @@ unsigned int pay_seller( Character* seller, unsigned int amount )
     const auto coins = static_cast<unsigned short>( std::min( amount - paid, 60000u ) );
     // Looked up for every stack: the scripts that ran for the last one can have changed it.
     UContainer* backpack = seller->backpack();
-    bool inserted = false;
+    bool taken = false;
     if ( backpack != nullptr )
     {
       BObject created(
-          _create_item_in_container( backpack, &gold, coins, false, {}, nullptr, &inserted ) );
+          _create_item_in_container( backpack, &gold, coins, false, {}, nullptr, &taken ) );
     }
-    if ( !inserted )
+    if ( !taken )
     {
       Item* pile = Item::create( gold );
       if ( pile == nullptr )
         break;
       pile->setamount( coins );
+      // A create script that refuses answers with something false, not always an error.
       BObject dropped( _complete_create_item_at_location( pile, seller->pos() ) );
-      if ( dropped->isa( BObjectImp::OTError ) )
+      if ( !dropped->isTrue() )
         break;
     }
     paid += coins;

@@ -19,6 +19,15 @@ function sell( clientcon, vendor_serial, items )
   return waitForClient( 0, { EVT_SELL_ITEMS } );
 endfunction
 
+// Answers a buy window. The ack only says the packet went out.
+function buy( clientcon, vendor_serial, items )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_BUY_ITEMS,
+                               arg := struct{ vendor_serial := vendor_serial, items := items },
+                               id := 0 } );
+  return waitForClient( 0, { EVT_BUY_ITEMS } );
+endfunction
+
 // Answers a sell window and returns what the vendor was told about the sale. Telling the vendor is
 // the last thing the core does with an answer, so the rest of the sale is over by then.
 function sell_heard( clientcon, vendor_serial, items )

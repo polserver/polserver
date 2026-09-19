@@ -79,14 +79,6 @@ function open_vendor( resources, ware_objtype, ware_amount, price )
   return struct{ npc := npc, for_sale := for_sale, bought := bought, ware := ware };
 endfunction
 
-function buy( vendor_serial, items )
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := EVT_BUY_ITEMS,
-                               arg := struct{ vendor_serial := vendor_serial, items := items },
-                               id := 0 } );
-  return waitForClient( 0, { EVT_BUY_ITEMS } );
-endfunction
-
 // A sell answer can only sell what a sell window offered, so selling to the vendor of a buy window
 // takes a sell window of its own, opened once the item to sell is in the pack.
 function open_sell_window( npc, for_sale, bought )
@@ -108,7 +100,7 @@ exported function vendor_buy_moves_ware_to_pack( resources )
     return v;
   endif
 
-  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  var res := buy( clientcon, v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
   if ( !res )
     return res;
   endif
@@ -153,7 +145,7 @@ exported function vendor_buy_too_heavy_puts_back( resources )
   var ware_x := v.ware.x;
   var ware_y := v.ware.y;
 
-  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  var res := buy( clientcon, v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
   if ( !res )
     return res;
   endif
@@ -197,7 +189,7 @@ exported function vendor_buy_partial_stack_merges( resources )
     return v;
   endif
 
-  var res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 3 } } );
+  var res := buy( clientcon, v.npc.serial, { struct{ serial := v.ware.serial, amount := 3 } } );
   if ( !res )
     return res;
   endif
@@ -231,39 +223,29 @@ exported function vendor_buy_takes_free_slot( resources )
   // With container slots, what is bought gets a slot in the buyer's pack that nothing else there
   // has. It is detached from the vendor's container on the way, which leaves it slot 0, and slot 0
   // can already be taken.
-  var res := resources.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
-  if ( !res )
-    return res;
-  endif
   var gold := resources.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
   if ( !gold )
     return ret_error( $"failed to create gold: {gold}" );
   endif
-
-  // Two items of the pack's own whose slots the purchase must not share: one just created, which
-  // leaves it in slot 0, and one moved within the pack, which gives it the first free slot.
-  var created := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
-  var moved := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
-  if ( !created or !moved )
-    return ret_error( "failed to create the pack's own items" );
+  // Made while slots are still off, when everything is filed under slot 0: that slot is taken.
+  var occupant := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
+  if ( !occupant )
+    return ret_error( $"failed to create the pack's own item: {occupant}" );
   endif
-  res := MoveItemToContainer( moved, char.backpack );
+  var res := resources.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
   if ( !res )
-    return ret_error( $"failed to move an item within the pack: {res}" );
+    return res;
   endif
-  var taken := array{ client_slot( clientcon, created.serial, char.backpack.serial ),
-                      client_slot( clientcon, moved.serial, char.backpack.serial, 0 ) };
-  foreach slot in taken
-    if ( slot == error )
-      return slot;
-    endif
-  endforeach
+  var taken := client_slot( clientcon, occupant.serial, char.backpack.serial );
+  if ( taken == error )
+    return taken;
+  endif
 
   var v := open_vendor( resources, "shirt_plain", 1, 1 );
   if ( !v )
     return v;
   endif
-  res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  res := buy( clientcon, v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
   if ( !res )
     return res;
   endif
@@ -276,9 +258,8 @@ exported function vendor_buy_takes_free_slot( resources )
   var slot := client_slot( clientcon, v.ware.serial, char.backpack.serial );
   if ( slot == error )
     return slot;
-  endif
-  if ( slot in taken )
-    return ret_error( $"the bought item got slot {slot}, which the pack had given out {taken}" );
+  elseif ( slot == taken )
+    return ret_error( $"the bought item got slot {slot}, which the pack had given out already" );
   endif
   return 1;
 endfunction
