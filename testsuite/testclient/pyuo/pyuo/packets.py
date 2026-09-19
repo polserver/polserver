@@ -187,13 +187,13 @@ class Packet():
 
   def dcstring(self):
     ''' Returns the next null terminated string from the receive buffer '''
-    out = b''
-    while True:
-      c = self.rpb(1)
-      if c == b'\x00':
-        break
-      out += c
-    return self.varStr(out)
+    pos = self.readCount
+    end = self.buf.find(b'\x00', pos)
+    if end < 0:
+      raise EOFError("Trying to read a null terminated string, but the {} bytes "
+                     "left in buffer hold no terminator".format(len(self.buf) - pos))
+    self.readCount = end + 1
+    return self.varStr(self.buf[pos:end])
 
   def ducstringz(self, limit=None, flipped=False):
     '''! Returns the next null terminated unicode string
@@ -203,12 +203,13 @@ class Packet():
                     network order. Both happen: a character profile is written
                     with WriteFlipped and a buff argument with plain Write.
     '''
-    out = b''
+    chunks = []
     while limit is None or self.readCount < limit:
       c = self.rpb(2)
       if c == b'\x00\x00':
         break
-      out += c
+      chunks.append(c)
+    out = b''.join(chunks)
     return self.varUStrFlipped(out) if flipped else self.varUStr(out)
 
   def dip(self):
@@ -1856,16 +1857,6 @@ class BookPagePacket(Packet):
     if lines is not None:
       for line in lines:
         self.length += len(line.encode('iso8859-15')) + 1
-
-  def dcstring(self):
-    ''' Reads one null terminated string '''
-    out = b''
-    while True:
-      c = self.rpb(1)
-      if c == b'\x00':
-        break
-      out += c
-    return self.varStr(out)
 
   def decodeChild(self):
     self.length = self.dushort()

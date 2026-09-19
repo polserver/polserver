@@ -1069,6 +1069,25 @@ class PolServer:
       self.log.error("failed to send: {} {}".format(e,data))
       pass
 
+  def close_control(self):
+    # Closing a socket that still holds unread inbound bytes makes the stack send
+    # RST, and a peer that gets one may drop what it has received but not yet read -
+    # here, the last reply the shard is waiting on. Half-closing puts a FIN behind
+    # that reply, and emptying the receive buffer is what leaves nothing to reset
+    # over. Neither step waits for the shard: it is on its own way out, and this
+    # process is a pipeline stage cmake waits on.
+    try:
+      self.conn.shutdown(socket.SHUT_WR)
+    except OSError:
+      pass  # already gone, so there is nothing to see out
+    try:
+      while select.select([self.conn], [], [], 0)[0]:
+        if not self.conn.recv(65536):
+          break
+    except OSError:
+      pass
+    self.conn.close()
+
 if __name__ == '__main__':
   # WARNING by default. The handlers below log a line per packet, and several of
   # them render an object to do it, all of it written to a pipe cmake is waiting
@@ -1101,7 +1120,6 @@ if __name__ == '__main__':
   finally: # wake up the server and let it close first
     lifecycle.info("LIFECYCLE run() left, releasing the control connection")
     serv.send("{}")
-    time.sleep(1)
-    serv.conn.close()
+    serv.close_control()
     lifecycle.info("LIFECYCLE control connection closed")
 
