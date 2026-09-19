@@ -34,7 +34,10 @@ foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );
 endforeach
 
-var clientcon := getClientConnection();
+// This runs after a failed setup too, which is the case where there may be no
+// connection to ask. getClientConnection() would error on the way to finding that
+// out, and everything below here - the accounts most of all - would go unremoved.
+var clientcon := GetGlobalProperty( "#clientcon" ) ? getClientConnection() : 0;
 if ( clientcon )
   clientcon.sendevent( struct{ todo := "exit" } );
   WaitForClient( 0, { EVT_EXIT }, 2 );
