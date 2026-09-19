@@ -9,6 +9,8 @@
 
 #include <cstddef>
 #include <map>
+#include <optional>
+#include <set>
 
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
@@ -49,6 +51,15 @@ public:
   ref_ptr<Core::UContainer> vendor_bought;
   ref_ptr<Core::UContainer> vendor_for_sale;
   Core::NpcRef vendor;
+
+  // What the open sell window listed, and the vendor it was opened for. The fields above are shared
+  // with the buy window, so they cannot say whether a sell window is open at all.
+  struct SellOffer
+  {
+    u32 vendor_serial;
+    std::set<u32> items;
+  };
+  std::optional<SellOffer> vendor_sell_offer;
 
   std::map<u32, std::pair<Module::UOExecutorModule*, bool>> gumpmods;
 

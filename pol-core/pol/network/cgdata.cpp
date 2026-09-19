@@ -174,6 +174,8 @@ size_t ClientGameData::estimatedSize() const
 {
   size_t size = sizeof( ClientGameData );
   size += Clib::memsize( gumpmods );
+  if ( vendor_sell_offer )
+    size += Clib::memsize( vendor_sell_offer->items );
   return size;
 }
 }  // namespace Pol::Network

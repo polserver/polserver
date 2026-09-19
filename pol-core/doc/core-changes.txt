@@ -1,4 +1,29 @@
 -- POL100.3.0 --
+09-19-2026 Ins:
+    Fixed: a sell answer naming an item that was no longer at the top of the seller's backpack -
+           put in a bag or used up after the window opened - gave the vendor every item listed
+           before it without paying for them, and sold nothing listed after it. With
+           servspecopt.cfg ScriptedMerchantHandlers=1 the whole answer was dropped instead, and
+           the vendor's script never got SYSEVENT_MERCHANT_BOUGHT. The rest of the sale goes
+           through, without that item.
+  Changed: a sell answer only sells what its own sell window listed, and each item once. Nothing
+           that came into the pack after the list went out, no objtype that
+           VENDOR_BUYABLE_CONTAINER_FILTER kept off the list, and nothing named in answer to a buy
+           window is sold. The shopping list a script gets with ScriptedMerchantHandlers=1 keeps
+           to the same rules.
+    Fixed: a container sold through a sell window took along whatever the player had put in it
+           after the window opened, for the price of the container alone.
+    Fixed: a sell entry for an amount of 0 sold the whole stack for nothing.
+    Fixed: a sell answer claiming more entries than it carried was read past its end, which could
+           sell items it did not name.
+    Fixed: gold from a sale that did not fit into the seller's backpack was lost, while the
+           vendor's SYSEVENT_MERCHANT_BOUGHT still reported it paid. It is put at their feet.
+    Fixed: a sale worth more than 2147483647 gold wrapped round, paying a fraction of its worth or
+           reporting a negative amount. An item that would take a sale past that is not sold.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, a sold item took its backpack slot into the
+           vendor's container and was not sold when that container had fewer slots, what was left
+           of a stack sold in part lost its slot, and a bought item went into slot 0 of the
+           buyer's pack whatever was already there.
 09-20-2026 Ins:
     Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
            refused like any other reply that claims more than it carries.

@@ -240,6 +240,13 @@ class ResourceManager()
   function DestroyRealmResource( realm_name )
     return DeleteRealm( realm_name );
   endfunction
+
+  // For undoing what none of the functions above made: cleanup_fn( resource ) is called in the
+  // same last-in, first-out order as everything else.
+  function AddCleanup( this, resource, cleanup_fn )
+    this.resources.append( array{ resource, cleanup_fn } );
+    return 1;
+  endfunction
 endclass
 
 function copy_file( source, destination )

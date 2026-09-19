@@ -338,9 +338,13 @@ static bool item_create_params_ok( u32 objtype, int amount )
          amount > 0 && amount <= 60000L;
 }
 
+// `inserted`, when given, is set to true once the amount is in the container. The container's
+// OnInsert script runs after that, and can still destroy what it was given, which makes this return
+// an error all the same.
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                        unsigned short amount, bool force_stacking,
-                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod )
+                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod,
+                                       bool* inserted = nullptr )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
@@ -386,6 +390,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         int newamount = item->getamount();
         newamount += amount;
         item->setamount( static_cast<unsigned short>( newamount ) );
+        if ( inserted != nullptr )
+          *inserted = true;
 
         update_item_to_inrange( item );
         refresh_owner_statbar( item );
@@ -468,6 +474,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         item->destroy();
         return new BError( "Could not add the item to the container." );
       }
+      if ( inserted != nullptr )
+        *inserted = true;
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert

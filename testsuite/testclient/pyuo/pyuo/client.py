@@ -196,6 +196,8 @@ class Container(Item):
     item.x = it['x']
     item.y = it['y']
     item.color = it['color']
+    # The container slot the server filed it under: 0x25 calls it slotindex, 0x3C slot
+    item.slot = it.get('slotindex', it.get('slot'))
     item.parent = self
 
     if self.content is None:

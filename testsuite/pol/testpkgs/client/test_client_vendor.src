@@ -1,5 +1,6 @@
 include "communication";
 include "testutil";
+include "vendor";
 
 use os;
 use uo;
@@ -7,8 +8,8 @@ use storage;
 
 // Vendor buy and sell go through oldBuyHandler / oldSellHandler, which are reached only when
 // ScriptedMerchantHandlers is 0 -- which is what the test shard sets. Those two handlers move
-// items between the vendor's hidden containers and the buyer's pack, and nothing else in the
-// suite touches them.
+// items between the vendor's hidden containers and the buyer's pack. What a sell answer may and
+// may not sell, in both modes, is covered by test_client_vendor_sell.src.
 
 var char;
 var clientcon := getClientConnection();
@@ -86,25 +87,14 @@ function buy( vendor_serial, items )
   return waitForClient( 0, { EVT_BUY_ITEMS } );
 endfunction
 
-function sell( vendor_serial, items )
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := EVT_SELL_ITEMS,
-                               arg := struct{ vendor_serial := vendor_serial, items := items },
-                               id := 0 } );
-  return waitForClient( 0, { EVT_SELL_ITEMS } );
-endfunction
-
-// The buy handler runs on the server after the packet lands; the ack above only says the client
-// sent it. Wait for the container membership the handler is supposed to produce.
-function wait_for_container( item, cont, what )
-  var attempts := 50;
-  while ( attempts-- )
-    if ( item.container == cont )
-      return 1;
-    endif
-    Sleepms( 100 );
-  endwhile
-  return ret_error( $"{what} (it is in {item.container})" );
+// A sell answer can only sell what a sell window offered, so selling to the vendor of a buy window
+// takes a sell window of its own, opened once the item to sell is in the pack.
+function open_sell_window( npc, for_sale, bought )
+  var res := SendSellWindow( char, npc, for_sale, bought, for_sale, 0 );
+  if ( !res )
+    return ret_error( $"SendSellWindow failed: {res}" );
+  endif
+  return 1;
 endfunction
 
 exported function vendor_buy_moves_ware_to_pack( resources )
@@ -237,9 +227,64 @@ exported function vendor_buy_partial_stack_merges( resources )
                               "the remainder left the vendor's for-sale container" );
 endfunction
 
+exported function vendor_buy_takes_free_slot( resources )
+  // With container slots, what is bought gets a slot in the buyer's pack that nothing else there
+  // has. It is detached from the vendor's container on the way, which leaves it slot 0, and slot 0
+  // can already be taken.
+  var res := resources.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var gold := resources.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  if ( !gold )
+    return ret_error( $"failed to create gold: {gold}" );
+  endif
+
+  // Two items of the pack's own whose slots the purchase must not share: one just created, which
+  // leaves it in slot 0, and one moved within the pack, which gives it the first free slot.
+  var created := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
+  var moved := resources.CreateItemInContainer( char.backpack, "shirt_plain", 1 );
+  if ( !created or !moved )
+    return ret_error( "failed to create the pack's own items" );
+  endif
+  res := MoveItemToContainer( moved, char.backpack );
+  if ( !res )
+    return ret_error( $"failed to move an item within the pack: {res}" );
+  endif
+  var taken := array{ client_slot( clientcon, created.serial, char.backpack.serial ),
+                      client_slot( clientcon, moved.serial, char.backpack.serial, 0 ) };
+  foreach slot in taken
+    if ( slot == error )
+      return slot;
+    endif
+  endforeach
+
+  var v := open_vendor( resources, "shirt_plain", 1, 1 );
+  if ( !v )
+    return v;
+  endif
+  res := buy( v.npc.serial, { struct{ serial := v.ware.serial, amount := 1 } } );
+  if ( !res )
+    return res;
+  endif
+  res := wait_for_container( v.ware, char.backpack,
+                             "the bought item never reached the buyer's pack" );
+  if ( !res )
+    return res;
+  endif
+
+  var slot := client_slot( clientcon, v.ware.serial, char.backpack.serial );
+  if ( slot == error )
+    return slot;
+  endif
+  if ( slot in taken )
+    return ret_error( $"the bought item got slot {slot}, which the pack had given out {taken}" );
+  endif
+  return 1;
+endfunction
+
 exported function vendor_sell_moves_item_to_npc( resources )
-  // oldSellHandler needs only the vendor and its bought container, both of which SendBuyWindow
-  // sets up, so there is no need to open a sell window as well.
+  keep_pack_gold( resources, char.backpack );
   var v := open_vendor( resources, 0, 0, 0 );
   if ( !v )
     return v;
@@ -251,7 +296,11 @@ exported function vendor_sell_moves_item_to_npc( resources )
   endif
   mine.buyprice := 1;
 
-  var res := sell( v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
+  var res := open_sell_window( v.npc, v.for_sale, v.bought );
+  if ( !res )
+    return res;
+  endif
+  res := sell( clientcon, v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
   if ( !res )
     return res;
   endif
@@ -359,6 +408,7 @@ function close_stored_vendor( v )
 endfunction
 
 exported function vendor_sell_seen_in_storage( resources )
+  keep_pack_gold( resources, char.backpack );
   var v := open_stored_vendor( resources, "shirt_plain", 1 );
   if ( !v )
     return v;
@@ -371,7 +421,10 @@ exported function vendor_sell_seen_in_storage( resources )
   else
     mine.buyprice := 1;
 
-    var sold := sell( v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
+    var sold := open_sell_window( v.npc, v.for_sale, v.bought );
+    if ( sold )
+      sold := sell( clientcon, v.npc.serial, { struct{ serial := mine.serial, amount := 1 } } );
+    endif
     if ( !sold )
       res := sold;
     else

@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>09/17/2026</datemodified>
+    <datemodified>09/19/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>
@@ -1012,6 +1012,7 @@ exported function GetContents(book)   // returns an array of all lines</code></e
   <parameter name="flags" value="Integer" />
   <explain>Sends a sell scroll gump to "character" using "vendor" as the merchant.</explain>
   <explain>Notes: i1 = vendor's "For sale" item containter. i2 = vendor's "Bought from player" item container. i3 = vendor's "Buyable" item container.</explain>
+  <explain>Notes: the answer can only sell what this window listed, each item once, and only while it can still be sold: at the top of the character's backpack, not newbie, not in use, and, for a container, still empty. The same goes for the shopping list a script gets with servspecopt.cfg ScriptedMerchantHandlers. Opening another sell window replaces the list.</explain>
   <explain>Notes: Core will send Item Description using AoS Tooltips in any case if flag VENDOR_SEND_AOS_TOOLTIP is set. This will correct problems with Item Descriptions in newer Clients, but maybe freeze ancient Clients...</explain>
   <explain>Notes: uo.em constants for this function:
 <code>
