@@ -204,7 +204,10 @@ void GottenItem::handle( Network::Client* client, PKTIN_07* msg )
         // The slot goes to new_item, which is what stays behind: the checks used to be run against
         // it but assigned to 'item', the part being picked up onto the cursor, which then carried a
         // slot in a container it was leaving while the remainder kept whatever it had.
-        if ( Items::move_into( *new_item, *orig_container, orig_grid, oldSlot ) )
+        // Its own slot first, then any free one: a script can have lowered the container's limit
+        // under the stack's slot.
+        if ( Items::move_into( *new_item, *orig_container, orig_grid, oldSlot ) ||
+             Items::move_into( *new_item, *orig_container, orig_grid ) )
         {
           send_put_in_container_to_inrange( new_item );
         }

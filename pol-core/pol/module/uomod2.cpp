@@ -815,7 +815,10 @@ std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* 
 {
   auto& offer = client->gd->vendor_sell_offer;
   if ( !offer )
+  {
+    SuspiciousActs::SellAnswerWithoutWindow( client, cfBEu32( msg->vendor_serial ) );
     return {};
+  }
   NPC* vendor = client->gd->vendor.get();
   if ( vendor != nullptr && vendor->serial != offer->vendor_serial )
   {
@@ -835,23 +838,36 @@ std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* 
 // How many entries an answer holds: as many as its length has room for, whatever its count says.
 // Past its end lies the rest of some earlier packet or, when a packet hook passed the answer on as
 // a copy, memory that is not the answer's at all.
-size_t sell_answer_entries( const PKTIN_9F* msg )
+size_t sell_answer_entries( Client* client, const PKTIN_9F* msg )
 {
   constexpr size_t header = offsetof( PKTIN_9F, items );
   const size_t length = cfBEu16( msg->msglen );
   if ( length <= header )
     return 0;
-  return std::min( { static_cast<size_t>( cfBEu16( msg->num_items ) ),
-                     ( length - header ) / sizeof msg->items[0], Clib::arsize( msg->items ) } );
+  const size_t claimed = cfBEu16( msg->num_items );
+  const size_t room =
+      std::min( ( length - header ) / sizeof msg->items[0], Clib::arsize( msg->items ) );
+  if ( claimed > room )
+    SuspiciousActs::SellAnswerOverflows( client, static_cast<unsigned>( claimed ),
+                                         static_cast<unsigned>( room ) );
+  return std::min( claimed, room );
 }
 
 // The item an entry of an answer names, if it may still be sold: one the window listed and the
 // answer has not named before, asked for in some amount, and still sellable - at the top of the
-// pack, not a newbie item, not in use, and not a container with anything in it.
-Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount )
+// pack, not a newbie item, not in use, and not a container with anything in it. An entry the
+// window did not list, or listed and the answer already named, is counted in `unlisted`: no client
+// sends one.
+Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount,
+                     unsigned& unlisted )
 {
-  if ( amount == 0 || offered.erase( serial ) == 0 )
+  if ( amount == 0 )
     return nullptr;
+  if ( offered.erase( serial ) == 0 )
+  {
+    ++unlisted;
+    return nullptr;
+  }
   Item* item = backpack->find_toplevel( serial );
   if ( item == nullptr || item->newbie() || item->inuse() )
     return nullptr;
@@ -861,8 +877,9 @@ Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u
 }
 
 // Moves `amount` of an item in the seller's pack into the vendor's container, and says whether it
-// went. The rest of a stack stays in the stack's place and slot or, failing that, goes to the
-// seller's feet, as the rest of a stack lifted in part does.
+// went. The rest of a stack stays in the stack's place and slot, or takes another slot when a
+// script has lowered the pack's limit under that one; only a pack with no slot left sends it to
+// the seller's feet, as it does the rest of a stack lifted in part.
 bool hand_over( Character* seller, Item* item, u16 amount, UContainer* backpack,
                 UContainer* bought )
 {
@@ -888,7 +905,8 @@ bool hand_over( Character* seller, Item* item, u16 amount, UContainer* backpack,
 
   if ( remainder != nullptr )
   {
-    if ( Items::move_into( *remainder, *backpack, packpos, packslot ) )
+    if ( Items::move_into( *remainder, *backpack, packpos, packslot ) ||
+         Items::move_into( *remainder, *backpack, packpos ) )
       update_item_to_inrange( remainder );
     else if ( Items::place_at( *remainder, seller->pos() ) )
       send_item_to_inrange( remainder );
@@ -948,11 +966,13 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
   std::set<u32>& offered = client->gd->vendor_sell_offer->items;
   uint64_t cost = 0;
-  const size_t num_items = sell_answer_entries( msg );
+  unsigned unlisted = 0;
+  const size_t num_items = sell_answer_entries( client, msg );
   for ( size_t i = 0; i < num_items; ++i )
   {
     u16 amount = cfBEu16( msg->items[i].amount );
-    Item* item = item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount );
+    Item* item =
+        item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount, unlisted );
     unsigned int buyprice;
     if ( item == nullptr || !item->getbuyprice( buyprice ) )
       continue;
@@ -965,6 +985,8 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
     if ( hand_over( client->chr, item, amount, backpack, window->bought ) )
       cost += price;
   }
+  if ( unlisted != 0 )
+    SuspiciousActs::SellAnswerNotListed( client, window->vendor->serial, unlisted );
 
   const unsigned int paid = pay_seller( client->chr, static_cast<unsigned int>( cost ) );
   std::unique_ptr<SourcedEvent> sale_event( new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ) );
@@ -997,11 +1019,13 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 
   std::set<u32>& offered = client->gd->vendor_sell_offer->items;
   std::unique_ptr<ObjArray> items_sold( new ObjArray );
-  const size_t num_items = sell_answer_entries( msg );
+  unsigned unlisted = 0;
+  const size_t num_items = sell_answer_entries( client, msg );
   for ( size_t i = 0; i < num_items; ++i )
   {
     u16 amount = cfBEu16( msg->items[i].amount );
-    Item* item = item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount );
+    Item* item =
+        item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount, unlisted );
     if ( item == nullptr )
       continue;
     if ( amount > item->getamount() )
@@ -1013,6 +1037,8 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 
     items_sold->addElement( entry.release() );
   }
+  if ( unlisted != 0 )
+    SuspiciousActs::SellAnswerNotListed( client, window->vendor->serial, unlisted );
   std::unique_ptr<SourcedEvent> sale_event( new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ) );
   sale_event->addMember( "shoppinglist", items_sold.release() );
   window->vendor->send_event( sale_event.release() );

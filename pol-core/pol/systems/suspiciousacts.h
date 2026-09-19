@@ -47,6 +47,15 @@ void BoatMoveOutOfRangeParameters( Network::Client* client, u32 multi_serial, u8
 
 // character attempted to move while piloting a boat
 void CharacterMovementWhilePiloting( Network::Client* client );
+
+// sell window answer sent with no sell window open
+void SellAnswerWithoutWindow( Network::Client* client, u32 vendor_serial );
+
+// sell window answer naming items the window did not list, or naming one more than once
+void SellAnswerNotListed( Network::Client* client, u32 vendor_serial, unsigned count );
+
+// sell window answer whose count claims more entries than its length holds
+void SellAnswerOverflows( Network::Client* client, unsigned claimed, unsigned held );
 }  // namespace Pol::SuspiciousActs
 
 #endif  // !H_SYSTEMS_SUSPICIOUSACTS

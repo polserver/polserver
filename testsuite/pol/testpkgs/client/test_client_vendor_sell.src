@@ -508,6 +508,21 @@ function leave_behind( vendor, item )
   return send_packet( clientcon, 0, pkt );
 endfunction
 
+// The warnings ShowWarningItem has the core log about a sell answer no client would send.
+const WARN_UNLISTED := "more than the sell window";
+const WARN_NO_WINDOW := "no sell window was open";
+const WARN_TOO_LONG := "claiming";
+
+function sell_warnings( mark )
+  var found := array{};
+  foreach warning in ( { WARN_UNLISTED, WARN_NO_WINDOW, WARN_TOO_LONG } )
+    if ( log_find( log_since( mark ), warning ) )
+      found.append( warning );
+    endif
+  endforeach
+  return found;
+endfunction
+
 function restore_max_items( saved )
   saved.cont.max_items_mod := saved.mod;
   return 1;
@@ -547,6 +562,7 @@ exported function sell_skips_item_not_in_pack( resmgr )
     return ret_error( $"failed to put the item in the bag: {moved}" );
   endif
   var gold_before := char.gold;
+  var mark := log_mark();
 
   var told := sell_heard( clientcon, vendor.npc.serial,
                           { sale_of( first ), sale_of( put_away ), sale_of( last ) } );
@@ -563,6 +579,11 @@ exported function sell_skips_item_not_in_pack( resmgr )
     return told;
   elseif ( told.amount != 12 )
     return ret_error( $"the vendor was told the sale paid {told.amount}, expected 12" );
+  endif
+  // Putting an item away is what players do; it is nothing to warn about.
+  var warnings := sell_warnings( mark );
+  if ( warnings.size() )
+    return ret_error( $"an honest answer was logged as suspicious: {warnings}" );
   endif
   return 1;
 endfunction
@@ -673,6 +694,7 @@ exported function sell_ignores_past_packet_end( resmgr )
   var gold_before := char.gold;
 
   // The count says two; the length has room for one.
+  var mark := log_mark();
   var told := sell_raw_heard( clientcon,
                               sell_answer( vendor.npc.serial, 2, { sale_of( named ) } ) );
   if ( stale.container != char.backpack )
@@ -685,6 +707,8 @@ exported function sell_ignores_past_packet_end( resmgr )
     return told;
   elseif ( told.amount != 5 )
     return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  elseif ( !log_find( log_since( mark ), "claiming 2 entries" ) )
+    return ret_error( "an answer claiming more entries than it carried was not logged" );
   endif
   return 1;
 endfunction
@@ -751,6 +775,7 @@ exported function sell_only_what_was_offered( resmgr )
     return late;
   endif
   var gold_before := char.gold;
+  var mark := log_mark();
 
   var told := sell_heard( clientcon, vendor.npc.serial,
                           { sale_of( other ), sale_of( late ), sale_of( same ) } );
@@ -766,6 +791,8 @@ exported function sell_only_what_was_offered( resmgr )
     return told;
   elseif ( told.amount != 5 )
     return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  elseif ( !log_find( log_since( mark ), "tried to sell 2 item(s) more than the sell window" ) )
+    return ret_error( "selling what the window did not list was not logged" );
   endif
   return 1;
 endfunction
@@ -787,11 +814,16 @@ exported function sell_needs_a_sell_window( resmgr )
     return ret_error( $"SendBuyWindow failed: {res.errortext}" );
   endif
 
+  var mark := log_mark();
   res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
   if ( item.container != char.backpack )
     return ret_error( $"an answer to a buy window sold an item, into {item.container}" );
+  elseif ( !res )
+    return res;
+  elseif ( !log_find( log_since( mark ), WARN_NO_WINDOW ) )
+    return ret_error( "an answer with no sell window open was not logged" );
   endif
-  return res;
+  return 1;
 endfunction
 
 exported function sell_pays_at_feet_when_pack_full( resmgr )
@@ -909,7 +941,7 @@ exported function sell_into_free_slot( resmgr )
   if ( slot == error )
     return slot;
   elseif ( slot < 3 )
-    return ret_error( $"the item got slot {slot}, and the case needs one the vendor does not have" );
+    return ret_error( $"the item got slot {slot}; the case needs one the vendor lacks" );
   endif
   // Two slots in the vendor's container, both free and both below the item's.
   vendor.bought.max_slots_mod := 2 - GetItemDescriptor( vendor.bought.objtype ).MaxSlots;
@@ -974,6 +1006,55 @@ exported function sell_remainder_keeps_slot( resmgr )
     return rest_slot;
   elseif ( rest_slot != slot )
     return ret_error( $"what is left of the stack is in slot {rest_slot}, not the stack's {slot}" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_remainder_past_slot_limit( resmgr )
+  // With container slots, what is left of a stack sold in part stays in the pack even when the
+  // stack's slot is past the pack's limit, which a script can lower under items already there. It
+  // takes a free slot instead, and only a pack with none left sends it to the seller's feet.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var lot := slot_past_limit( resmgr, char.backpack, "NormalStackable", 3 );
+  if ( !lot )
+    return lot;
+  endif
+  lot.name := "rest kept in the pack";
+  lot.buyprice := 1;
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var piles_before := gold_at_feet();
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( lot ) } );
+  // The one coin can end up at the feet as well: the lowered limit leaves no room for a new pile.
+  foreach pile in ( gold_at_feet() )
+    if ( !piles_before.exists( _pile_iter ) )
+      destroy_later( resmgr, pile );
+    endif
+  endforeach
+  var rest := remainder_of( resmgr, "rest kept in the pack" );
+  if ( !rest )
+    foreach thing in ( ListItemsNearLocation( char.x, char.y, char.z, 0, char.realm ) )
+      if ( thing.name == "rest kept in the pack" )
+        destroy_later( resmgr, thing );
+        return ret_error( "what was left of the stack went to the seller's feet, with slots free" );
+      endif
+    endforeach
+    return rest;
+  elseif ( !told )
+    return told;
+  elseif ( lot.container != vendor.bought )
+    return ret_error( $"the part sold is in {lot.container}, expected the vendor's container" );
   endif
   return 1;
 endfunction
@@ -1074,8 +1155,8 @@ function long_name()
 endfunction
 
 exported function sell_window_filter_first( resmgr )
-  // The buyable filter is applied before an item is fitted into the list, so an item the vendor does
-  // not stock cannot keep the list from going out, however long its name.
+  // The buyable filter is applied before an item is fitted into the list, so an item the vendor
+  // does not stock cannot keep the list from going out, however long its name.
   var vendor := make_vendor( resmgr );
   if ( !vendor )
     return vendor;
@@ -1266,6 +1347,7 @@ exported function script_sell_lists_only_sellable( resmgr )
     return ret_error( $"failed to put the item in the pouch: {moved}" );
   endif
 
+  var mark := log_mark();
   var told := sell_heard( clientcon, vendor.npc.serial,
                           { sale_of( late ), sale_of( zero, 0 ), sale_of( pouch ),
                             sale_of( good ) } );
@@ -1275,6 +1357,8 @@ exported function script_sell_lists_only_sellable( resmgr )
   var expected := $"0x{good.serial:x}:1 ";
   if ( shopping( told ) != expected )
     return ret_error( $"the shopping list is \"{shopping( told )}\", expected \"{expected}\"" );
+  elseif ( !log_find( log_since( mark ), "tried to sell 1 item(s) more than the sell window" ) )
+    return ret_error( "selling what the window did not list was not logged" );
   endif
   return 1;
 endfunction

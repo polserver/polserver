@@ -6,7 +6,7 @@
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>09-19-2026</date>
+			<date>09-20-2026</date>
 			<author>Ins:</author>
 			<change type="Fixed">a sell answer naming an item that was no longer at the top of the seller's backpack -<br/>
 put in a bag or used up after the window opened - gave the vendor every item listed<br/>
@@ -43,7 +43,13 @@ vendor's container, and was not sold when that container had fewer slots; what w
 left of a stack sold in part lost its slot.</change>
 			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, a bought item, the gold paid for a sale, and<br/>
 everything CreateItemInContainer(), CreateItemInBackpack() and CreateItemInInventory()<br/>
-made went into slot 0, whatever was already there.<br/>
+made went into slot 0, whatever was already there.</change>
+			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, what was left of a stack sold or lifted in<br/>
+part went to the player's feet when its slot was past the container's limit, although<br/>
+other slots were free. It takes one of those.</change>
+			<change type="Added">with pol.cfg ShowWarningItem (on by default), the core logs a sell answer no client<br/>
+would send: one that comes with no sell window open, names an item its window did<br/>
+not list or names one twice, or claims more entries than it carries.<br/>
 vendor's container and was not sold when that container had fewer slots, what was left<br/>
 of a stack sold in part lost its slot, and a bought item went into slot 0 of the<br/>
 buyer's pack whatever was already there.</change>

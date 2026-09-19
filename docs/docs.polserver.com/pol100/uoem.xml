@@ -4,7 +4,7 @@
 <ESCRIPT>
   <fileheader fname="UO.em">
     <filedesc>Functions that interact with and alter UO game world data, including server-client messages.</filedesc>
-    <datemodified>09/19/2026</datemodified>
+    <datemodified>09/20/2026</datemodified>
 
 <constant>// CreateMulti flags</constant>
 <constant>// only for house creation:</constant>

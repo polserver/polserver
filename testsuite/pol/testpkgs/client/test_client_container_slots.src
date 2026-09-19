@@ -46,3 +46,44 @@ exported function create_takes_free_slot( resmgr )
   endif
   return 1;
 endfunction
+
+exported function lift_remainder_past_limit( resmgr )
+  // With container slots, what is left of a stack lifted in part stays in its container even when
+  // the stack's slot is past the container's limit, which a script can lower under items already
+  // there: it takes a free slot instead of dropping to the lifter's feet.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var lot := slot_past_limit( resmgr, char.backpack, "NormalStackable", 3 );
+  if ( !lot )
+    return lot;
+  endif
+  lot.name := "rest kept in the container";
+
+  // The lifted part stays on the cursor until the cleanup destroys it, which frees the cursor.
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item",
+                               arg := struct{ serial := lot.serial, amount := 1 },
+                               id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( "client 0 did not lift the stack" );
+  endif
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    foreach thing in ( EnumerateItemsInContainer( char.backpack, ENUMERATE_ROOT_ONLY ) )
+      if ( thing.name == "rest kept in the container" and thing.serial != lot.serial )
+        DestroyItem( thing );
+        return 1;
+      endif
+    endforeach
+    foreach thing in ( ListItemsNearLocation( char.x, char.y, char.z, 0, char.realm ) )
+      if ( thing.name == "rest kept in the container" )
+        DestroyItem( thing );
+        return ret_error( "what was left of the stack went to the lifter's feet, with slots free" );
+      endif
+    endforeach
+    Sleepms( 100 );
+  endwhile
+  return ret_error( "what was left of the stack never turned up" );
+endfunction
