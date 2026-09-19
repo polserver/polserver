@@ -126,9 +126,10 @@ std::shared_ptr<NpcTemplate> create_npc_template( const Clib::ConfigElem& elem,
 
 void load_npc_templates()
 {
-  if ( Clib::FileExists( "config/npcdesc.cfg" ) )
+  std::vector<std::string> filenames = Plib::GetPackageCfgPaths( nullptr, "npcdesc.cfg" );
+  for ( auto& filename : filenames )
   {
-    Clib::ConfigFile cf( "config/npcdesc.cfg" );
+    Clib::ConfigFile cf( filename.c_str() );
     Clib::ConfigElem elem;
     while ( cf.read( elem ) )
     {
@@ -138,9 +139,8 @@ void load_npc_templates()
 
   for ( auto pkg : Plib::systemstate.packages )
   {
-    std::string filename = Plib::GetPackageCfgPath( pkg, "npcdesc.cfg" );
-
-    if ( Clib::FileExists( filename.c_str() ) )
+    std::vector<std::string> pkg_filenames = Plib::GetPackageCfgPaths( pkg, "npcdesc.cfg" );
+    for ( auto& filename : pkg_filenames )
     {
       Clib::ConfigFile cf( filename.c_str() );
       Clib::ConfigElem elem;

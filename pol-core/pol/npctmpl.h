@@ -58,7 +58,6 @@ public:
 
 std::shared_ptr<NpcTemplate> find_npc_template( const Clib::ConfigElem& elem );
 bool FindNpcTemplate( const char* template_name, Clib::ConfigElem& elem );
-bool FindNpcTemplate( const char* template_name, Clib::ConfigFile& cf, Clib::ConfigElem& elem );
 
 class NpcTemplateConfigSource : public Clib::ConfigSource
 {

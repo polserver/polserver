@@ -508,4 +508,35 @@ std::string GetPackageCfgPath( const Package* pkg, const std::string& filename )
 
   return filepath;
 }
+
+std::vector<std::string> GetPackageCfgPaths( const Package* pkg, const std::string& name_or_suffix )
+{
+  std::string suffix = "." + name_or_suffix;
+
+  std::string scan_root;
+  if ( pkg == nullptr )
+  {
+    scan_root = "config/";
+  }
+  else
+  {
+    scan_root = pkg->dir();
+  }
+
+  std::vector<std::string> paths;
+
+  for ( const auto& p : fs::recursive_directory_iterator( scan_root ) )
+  {
+    if ( !p.is_regular_file() )
+      continue;
+
+    auto filename = p.path().filename().string();
+    if ( filename == name_or_suffix || filename.ends_with( suffix ) )
+    {
+      paths.push_back( Clib::normalized_path_form( p.path().string() ) );
+    }
+  }
+
+  return paths;
+}
 }  // namespace Pol::Plib

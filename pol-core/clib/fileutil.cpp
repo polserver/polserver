@@ -22,17 +22,22 @@
 
 namespace Pol::Clib
 {
-std::string normalized_dir_form( const std::string& istr )
+std::string normalized_path_form( const std::string& istr )
 {
   std::string str = istr;
 
+  std::string::size_type bslashpos;
+  while ( std::string::npos != ( bslashpos = str.find( '\\' ) ) )
   {
-    std::string::size_type bslashpos;
-    while ( std::string::npos != ( bslashpos = str.find( '\\' ) ) )
-    {
-      str.replace( bslashpos, 1, 1, '/' );
-    }
+    str.replace( bslashpos, 1, 1, '/' );
   }
+
+  return str;
+}
+
+std::string normalized_dir_form( const std::string& istr )
+{
+  std::string str = normalized_path_form( istr );
 
   if ( str.empty() )
   {

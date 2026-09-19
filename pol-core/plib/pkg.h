@@ -101,6 +101,7 @@ void load_packages( const std::string& basedir, bool quiet = false );
 void replace_packages();
 void check_package_deps();
 std::string GetPackageCfgPath( const Package* pkg, const std::string& filename );
+std::vector<std::string> GetPackageCfgPaths( const Package* pkg, const std::string& suffix );
 }  // namespace Plib
 }  // namespace Pol
 #endif
