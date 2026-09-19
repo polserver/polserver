@@ -468,6 +468,15 @@ class PolServer:
   ## how often the loop turns over while everything is idle.
   POLL_SECS = 0.5
 
+  ## The port the shard's clientconnection.src dials. It sits inside the range
+  ## Windows hands out for outbound connections, so something else on the machine
+  ## can be holding it when this starts.
+  CONTROL_PORT = 50000
+
+  ## How long to keep trying for it. The shard retries its side for ten seconds
+  ## (testpkgs/client/setup.src), so waiting longer only delays the same failure.
+  BIND_RETRY_SECS = 8
+
   def __init__(self):
     self.log = logging.getLogger('server')
     conf = configparser.ConfigParser()
@@ -481,8 +490,7 @@ class PolServer:
     self.eventsLock = threading.Lock()
     self.clientLock = threading.Lock()
     self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.s.bind(('localhost', 50000))
-    self.s.listen(1)
+    self._listen(self.CONTROL_PORT)
     # Poll rather than wait out one long timeout: no test package here connects until the
     # shard runs the one that drives this client, which can be minutes into a full run, so
     # the wait cannot be bounded by a constant. What ends it is the shard going away -- the
@@ -504,6 +512,23 @@ class PolServer:
     self._wake_r, self._wake_w = socket.socketpair()
     self._wake_r.setblocking(False)
     self._wake_w.setblocking(False)
+
+  def _listen(self, port):
+    # A bare bind here died before anything was logged, and the only trace was the
+    # shard reporting that it could not connect - which says nothing about why. Name
+    # the reason, and give a transient holder a chance to let go first.
+    deadline = time.monotonic() + self.BIND_RETRY_SECS
+    while True:
+      try:
+        self.s.bind(('localhost', port))
+        self.s.listen(1)
+        return
+      except OSError as ex:
+        if time.monotonic() >= deadline:
+          self.log.error("LIFECYCLE cannot listen on control port %d after %ds: %s",
+                         port, self.BIND_RETRY_SECS, ex)
+          raise
+        time.sleep(0.25)
 
   def _accept(self, gameport):
     started = time.monotonic()
