@@ -467,9 +467,9 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
       if ( !pos || !cont->is_legal_posn( pos.value() ) )
         pos = cont->get_random_location();
 
-      // The CanInsert script above is free to destroy the container it was just asked about;
-      // relocate refuses instead of adding to it.
-      if ( !Items::relocate( *item, Items::InContainer{ cont, pos.value(), item->slot_index() } ) )
+      // The CanInsert script above is free to destroy the container it was just asked about, which
+      // move_into refuses, or to fill the slot found for the item, which it trades for another.
+      if ( !Items::move_into( *item, *cont, pos.value(), slotIndex ) )
       {
         item->destroy();
         return new BError( "Could not add the item to the container." );

@@ -114,24 +114,6 @@ function wait_for_container( item, cont, what )
   return ret_error( $"{what} (it is in {item.container})" );
 endfunction
 
-// The container slot client 0 was told an item has, once it is one other than `not_slot`: a listing
-// can be older than the move that changed it. Scripts cannot read a slot, so this is where to look.
-function client_slot( clientcon, serial, cont_serial, not_slot := -1, timeout := 5 )
-  var seen := error;
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var entry := client_finds_obj( clientcon, 0, serial, cont_serial, 1 );
-    if ( entry )
-      seen := CInt( entry.slot );
-      if ( seen != not_slot )
-        return seen;
-      endif
-    endif
-    Sleepms( POLL_INTERVAL * 1000 );
-  endwhile
-  return ret_error( $"client 0 never saw 0x{serial:x} out of slot {not_slot} (last saw {seen})" );
-endfunction
-
 // Gold the core pays out belongs to no resource manager, so a sale's gold would outlive the test
 // and change what the next one finds in the pack. Registers putting the pack's gold back the way
 // it is now: stacks that are new go, stacks that grew shrink back.

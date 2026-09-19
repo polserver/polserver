@@ -24,6 +24,9 @@
            vendor's container and was not sold when that container had fewer slots, what was left
            of a stack sold in part lost its slot, and a bought item went into slot 0 of the
            buyer's pack whatever was already there.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, CreateItemInContainer(),
+           CreateItemInBackpack() and CreateItemInInventory() filed every item they made under
+           slot 0, whatever was already there, and so did a vendor paying for a sale.
 09-20-2026 Ins:
     Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
            refused like any other reply that claims more than it carries.
