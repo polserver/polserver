@@ -124,6 +124,32 @@ exported function gump_reply_too_many_ints()
   return 1;
 endfunction
 
+exported function gump_reply_int_count_wraps()
+  // Four bytes an int times this count is 2^32, which a 32-bit sum of the reply's size takes for
+  // almost nothing, so the check against the length has to hold for counts of any size.
+  var res := gump_answered_with( struct{ claim_switches := 0x40000000 } );
+  if ( res )
+    return ret_error( $"a reply claiming 0x40000000 switches was accepted: {res}" );
+  endif
+  if ( res.errortext != "B1 message specified too many ints." )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
+exported function gump_reply_string_count_huge()
+  // The same for the string count. Its product is computed in a size_t, so this pins the refusal
+  // rather than catching a wrap: only where a size_t is 32 bits wide could this count slip past.
+  var res := gump_answered_with( struct{ claim_texts := 0x40000000 } );
+  if ( res )
+    return ret_error( $"a reply claiming 0x40000000 strings was accepted: {res}" );
+  endif
+  if ( res.errortext != "B1 message specified too many ints and/or strings." )
+    return ret_error( $"unexpected error: {res.errortext}" );
+  endif
+  return 1;
+endfunction
+
 exported function gump_reply_too_many_strings()
   var res := gump_answered_with( struct{ claim_texts := 99 } );
   if ( res )

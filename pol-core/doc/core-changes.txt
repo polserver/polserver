@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+09-20-2026 Ins:
+    Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
+           refused like any other reply that claims more than it carries.
 09-20-2026 AsYlum:
     Fixed: uo::SendQuestArrow() sent a different arrow id than the one it returned, so a packet log
            or an outgoing packet hook saw a number that did not match. Arrows themselves were

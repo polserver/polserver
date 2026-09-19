@@ -7,6 +7,12 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>09-20-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">a gump reply claiming a switch count in the billions could crash the server. It is<br/>
+refused like any other reply that claims more than it carries.</change>
+		</entry>
+		<entry>
+			<date>09-20-2026</date>
 			<author>AsYlum:</author>
 			<change type="Fixed">uo::SendQuestArrow() sent a different arrow id than the one it returned, so a packet log<br/>
 or an outgoing packet hook saw a number that did not match. Arrows themselves were<br/>
