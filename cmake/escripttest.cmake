@@ -33,22 +33,46 @@ function (cleanup scriptname)
   endforeach()
 endfunction()
 
+# Reads a file with the trailing whitespace of every line removed, and CR with it,
+# which is the difference git is told to ignore below.
+function (readnormalized path out)
+  if (NOT EXISTS "${path}")
+    # Not a comparison this can answer - say so in a way that cannot equal the
+    # other side, and let the diff below name the file.
+    set(${out} "<no ${path}>" PARENT_SCOPE)
+    return()
+  endif()
+  file(READ "${path}" contents)
+  string(REGEX REPLACE "[ \t\r]+\n" "\n" contents "${contents}")
+  # A final newline is not content: git counts its absence as whitespace at the
+  # end of the last line and ignores it too.
+  string(REGEX REPLACE "\n$" "" contents "${contents}")
+  string(REGEX REPLACE "[ \t\r]+$" "" contents "${contents}")
+  set(${out} "${contents}" PARENT_SCOPE)
+endfunction()
+
 function (compareresult scriptname result optimized)
   set (outname "${scriptname}.out")
   if (optimized AND EXISTS "${scriptname}.optimized.out")
     set (outname "${scriptname}.optimized.out")
   endif()
 
+  # Compared here rather than by a git: this runs once per script per pass, and
+  # starting a process to compare two small files costs more than compiling and
+  # running the script did. git still draws the mismatch, since that output is what
+  # a failure is read from - but only on the path that has one.
+  readnormalized("${outname}" expected)
+  readnormalized("${scriptname}.tst" actual)
+  if (expected STREQUAL actual)
+    set(${result} 1 PARENT_SCOPE)
+    return()
+  endif()
+
   execute_process(
     COMMAND ${git} diff --no-index --ignore-space-at-eol ${outname} "${scriptname}.tst"
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE test_not_successful
   )
-  if (NOT ${test_not_successful})
-    set(${result} 1 PARENT_SCOPE)
-    return()
-  endif()
   set(${result} 0 PARENT_SCOPE)
   message(SEND_ERROR "${scriptname}.src failed")
   cleanup(${scriptname})
