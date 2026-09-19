@@ -45,6 +45,7 @@ exported function load_save_npc()
                           SwingSpeedIncrease := 25,
                           MinAttackRangeIncrease := 26,
                           MaxAttackRangeIncrease := 27,
+                          DamageIncrease := 28,
                           NoDropException := 1 };
   var props := {    //       {"RegisteredHouse", {"",1}},
                  { "MoveMode",
@@ -181,6 +182,10 @@ exported function load_save_npc()
                  {
                    "MaxAttackRangeIncrease",
                    { "max_attack_range_increase", override.MaxAttackRangeIncrease }
+                 },
+                 {
+                   "DamageIncrease",
+                   { "damage_increase", override.DamageIncrease }
                  },
                  {
                    "NoDropException",

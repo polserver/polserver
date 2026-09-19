@@ -118,6 +118,7 @@ Item* Item::clone() const
   item->weight_multiplier_mod( weight_multiplier_mod() );
   item->min_attack_range_increase( min_attack_range_increase() );
   item->max_attack_range_increase( max_attack_range_increase() );
+  item->damage_increase( damage_increase() );
 
 
   item->maxhp_mod( maxhp_mod() );
@@ -504,6 +505,8 @@ void Item::printProperties( Clib::StreamWriter& sw ) const
     sw.add<"MinAttackRangeIncrease">( min_attack_range_increase().value );
   if ( has_max_attack_range_increase() )
     sw.add<"MaxAttackRangeIncrease">( max_attack_range_increase().value );
+  if ( has_damage_increase() )
+    sw.add<"DamageIncrease">( damage_increase().value );
   // end new prop stuf
   if ( maxhp_mod_ )
     sw.add<"MaxHp_mod">( maxhp_mod_ );
@@ -649,6 +652,9 @@ void Item::readProperties( Clib::ConfigElem& elem )
   value = static_cast<s16>( elem.remove_int( "MAXATTACKRANGEINCREASE", 0 ) );
   if ( value != 0 )
     max_attack_range_increase( max_attack_range_increase().setAsValue( value ) );
+  value = static_cast<s16>( elem.remove_int( "DAMAGEINCREASE", 0 ) );
+  if ( value != 0 )
+    damage_increase( damage_increase().setAsValue( value ) );
 }
 
 void Item::builtin_on_use( Network::Client* client )

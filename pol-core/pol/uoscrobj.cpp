@@ -902,6 +902,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
   case MBR_SPELL_DAMAGE_INCREASE:
     return new BLong( spell_damage_increase().sum() );
     break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().sum() );
+    break;
   case MBR_FASTER_CASTING:
     return new BLong( faster_casting().sum() );
     break;
@@ -997,6 +1000,9 @@ BObjectImp* Item::get_script_member_id( const int id ) const
     break;
   case MBR_SPELL_DAMAGE_INCREASE_MOD:
     return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_DAMAGE_INCREASE_MOD:
+    return new BLong( damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
     return new BLong( faster_casting().mod );
@@ -1289,6 +1295,11 @@ BObjectImp* Item::set_script_member_id( const int id, int value )
     spell_damage_increase( spell_damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_wearer_ar();
     return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_DAMAGE_INCREASE_MOD:
+    damage_increase( damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
+    refresh_wearer_ar();
+    return new BLong( damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
     faster_casting( faster_casting().setAsMod( Clib::clamp_convert<s16>( value ) ) );
@@ -2083,6 +2094,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
   case MBR_SPELL_DAMAGE_INCREASE:
     return new BLong( spell_damage_increase().sum() );
     break;
+  case MBR_DAMAGE_INCREASE:
+    return new BLong( damage_increase().sum() );
+    break;
   case MBR_FASTER_CASTING:
     return new BLong( faster_casting().sum() );
     break;
@@ -2094,6 +2108,9 @@ BObjectImp* Character::get_script_member_id( const int id ) const
     break;
   case MBR_SPELL_DAMAGE_INCREASE_MOD:
     return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_DAMAGE_INCREASE_MOD:
+    return new BLong( damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
     return new BLong( faster_casting().mod );
@@ -2460,6 +2477,11 @@ BObjectImp* Character::set_script_member_id( const int id, int value )
     spell_damage_increase( spell_damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
     refresh_ar();
     return new BLong( spell_damage_increase().mod );
+    break;
+  case MBR_DAMAGE_INCREASE_MOD:
+    damage_increase( damage_increase().setAsMod( Clib::clamp_convert<s16>( value ) ) );
+    refresh_ar();
+    return new BLong( damage_increase().mod );
     break;
   case MBR_FASTER_CASTING_MOD:
     faster_casting( faster_casting().setAsMod( Clib::clamp_convert<s16>( value ) ) );

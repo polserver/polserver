@@ -340,6 +340,8 @@ void NPC::printProperties( Clib::StreamWriter& sw ) const
     sw.add<"MinAttackRangeIncrease">( orig_min_attack_range_increase() );
   if ( has_max_attack_range_increase() )
     sw.add<"MaxAttackRangeIncrease">( orig_max_attack_range_increase() );
+  if ( has_orig_damage_increase() )
+    sw.add<"DamageIncrease">( orig_damage_increase() );
   if ( no_drop_exception() )
     sw.add<"NoDropException">( no_drop_exception() );
 }
@@ -516,6 +518,11 @@ void NPC::loadEquipablePropertiesNPC( Clib::ConfigElem& elem )
   {
     max_attack_range_increase( apply( max_attack_range_increase(), value ) );
     orig_max_attack_range_increase( value );
+  }
+  if ( elem.remove_prop( "DAMAGEINCREASE", &tmp ) && diceValue( tmp, &value ) )
+  {
+    damage_increase( apply( damage_increase(), value ) );
+    orig_damage_increase( value );
   }
 
   // elemental start
@@ -1095,6 +1102,8 @@ void NPC::resetEquipablePropertiesNPC()
   if ( has_max_attack_range_increase() || has_orig_max_attack_range_increase() )
     max_attack_range_increase(
         max_attack_range_increase().setAsValue( orig_max_attack_range_increase() ) );
+  if ( has_damage_increase() || has_orig_damage_increase() )
+    damage_increase( damage_increase().setAsValue( orig_damage_increase() ) );
 }
 
 size_t NPC::estimatedSize() const

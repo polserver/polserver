@@ -165,6 +165,8 @@ public:
   unsigned short min_attack_range_increase_mod;
   unsigned short max_attack_range_increase;
   unsigned short max_attack_range_increase_mod;
+  unsigned short damage_increase;
+  unsigned short damage_increase_mod;
 
 
   Core::Dice resist_dice;

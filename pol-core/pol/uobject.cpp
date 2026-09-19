@@ -454,6 +454,11 @@ void UObject::printProperties( Clib::StreamWriter& sw ) const
     if ( s16 value = max_attack_range_increase().mod; value )
       sw.add<"MaxAttackRangeIncreaseMod">( value );
   }
+  if ( has_damage_increase() )
+  {
+    if ( s16 value = damage_increase().mod; value )
+      sw.add<"DamageIncreaseMod">( value );
+  }
 
 
   proplist_.printProperties( sw );
@@ -582,6 +587,9 @@ void UObject::readProperties( Clib::ConfigElem& elem )
   mod_value = static_cast<s16>( elem.remove_int( "MAXATTACKRANGEINCREASEMOD", 0 ) );
   if ( mod_value != 0 )
     max_attack_range_increase( max_attack_range_increase().setAsMod( mod_value ) );
+  mod_value = static_cast<s16>( elem.remove_int( "DAMAGEINCREASEMOD", 0 ) );
+  if ( mod_value != 0 )
+    damage_increase( damage_increase().setAsMod( mod_value ) );
 
 
   proplist_.readProperties( elem );

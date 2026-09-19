@@ -311,7 +311,8 @@ exported function test_npc_resist_cap_refresh( resources )
     Luck := 24,
     SwingSpeedIncrease := 25,
     MinAttackRangeIncrease := 26,
-    MaxAttackRangeIncrease := 27
+    MaxAttackRangeIncrease := 27,
+    DamageIncrease := 28
   };
 
   var checks := {
@@ -341,7 +342,8 @@ exported function test_npc_resist_cap_refresh( resources )
     { "luck", override.Luck },
     { "swing_speed_increase", override.SwingSpeedIncrease },
     { "min_attack_range_increase", override.MinAttackRangeIncrease },
-    { "max_attack_range_increase", override.MaxAttackRangeIncrease }
+    { "max_attack_range_increase", override.MaxAttackRangeIncrease },
+    { "damage_increase", override.DamageIncrease }
   };
 
   var npc := resources.CreateNPCFromTemplate( ":testnpc:load_npc", 100, 100, 0, override );

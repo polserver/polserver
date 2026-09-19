@@ -194,6 +194,7 @@ exported function load_save_item_descriptor()
   desc.SwingSpeedIncrease := 25;
   desc.MinAttackRangeIncrease := 26;
   desc.MaxAttackRangeIncrease := 27;
+  desc.DamageIncrease := 28;
   desc.Name := "my_suffix";
   var props := { { "FireResist",
                    { "resist_fire", desc.FireResist }
@@ -301,6 +302,10 @@ exported function load_save_item_descriptor()
                  {
                    "MaxAttackRangeIncrease",
                    { "max_attack_range_increase", desc.MaxAttackRangeIncrease }
+                 },
+                 {
+                   "DamageIncrease",
+                   { "damage_increase", desc.DamageIncrease }
                  } };
   if ( testrun == 1 )
     var item := CreateItemAtLocation( 10, 11, -5, desc, 1, "britannia2" );

@@ -227,6 +227,8 @@ enum DynPropTypes : u8
   PROP_MAX_ATTACK_RANGE_INCREASE_MOD = 99,    // UObject
   PROP_ORIG_MAX_ATTACK_RANGE_INCREASE = 100,  // Npc
   PROP_OPPONENT_OF = 101,                     // Item
+  PROP_DAMAGE_INCREASE = 102,                 // UObject
+  PROP_ORIG_DAMAGE_INCREASE = 103,            // Npc
 
   PROP_FLAG_SIZE  // used for bitset size
 };

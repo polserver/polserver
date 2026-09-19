@@ -311,6 +311,8 @@ enum MemberID
   MBR_ITEMS_DECAY,
   MBR_LOGGED_IN,  // 270
   MBR_EQUIPPED_ITEMS,
+  MBR_DAMAGE_INCREASE,
+  MBR_DAMAGE_INCREASE_MOD,
 };
 
 inline auto format_as( MemberID id )

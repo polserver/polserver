@@ -227,6 +227,7 @@ private:
   DYN_PROPERTY( orig_swing_speed_increase, s16, Core::PROP_ORIG_SWING_SPEED_INCREASE, 0 );
   DYN_PROPERTY( orig_min_attack_range_increase, s16, Core::PROP_ORIG_MIN_ATTACK_RANGE_INCREASE, 0 );
   DYN_PROPERTY( orig_max_attack_range_increase, s16, Core::PROP_ORIG_MAX_ATTACK_RANGE_INCREASE, 0 );
+  DYN_PROPERTY( orig_damage_increase, s16, Core::PROP_ORIG_DAMAGE_INCREASE, 0 );
 
   void resetEquipablePropertiesNPC();
 

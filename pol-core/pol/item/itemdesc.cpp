@@ -238,6 +238,8 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
       min_attack_range_increase_mod( 0 ),
       max_attack_range_increase( 0 ),
       max_attack_range_increase_mod( 0 ),
+      damage_increase( 0 ),
+      damage_increase_mod( 0 ),
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( elem.remove_bool( "SaveOnExit", true ) )
@@ -432,6 +434,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
   if ( elem.remove_prop( "SpellDamageIncrease", &temp ) )
     spell_damage_increase = diceValue( temp, "Spell Damage Increase" );
 
+  if ( elem.remove_prop( "DamageIncrease", &temp ) )
+    damage_increase = diceValue( temp, "Damage Increase" );
+
   if ( elem.remove_prop( "LowerReagentCost", &temp ) )
     lower_reag_cost = diceValue( temp, "Lower Reagent Cost" );
 
@@ -517,6 +522,9 @@ ItemDesc::ItemDesc( u32 objtype, Clib::ConfigElem& elem, Type type, const Plib::
 
   if ( elem.remove_prop( "SpellDamageIncreaseMod", &temp ) )
     spell_damage_increase_mod = diceValue( temp, "Spell Damage Increase Mod" );
+
+  if ( elem.remove_prop( "DamageIncreaseMod", &temp ) )
+    damage_increase_mod = diceValue( temp, "Damage Increase Mod" );
 
   if ( elem.remove_prop( "FasterCastingMod", &temp ) )
     faster_casting_mod = diceValue( temp, "Faster Casting Mod" );
@@ -725,6 +733,8 @@ ItemDesc::ItemDesc( Type type )
       min_attack_range_increase_mod( 0 ),
       max_attack_range_increase( 0 ),
       max_attack_range_increase_mod( 0 ),
+      damage_increase( 0 ),
+      damage_increase_mod( 0 ),
       props( Core::CPropProfiler::Type::ITEM ),
       method_script( nullptr ),
       save_on_exit( true )
@@ -835,6 +845,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   // new props
   descriptor->addMember( "LowerReagentCost", new BLong( lower_reag_cost ) );
   descriptor->addMember( "SpellDamageIncrease", new BLong( spell_damage_increase ) );
+  descriptor->addMember( "DamageIncrease", new BLong( damage_increase ) );
   descriptor->addMember( "FasterCasting", new BLong( faster_casting ) );
   descriptor->addMember( "FasterCastRecovery", new BLong( faster_cast_recovery ) );
   descriptor->addMember( "DefenceIncrease", new BLong( defence_increase ) );
@@ -863,6 +874,7 @@ void ItemDesc::PopulateStruct( Bscript::BStruct* descriptor ) const
   descriptor->addMember( "PoisonResistCapMod", new BLong( resist_poison_cap_mod ) );
   descriptor->addMember( "LowerReagentCostMod", new BLong( lower_reagent_cost_mod ) );
   descriptor->addMember( "SpellDamageIncreaseMod", new BLong( spell_damage_increase_mod ) );
+  descriptor->addMember( "DamageIncreaseMod", new BLong( damage_increase_mod ) );
   descriptor->addMember( "FasterCastingMod", new BLong( faster_casting_mod ) );
   descriptor->addMember( "FasterCastRecoveryMod", new BLong( faster_cast_recovery_mod ) );
   descriptor->addMember( "LuckMod", new BLong( luck_mod ) );
