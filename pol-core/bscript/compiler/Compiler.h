@@ -33,6 +33,10 @@ public:
   void compile_file_steps( const std::string& pathname, Report& );
   bool format_file( const std::string& filename, bool is_module, bool inplace );
 
+  // Diagnostics counted by the most recent compile_file/format_file call.
+  [[nodiscard]] unsigned error_count() const { return errors; }
+  [[nodiscard]] unsigned warning_count() const { return warnings; }
+
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report& );
   void register_constants( CompilerWorkspace&, Report& );
@@ -49,6 +53,8 @@ private:
   Profile& profile;
   std::unique_ptr<CompiledScript> output;
   UserFunctionInclusion user_function_inclusion = UserFunctionInclusion::ReferencedOnly;
+  unsigned errors = 0;
+  unsigned warnings = 0;
 };
 
 }  // namespace Pol::Bscript::Compiler

@@ -94,12 +94,12 @@ void Compiler::set_include_compile_mode()
 bool Compiler::compile_file( const std::string& filename )
 {
   bool success;
+  // Outside the try so the counts survive a throw from the compilation steps.
+  Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning,
+                 true /* display errors */, compilercfg.DisplayDebugs );
   try
   {
     auto pathname = Clib::FullPath( filename.c_str() );
-
-    Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning,
-                   true /* display errors */, compilercfg.DisplayDebugs );
 
     compile_file_steps( pathname, report );
     display_outcome( pathname, report );
@@ -112,6 +112,11 @@ bool Compiler::compile_file( const std::string& filename )
     ERROR_PRINTLN( ex.what() );
     success = false;
   }
+  errors = report.error_count();
+  warnings = report.warning_count();
+  // A failure the Report never counted still cost the user a file.
+  if ( !success && !errors )
+    errors = 1;
   return success;
 }
 
@@ -152,6 +157,8 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   Report report( false, true );
   PrettifyBuilder prettify_builder( profile, report );
   auto formatted = prettify_builder.build( filename, is_module );
+  errors = report.error_count();
+  warnings = report.warning_count();
   if ( report.error_count() )
     return false;
   if ( inplace )
@@ -225,6 +232,9 @@ std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWork
 
 void Compiler::display_outcome( const std::string& filename, Report& report )
 {
+  if ( !compilercfg.DisplayFileOutcome )
+    return;
+
   auto msg = fmt::format( "{}: {} errors", filename, report.error_count() );
   if ( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning )
     msg += fmt::format( ", {} warnings", report.warning_count() );

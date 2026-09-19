@@ -12,11 +12,14 @@
 #include <stdio.h>
 #include <thread>
 #if defined( WINDOWS )
+#include <io.h>
+
 #include "clib/Header_Windows.h"
 
 #pragma comment( lib, "psapi.lib" )  // 32bit is a bit dumb..
 #elif defined( __APPLE__ )
 #include <mach/mach.h>
+#include <unistd.h>
 #else
 #include <sched.h>
 #include <unistd.h>
@@ -128,5 +131,14 @@ unsigned int available_cpus()
     cpus = std::min( cpus, quota );
 #endif
   return std::max( 1u, cpus );
+}
+
+bool stdout_is_tty()
+{
+#if defined( WINDOWS )
+  return _isatty( _fileno( stdout ) ) != 0;
+#else
+  return isatty( STDOUT_FILENO ) != 0;
+#endif
 }
 }  // namespace Pol::Clib

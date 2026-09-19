@@ -1071,6 +1071,8 @@ PackageRoot (path to package root)
 [WatchModeByDefault (0/1 {default 0})]        //Keep ecompile running to re-compile files that have changed.
 [GenerateDependencyInfo (0/1 {default 0})]    //Generate .dep files whether or not updating
 [DisplayUpToDateScripts (0/1 {default 0})]    //Display the "xxx/script.ecl is up-to-date" message, or not.
+[DisplayFileOutcome (0/1 {default 1})]        //Display the "xxx/script.src: N errors, M warnings." line after
+                                              //each script. The -q and -p flags set it to 0.
 [AutoCompileByDefault (0/1 {default 0})]      //If set, and you don't pass any script names or -r or -A,
                                               //will perform an auto compile.
 [UpdateOnlyOnAutoCompile (0/1 {default 0})]   //If set, autocompile will only update modified scripts.

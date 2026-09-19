@@ -63,6 +63,9 @@ size_t getCurrentMemoryUsage();
 /// Never answers zero.
 unsigned int available_cpus();
 
+/// Whether stdout is a terminal.
+bool stdout_is_tty();
+
 
 template <typename T>
 void sanitize_upperlimit( T* value, const T max )

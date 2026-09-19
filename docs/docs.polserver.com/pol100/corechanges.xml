@@ -2,9 +2,26 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-18-2026</datemodified>
+		<datemodified>09-19-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-19-2026</date>
+			<author>AsYlum:</author>
+			<change type="Added">ecompile -p replaces the line-per-script output with a single line that is redrawn in<br/>
+place, and prints the compilation summary at the end. Its count covers every script<br/>
+considered, up-to-date ones included, and it draws nothing when output is redirected.</change>
+			<change type="Added">the compilation summary now ends with the number of errors and warnings for the whole<br/>
+run. The warning total appears only when warnings are displayed, with -w or -y.</change>
+			<change type="Note">an error inside an include counts once for every script that includes it, so one<br/>
+broken .inc can push the run total into the thousands.</change>
+			<change type="Added">ecompile.cfg DisplayFileOutcome (default 1) prints the &quot;script.src: N errors&quot; line<br/>
+after each script. -q and -p set it to 0.</change>
+			<change type="Fixed">ecompile -q still printed one &quot;script.src: N errors&quot; line per script.</change>
+			<change type="Fixed">the ecompile summary reported only the last group of scripts when one command line<br/>
+named several with -r, or combined -A with script names, and threaded compilation was<br/>
+on.</change>
+		</entry>
 		<entry>
 			<date>09-18-2026</date>
 			<author>AsYlum:</author>

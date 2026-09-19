@@ -43,6 +43,9 @@ struct CompilerConfig
   int EmParseTreeCacheSize;
   int IncParseTreeCacheSize;
 
+  // Print the per-file "<file>: N errors, M warnings." line.
+  bool DisplayFileOutcome = true;
+
   bool ShortCircuitEvaluation = false;
   bool ShortCircuitEvaluationWarning = true;
 
