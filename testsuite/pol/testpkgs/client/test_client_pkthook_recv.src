@@ -34,19 +34,12 @@ function request_status( id, serial, type := STATUS_TYPE_BASE, timeout := 10 )
   return ret_error( $"client {id} never got the status of 0x{serial:x}" );
 endfunction
 
-// same, but asserting that no answer arrives
-function no_status_for( id, serial, secs := 1.5 )
-  var deadline := ReadMillisecondClock() + secs * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 0.1 );
-    if ( !ev or ev.type != EVT_STATUS_BAR or CInt( ev.id ) != id )
-      continue;
-    endif
-    if ( CInt( ev.serial ) == serial )
-      return ret_error( $"client {id} got the status of 0x{serial:x} after all" );
-    endif
-  endwhile
-  return 1;
+// same, but asserting that no answer arrives - a barrier rather than a window, so it
+// says the shard sent nothing instead of waiting a second and a half to see
+function no_status_for( id, serial )
+  return no_event_before_sync( clientcon, id, { EVT_STATUS_BAR },
+      @( ev ) { return ( CInt( ev.serial ) == serial ) ?
+          $"got the status of 0x{serial:x} after all" : 0; } );
 endfunction
 
 // waits until the hook has recorded something, since the packet is handled on the

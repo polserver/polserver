@@ -24,6 +24,7 @@ import collections
 import threading
 import struct
 import logging
+import select
 import socket
 import ipaddress
 import time
@@ -49,9 +50,13 @@ class status:
 
 
 def clientthread(f):
-  ''' Decorator, checks that method is run in the client thread only unless initing '''
+  ''' Decorator, checks that method is run in the client thread only unless initing
+
+  The test read the module level name "status", which is the decorator class
+  above and never equals 'game', so this had never once checked anything.
+  '''
   def wrapper(client, *args, **kwargs):
-    if status == 'game':
+    if client.status == 'game':
       mythread = threading.current_thread()
       if mythread is not client:
         raise ThreadError("This must run in client thread only, currently in {}".format(mythread))
@@ -360,7 +365,12 @@ class Mobile(UOBject):
 
   def getEquipByLayer(self, layer):
     ''' Returns item equipped in the given layer '''
-    self.client.waitFor(lambda: self.equip is not None)
+    # Bounded: an unbounded wait here stalls the brain thread, and the shard has no
+    # way to tell that apart from a client that died. A round trip is milliseconds,
+    # so reaching this is a failure rather than a slow answer.
+    if not self.client.waitFor(lambda: self.equip is not None, 5):
+      raise RuntimeError(
+          "mobile 0x{:02X} was never sent its equipment".format(self.serial))
     return self.equip[layer]
 
   def __repr__(self):
@@ -568,10 +578,18 @@ class Client(threading.Thread):
 
   ## Minimum interval between two pings
   PING_INTERVAL = 30
+  ## How long the main loop waits with nothing happening. An incoming packet or
+  ## anything another thread queues ends the wait early, so this only decides how
+  ## often the loop turns over to look at the ping and at whether the brain is
+  ## still there.
+  IDLE_SECS = 0.25
   ## Version sent to server
   VERSION = '7.0.9.1'
   ## Language sent to server
   LANG = 'ENU'
+  ## How many fastwalk keys the client holds. The server seeds the queue with six
+  ## and the sixth is dropped, which is what the real client does with them.
+  FASTWALK_SLOTS = 5
 
   def __init__(self, id=None):
     super().__init__()
@@ -588,6 +606,11 @@ class Client(threading.Thread):
     self.todoqueue = []
     ## Lock for the todo queue
     self.todoLock = threading.Lock()
+    ## Wakes the select() in mainloop() when another thread queues a packet to
+    ## send or a todo to run, so neither waits out the idle poll.
+    self._wake_r, self._wake_w = socket.socketpair()
+    self._wake_r.setblocking(False)
+    self._wake_w.setblocking(False)
     ## Dict info about last server connected to {ip, port, user, pass}
     self.server = None
     ## Current client status, one of:
@@ -599,6 +622,16 @@ class Client(threading.Thread):
     self.lc = False
     ## When to send next ping
     self.ping = 0
+    ## Barrier pings sent and not yet answered, oldest first, as (cookie, token).
+    ## Cookie 0 is the keep-alive's and is never handed out here, so an echo of one
+    ## can never be mistaken for a barrier that is still outstanding.
+    self._syncPending = collections.deque()
+    self._syncCookie = 0
+    self._syncLock = threading.Lock()
+    # Signalled by the client thread once it has handled everything the server
+    # had ready. waitFor() blocks on this instead of polling, since every
+    # condition it is ever given is state a packet handler writes.
+    self._stateChanged = threading.Condition()
     ## Logger, for internal usage
     self.log = logging.getLogger('client'+idstr)
     ## Features sent with 0xb9 packet
@@ -613,6 +646,11 @@ class Client(threading.Thread):
     self.moveLock = threading.Lock()
     ## Unacknowledged moves
     self.unmoves = collections.deque()
+    ## The fastwalk keys the server has handed out, zero for an empty slot. The
+    ## core does not run fastwalk prevention - it never sends either of the two
+    ## packets that fill this - so it stays empty and every move goes out with a
+    ## key of 0, which is what the protocol says to send when the queue is dry.
+    self.fastwalk = [0] * self.FASTWALK_SLOTS
 
     ## Reference to player, character instance
     self.player = None
@@ -633,6 +671,9 @@ class Client(threading.Thread):
     self.view_range = 18 # default client view range
     self.auto_delete_objs = True
     self.weather_events = False # weather/light events, for the tests that assert on them
+    ## Whether something other than an incoming packet has made the out of range
+    ## sweep worth running - see processTodo()
+    self.sweepDue = False
 
     self.gumps=[] # open gumps
     self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
@@ -806,7 +847,6 @@ class Client(threading.Thread):
     self.ping = time.time() + self.PING_INTERVAL
 
     while True:
-      pkt = self.receive(blocking=False)
       self.send()
 
       if not self.processTodo():
@@ -824,25 +864,66 @@ class Client(threading.Thread):
         self.queue(po)
         self.ping = time.time() + self.PING_INTERVAL
 
-      # Process packet
-      if pkt is None:
-        time.sleep(0.01)
-      else:
+      # Take everything the server has ready, not one packet per turn round the
+      # loop: the server sends in bursts - a container's contents, a gump and
+      # its tooltips - and handling one per iteration made each burst cost as
+      # many idle waits as it had packets.
+      handled = False
+      while True:
+        pkt = self.receive(blocking=False)
+        if pkt is None:
+          break
         self.handlePacket(pkt)
+        handled = True
 
-      # remove out of range objects
-      if self.player and self.auto_delete_objs:
-        for key in list(self.objects.keys()):
-          obj = self.objects[key]
-          if isinstance(obj,Item) and obj.parent:
-            continue
-          if self.player.serial == obj.serial:
-            continue
-          if not self.player.inRange(obj):
-            if isinstance(obj,Container) and obj.content:
-              for c in obj.content:
-                del self.objects[c.serial]
-            del self.objects[key]
+      if handled:
+        with self._stateChanged:
+          self._stateChanged.notify_all()
+
+      # Remove out of range objects. This walks everything the client knows, so
+      # it runs when something can actually have gone out of range rather than
+      # on every turn of an idle loop. A todo counts as well: switching the
+      # sweep back on has to catch up with what piled up while it was off.
+      if (handled or self.sweepDue) and self.player and self.auto_delete_objs:
+        self.sweepDue = False
+        self.dropOutOfRange()
+
+      if not handled:
+        self.idle()
+
+  @clientthread
+  def dropOutOfRange(self):
+    ''' Forgets the objects that are no longer close enough to be seen '''
+    for key in list(self.objects.keys()):
+      obj = self.objects[key]
+      if isinstance(obj,Item) and obj.parent:
+        continue
+      if self.player.serial == obj.serial:
+        continue
+      if not self.player.inRange(obj):
+        if isinstance(obj,Container) and obj.content:
+          for c in obj.content:
+            del self.objects[c.serial]
+        del self.objects[key]
+
+  @clientthread
+  def idle(self):
+    '''! Waits for the server to send something or for another thread to queue
+    work, whichever happens first.
+
+    The wait is what used to be a flat 10ms sleep, which every incoming packet
+    and every order from the test script paid on its way through.
+    '''
+    try:
+      ready, _, _ = select.select([self.net.sock, self._wake_r], [], [], self.IDLE_SECS)
+    except (OSError, ValueError):
+      # Socket closed under us; the next read reports it properly.
+      return
+    if self._wake_r in ready:
+      try:
+        self._wake_r.recv(65536)
+      except OSError:
+        pass
 
   @status('game')
   @clientthread
@@ -854,7 +935,7 @@ class Client(threading.Thread):
       raise LoginDeniedError(pkt.reason)
 
     elif isinstance(pkt, packets.PingPacket):
-      self.log.debug("Server sent a ping back")
+      self.handlePingPacket(pkt)
 
     elif isinstance(pkt, packets.CharLocaleBodyPacket):
       self.handleCharLocaleBodyPacket(pkt)
@@ -973,17 +1054,17 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.SendSpeechPacket) or isinstance(pkt, packets.UnicodeSpeechPacket):
       speech = Speech(self, pkt)
       if self.lc:
-        self.log.info(repr(speech))
+        self.log.info('%s', speech)
       else:
-        self.log.warn('EARLY %s', repr(speech))
+        self.log.warn('EARLY %s', speech)
       self.brain.event(brain.Event(brain.Event.EVT_SPEECH, speech=speech))
 
     elif isinstance(pkt, (packets.ClilocMsgPacket, packets.ClilocAffixMsgPacket)):
       speech = Speech(self, pkt)
       if self.lc:
-        self.log.info(repr(speech))
+        self.log.info('%s', speech)
       else:
-        self.log.warn('EARLY %s', repr(speech))
+        self.log.warn('EARLY %s', speech)
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.WorldmapQueryPacket):
@@ -1025,7 +1106,8 @@ class Client(threading.Thread):
       po = packets.PromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=False))
 
     elif isinstance(pkt, packets.UnicodePromptPacket):
       assert self.lc
@@ -1037,7 +1119,8 @@ class Client(threading.Thread):
       po = packets.UnicodePromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=True))
 
     elif isinstance(pkt, packets.QuestArrowPacket):
       assert self.lc
@@ -1049,8 +1132,9 @@ class Client(threading.Thread):
       # kept so placeMulti() can answer it: the script that asked for the cursor is
       # suspended until a 0x6C carrying this same cursor id comes back
       self.multi_placement = {'cursorid': pkt.cursorid, 'multiid': pkt.multiid}
-      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, cursorid=pkt.cursorid,
-          multiid=pkt.multiid, xoffset=pkt.xoffset, yoffset=pkt.yoffset, hue=pkt.hue))
+      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, allow=pkt.allow,
+          cursorid=pkt.cursorid, multiid=pkt.multiid, xoffset=pkt.xoffset,
+          yoffset=pkt.yoffset, zoffset=pkt.zoffset, hue=pkt.hue))
 
     elif isinstance(pkt, packets.MenuPacket):
       assert self.lc
@@ -1213,7 +1297,7 @@ class Client(threading.Thread):
         self.handleObjectInfoPacket(obj)
     elif isinstance(pkt, packets.VisualRangePacket):
       self.view_range = pkt.visualrange
-      self.log.info(f"update view range to {self.view_range}")
+      self.log.info("update view range to %s", self.view_range)
     elif isinstance(pkt, packets.MegaClilocRevPacket):
       # The server telling us a cached tooltip is out of date. Raised without looking the object
       # up, because the interesting case is exactly the one we may not be holding: something in a
@@ -1256,8 +1340,20 @@ class Client(threading.Thread):
       self.brain.event(brain.Event(brain.Event.EVT_HOUSE_DESIGN, serial=pkt.serial,
         revision=pkt.revision, numtiles=pkt.numtiles, planecount=pkt.planecount,
         planes=pkt.planes, tiles=pkt.tiles))
+    elif isinstance(pkt, packets.RejectCharacterLogonPacket):
+      # nothing waits on this: it is the idle warning, and the connection goes
+      # with it. Named so it does not come out as an unhandled packet.
+      self.log.info("server refused the character: reason %d", pkt.reason)
+    elif isinstance(pkt, packets.KREncryptionResponsePacket):
+      self.log.info("server answered a KR encryption request")
+    elif isinstance(pkt, packets.MobAttributesPacket):
+      # A party member's vitals, scaled to a maximum of 1000 so the rest of the
+      # party cannot read their real numbers. Nothing waits on it; named so it
+      # does not come out as an unhandled packet on every party test.
+      self.log.info("party vitals for 0x%X: %d/%d hits", pkt.serial,
+          pkt.hits_current, pkt.hits_max)
     else:
-      self.log.warn("Unhandled packet {}".format(pkt.__class__))
+      self.log.warning("Unhandled packet %s", pkt.__class__)
 
   @status('game')
   @clientthread
@@ -1563,6 +1659,38 @@ class Client(threading.Thread):
     self.queue(po)
     self.brain.event(brain.Event(brain.Event.EVT_RESURRECT_MENU, choice=pkt.choice))
 
+  @clientthread
+  def handlePingPacket(self, pkt):
+    ''' Answers a barrier ping, or drops an echo nobody is waiting for.
+
+    Not gated on the login being complete: the barrier has to work as soon as a
+    client can send anything at all.
+    '''
+    with self._syncLock:
+      token = None
+      if self._syncPending and self._syncPending[0][0] == pkt.seq:
+        token = self._syncPending.popleft()[1]
+      elif any(cookie == pkt.seq for cookie, _ in self._syncPending):
+        # Cannot happen: the core answers every 0x73 in the order it received them
+        # and the socket keeps that order, so the ping at the head is the one being
+        # answered. Resynchronise rather than wedge every barrier after this one,
+        # and say so - the ones skipped over will never be answered.
+        skipped = 0
+        while self._syncPending:
+          cookie, waiting = self._syncPending.popleft()
+          if cookie == pkt.seq:
+            token = waiting
+            break
+          skipped += 1
+        self.log.error("ping 0x%02x answered out of order, %d barrier(s) skipped",
+                       pkt.seq, skipped)
+    if token is None:
+      # The keep-alive's own ping, or a barrier whose script already gave up on it.
+      # Harmless either way: a script only accepts the token it is waiting for.
+      self.log.debug("ping 0x%02x came back with nobody waiting for it", pkt.seq)
+      return
+    self.brain.event(brain.Event(brain.Event.EVT_SYNC, token=token))
+
   @status('game')
   @clientthread
   def handleStatusBar(self, pkt):
@@ -1593,6 +1721,15 @@ class Client(threading.Thread):
   def handleGeneralInfoPacket(self, pkt):
     if pkt.sub == packets.GeneralInfoPacket.SUB_CURSORMAP:
       self.cursor = pkt.cursor
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_FASTWALK:
+      # The server seeding the fastwalk queue. Six keys arrive but only five are
+      # kept: there are five slots and the sixth is dropped, which by convention
+      # is the one the first move request uses.
+      keys = list(pkt.keys[:self.FASTWALK_SLOTS])
+      self.fastwalk = keys + [0] * ( self.FASTWALK_SLOTS - len(keys) )
+    elif pkt.sub == packets.GeneralInfoPacket.SUB_ADDFWKEY:
+      # One key back for a move the server accepted
+      self.pushFastwalk(pkt.key)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_MAPDIFF:
       pass
     elif pkt.sub == packets.GeneralInfoPacket.SUB_PARTY:
@@ -1614,7 +1751,7 @@ class Client(threading.Thread):
         self.gumps.remove(pkt.gumpid)
         self.brain.event(brain.Event(brain.Event.EVT_GUMP, gumpid=pkt.gumpid,buttonid=pkt.buttonid))
       else:
-        self.log.warn(f"non-open gumpid {pkt.gumpid} should close")
+        self.log.warn("non-open gumpid %s should close", pkt.gumpid)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_POPUP_DISPLAY:
       self.handlePopup(pkt)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEWINDOW:
@@ -1638,9 +1775,18 @@ class Client(threading.Thread):
       ack = False
 
     with self.moveLock:
-      # Match first move packet to be ackowledged
+      # Match first move packet to be ackowledged. Both of these were an
+      # IndexError and a bare assert, which killed the client thread without
+      # saying which move the server was answering.
+      if not self.unmoves:
+        raise RuntimeError(
+            "server {} move {} that was never requested".format(
+                'acknowledged' if ack else 'rejected', pkt.sequence))
       mpkt = self.unmoves.popleft()
-      assert mpkt.sequence == pkt.sequence
+      if mpkt.sequence != pkt.sequence:
+        raise RuntimeError(
+            "server answered move {} while move {} was the one outstanding".format(
+                pkt.sequence, mpkt.sequence))
 
       if not ack:
         # Reset sequence counter after a reject
@@ -2257,9 +2403,34 @@ class Client(threading.Thread):
       if self.moveid > 0xff:
         self.moveid = 1
       po = packets.MoveRequestPacket()
-      po.fill(dir.id, self.moveid)
+      po.fill(dir.id, self.moveid, self.popFastwalk())
       self.unmoves.append(po)
       self.queue(po)
+
+  def pushFastwalk(self, key):
+    ''' Puts a key back in the first free slot.
+
+    First free in, first taken out - the queue is neither a stack nor a ring,
+    which is what the client the protocol was read off does.
+    '''
+    for i, slot in enumerate(self.fastwalk):
+      if not slot:
+        self.fastwalk[i] = key
+        return
+    # Every slot full: the server has handed out more than it took back. The
+    # real client has nowhere to put it either, so the key is dropped.
+    self.log.debug('fastwalk queue full, dropping key 0x%X', key)
+
+  def popFastwalk(self):
+    '''! Takes the first key the queue holds, leaving its slot empty.
+    @return int: the key, 0 when the queue is dry - which is what the server
+                 reads as the client having outrun its acknowledgements
+    '''
+    for i, slot in enumerate(self.fastwalk):
+      if slot:
+        self.fastwalk[i] = 0
+        return slot
+    return 0
 
   @logincomplete
   def waitForTarget(self, timeout=None):
@@ -2292,27 +2463,70 @@ class Client(threading.Thread):
         po.fill([serial])
     self.queue(po)
 
+  ## Longest a waitFor() blocks before re-testing its condition unprompted. Every
+  ## condition it is given is written by a packet handler, which signals on the way
+  ## out, so this only bounds how long a signal that never comes can cost.
+  WAITFOR_SLICE = 0.1
+
   def waitFor(self, cond, timeout=None):
     '''! Utility function, waits until a condition is satisfied or until timeout expires
     @return True when consition succeeds, False on timeout
+
+    The condition is state the client thread writes, so this blocks on the signal
+    that thread raises once it has handled everything the server had ready. The
+    deadline is computed once: a condition re-tested after a wakeup must not start
+    the caller's timeout over.
     '''
-    wait = 0.0
-    nextWarn = 5.0
-    while not cond():
-      time.sleep(0.01)
-      wait += 0.01
-      if timeout:
-        if wait >= timeout:
-          return False
-      elif wait >= nextWarn:
-        self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
-        nextWarn = wait + 5.0
+    now = time.monotonic()
+    deadline = now + timeout if timeout else None
+    nextWarn = now + 5.0
+    with self._stateChanged:
+      while not cond():
+        now = time.monotonic()
+        slice = self.WAITFOR_SLICE
+        if deadline is not None:
+          remaining = deadline - now
+          if remaining <= 0:
+            return False
+          slice = min(slice, remaining)
+        elif now >= nextWarn:
+          self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
+          nextWarn = now + 5.0
+        self._stateChanged.wait(slice)
     return True
+
+  def syncPing(self, token):
+    ''' Sends a 0x73 carrying a cookie of this call's own, so the echo the core
+    sends straight back can be matched to it.
+
+    The core echoes the packet verbatim and unconditionally, and everything it had
+    already queued for this client goes out ahead of it, so the echo arriving is a
+    proof that nothing else was on its way - which is what the test scripts use it
+    for. Called from the brain thread; the packet goes out of the client thread in
+    the same order as anything queued before it.
+    '''
+    with self._syncLock:
+      self._syncCookie = self._syncCookie % 255 + 1
+      cookie = self._syncCookie
+      self._syncPending.append((cookie, token))
+    po = packets.PingPacket()
+    po.fill(cookie)
+    self.queue(po)
 
   def queue(self, data):
     ''' Puts a packet in the queue to be sent asap '''
     with self.sendqueueLock:
       self.sendqueue.append(data)
+    self.wake()
+
+  def wake(self):
+    ''' Ends the main loop's idle wait, so work queued from another thread is
+    picked up now rather than when the wait runs out '''
+    try:
+      self._wake_w.send(b'\x01')
+    except OSError:
+      # A full pipe is already readable, so the wait is going to end anyway.
+      pass
 
   @clientthread
   def send(self):
@@ -2327,6 +2541,7 @@ class Client(threading.Thread):
   def addTodo(self, todo):
     with self.todoLock:
       self.todoqueue.append(todo)
+    self.wake()
 
   @clientthread
   def processTodo(self):
@@ -2334,6 +2549,10 @@ class Client(threading.Thread):
     with self.todoLock:
       queue = self.todoqueue
       self.todoqueue = []
+    if queue:
+      # A todo can change what the client is meant to know about - switching the
+      # out of range sweep back on, most of all - so let the loop run one.
+      self.sweepDue = True
     for todo in queue:
       if todo.type == brain.Event.EVT_EXIT:
         return False
@@ -2357,7 +2576,7 @@ class Client(threading.Thread):
         self.disable_item_logging = todo.value
         self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
       else:
-        raise NotImplementedError("Unknown todo event {}",format(todo.type))
+        raise NotImplementedError("Unknown todo event {}".format(todo.type))
     return True
 
   @clientthread

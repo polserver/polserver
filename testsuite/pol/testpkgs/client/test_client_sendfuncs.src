@@ -23,6 +23,12 @@ const MENU_NAME := "TestMenuMain";
 const PLACE_HOUSE := 0x12000;
 const PLACE_X := 118;
 const PLACE_Y := 72;
+// What the cursor carries: the multi graphic PLACE_HOUSE turns into, and the three
+// parameters of TargetMultiPlacement that only show up in the packet.
+const PLACE_MULTI_ID := 0x6b;
+const PLACE_XOFF := 3;
+const PLACE_YOFF := -2;
+const PLACE_HUE := 44;
 const MENU_TITLE := "Test Main Menu";
 
 // A sound packet as the bytes it is, for SendPacket: type, mode, the sound, two unread bytes and
@@ -186,6 +192,11 @@ exported function sendfuncs_quest_arrow( resmgr )
   if ( CInt( ev.arrowid ) != ARROW_ID )
     return ret_error( $"it carries id 0x{ev.arrowid:x}, expected 0x{ARROW_ID:x}" );
   endif
+  // the call hands back the id it used, and a caller that let the core pick one has
+  // nothing else to match a later cancellation against
+  if ( CInt( ev.arrowid ) != CInt( res ) )
+    return ret_error( $"the call returned 0x{CInt( res ):x} but sent 0x{ev.arrowid:x}" );
+  endif
 
   // no place at all takes it away
   drain_events();
@@ -199,6 +210,27 @@ exported function sendfuncs_quest_arrow( resmgr )
   endif
   if ( CInt( ev.active ) )
     return ret_error( "the arrow was not taken away" );
+  endif
+  // without this the client cannot tell which of several arrows went out
+  if ( CInt( ev.arrowid ) != ARROW_ID )
+    return ret_error( $"the removal names arrow 0x{ev.arrowid:x}" );
+  endif
+  return 1;
+endfunction
+
+exported function sendfuncs_quest_arrow_needs_id()
+  // uo.em declares SendQuestArrow( to_whom, x := -1, y := -1, arrowid := 0 ), but because the
+  // default is supplied the arrowid parameter always arrives, holding 0 - so the documented
+  // "falls back to the pid of the calling script" branch cannot be reached, and the documented
+  // no-coordinates form that switches the arrow off is refused before it gets that far.
+  //
+  // This pins what the core does today. It is meant to fail the day that is addressed.
+  var res := SendQuestArrow( char, ARROW_X, ARROW_Y );
+  if ( res )
+    return ret_error( "an arrow with no id was accepted" );
+  endif
+  if ( res.errortext != "ArrowID out of range" )
+    return ret_error( $"it was refused with: {res.errortext}" );
   endif
   return 1;
 endfunction
@@ -221,6 +253,17 @@ exported function sendfuncs_menu()
   if ( ev.entries.size() != 2 )
     return ret_error( $"it carries {ev.entries.size()} entries, expected 2" );
   endif
+  // The entry titles are counted rather than terminated, so reading them is worth an
+  // assertion of its own. The core puts the plain entries before the submenus, which is
+  // not the order menus.cfg lists them in, so both are looked for by name.
+  var titles := {};
+  var i;
+  for ( i := 1; i <= ev.entries.size(); ++i )
+    titles.append( ev.entries[i].title );
+  endfor
+  if ( !( "Gold coin" in titles ) or !( "Things in a box" in titles ) )
+    return ret_error( $"the menu offered {titles}" );
+  endif
   return 1;
 endfunction
 
@@ -233,7 +276,8 @@ exported function sendfuncs_multi_placement()
                                arg := struct{ x := PLACE_X, y := PLACE_Y, z := 0 },
                                id := 0 } );
 
-  var where := TargetMultiPlacement( char, PLACE_HOUSE );
+  var where := TargetMultiPlacement( char, PLACE_HOUSE, xoffset := PLACE_XOFF,
+                                     yoffset := PLACE_YOFF, hue := PLACE_HUE );
   if ( where == error )
     return ret_error( $"the placement was refused: {where}" );
   endif
@@ -261,8 +305,27 @@ exported function sendfuncs_multi_placement()
   if ( !placed or !CInt( placed.res ) )
     return ret_error( "the client never answered the placement cursor" );
   endif
-  if ( !CInt( shown.multiid ) )
-    return ret_error( $"the cursor carried multi 0x{shown.multiid:x}" );
+  if ( CInt( shown.multiid ) != PLACE_MULTI_ID )
+    return ret_error( $"the cursor carried multi 0x{shown.multiid:x}, "
+                      + $"expected 0x{PLACE_MULTI_ID:x}" );
+  endif
+  if ( !CInt( shown.allow ) )
+    return ret_error( "the cursor arrived without leave to place" );
+  endif
+  if ( CInt( shown.xoffset ) != PLACE_XOFF or CInt( shown.yoffset ) != PLACE_YOFF )
+    return ret_error( $"the offsets arrived as {shown.xoffset},{shown.yoffset}" );
+  endif
+  // The z has no parameter behind it and goes out as zero. It is asserted because it
+  // is what tells the four fields apart: the multi id used to be written where the x
+  // offset belongs, which pushed both offsets one field along and left the graphic
+  // the preview is drawn with at zero. Reading the multi id, both offsets and this
+  // zero in their own places is what says the packet is laid out as the client reads
+  // it, and not one field early.
+  if ( CInt( shown.zoffset ) != 0 )
+    return ret_error( $"the cursor carried z {shown.zoffset}, expected 0" );
+  endif
+  if ( CInt( shown.hue ) != PLACE_HUE )
+    return ret_error( $"the cursor is hue {shown.hue}, expected {PLACE_HUE}" );
   endif
   return 1;
 endfunction
@@ -399,6 +462,18 @@ exported function sendfuncs_request_input_uc( resmgr )
   endif
   if ( answer.lang != "ENU" )
     return ret_error( $"the answer came back in {answer.lang}" );
+  endif
+  // the two prompt packets reach the script as the same event, so this is what says the
+  // unicode form went out rather than the plain one
+  var ev := wait_event( 0, EVT_PROMPT );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !CInt( ev.unicode ) )
+    return ret_error( "the prompt went out in the plain form" );
+  endif
+  if ( CInt( ev.serial ) != CInt( it.serial ) )
+    return ret_error( $"the prompt names 0x{ev.serial:x}, expected 0x{it.serial:x}" );
   endif
   return 1;
 endfunction

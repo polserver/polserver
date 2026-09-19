@@ -10,6 +10,17 @@ const ATTACK_X := 100;
 const ATTACK_Y := 100;
 const ATTACK_Z := 0;
 
+// The swing timer is what these tests spend their time waiting on, and a swing at
+// the shard's default rate takes about two seconds. The core divides the scheduled
+// delay by 1 + swing_speed_increase/100 whichever way it arrived at it, so this
+// makes a swing about a tenth of that - fast enough to be cheap to wait for, slow
+// enough to stay well clear of the core's ten millisecond clock. Nothing here
+// asserts a rate, only what a swing does and what stops one.
+const ATTACK_SWING_SPEED := 900;
+
+// Several swing timers, so a swing that should not happen has room to happen.
+const SWING_WINDOW := 600;
+
 var char;
 
 var clientcon := getClientConnection();
@@ -118,7 +129,7 @@ exported function test_client_attack_kill_npc( resources )
   endif
 
   // a few swing timers pass, all of them with the destroyed npc as opponent
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the npc died: {char.opponent}" );
   endif
@@ -182,12 +193,12 @@ exported function test_client_attack_npc_killed( resources )
   endif
 
   // the swing timer must not fire against the destroyed npc anymore
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the npc died: {char.opponent}" );
   endif
 
-  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Client still swings at 0x{ev.defender:x}" );
   endif
@@ -374,6 +385,7 @@ function setup_attack( resources )
   // increase damage
   SetAttributeBaseValue( char, "Strength", 1000 );
   SetAttributeBaseValue( char, "Tactics", 1000 );
+  char.swing_speed_increase_mod := ATTACK_SWING_SPEED;
 
   SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
   char.hitchance_mod := 1000;

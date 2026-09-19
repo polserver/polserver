@@ -11,6 +11,17 @@ const ATTACK_X := 100;
 const ATTACK_Y := 100;
 const ATTACK_Z := 0;
 
+// The swing timer is what these tests spend their time waiting on, and a swing at
+// the shard's default rate takes about two seconds. The core divides the scheduled
+// delay by 1 + swing_speed_increase/100 whichever way it arrived at it, so this
+// makes a swing about a tenth of that - fast enough to be cheap to wait for, slow
+// enough to stay well clear of the core's ten millisecond clock. Nothing here
+// asserts a rate, only what a swing does and what stops one.
+const ATTACK_SWING_SPEED := 900;
+
+// Several swing timers, so a swing that should not happen has room to happen.
+const SWING_WINDOW := 600;
+
 var char;
 
 var clientcon := getClientConnection();
@@ -100,12 +111,12 @@ exported function test_client_attack_destroy_item( resources )
   endif
 
   // a few swing timers pass, all of them with the destroyed item as opponent
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
   endif
 
-  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Client still swings at 0x{ev.defender:x}" );
   endif
@@ -183,7 +194,7 @@ exported function test_client_attack_normal_item( resources )
 
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "attack", arg := item.serial, id := 0 } );
-  var ev := waitForClient( 0, { EVT_ATTACK }, 2 );
+  var ev := waitForClient( 0, { EVT_ATTACK }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Got a highlight of 0x{ev.serial:x} for a not attackable item" );
   endif
@@ -227,12 +238,12 @@ exported function test_client_attack_kill_item( resources )
   endif
 
   // a few swing timers pass, all of them with the destroyed item as opponent
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the item got destroyed: {char.opponent}" );
   endif
 
-  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, 2 );
+  ev := waitForClient( 0, { EVT_FIGHT_OCCURING }, QUIET_SECS );
   if ( ev )
     return ret_error( $"Client still swings at 0x{ev.defender:x}" );
   endif
@@ -320,8 +331,8 @@ exported function test_client_item_statrequest( resources )
   if ( !normal )
     return ret_error( $"Could not create item: {normal}" );
   endif
-  if ( ( ev := request_status( normal.serial, 2 ) ) )
-    return ret_error( $"plain item answered a status request: {ev}" );
+  if ( !( ev := no_status_for( normal.serial, "a plain item" ) ) )
+    return ev;
   endif
 
   // and neither has an attackable item that the client cannot see
@@ -329,8 +340,8 @@ exported function test_client_item_statrequest( resources )
                                       flags := MOVEOBJECT_FORCELOCATION ) ) )
     return ret_error( $"Could not move the player: {ev}" );
   endif
-  if ( ( ev := request_status( item.serial, 2 ) ) )
-    return ret_error( $"out of range item answered a status request: {ev}" );
+  if ( !( ev := no_status_for( item.serial, "an item out of range" ) ) )
+    return ev;
   endif
 
   return 1;
@@ -378,7 +389,7 @@ exported function test_client_attack_item_dblclick( resources )
   // out of warmode a double click is no attack
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "double_click", arg := item.serial, id := 0 } );
-  var ev := waitForClient( 0, { EVT_ATTACK }, 2 );
+  var ev := waitForClient( 0, { EVT_ATTACK }, QUIET_SECS );
   if ( ev )
     return ret_error( $"double click attacked outside of warmode: 0x{ev.serial:x}" );
   endif
@@ -516,6 +527,7 @@ function prepare_char()
   // increase damage
   SetAttributeBaseValue( char, "Strength", 1000 );
   SetAttributeBaseValue( char, "Tactics", 1000 );
+  char.swing_speed_increase_mod := ATTACK_SWING_SPEED;
 
   if ( char.opponent || char.warmode )
     return stop_attack();
@@ -649,6 +661,18 @@ endfunction
 
 // asks the client to request the status of the given serial and returns the
 // answer of the server, or an error if none arrives
+// The other way round: that no status comes back at all. Asking and then waiting a
+// couple of seconds was two of the four seconds this file's status case cost, and a
+// barrier says it outright - the request is handled before the ping that follows it
+// down the same connection, so an answer would be queued ahead of the echo.
+function no_status_for( serial, what )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "request_status", arg := serial, id := 0 } );
+  return no_event_before_sync( clientcon, 0, { EVT_STATUS_BAR },
+      @( ev ) { return ( ev.serial == serial ) ?
+          $"answered a status request for {what}" : 0; } );
+endfunction
+
 function request_status( serial, timeout := 10 )
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "request_status", arg := serial, id := 0 } );

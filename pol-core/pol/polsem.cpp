@@ -127,7 +127,12 @@ HANDLE hSemThread;
 void init_ipc_vars()
 {
   InitializeCriticalSection( &cs );
-  hEvPulse = CreateEvent( nullptr, TRUE, FALSE, nullptr );
+  // Auto-reset, like hEvTasksThread below, and for the same reason: the scripts
+  // thread releases PolLock before it waits, so a pulse sent in that window has no
+  // waiter yet. A manual-reset event pulsed with PulseEvent drops it there, and the
+  // script it was meant to wake sits out its whole timeout. Only scripts_thread()
+  // waits on this, so releasing a single waiter is the whole of it.
+  hEvPulse = CreateEvent( nullptr, FALSE, FALSE, nullptr );
 
   hEvTasksThread = CreateEvent( nullptr, FALSE, FALSE, nullptr );
 
@@ -149,7 +154,7 @@ void deinit_ipc_vars()
 void send_pulse()
 {
   TRACEBUF_ADDELEM( "Pulse", 1 );
-  PulseEvent( hEvPulse );
+  SetEvent( hEvPulse );
 }
 
 void wait_for_pulse( unsigned int millis )
@@ -175,9 +180,15 @@ pthread_mutex_t polsem;
 
 pthread_mutex_t pulse_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t pulse_cond = PTHREAD_COND_INITIALIZER;
+// A condition variable remembers nothing: a broadcast with no thread already
+// waiting is lost. Both waiters here release PolLock before they wait, so the
+// window where that happens is the common case, not a rare race - hence a flag
+// each, which the waiter consumes instead of sleeping.
+bool pulse_pending = false;
 
 pthread_mutex_t task_pulse_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_cond_t task_pulse_cond = PTHREAD_COND_INITIALIZER;
+bool task_pulse_pending = false;
 
 pthread_mutex_t threadstart_mut = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t threadstart_pulse_mut = PTHREAD_MUTEX_INITIALIZER;
@@ -215,6 +226,7 @@ void deinit_ipc_vars() {}
 void send_pulse()
 {
   pthread_mutex_lock( &pulse_mut );
+  pulse_pending = true;
   pthread_cond_broadcast( &pulse_cond );
   pthread_mutex_unlock( &pulse_mut );
 }
@@ -247,9 +259,13 @@ void wait_for_pulse( unsigned int millis )
 
   pthread_mutex_lock( &pulse_mut );
 
-  calc_abs_timeout( &timeout, millis );
+  if ( !pulse_pending )
+  {
+    calc_abs_timeout( &timeout, millis );
 
-  pthread_cond_timedwait( &pulse_cond, &pulse_mut, &timeout );
+    pthread_cond_timedwait( &pulse_cond, &pulse_mut, &timeout );
+  }
+  pulse_pending = false;
 
   pthread_mutex_unlock( &pulse_mut );
 }
@@ -257,6 +273,7 @@ void wait_for_pulse( unsigned int millis )
 void wake_tasks_thread()
 {
   pthread_mutex_lock( &task_pulse_mut );
+  task_pulse_pending = true;
   pthread_cond_broadcast( &task_pulse_cond );
   pthread_mutex_unlock( &task_pulse_mut );
 }
@@ -267,9 +284,13 @@ void tasks_thread_sleep( unsigned int millis )
 
   pthread_mutex_lock( &task_pulse_mut );
 
-  calc_abs_timeout( &timeout, millis );
+  if ( !task_pulse_pending )
+  {
+    calc_abs_timeout( &timeout, millis );
 
-  pthread_cond_timedwait( &task_pulse_cond, &task_pulse_mut, &timeout );
+    pthread_cond_timedwait( &task_pulse_cond, &task_pulse_mut, &timeout );
+  }
+  task_pulse_pending = false;
 
   pthread_mutex_unlock( &task_pulse_mut );
 }

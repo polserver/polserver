@@ -119,11 +119,8 @@ function assert_refused_build( res, what )
   if ( res.errortext != "Buffer length exceeded" )
     return ret_error( $"{what} answered {res.errortext}" );
   endif
-  var ev := waitForClient( 0, { EVT_GUMP }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"{what} was sent to the client anyway: {ev}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_GUMP },
+      @( ev ) { return $"was sent {what} anyway: {ev}"; } );
 endfunction
 
 exported function gump_old_layout_overflow()

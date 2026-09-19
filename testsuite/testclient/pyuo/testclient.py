@@ -4,6 +4,7 @@ import atexit
 import configparser
 import logging
 import json
+import select
 import time
 import os
 import sys
@@ -48,6 +49,9 @@ class TestBrain(brain.Brain):
   def addTodo(self,ev):
     with self.todosLock:
       self.todos.append(ev)
+    # The brain's main loop blocks until something is queued for it. Without this
+    # every order waits out the loop timeout before it is even looked at.
+    self.wakeup.set()
 
   def hasWork(self):
     '''the brain is driven entirely from the test script, so anything queued
@@ -166,7 +170,7 @@ class TestBrain(brain.Brain):
       res = todos.popleft()
       todo=res["todo"]
       arg=res.get("arg",None)
-      self.log.info("got todo: {}->{}".format(todo,arg))
+      self.log.info("got todo: %s->%s", todo, arg)
       if todo=="disconnect":
         self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
         return False
@@ -383,6 +387,13 @@ class TestBrain(brain.Brain):
           brain.Event(brain.Event.EVT_PACKET_SENT,
             clientid = self.id
             ))
+      elif todo=="sync":
+        # A barrier. The answer is raised by the client thread when the core's echo
+        # comes back, not from here, which is the whole point: everything the core
+        # had already queued for this client is ahead of that echo. Anything the
+        # caller sent before this todo is ahead of the ping too, since both travel
+        # this one connection and are drained in order.
+        self.client.syncPing(arg)
       elif todo=="target":
         res=self.client.waitForTarget(5)
         targettype=None
@@ -452,6 +463,20 @@ def game_port_free(port):
 
 
 class PolServer:
+  ## How long recv() sits in select() with nothing happening. Both a message from
+  ## the shard and an event from a brain end the wait early, so this only decides
+  ## how often the loop turns over while everything is idle.
+  POLL_SECS = 0.5
+
+  ## The port the shard's clientconnection.src dials. It sits inside the range
+  ## Windows hands out for outbound connections, so something else on the machine
+  ## can be holding it when this starts.
+  CONTROL_PORT = 50000
+
+  ## How long to keep trying for it. The shard retries its side for ten seconds
+  ## (testpkgs/client/setup.src), so waiting longer only delays the same failure.
+  BIND_RETRY_SECS = 8
+
   def __init__(self):
     self.log = logging.getLogger('server')
     conf = configparser.ConfigParser()
@@ -465,8 +490,7 @@ class PolServer:
     self.eventsLock = threading.Lock()
     self.clientLock = threading.Lock()
     self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.s.bind(('localhost', 50000))
-    self.s.listen(1)
+    self._listen(self.CONTROL_PORT)
     # Poll rather than wait out one long timeout: no test package here connects until the
     # shard runs the one that drives this client, which can be minutes into a full run, so
     # the wait cannot be bounded by a constant. What ends it is the shard going away -- the
@@ -475,13 +499,36 @@ class PolServer:
     # execute_process waits on every stage of the pipeline, not just POL.
     self.s.settimeout(1.0)
     self.conn = self._accept(self.lconf.getint('port'))
-    # How long run() sits in recv() before it gets to flush the brains' events
-    # back to the script. Events are queued by the brain threads and only go
-    # out between two reads, so this is a floor on how fast the script can be
-    # told anything - it is a poll interval, not a deadline, and the read
-    # returns the moment a byte arrives either way.
-    self.conn.settimeout(0.02)
-    self.buf=b''
+    # Reads wait in select() rather than in recv(), so this timeout only ever
+    # bounds a send to a peer that has stopped reading.
+    self.conn.settimeout(5.0)
+    # Small request/response messages in both directions - exactly the traffic
+    # Nagle holds back waiting for an ack that the other side is delaying.
+    self.conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    self.buf=bytearray()
+    # Wakes the select() in recv() when a brain queues an event. Without it the
+    # events sit until the next read times out, which was the floor on how fast
+    # the test script could be told anything.
+    self._wake_r, self._wake_w = socket.socketpair()
+    self._wake_r.setblocking(False)
+    self._wake_w.setblocking(False)
+
+  def _listen(self, port):
+    # A bare bind here died before anything was logged, and the only trace was the
+    # shard reporting that it could not connect - which says nothing about why. Name
+    # the reason, and give a transient holder a chance to let go first.
+    deadline = time.monotonic() + self.BIND_RETRY_SECS
+    while True:
+      try:
+        self.s.bind(('localhost', port))
+        self.s.listen(1)
+        return
+      except OSError as ex:
+        if time.monotonic() >= deadline:
+          self.log.error("LIFECYCLE cannot listen on control port %d after %ds: %s",
+                         port, self.BIND_RETRY_SECS, ex)
+          raise
+        time.sleep(0.25)
 
   def _accept(self, gameport):
     started = time.monotonic()
@@ -583,46 +630,94 @@ class PolServer:
   def addevent(self,ev):
     with self.eventsLock:
       self.events.append(ev)
+    # Nudge the select() in recv(). A pipe already full needs no nudge: full
+    # means readable, so the select is going to return anyway.
+    try:
+      self._wake_w.send(b'\x01')
+    except OSError:
+      pass
 
   def brainevents(self):
     with self.eventsLock:
-      if not len(self.events):
+      if not self.events:
         return
-      events=self.events.copy()
-      self.events.clear()
-    while len(events):
-      ev = events.popleft()
-      self.sendEvent(ev)
+      # Swap the queue out rather than copy it, so a brain raising an event is
+      # held up only for the swap.
+      events=self.events
+      self.events=collections.deque()
+    while events:
+      self.sendEvent(events.popleft())
 
-  def _recv(self):
+  def _wait(self, timeout):
+    '''! Blocks until the control connection has something to read, a brain
+    queued an event, or the timeout runs out.
+    @return bool: whether the control connection is readable
+    '''
     try:
-      data = self.conn.recv(1)
-    except socket.timeout:
-        return b''
+      ready, _, _ = select.select([self.conn, self._wake_r], [], [], timeout)
+    except (OSError, ValueError):
+      # The connection was closed under us; let the next read report it.
+      return False
+    if self._wake_r in ready:
+      try:
+        self._wake_r.recv(65536)
+      except OSError:
+        pass
+    return self.conn in ready
+
+  def _drain(self):
+    '''! Moves whatever the connection has ready into the line buffer. Only
+    called once select() has said it is readable.
+    @return bool: False once the connection is gone
+    '''
+    try:
+      data = self.conn.recv(65536)
+    except (BlockingIOError, socket.timeout):
+      return True
     except Exception as e:
       self.log.info("err {}".format(e))
       self.conn.close()
+      return False
+    if not data:
+      # Clean EOF: the shard went without saying so. Reading on would spin.
+      self.log.info("LIFECYCLE control connection closed by the shard")
+      self.conn.close()
+      return False
+    self.buf += data
+    return True
+
+  def _takeline(self):
+    ''' Pulls one complete message off the front of the buffer, None if there is
+    not one yet '''
+    idx = self.buf.find(b'\r\n')
+    if idx < 0:
       return None
-    return data
-    
+    line = bytes(self.buf[:idx])
+    del self.buf[:idx+2]
+    return line
+
   def recv(self):
-    while b'\r\n' not in self.buf:
-      r=self._recv()
-      if r is None:
+    '''! Reads the next message from the control connection.
+    @return dict: the message, {} if none arrived before the poll expired,
+                  None once the connection is gone
+    '''
+    line = self._takeline()
+    if line is None:
+      # One wait and one read per call, so a message still arriving cannot hold
+      # up the brains' events - run() flushes those between two of these.
+      if self._wait(self.POLL_SECS) and not self._drain():
         return None
-      self.buf+=r
-      if not len(self.buf):
-          return {}
+      line = self._takeline()
+      if line is None:
+        return {}
     try:
-      data=json.loads(self.buf[:self.buf.index(b'\r\n')].decode())
+      return json.loads(line.decode())
     except Exception as e:
       self.log.error('failed to receive: {} data: "{}" buffer: "{}"'.format(
         e,
-        self.buf[:self.buf.index(b'\r\n')].decode(),
-        self.buf.decode()))
+        line.decode(errors='replace'),
+        bytes(self.buf).decode(errors='replace')))
       raise e
-    self.buf=self.buf[self.buf.index(b'\r\n')+2:]
-    return data
 
   def sendEvent(self, ev):
     '''serialization method for client events'''
@@ -732,6 +827,7 @@ class PolServer:
     elif ev.type==Event.EVT_PROMPT:
       res["serial"]=ev.serial
       res["msgid"]=ev.msgid
+      res["unicode"]=1 if ev.unicode else 0
     elif ev.type==Event.EVT_REFRESH_OBJ:
       res["serial"]=ev.serial
       res["graphic"]=ev.graphic
@@ -739,10 +835,12 @@ class PolServer:
     elif ev.type==Event.EVT_MULTI_PLACED:
       res["res"]=1 if ev.res else 0
     elif ev.type==Event.EVT_MULTI_PLACEMENT:
+      res["allow"]=1 if ev.allow else 0
       res["cursorid"]=ev.cursorid
       res["multiid"]=ev.multiid
       res["xoffset"]=ev.xoffset
       res["yoffset"]=ev.yoffset
+      res["zoffset"]=ev.zoffset
       res["hue"]=ev.hue
     elif ev.type==Event.EVT_MENU:
       res["menuid"]=ev.menuid
@@ -853,6 +951,8 @@ class PolServer:
     elif (ev.type==Event.EVT_GUMP_REPLY or ev.type==Event.EVT_DIALOG_REPLY or
         ev.type==Event.EVT_PACKET_SENT):
       pass
+    elif ev.type==Event.EVT_SYNC:
+      res['token']=ev.token
     elif ev.type==Event.EVT_WORLDMAP:
       res['subcmd']=ev.subcmd
       res['locations']=1 if ev.locations else 0
@@ -980,23 +1080,55 @@ class PolServer:
       res['x']=ev.x
       res['y']=ev.y
     else:
-      raise NotImplementedError("Unknown event {}",format(ev.type))
+      raise NotImplementedError("Unknown event {}".format(ev.type))
 
     self.send(json.dumps(res))
 
   def send(self, data):
     try:
-      self.conn.send((data+"\n").encode())
+      # sendall, not send: a short write on one of the big replies - a listing,
+      # a house design - used to truncate the line, and the shard then sat
+      # waiting for an event that had been half delivered.
+      self.conn.sendall((data+"\n").encode())
     except Exception as e:
       self.log.error("failed to send: {} {}".format(e,data))
       pass
 
+  def close_control(self):
+    # Closing a socket that still holds unread inbound bytes makes the stack send
+    # RST, and a peer that gets one may drop what it has received but not yet read -
+    # here, the last reply the shard is waiting on. Half-closing puts a FIN behind
+    # that reply, and emptying the receive buffer is what leaves nothing to reset
+    # over. Neither step waits for the shard: it is on its own way out, and this
+    # process is a pipeline stage cmake waits on.
+    try:
+      self.conn.shutdown(socket.SHUT_WR)
+    except OSError:
+      pass  # already gone, so there is nothing to see out
+    try:
+      while select.select([self.conn], [], [], 0)[0]:
+        if not self.conn.recv(65536):
+          break
+    except OSError:
+      pass
+    self.conn.close()
+
 if __name__ == '__main__':
-  logging.basicConfig(level=logging.INFO, stream=sys.stderr,
+  # WARNING by default. The handlers below log a line per packet, and several of
+  # them render an object to do it, all of it written to a pipe cmake is waiting
+  # on - and none of it is what a failing test is read from. The shard keeps that
+  # record instead: clientconnection.src buffers every message and dumps it only
+  # when a test fails. Raise this to get the old running commentary back.
+  logging.basicConfig(level=os.environ.get('POLCORE_TESTCLIENT_LOGLEVEL', 'WARNING').upper(),
+          stream=sys.stderr,
           format="      %(name)s:%(message)s")
 
   # Whatever else happens, say when this process actually goes. It is one stage of a pipeline that
   # cmake waits on in full, so a stage that never exits looks exactly like a hung shard.
+  # These two carry the LIFECYCLE lines, which are the only trace of a client that
+  # died, so they say their piece whatever the level above is set to.
+  logging.getLogger('testclient').setLevel(logging.INFO)
+  logging.getLogger('server').setLevel(logging.INFO)
   lifecycle = logging.getLogger('testclient')
   atexit.register(lambda: lifecycle.info("LIFECYCLE process exiting"))
   lifecycle.info("LIFECYCLE process starting (pid %d)", os.getpid())
@@ -1013,7 +1145,6 @@ if __name__ == '__main__':
   finally: # wake up the server and let it close first
     lifecycle.info("LIFECYCLE run() left, releasing the control connection")
     serv.send("{}")
-    time.sleep(1)
-    serv.conn.close()
+    serv.close_control()
     lifecycle.info("LIFECYCLE control connection closed")
 

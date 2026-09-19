@@ -146,14 +146,9 @@ function wait_for_clilocs( num, timeout := 10 )
   return ret_error( $"client {missing} never got cliloc {num} within {timeout}s" );
 endfunction
 
-function no_cliloc_for( id, num, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_CLILOC or CInt( ev.id ) != id or CInt( ev.cliloc ) != num )
-      continue;
-    endif
-    return ret_error( $"client {id} got cliloc {num}, which was not meant for it" );
-  endwhile
-  return 1;
+// Asserts a client is sent no cliloc of that number. A barrier, not a window - see
+// no_event_before_sync() in communication.inc.
+function no_cliloc_for( id, num )
+  return no_event_before_sync( sync_con(), id, { EVT_CLILOC },
+      @( ev ) { return ( CInt( ev.cliloc ) == num ) ? $"got cliloc {num}, which was not meant for it" : 0; } );
 endfunction

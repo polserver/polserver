@@ -1,6 +1,8 @@
 use os;
 use attributes;
 use vitals;
+use file;
+use polsys;
 
 // see pyuo/brain.py method typestr()
 const EVT_INIT := "init";
@@ -163,6 +165,9 @@ const EVT_RACE_CHANGER := "race_changer";
 // one, or writes the title and author back with the "book" todo; only a page it asked for is
 // answered, so nothing is armed here.
 const EVT_BOOK := "book";
+// The answer to a ping the harness asked for, rather than anything the shard sent of
+// its own accord. See client_sync() below for what it is good for.
+const EVT_SYNC := "sync";
 const EVT_BOOK_PAGE := "book_page";
 const BOOK_READ := "read";
 const BOOK_WRITE := "write";
@@ -271,12 +276,24 @@ const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 // thing it costs is how far past its deadline a wait for nothing runs. Waiting
 // a whole second at a time is what made the negative assertions below cost a
 // second more than they were asked for.
-const POLL_INTERVAL := 0.1;
+//
+// That overshoot is now a large share of the window rather than a rounding
+// error, so it is kept near the floor the core allows.
+const POLL_INTERVAL := 0.02;
 
 // The default window of the "nobody was told this" assertions. It has to stay
 // comfortably above a round trip to the test client - that is all a wrongly
 // sent message needs to show up - without being paid on every single call.
-const QUIET_SECS := 0.75;
+//
+// The client used to answer in about 60ms, all of it spent in poll intervals on
+// the way there and back: the harness, the brain and the client thread each sat
+// out a timer before looking at what had arrived. All three now block until
+// something arrives instead, and a client test case that does nothing but a
+// round trip went from ~150ms to ~10ms - so a round trip is now some 5ms, and
+// this window is fifty times it where it used to be twelve. Shortening it
+// further is not worth much: at 39 negative assertions the whole family costs a
+// few seconds, and the value has to keep enough room for a loaded CI box.
+const QUIET_SECS := 0.25;
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
@@ -295,12 +312,127 @@ function getClientConnection()
   return proc;
 endfunction
 
-// wait for events of given types and of given client id
-function waitForClient( id, types, timeout := 10 )
+// The connection the barrier below pings down, for the helpers that take no
+// clientcon of their own. Read straight out of the global property rather than
+// through getClientConnection(): that one also hands the client's events to whoever
+// calls it, and a helper has no business moving ownership around.
+var sync_con_cached := 0;
+function sync_con()
+  if ( !sync_con_cached )
+    var pid := GetGlobalProperty( "#clientcon" );
+    if ( !pid )
+      return 0;
+    endif
+    sync_con_cached := GetProcess( pid );
+  endif
+  return sync_con_cached;
+endfunction
+
+// Tokens are strings: every number that comes back through the client connection is
+// a Double, and comparing those would need a CInt at each site. The pid makes it
+// unique across scripts and the counter across nested calls and across both clients,
+// so a token can never match a barrier other than its own.
+var sync_seq := 0;
+function sync_send( clientcon, id )
+  if ( !clientcon )
+    return ret_error( "no client connection to synchronise against" );
+  endif
+  sync_seq += 1;
+  var token := $"{GetPid()}.{sync_seq}";
+  clientcon.sendevent( struct{ todo := "sync", arg := token, id := id } );
+  return token;
+endfunction
+
+// Everything the shard had already sent this client has arrived by the time this
+// returns, and nothing matching `types` was among it.
+//
+// A 0x73 keep-alive is echoed back verbatim and unconditionally, so an echo carrying
+// a cookie of our own is queued behind everything the core had already handed out
+// for this client - every client's bytes go through one queue - and is read by the
+// client after all of it. Waiting for that echo is a proof where a quiet window was
+// a guess, and it costs a round trip instead of QUIET_SECS.
+//
+// `matcher` is called only for an event whose type is in `types` and whose id
+// matches, so it may read that type's own members without checking first. It answers
+// the text of the complaint, or 0 for "not this one". An empty `types` matches
+// nothing at all - that is client_sync() below, and the only place it is meant.
+//
+// What this does NOT prove: anything a timer, a task, an NPC or a script started by
+// the handler sends later, and anything sent to another client. Assertions that wait
+// on one of those keep a timed window and say so.
+function no_event_before_sync( clientcon, id, types, matcher := 0, timeout := 5 )
+  var token := sync_send( clientcon, id );
+  if ( !token )
+    return token;
+  endif
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  // an error is falsy in eScript, so what was found is tracked by a flag of its
+  // own rather than by whether `offender` holds anything
+  var found := 0;
+  var offender := 0;
   while ( 1 )
-    var ev := Wait_For_Event( timeout );
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
+      break;
+    endif
+    // the whole remaining window rather than a poll interval: the wait ends the
+    // moment an event arrives, so this is exact instead of quantised, and unlike
+    // waitForClient() a stream of events cannot push the deadline back
+    var ev := Wait_For_Event( remaining / 1000.0 );
     if ( !ev )
+      continue;
+    endif
+    if ( ev.type == EVT_SYNC and ev.token == token )
+      // keep draining to the barrier even once something was found: the answer was
+      // already on its way, so it costs nothing and it leaves the queue clean
+      if ( found )
+        return offender;
+      endif
+      return 1;
+    endif
+    if ( found or !( ev.type in types ) or CInt( ev.id ) != id )
+      continue;
+    endif
+    // a function reference is falsy too, so the caller's matcher is recognised by
+    // its type rather than by being truthy. TypeOf() answers "FunctionReference";
+    // "FunctionObject" is only what one prints as.
+    var why;
+    if ( TypeOf( matcher ) == "FunctionReference" )
+      why := matcher.call( ev );
+    else
+      why := $"was sent a {ev.type} it should not have been";
+    endif
+    if ( why )
+      found := 1;
+      offender := ret_error( $"client {id} {why}" );
+    endif
+  endwhile
+  return ret_error( $"client {id} never answered the barrier within {timeout}s\n{GetProcess().stacktrace()}" );
+endfunction
+
+// Waits until everything the shard had already sent this client has arrived, with
+// nothing forbidden. A barrier with no assertion attached.
+function client_sync( clientcon, id, timeout := 5 )
+  return no_event_before_sync( clientcon, id, {}, 0, timeout );
+endfunction
+
+// Waits for an event of one of the given types, from the given client.
+//
+// The timeout is a deadline for the whole call rather than for each wait inside it:
+// as the latter, every event that did not match started the window over, so a client
+// that keeps talking - one in a fight, say - could hold the call open well past what
+// the caller asked for. That bites hardest where this is used as a negative
+// assertion with QUIET_SECS, which is exactly when other events are flying.
+function waitForClient( id, types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( 1 )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( ev.id != id || !( ev.type in types ) )
       continue;
@@ -324,22 +456,12 @@ function wait_for_speech( id, text, timeout := 10 )
   return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
 endfunction
 
-// Asserts a client is told nothing carrying the given text.
-//
-// The whole window is always paid, so it is kept to the round trip a wrongly
-// sent message would need rather than to a comfortable-looking couple of
-// seconds. Most callers have already waited out something else the core sends,
-// which proves it has sent everything it was going to.
-function no_speech_for( id, text, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
-      continue;
-    endif
-    return ret_error( $"client {id} heard \"{text}\", which was not meant for it" );
-  endwhile
-  return 1;
+// Asserts a client is told nothing carrying the given text. Rides the barrier, so
+// it proves the shard had sent nothing more rather than waiting to see; what that
+// does and does not cover is on no_event_before_sync() above.
+function no_speech_for( id, text )
+  return no_event_before_sync( sync_con(), id, { EVT_SPEECH },
+      @( ev ) { return ( ev.msg == text ) ? $"heard \"{text}\", which was not meant for it" : 0; } );
 endfunction
 
 // Waits for a client to be told about its own character, which is how a test
@@ -360,22 +482,39 @@ endfunction
 // Reads events until none have come for a while. Only for putting the queue
 // back into a known state after something went wrong - it costs its whole
 // window every time it is called.
-function drain_events( quiet := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + quiet * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet * 1000;
-    endif
-  endwhile
-  return 1;
+// Throws away everything the shard has already sent, so that what a case waits for
+// next is its own and not the tail of whatever set it up.
+//
+// This used to wait for a quiet quarter second and take silence as the end of the
+// traffic, which is what most of the client package's remaining time was. A barrier
+// per client says the same thing and says it exactly: once both echoes are back,
+// everything queued for either client has arrived, and the barrier discarded it on
+// the way through. Both are needed because this takes no id and the package runs
+// two clients, connected in setup.src for its whole life.
+//
+// What it cannot do is wait for a script the shard started - a hook, an NPC, a spell.
+// A case that needs one of those has to wait for its effect itself; see
+// wait_hook_call() in party.inc for what that looks like.
+function drain_events()
+  var res := client_sync( sync_con(), 0, 2 );
+  if ( !res )
+    return res;
+  endif
+  return client_sync( sync_con(), 1, 2 );
 endfunction
 
-function waitForClients( types )
-  // wait for events of given types of any client
+// The same, for an event of any client. Takes its timeout the same way, where it
+// used to have ten seconds written in with no deadline around it.
+function waitForClients( types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( 1 )
-    var ev := Wait_For_Event( 10 );
-    if ( !ev )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( !( ev.type in types ) )
       continue;
@@ -388,13 +527,21 @@ endfunction
 // given, everything it has seen otherwise. Drops whatever is queued first, so
 // the answer cannot be an older listing.
 //
-// A client answers this out of its own loop, without regard for the packets
-// still on their way to it - the core hands those to a queue that a thread of
-// its own writes out - so a listing can be older than the change it is being
-// asked about. A caller looking for one object being there, or being gone, has
-// to be able to ask again and must go through client_finds_obj() or
-// client_lost_obj() rather than pick through the answer of a single listing.
+// The listing is taken behind a barrier, so it describes everything the core had
+// already sent this client and a single answer can be read straight. What it still
+// cannot speak for is anything sent later - by a timer, a task, an NPC or a script
+// the change started - and a caller waiting on one of those wants client_finds_obj()
+// or client_lost_obj(), which ask again until the deadline.
 function list_client_objs( clientcon, id, cont_serial := 0, timeout := 10 )
+  // Level with the core before asking. The client answers this out of its own loop
+  // and knows nothing of the packets still queued for it, so a listing taken straight
+  // after a change can describe the state before it - and a caller that only checks
+  // whether something is present reads that stale answer as a success. The barrier
+  // costs a round trip and makes the answer mean what it says.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   var todo := struct{ todo := "list_objects", id := id };
   if ( cont_serial )
@@ -462,12 +609,19 @@ endfunction
 // Asks a client what it thinks a mobile is wearing. Drops whatever is queued
 // first, so the answer cannot be an older listing.
 //
-// The same race as list_client_objs(): the client answers out of its own loop
-// and knows nothing of the packets still on their way to it, so a listing taken
-// straight after equipping something can be older than the equip. A caller
-// asking whether a layer is filled, or empty, has to go through
-// client_finds_layer() or client_lost_layer().
+// Behind the same barrier as list_client_objs(), so the answer describes everything
+// the core had already sent. A layer filled by something a timer or a script puts
+// there later still wants client_finds_layer() or client_lost_layer().
 function list_client_equipment( clientcon, id, serial, timeout := 10 )
+  // Level with the core before asking. The client answers this out of its own loop
+  // and knows nothing of the packets still queued for it, so a listing taken straight
+  // after a change can describe the state before it - and a caller that only checks
+  // whether something is present reads that stale answer as a success. The barrier
+  // costs a round trip and makes the answer mean what it says.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "list_equipped_items", arg := serial, id := id } );
   return waitForClient( id, { EVT_LIST_EQUIPPED_ITEMS }, timeout );
@@ -538,4 +692,38 @@ function enable_auto_delete( clientcon, id )
   clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := id } );
   while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
   endwhile
+endfunction
+
+// Rewrites one setting of a config file the core re-reads on ReloadConfiguration,
+// so a case can look at both sides of a flag. Every line that starts with the key
+// goes, and the new value is appended - a comment naming the key survives, since
+// it starts with a hash. Returns the original contents, to hand back to
+// restore_cfg(), which the case must do whatever else happens to it.
+function set_cfg_key( path, key, value )
+  var original := ReadFile( path );
+  if ( original == error )
+    return ret_error( $"could not read {path}: {original}" );
+  endif
+
+  var rewritten := array{};
+  foreach line in ( original )
+    if ( Find( line, key, 1 ) != 1 )
+      rewritten.append( line );
+    endif
+  endforeach
+  rewritten.append( $"{key}={value}" );
+
+  var res := WriteFile( path, rewritten );
+  if ( res == error )
+    return ret_error( $"could not write {path}: {res}" );
+  endif
+
+  ReloadConfiguration();
+  return original;
+endfunction
+
+function restore_cfg( path, original )
+  WriteFile( path, original );
+  ReloadConfiguration();
+  return 1;
 endfunction
