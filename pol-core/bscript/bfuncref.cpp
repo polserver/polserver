@@ -12,12 +12,12 @@
 
 namespace Pol::Bscript
 {
-BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned int pid,
+BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, u64 owner_id,
                             unsigned function_reference_index,
                             std::weak_ptr<ValueStackCont> globals, ValueStackCont&& captures )
     : BObjectImp( OTFuncRef ),
       prog_( std::move( program ) ),
-      original_pid_( pid ),
+      owner_id_( owner_id ),
       function_reference_index_( function_reference_index ),
       globals( std::move( globals ) ),
       captures( std::move( captures ) )
@@ -26,7 +26,7 @@ BFunctionRef::BFunctionRef( ref_ptr<EScriptProgram> program, unsigned int pid,
 }
 
 BFunctionRef::BFunctionRef( const BFunctionRef& B )
-    : BFunctionRef( B.prog_, B.original_pid_, B.function_reference_index_, B.globals,
+    : BFunctionRef( B.prog_, B.owner_id_, B.function_reference_index_, B.globals,
                     ValueStackCont( B.captures ) )
 {
 }
@@ -170,9 +170,9 @@ ref_ptr<EScriptProgram> BFunctionRef::prog() const
   return prog_;
 }
 
-unsigned int BFunctionRef::pid() const
+u64 BFunctionRef::owner_id() const
 {
-  return original_pid_;
+  return owner_id_;
 }
 
 unsigned BFunctionRef::class_index() const

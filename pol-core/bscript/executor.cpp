@@ -48,6 +48,7 @@
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
+#include <atomic>
 #include <iterator>
 #include <limits>
 #ifdef MEMORYLEAK
@@ -202,6 +203,13 @@ bool ExecutorDebugEnvironment::on_instruction( Executor& ex )
 
 extern int executor_count;
 Clib::SpinLock Executor::_executor_lock;
+u64 Executor::next_instance_id()
+{
+  // u64 so the counter cannot come back around onto an id a live function reference carries.
+  static std::atomic<u64> counter{ 0 };
+  return ++counter;
+}
+
 Executor::Executor()
     : done( 0 ),
       error_( false ),
@@ -213,6 +221,7 @@ Executor::Executor()
       Locals2( new BObjectRefVec ),
       nLines( 0 ),
       current_module_function( nullptr ),
+      instance_id_( next_instance_id() ),
       prog_ok_( false ),
       viewmode_( false ),
       runs_to_completion_( false ),
@@ -2749,10 +2758,10 @@ void Executor::ins_call_method_id( const Instruction& ins )
           // The class index addresses the function reference's program, so the instance has to
           // be built from that program and its creator's globals, not from whatever this
           // executor currently runs.
-          fparams.insert( fparams.begin(),
-                          BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
-                              funcr->prog(), funcr->class_index(), funcr->globals,
-                              funcr->pid() ) ) ) ) );
+          fparams.insert(
+              fparams.begin(),
+              BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
+                  funcr->prog(), funcr->class_index(), funcr->globals, funcr->owner_id() ) ) ) ) );
         }
       }
 
@@ -2996,7 +3005,7 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
   // jump target is an offset into the function reference's program, and the globals it closes
   // over are the ones its creator had. The same executor can hold references to both, since it
   // runs another program's code for the length of an external call.
-  if ( funcref != nullptr && ( funcref->prog() != prog_ || funcref->pid() != pid() ) )
+  if ( funcref != nullptr && ( funcref->prog() != prog_ || funcref->owner_id() != instance_id() ) )
   {
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
@@ -3381,8 +3390,8 @@ void Executor::ins_double( const Instruction& ins )
 
 void Executor::ins_classinst( const Instruction& ins )
 {
-  ValueStack.emplace_back( new BConstObject(
-      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2, pid() ) ) ) );
+  ValueStack.emplace_back( new BConstObject( new BClassInstanceRef(
+      new BClassInstance( prog_, ins.token.lval, Globals2, instance_id() ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
@@ -3587,7 +3596,7 @@ void Executor::ins_funcref( const Instruction& ins )
   auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
   ValueStack.emplace_back(
-      new BFunctionRef( prog_, pid(), funcref_index, Globals2, {} /* captures */ ) );
+      new BFunctionRef( prog_, instance_id(), funcref_index, Globals2, {} /* captures */ ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
@@ -3614,7 +3623,8 @@ void Executor::ins_functor( const Instruction& ins )
     capture_count--;
   }
 
-  auto func = new BFunctionRef( prog_, pid(), funcref_index, Globals2, std::move( captures ) );
+  auto func =
+      new BFunctionRef( prog_, instance_id(), funcref_index, Globals2, std::move( captures ) );
 
   ValueStack.emplace_back( func );
 

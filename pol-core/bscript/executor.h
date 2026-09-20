@@ -541,13 +541,21 @@ public:
   bool empty_scriptname();
   const EScriptProgram* prog() const;
 
+  // The scheduler's number for this script, 0 for an executor the core never scheduled. Use
+  // instance_id() to tell two executors apart; a pid is recycled once its script is gone.
   virtual unsigned int pid() const { return 0; };
+
+  // Identifies this executor for as long as the process runs; never reused.
+  u64 instance_id() const { return instance_id_; }
 
 private:
   // Applies the operator policy for an operand pair no type had a rule for, and reports the
   // no-rule case once per program with the script and PC.
   BObjectImp* operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right );
 
+  static u64 next_instance_id();
+
+  const u64 instance_id_;
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
