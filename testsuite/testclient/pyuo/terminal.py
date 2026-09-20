@@ -4,6 +4,7 @@
 A curses-based UO client
 '''
 
+import asyncio
 import os
 import sys
 import time
@@ -17,13 +18,17 @@ from pyuo import client
 from pyuo import brain
 
 
+## How often a modal dialog polls for a key. Keeps curses on its one task.
+KEY_POLL = 0.02
+
+
 class Ui(brain.Brain):
   ''' Handles the user interface '''
 
   colors = None
   last_text = ''
 
-  def __init__(self, stdScreen, host, port, writeLog=False, logLevel=logging.INFO):
+  def __init__(self, stdScreen, writeLog=False, logLevel=logging.INFO):
     for i in range(1, 8):
       curses.init_pair(i, i, 0)
     Ui.colors = {
@@ -76,19 +81,23 @@ class Ui(brain.Brain):
     self.refreshAll()
     
     self.updLogLvlDisplay()
-    
+
+  async def login(self, host, port):
+    '''! Asks who to play as and logs them in.
+    @return Client: the connected client, with its character already chosen
+    '''
     # Login
     while True:
       # Ask for username and password
-      user = InputDialog(self.scr, 'Username:', 25).edit()
-      pwd = InputDialog(self.scr, 'Password:', 25).edit()
+      user = await InputDialog(self.scr, 'Username:', 25).edit()
+      pwd = await InputDialog(self.scr, 'Password:', 25).edit()
 
       # Connect to server
       self.updStatus('logging in {}:{}'.format(host,port))
       self.refreshAll()
       cli = client.Client()
       try:
-        servers = cli.connect(host, port, user, pwd)
+        servers = await cli.connect(host, port, user, pwd)
       except client.LoginDeniedError as e:
         self.updStatus('login denied ({})'.format(e))
       except ConnectionRefusedError as e:
@@ -101,28 +110,27 @@ class Ui(brain.Brain):
     # Select server
     self.log.debug(servers)
     serverList = [ i['name'] for i in servers ]
-    idx = SelectDialog(self.scr, 'Select a server', serverList, 30, 5).select()
+    idx = await SelectDialog(self.scr, 'Select a server', serverList, 30, 5).select()
     self.server = servers[idx]
 
     self.updStatus('selecting server {}'.format(self.server['name']))
     self.refreshAll()
 
     # Select character
-    chars = cli.selectServer(self.server['idx'])
+    chars = await cli.selectServer(self.server['idx'])
     self.log.debug(chars)
     charList = [ i['name'] for i in chars ]
-    idx = SelectDialog(self.scr, 'Select a character', charList, 30, 5).select()
+    idx = await SelectDialog(self.scr, 'Select a character', charList, 30, 5).select()
     self.char = chars[idx]
 
     self.updStatus('selecting character {}'.format(self.char['name']))
     self.refreshAll()
 
-    # Start brain
-    cli.selectCharacter(self.char['name'], idx)
+    await cli.selectCharacter(self.char['name'], idx)
     self.updStatus('entering Britannia...')
-    super().__init__(cli)
+    return cli
 
-  def init(self):
+  async def init(self):
     self.timeout = 0.1
     p = self.client.player
     self.updStatus('playing {}@{}'.format(self.char['name'], self.server['name']))
@@ -131,8 +139,8 @@ class Ui(brain.Brain):
     self.updAspect(p.serial, p.graphic, p.color)
     self.updPosition(p.x, p.y, p.z, p.facing, p.notoriety)
 
-  def loop(self):
-    self.processInput()
+  async def loop(self):
+    await self.processInput()
 
   def refreshAll(self):
     self.scr.noutrefresh()
@@ -252,7 +260,7 @@ class Ui(brain.Brain):
     self.mwin.updObjects(objs, self.client.view_range)
     self.mwin.refresh()
 
-  def processInput(self):
+  async def processInput(self):
     ''' Gets next character from the input, if any; discard the rest
     @return True if any input has been processed
     '''
@@ -261,7 +269,7 @@ class Ui(brain.Brain):
       if key == ord('v'):
         self.cycleLogLevel()
       elif key == ord('\n'):
-        self.speak()
+        await self.speak()
       elif key == curses.KEY_DOWN:
         self.move(client.Direction(client.Direction.S))
       elif key == curses.KEY_UP:
@@ -293,9 +301,9 @@ class Ui(brain.Brain):
     self.logHandler.setLevel(newLevel)
     self.updLogLvlDisplay()
 
-  def speak(self):
+  async def speak(self):
     ''' Asks input to the user and sends it as speech to the server '''
-    text = InputDialog(self.scr, 'Write down your message:', 70).edit()
+    text = await InputDialog(self.scr, 'Write down your message:', 70).edit()
     self.last_text=text
     self.client.say(text)
 
@@ -688,7 +696,7 @@ class InputDialog(BaseDialog):
     super().__init__(parent, title)
     self.maxLen = maxLen
 
-  def edit(self):
+  async def edit(self):
     width = self.maxLen + 2
     height = 3
 
@@ -700,10 +708,22 @@ class InputDialog(BaseDialog):
 
     box = ewin.textbox()
 
-    # Let the user edit until Ctrl-G is struck.
+    # Textbox.edit() with a non-blocking read, so typing does not stall the loop.
+    # do_command() returns false on Ctrl-G.
+    ewin.nodelay(True)
     curses.curs_set(2)
-    box.edit(lambda key: self.onKey(key))
-    curses.curs_set(0)
+    try:
+      while True:
+        key = ewin.getch()
+        if key < 0:
+          await asyncio.sleep(KEY_POLL)
+          continue
+        if not box.do_command(self.onKey(key)):
+          break
+        ewin.refresh()
+    finally:
+      ewin.nodelay(False)
+      curses.curs_set(0)
 
     res = box.gather().strip()
 
@@ -727,7 +747,7 @@ class SelectDialog(BaseDialog):
     self.minWidth = minWidth
     self.minHeight = minHeight
 
-  def select(self):
+  async def select(self):
     ''' Make the user perform the selection, return selected index '''
     maxLen = max([len(i) for i in self.elems] + [self.minWidth])
     height = max(len(self.elems), self.minHeight)
@@ -738,18 +758,26 @@ class SelectDialog(BaseDialog):
     self.drawList()
 
     curses.flushinp()
-    while True:
-      key = self.win.getch()
-      if key in (curses.KEY_ENTER, ord('\n')):
-        break
-      elif key == curses.KEY_UP:
-        if self.curidx > 0:
-          self.curidx -= 1
-          self.drawList()
-      elif key == curses.KEY_DOWN:
-        if self.curidx < len(self.elems) - 1:
-          self.curidx += 1
-          self.drawList()
+    # Non-blocking: curses may only be called from this task.
+    self.win.nodelay(True)
+    try:
+      while True:
+        key = self.win.getch()
+        if key < 0:
+          await asyncio.sleep(KEY_POLL)
+          continue
+        if key in (curses.KEY_ENTER, ord('\n')):
+          break
+        elif key == curses.KEY_UP:
+          if self.curidx > 0:
+            self.curidx -= 1
+            self.drawList()
+        elif key == curses.KEY_DOWN:
+          if self.curidx < len(self.elems) - 1:
+            self.curidx += 1
+            self.drawList()
+    finally:
+      self.win.nodelay(False)
 
     self.undraw()
     return self.curidx
@@ -786,6 +814,22 @@ class UiLogHandler(logging.Handler):
     self.level = level
 
 
+async def uiMain(stdscr, host, port, writeLog, logLevel):
+  ''' Builds the interface, logs in, and runs the client and the ui side by side '''
+  ui = Ui(stdscr, writeLog, logLevel)
+  cli = await ui.login(host, port)
+  brain.Brain.__init__(ui, cli)
+  ctask = cli.start(ui)
+  btask = asyncio.create_task(ui.run(), name='ui')
+  await client.supervise(ui.log, ctask, btask)
+
+
+def _main(stdscr, host, port, writeLog, logLevel):
+  ''' curses.wrapper wants something to call; the loop lives inside it, so the
+  terminal is put back whatever happens '''
+  return asyncio.run(uiMain(stdscr, host, port, writeLog, logLevel))
+
+
 if __name__ == '__main__':
   import argparse
   import traceback
@@ -818,7 +862,7 @@ if __name__ == '__main__':
     sys.stderr = open(errFile, 'wt')
 
   try:
-    curses.wrapper(Ui, args.host, args.port, args.log, logLevel)
+    curses.wrapper(_main, args.host, args.port, args.log, logLevel)
   except Exception as e:
     type, value, tb = sys.exc_info()
     msg = ''.join(traceback.format_exception(type, value, tb))

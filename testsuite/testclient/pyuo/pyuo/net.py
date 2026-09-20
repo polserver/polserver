@@ -19,11 +19,15 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 '''
 
-import select
+import asyncio
 import socket
 import logging
 
 from . import packets
+
+
+class Disconnected(ConnectionError):
+  ''' The server closed the game socket '''
 
 
 class Network:
@@ -90,18 +94,23 @@ class Network:
   ## Packets start on a byte boundary, so a whole byte is one lookup.
   _STEP = {}
 
-  def __init__(self, ip, port):
-    '''! Connects to the socket
-      @param ip IPv4Address: the IP object, from the ipaddress module
-      @param port int: the port
+  ## Connect timeout, so a shard that is not listening fails fast.
+  CONNECT_TIMEOUT = 10
+
+  def __init__(self, reader=None, writer=None):
+    '''! Wraps a connected stream, or nothing at all.
+      @param reader StreamReader: the read half, None for a framer with no transport
+      @param writer StreamWriter: the write half
+
+    Everything below the transport is driven by what is in the buffer, so an
+    instance without a stream is still a whole decoder. That is what lets the two
+    framers be fed a recorded stream instead of a shard.
     '''
     ## Logger, for internal usage
     self.log = logging.getLogger('net')
-    ## Socket connection, for internal usage
-    self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self.sock.connect((str(ip), port))
-    # Small request/reply traffic, which Nagle would hold back.
-    self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    ## The stream halves, for internal usage
+    self.reader = reader
+    self.writer = writer
     ## Buffer, for internal usage
     self.buf = bytearray()
     ## Wether to use compression or not
@@ -111,12 +120,43 @@ class Network:
     self._pos = 0
     self._out = bytearray()
 
+  @classmethod
+  async def connect(cls, ip, port):
+    '''! Connects to the server
+      @param ip IPv4Address: the IP object, from the ipaddress module
+      @param port int: the port
+    '''
+    # AF_INET: the shard listens on IPv4, and ::1 would be tried first otherwise.
+    reader, writer = await asyncio.wait_for(
+        asyncio.open_connection(str(ip), port, family=socket.AF_INET),
+        cls.CONNECT_TIMEOUT)
+    sock = writer.get_extra_info('socket')
+    if sock is not None:
+      # Small request/reply traffic, which Nagle would hold back.
+      sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    return cls(reader, writer)
+
   def close(self):
     ''' Disconnects, makes this object unusable '''
-    self.sock.close()
+    if self.writer is not None:
+      self.writer.close()
 
-  def send(self, data):
-    ''' Sends a packet or raw binary data '''
+  async def wait_closed(self):
+    ''' Waits out the close, so no transport is left pending at shutdown '''
+    if self.writer is None:
+      return
+    try:
+      await self.writer.wait_closed()
+    except (OSError, asyncio.CancelledError):
+      pass
+
+  def write(self, data):
+    '''! Puts a packet or raw binary data on the transport.
+
+    Not a coroutine: a stream write appends to the transport's own buffer, so a
+    caller with a packet to send never waits for anyone. What the server reads is
+    the order write() was called in.
+    '''
     if isinstance(data, packets.Packet):
       raw = data.encode()
       assert data.validated
@@ -127,50 +167,54 @@ class Network:
 
     if self.log.isEnabledFor(logging.DEBUG):
       self.log.debug('-> 0x%0.2X, %d bytes\n"%s"', raw[0], len(raw), raw)
-    # sendall: a short write would leave the server mid-packet.
-    self.sock.sendall(raw)
+    self.writer.write(raw)
 
-  def recv(self, blocking=True):
-    '''! Reads next packet from the server
+  async def drain(self):
+    '''! Lets a server that has stopped reading push back.
 
-    @param blocking bool: whether to wait for a packet. When false, returns None
-                          as soon as there is not a whole one to be had.
-    @return Packet, or None in non-blocking mode when none is ready
+    write() never blocks and never fails, so this is the only thing standing
+    between a peer that is not draining and a buffer that grows without limit.
+    '''
+    if self.writer is not None:
+      await self.writer.drain()
+
+  async def recv(self):
+    '''! Reads the next packet from the server, waiting for it if need be.
+    @return Packet
+
+    Suspends only when the buffer cannot produce a packet, which is what keeps a
+    burst a burst: the caller runs through everything one read brought in without
+    ever handing control back to the event loop.
     '''
     while True:
-      raw = self._nextPacket()
-      if raw is not None:
-        return self._decode(raw)
-      if not self._fill(blocking):
-        return None
+      pkt = self.recvNowait()
+      if pkt is not None:
+        return pkt
+      await self._fill()
 
-  def _fill(self, blocking):
-    '''! Reads whatever the socket has into the buffer.
+  def recvNowait(self):
+    '''! Takes the next packet out of what the buffer already holds.
+    @return Packet, or None when there is not a whole one buffered
 
-    The socket itself stays blocking throughout; a poll asks select() whether
-    there is anything to read rather than flipping the mode back and forth,
-    which kept sends having to flip it back.
-    @return bool: False when nothing could be read in non-blocking mode
+    Reads nothing. Whether a packet is ready is a question about the buffer, and
+    only _fill() below ever touches the transport.
     '''
-    if not blocking:
-      try:
-        ready, _, _ = select.select([self.sock], [], [], 0)
-      except (OSError, ValueError):
-        return False
-      if not ready:
-        return False
-    try:
-      data = self.sock.recv(65536)
-    except socket.error:
-      if not blocking:
-        return False
-      raise
+    raw = self._nextPacket()
+    return None if raw is None else self._decode(raw)
 
-    if not len(data):
-      raise RuntimeError("Disconnected")
-
+  def feed(self, data):
+    '''! Puts received bytes where the framers will find them '''
     self.buf += data
-    return True
+
+  async def _fill(self):
+    '''! Waits for the stream to hand over whatever it has, and buffers it.
+
+    The one place this class touches the transport, and the one place it suspends.
+    '''
+    data = await self.reader.read(65536)
+    if not data:
+      raise Disconnected("Disconnected")
+    self.feed(data)
 
   def _nextPacket(self):
     '''! Takes the next whole packet off the front of the buffer.
