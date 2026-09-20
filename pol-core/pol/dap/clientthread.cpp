@@ -93,10 +93,14 @@ void DebugClientThread::on_print( const std::string& output )
   if ( _uoexec_wptr.exists() )
   {
     UOExecutor* exec = _uoexec_wptr.get_weakptr();
-    dap::Source source;
-    source.path = _script->dbg_filenames[_script->dbg_filenum[exec->PC]];
-    event.source = source;
-    event.line = _script->dbg_linenum[exec->PC];
+    const EScriptProgram* prog = exec->prog();
+    if ( frame_has_debug_info( prog, exec->PC ) )
+    {
+      dap::Source source;
+      source.path = prog->dbg_filenames[prog->dbg_filenum[exec->PC]];
+      event.source = source;
+      event.line = prog->dbg_linenum[exec->PC];
+    }
   }
 
   _session->send( event );
@@ -333,7 +337,8 @@ dap::ResponseOrError<dap::EvaluateResponse> DebugClientThread::handle_evaluate(
   BObjectRef result;
   try
   {
-    result = _expression_evaluator.evaluate( _uoexec_wptr.get_weakptr(), _script.get(),
+    UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+    result = _expression_evaluator.evaluate( uoexec, const_cast<EScriptProgram*>( uoexec->prog() ),
                                              request.expression );
   }
   catch ( std::exception& ex )
@@ -358,8 +363,9 @@ dap::ResponseOrError<dap::SetVariableResponse> DebugClientThread::handle_setVari
   BObjectRef value;
   try
   {
-    value =
-        _expression_evaluator.evaluate( _uoexec_wptr.get_weakptr(), _script.get(), request.value );
+    UOExecutor* uoexec = _uoexec_wptr.get_weakptr();
+    value = _expression_evaluator.evaluate( uoexec, const_cast<EScriptProgram*>( uoexec->prog() ),
+                                            request.value );
   }
   catch ( std::exception& ex )
   {
@@ -586,28 +592,43 @@ dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTra
   // Bottom frame starts at index 1
   auto frameId = exec->ControlStack.size() + 1;
 
+  // Each frame's PC addresses the program that frame was running, not always this one.
+  const EScriptProgram* prog = exec->prog();
+
   while ( !stack.empty() )
   {
     ReturnContext& rc = stack.back();
     PC = rc.PC;
+    if ( rc.ExternalContext.has_value() )
+      prog = rc.ExternalContext->Program.get();
     stack.pop_back();
+
+    dap::StackFrame frame;
+    frame.id = frameId--;
+    frame.column = 1;
+
+    if ( !frame_has_debug_info( prog, PC ) )
+    {
+      frame.line = 0;
+      frame.name = "(no debug information)";
+      response.stackFrames.push_back( frame );
+      continue;
+    }
 
     dap::Source source;
 
-    auto filepath = _script->dbg_filenames[_script->dbg_filenum[PC]];
+    auto filepath = prog->dbg_filenames[prog->dbg_filenum[PC]];
     fs::path p( filepath );
     std::string abs_path = ( p.is_relative() ? ( fs::current_path() / p ) : p ).string();
 
     source.name = abs_path;
     source.path = abs_path;
 
-    dap::StackFrame frame;
-    frame.line = _script->dbg_linenum[PC];
-    frame.column = 1;
-    auto dbgFunction = std::find_if( _script->dbg_functions.begin(), _script->dbg_functions.end(),
+    frame.line = prog->dbg_linenum[PC];
+    auto dbgFunction = std::find_if( prog->dbg_functions.begin(), prog->dbg_functions.end(),
                                      [&]( auto& i ) { return i.firstPC <= PC && PC <= i.lastPC; } );
 
-    if ( dbgFunction != _script->dbg_functions.end() )
+    if ( dbgFunction != prog->dbg_functions.end() )
     {
       frame.name = dbgFunction->name;
     }
@@ -616,7 +637,6 @@ dap::ResponseOrError<dap::StackTraceResponse> DebugClientThread::handle_stackTra
       frame.name = "(program)";
     }
 
-    frame.id = frameId--;
     frame.source = source;
 
     response.stackFrames.push_back( frame );
@@ -650,7 +670,7 @@ dap::ResponseOrError<dap::ScopesResponse> DebugClientThread::handle_scopes(
 
   if ( !_global_scope_handle )
   {
-    _global_scope_handle = _variable_handles.create( GlobalReference( uoexec, _script.get() ) );
+    _global_scope_handle = _variable_handles.create( GlobalReference( uoexec ) );
   }
 
   dap::ScopesResponse response;
@@ -659,8 +679,7 @@ dap::ResponseOrError<dap::ScopesResponse> DebugClientThread::handle_scopes(
     dap::Scope scope;
     scope.name = "Locals @ " + Clib::tostring( frameId );
     scope.presentationHint = "locals";
-    scope.variablesReference =
-        _variable_handles.create( FrameReference( uoexec, _script.get(), frameId - 1 ) );
+    scope.variablesReference = _variable_handles.create( FrameReference( uoexec, frameId - 1 ) );
     response.scopes.push_back( scope );
   }
 

@@ -78,6 +78,9 @@ public:
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
+  // The program, modules and globals the executor had before the external call this frame
+  // returns from. A frame's PC addresses the program that frame was running, so the frame that
+  // saved one of these is the first one back in its caller's program.
   struct External
   {
     External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,

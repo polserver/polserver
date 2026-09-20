@@ -26,10 +26,17 @@ class UOExecutor;
 
 namespace Network::DAP
 {
+/**
+ * True once `prog`'s debug file is loaded and `PC` addresses a line and a block in it. Only the
+ * program the session attached to has had its .dbg read up front; a frame halted inside an
+ * external call can belong to any other program.
+ */
+bool frame_has_debug_info( const Bscript::EScriptProgram* prog, unsigned PC );
+
 class GlobalReference
 {
 public:
-  GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script );
+  explicit GlobalReference( Core::UOExecutor* uoexec );
 
   std::map<std::string, Bscript::BObjectRef*> contents;
 };
@@ -37,7 +44,7 @@ public:
 class FrameReference
 {
 public:
-  FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* script, size_t frameId );
+  FrameReference( Core::UOExecutor* uoexec, size_t frameId );
 
   std::map<std::string, Bscript::BObjectRef*> contents;
 };

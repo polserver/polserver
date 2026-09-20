@@ -1,0 +1,21 @@
+use os;
+
+var extlib_global := "extlib_global";
+
+program extlib( owner_pid )
+  GetProcess( owner_pid ).SendEvent( struct{ type := "funcref", fn := @ExtFunc } );
+
+  // The function reference closes over this program's globals, so they have to outlive the call
+  // the debuggee makes into it.
+  Wait_For_Event( 30 );
+  return 1;
+endprogram
+
+// Runs on the debuggee's executor, with this program loaded and the debuggee's script the one
+// the debugger session attached to. Everything the debugger reports while halted here has to
+// come from this program.
+function ExtFunc( ext_param )
+  var ext_local := ext_param;
+  Debugger();
+  return ext_local;
+endfunction
