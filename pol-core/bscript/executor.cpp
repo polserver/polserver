@@ -3040,11 +3040,24 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
         "Script {} exceeded maximum call depth\n"
         "Return path PCs: ",
         scriptname() );
+    // Draining the stack discards the pending external calls with it, so the context each of
+    // them saved has to be put back by hand. Frames pop innermost first, so the last one seen
+    // holds the program this executor started out in.
+    std::optional<ReturnContext::External> outermost;
     while ( !ControlStack.empty() )
     {
       rc = ControlStack.back();
       ControlStack.pop_back();
+      if ( rc.ExternalContext.has_value() )
+        outermost = std::move( rc.ExternalContext );
       fmt::format_to( std::back_inserter( tmp ), "{} ", rc.PC );
+    }
+    if ( outermost.has_value() )
+    {
+      prog_ = std::move( outermost->Program );
+      nLines = static_cast<unsigned int>( prog_->instr.size() );
+      execmodules = std::move( outermost->Modules );
+      Globals2 = std::move( outermost->Globals );
     }
     POLLOGLN( tmp );
     seterror( true );
