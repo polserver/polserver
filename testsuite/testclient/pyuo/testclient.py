@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
+import asyncio
 import atexit
 import configparser
 import logging
 import json
-import select
 import time
 import os
 import sys
 import socket
-import threading
 import collections
+import traceback
 
 from pyuo import client
 from pyuo import brain
@@ -23,19 +23,22 @@ class TestBrain(brain.Brain):
     self.id = client.id
     self.server.addBrain(self)
     self.todos = collections.deque()
-    self.todosLock = threading.Lock()
     super(TestBrain,self).__init__( client, self.id )
 
-  def init(self):
+  async def init(self):
     self.setTimeout(0.2)
     self.server.addevent(brain.Event(brain.Event.EVT_INIT, clientid=self.id))
 
-  def loop(self):
+  async def loop(self):
     try:
-      if not self.processTodos():
+      if not await self.processTodos():
         return True
     except Exception as e:
       self.log.exception(e)
+      # Take the client down with it, the way the disconnect todo does. A brain that
+      # walks away leaves a client nothing drives and nobody reads, and the process
+      # cannot finish until that client is joined.
+      self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
       return True
 
   def onEvent(self, ev):
@@ -47,8 +50,7 @@ class TestBrain(brain.Brain):
     self.server.addevent(ev)
   
   def addTodo(self,ev):
-    with self.todosLock:
-      self.todos.append(ev)
+    self.todos.append(ev)
     # The brain's main loop blocks until something is queued for it. Without this
     # every order waits out the loop timeout before it is even looked at.
     self.wakeup.set()
@@ -56,8 +58,7 @@ class TestBrain(brain.Brain):
   def hasWork(self):
     '''the brain is driven entirely from the test script, so anything queued
     here is the only reason its main loop ever has to wake up early'''
-    with self.todosLock:
-      return len(self.todos) > 0
+    return len(self.todos) > 0
 
   def sendClientPacket(self, arg):
     '''! Sends one packet the client knows how to build
@@ -160,12 +161,13 @@ class TestBrain(brain.Brain):
     else:
       raise RuntimeError("unknown client packet '{}'".format(name))
 
-  def processTodos(self):
-    with self.todosLock:
-      if not len(self.todos):
-        return True
-      todos = self.todos.copy()
-      self.todos.clear()
+  async def processTodos(self):
+    if not len(self.todos):
+      return True
+    # Taken all at once and the queue left empty, so a todo raised while these are
+    # being run is picked up on the next turn rather than halfway through this one.
+    todos = self.todos.copy()
+    self.todos.clear()
     while len(todos):
       res = todos.popleft()
       todo=res["todo"]
@@ -187,7 +189,7 @@ class TestBrain(brain.Brain):
       elif todo=="list_equipped_items":
         self.client.addTodo(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, serial = arg))
       elif todo=="open_backpack":
-        bp=self.client.player.openBackPack()
+        bp=await self.client.player.openBackPack()
         content=0
         if bp is not None:
           content=len(bp.content)
@@ -277,7 +279,7 @@ class TestBrain(brain.Brain):
           self.client.next_gump_reply = arg
         # Acked, because arming has to be known to have happened before the gump is asked for:
         # the todo travels the test connection while the gump comes down the game socket, and
-        # the two are read by different threads.
+        # nothing orders one against the other.
         self.server.addevent(
           brain.Event(brain.Event.EVT_GUMP_REPLY,
             clientid = self.id
@@ -358,7 +360,7 @@ class TestBrain(brain.Brain):
             ))
       elif todo=="place_multi":
         # armed before the script raises the cursor, because that call suspends it
-        placed=self.client.placeMulti(int(arg['x']), int(arg['y']), int(arg.get('z', 0)),
+        placed=await self.client.placeMulti(int(arg['x']), int(arg['y']), int(arg.get('z', 0)),
           int(arg.get('graphic', 0)))
         self.server.addevent(
           brain.Event(brain.Event.EVT_MULTI_PLACED,
@@ -388,19 +390,19 @@ class TestBrain(brain.Brain):
             clientid = self.id
             ))
       elif todo=="sync":
-        # A barrier. The answer is raised by the client thread when the core's echo
+        # A barrier. The answer is raised by the client task when the core's echo
         # comes back, not from here, which is the whole point: everything the core
         # had already queued for this client is ahead of that echo. Anything the
         # caller sent before this todo is ahead of the ping too, since both travel
         # this one connection and are drained in order.
         self.client.syncPing(arg)
       elif todo=="target":
-        res=self.client.waitForTarget(5)
+        res=await self.client.waitForTarget(5)
         targettype=None
         if res is not None:
           targettype=res.type
           if res.what==client.Target.OBJECT:
-            obj=self.client.waitForObject(arg['serial'],5)
+            obj=await self.client.waitForObject(arg['serial'],5)
             if obj is None:
               self.log.error("asked to target object 0x{:X}, which this client "
                              "was never told about".format(arg['serial']))
@@ -414,7 +416,7 @@ class TestBrain(brain.Brain):
             targettype = targettype,
             res = res is not None))
       elif todo=="cancel_target":
-        res=self.client.waitForTarget(5)
+        res=await self.client.waitForTarget(5)
         if res is not None:
           res.cancel()
         self.server.addevent(
@@ -444,6 +446,28 @@ class ShardGone(Exception):
 HARD_DEADLINE_SECS = 540
 
 
+async def main(lifecycle):
+  '''! Runs the control server for as long as the shard wants one.
+  @return int: the process exit code
+  '''
+  serv = PolServer()
+  try:
+    await serv.start()
+  except ShardGone as ex:
+    # Not a failure: nothing asked for a client. Exit quietly so the pipeline ends with POL.
+    lifecycle.info("LIFECYCLE %s", ex)
+    return 0
+
+  try:
+    await serv.run()
+  finally: # wake up the server and let it close first
+    lifecycle.info("LIFECYCLE run() left, releasing the control connection")
+    serv.send("{}")
+    await serv.close_control()
+    lifecycle.info("LIFECYCLE control connection closed")
+  return 1 if serv.failed else 0
+
+
 def game_port_free(port):
   '''True once nothing is listening on the game port, i.e. the shard is gone.
 
@@ -463,10 +487,13 @@ def game_port_free(port):
 
 
 class PolServer:
-  ## How long recv() sits in select() with nothing happening. Both a message from
-  ## the shard and an event from a brain end the wait early, so this only decides
-  ## how often the loop turns over while everything is idle.
-  POLL_SECS = 0.5
+  ## Bounds a write to a shard that has stopped reading. Reads need no timeout of
+  ## their own: the loop waits on the stream and on nothing else.
+  SEND_TIMEOUT = 5.0
+
+  ## Longest control line accepted. A raw_packet todo can carry a big one, and the
+  ## stream default of 64KiB would turn that into an error instead of a todo.
+  READ_LIMIT = 1 << 20
 
   ## The port the shard's clientconnection.src dials. It sits inside the range
   ## Windows hands out for outbound connections, so something else on the machine
@@ -484,240 +511,203 @@ class PolServer:
     conf.read(os.path.join(path,'testclient.cfg'))
     self.lconf = conf['login']
     self.clients=[]
-    self.threads=[]
+    self.tasks=[]
     self.brains=[]
-    self.events = collections.deque()
-    self.eventsLock = threading.Lock()
-    self.clientLock = threading.Lock()
-    self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    self._listen(self.CONTROL_PORT)
-    # Poll rather than wait out one long timeout: no test package here connects until the
-    # shard runs the one that drives this client, which can be minutes into a full run, so
-    # the wait cannot be bounded by a constant. What ends it is the shard going away -- the
-    # same condition deafclient.py and rawpeer.py stop on. Without it a run that selects no
-    # client test (POLCORE_TEST_FILTER) pays this timeout in full, because cmake's
-    # execute_process waits on every stage of the pipeline, not just POL.
-    self.s.settimeout(1.0)
-    self.conn = self._accept(self.lconf.getint('port'))
-    # Reads wait in select() rather than in recv(), so this timeout only ever
-    # bounds a send to a peer that has stopped reading.
-    self.conn.settimeout(5.0)
-    # Small request/response messages in both directions - exactly the traffic
-    # Nagle holds back waiting for an ack that the other side is delaying.
-    self.conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-    self.buf=bytearray()
-    # Wakes the select() in recv() when a brain queues an event. Without it the
-    # events sit until the next read times out, which was the floor on how fast
-    # the test script could be told anything.
-    self._wake_r, self._wake_w = socket.socketpair()
-    self._wake_r.setblocking(False)
-    self._wake_w.setblocking(False)
+    self.server=None
+    self.reader=None
+    self.writer=None
+    ## Set once a client task has ended badly, so the process can say so on the way out
+    self.failed=False
+    self._accepted = asyncio.Event()
 
-  def _listen(self, port):
+  async def start(self):
+    ''' Takes the control port and waits for the shard to dial in '''
+    self.server = await self._listen(self.CONTROL_PORT)
+    await self._accept(self.lconf.getint('port'))
+
+  async def _listen(self, port):
     # A bare bind here died before anything was logged, and the only trace was the
     # shard reporting that it could not connect - which says nothing about why. Name
     # the reason, and give a transient holder a chance to let go first.
+    #
+    # 127.0.0.1 and AF_INET, not "localhost": that name also resolves to ::1 on a
+    # host with IPv6, and a server asked for both fails the whole bind when either
+    # address is taken - which is the very case the retry below exists for.
     deadline = time.monotonic() + self.BIND_RETRY_SECS
     while True:
       try:
-        self.s.bind(('localhost', port))
-        self.s.listen(1)
-        return
+        return await asyncio.start_server(self._onControl, '127.0.0.1', port,
+                                          family=socket.AF_INET, limit=self.READ_LIMIT)
       except OSError as ex:
         if time.monotonic() >= deadline:
           self.log.error("LIFECYCLE cannot listen on control port %d after %ds: %s",
                          port, self.BIND_RETRY_SECS, ex)
           raise
-        time.sleep(0.25)
+        await asyncio.sleep(0.25)
 
-  def _accept(self, gameport):
+  async def _onControl(self, reader, writer):
+    ''' Takes the shard's connection, of which there is only ever one '''
+    if self.writer is not None:
+      self.log.error("LIFECYCLE a second control connection arrived, refusing it")
+      writer.close()
+      return
+    sock = writer.get_extra_info('socket')
+    if sock is not None:
+      # Small request/response messages in both directions - exactly the traffic
+      # Nagle holds back waiting for an ack that the other side is delaying.
+      sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
+    self.reader, self.writer = reader, writer
+    self._accepted.set()
+
+  async def _accept(self, gameport):
+    '''! Waits for the shard to dial in, or decides that it never will.
+
+    Checked once a second rather than waited out in one go: no test package here
+    connects until the shard runs the one that drives this client, which can be
+    minutes into a full run, so the wait cannot be bounded by a constant. What ends
+    it is the shard going away -- the same condition deafclient.py and rawpeer.py
+    stop on. Without that check a run which selects no client test
+    (POLCORE_TEST_FILTER) pays the whole deadline, because cmake's execute_process
+    waits on every stage of the pipeline and not just POL.
+
+    Bounded all the same, unlike the waits in deafclient.py and rawpeer.py: those
+    serve requests that all run long and must outlive nothing but the shard, while
+    this one is the pipeline's first stage and holds the whole run open.
+    '''
     started = time.monotonic()
     shard_seen = False
-    # Bounded, unlike the waits in deafclient.py and rawpeer.py: those serve requests all run
-    # long and must outlive nothing but the shard, while this one is the pipeline's first
-    # stage and holds the whole run open. A filtered run that selects no client test is never
-    # asked to connect at all, and only this deadline ends it.
     while time.monotonic() - started < HARD_DEADLINE_SECS:
       try:
-        conn, _ = self.s.accept()
-        return conn
-      except socket.timeout:
+        await asyncio.wait_for(self._accepted.wait(), 1.0)
+        return
+      except asyncio.TimeoutError:
         if not game_port_free(gameport):
           shard_seen = True
         elif shard_seen:
           raise ShardGone('shard stopped without connecting a test client')
     raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
 
-  def run(self):
+  async def run(self):
     while True:
-      self.brainevents()
-      res=self.recv()
-      if res is None:
+      try:
+        line = await self.reader.readuntil(b'\r\n')
+      except asyncio.IncompleteReadError:
+        # Clean EOF: the shard went without saying so.
+        self.log.info("LIFECYCLE control connection closed by the shard")
         return True
+      except (OSError, asyncio.LimitOverrunError) as ex:
+        self.log.error("LIFECYCLE control connection failed: %s", ex)
+        return True
+
+      try:
+        res = json.loads(line[:-2].decode())
+      except Exception as e:
+        self.log.error('failed to receive: {} data: "{}"'.format(
+          e, line.decode(errors='replace')))
+        raise
       if not res.get("todo",None):
         continue
       clientid=res.get("id",None)
       todo=res["todo"]
       arg=res.get("arg",None)
-      if todo=="connect":
-        self.threads.append(
-          threading.Thread(target=self.startclient,
-              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
-              daemon=True)
-          )
-        self.threads[-1].start()
-      elif todo=="createchar":
-        # everything past the account is handed to the create packet, so a test can pin any of
-        # the values the server validates without another todo per field
-        opts = {k:v for k,v in res.items()
-                if k not in ("todo","account","psw","name","chrindex","id")}
-        self.threads.append(
-          threading.Thread(target=self.startclient,
-              args=(res["account"],res["psw"],res["name"],res["chrindex"], res["id"]),
-              kwargs={"create":opts}, daemon=True)
-          )
-        self.threads[-1].start()
+      if todo in ("connect","createchar"):
+        kwargs={}
+        if todo=="createchar":
+          # everything past the account is handed to the create packet, so a test can pin any
+          # of the values the server validates without another todo per field
+          kwargs["create"] = {k:v for k,v in res.items()
+                              if k not in ("todo","account","psw","name","chrindex","id")}
+        t = asyncio.create_task(
+              self.startclient(res["account"],res["psw"],res["name"],res["chrindex"],
+                               res["id"], **kwargs),
+              name="client{}".format(res["id"]))
+        t.add_done_callback(self._clientDone)
+        self.tasks.append(t)
       elif todo=="exit":
         # Logged per step: this process is one stage of cmake's execute_process pipeline, so if a
-        # client thread never ends, the join below holds up the whole job and the only symptom is
-        # a 600s timeout with nothing said. The lines below name which thread that was.
+        # client never ends, the join below holds up the whole job and the only symptom is a
+        # 600s timeout with nothing said. The lines below name which client that was.
         self.log.info("LIFECYCLE exit requested, telling %d brains to disconnect",
                       len(self.brains))
-        with self.clientLock:
-          for b in self.brains:
-            b.addTodo({"todo":"disconnect"})
-        for i, t in enumerate(self.threads):
-          self.log.info("LIFECYCLE joining client thread %d/%d (%s)",
-                        i + 1, len(self.threads), t.name)
-          t.join(timeout=30)
-          if t.is_alive():
+        for b in self.brains:
+          b.addTodo({"todo":"disconnect"})
+        for i, t in enumerate(self.tasks):
+          self.log.info("LIFECYCLE joining client task %d/%d (%s)",
+                        i + 1, len(self.tasks), t.get_name())
+          try:
+            # Shielded, so the timeout below does not cancel the task before it has
+            # been named in the log.
+            await asyncio.wait_for(asyncio.shield(t), timeout=30)
+          except asyncio.TimeoutError:
             # Bounded on purpose: a client that cannot finish is worth a loud line in the job
-            # output, not a silent timeout on the whole pipeline. The threads are daemons, so
-            # leaving this one behind does not stop the process from exiting.
-            self.log.error("LIFECYCLE client thread %d/%d (%s) did not end within 30s, "
-                           "leaving it behind", i + 1, len(self.threads), t.name)
+            # output, not a silent timeout on the whole pipeline. Cancelled rather than left
+            # behind: a task still pending when the loop closes is a warning and a socket
+            # nobody closed.
+            self.log.error("LIFECYCLE client task %d/%d (%s) did not end within 30s, "
+                           "cancelling it", i + 1, len(self.tasks), t.get_name())
+            t.cancel()
+            await asyncio.gather(t, return_exceptions=True)
+          except Exception:
+            pass  # _clientDone has already logged it and set self.failed
           else:
-            self.log.info("LIFECYCLE joined client thread %d/%d", i + 1, len(self.threads))
-        self.log.info("LIFECYCLE all client threads joined")
+            self.log.info("LIFECYCLE joined client task %d/%d", i + 1, len(self.tasks))
+        self.log.info("LIFECYCLE all client tasks joined")
         self.sendEvent(brain.Event(brain.Event.EVT_EXIT,clientid=0))
         self.log.info("LIFECYCLE run() returning")
         return
       else:
-        with self.clientLock:
-          for b in self.brains:
-            if b.id == clientid:
-              b.addTodo(res)
-              break
-          else:
-            self.log.error("invalid clientid")
+        for b in self.brains:
+          if b.id == clientid:
+            b.addTodo(res)
+            break
+        else:
+          self.log.error("invalid clientid")
 
-  def startclient(self,user,psw,charname,charidx,id,create=None):
-    with self.clientLock:
-      c = client.Client(id)
-      self.clients.append(c)
-    servers = c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
-    chars = c.selectServer(self.lconf.getint('serveridx'))
+      # write() never blocks and never fails; this is where a shard that has stopped
+      # reading is noticed, and it is the whole of what the old send timeout did.
+      try:
+        await asyncio.wait_for(self.writer.drain(), self.SEND_TIMEOUT)
+      except (asyncio.TimeoutError, OSError) as ex:
+        self.log.error("LIFECYCLE control connection stopped draining: %s", ex)
+        return True
+
+  async def startclient(self,user,psw,charname,charidx,id,create=None):
+    c = client.Client(id)
+    self.clients.append(c)
+    await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
+    await c.selectServer(self.lconf.getint('serveridx'))
     if create is None:
-      c.selectCharacter(charname, charidx)
+      await c.selectCharacter(charname, charidx)
     else:
-      c.createCharacter(charname, charidx, **create)
-    TestBrain(c,self)
+      await c.createCharacter(charname, charidx, **create)
+    b = TestBrain(c,self)
+    await client.supervise(self.log, c.start(b),
+                           asyncio.create_task(b.run(), name="brain{}".format(id)))
+
+  def _clientDone(self, task):
+    ''' Says what became of a client, since nothing else looks at a task's result '''
+    if task.cancelled():
+      return
+    exc = task.exception()
+    if exc is None:
+      self.log.info("LIFECYCLE %s finished", task.get_name())
+      return
+    self.failed = True
+    self.log.critical("LIFECYCLE %s died: %s", task.get_name(),
+        ''.join(traceback.format_exception(type(exc), exc, exc.__traceback__)))
 
   def addBrain(self, brain):
-    with self.clientLock:
-      self.brains.append(brain)
+    self.brains.append(brain)
 
   def addevent(self,ev):
-    with self.eventsLock:
-      self.events.append(ev)
-    # Nudge the select() in recv(). A pipe already full needs no nudge: full
-    # means readable, so the select is going to return anyway.
-    try:
-      self._wake_w.send(b'\x01')
-    except OSError:
-      pass
+    ''' Passes a brain's event straight to the shard.
 
-  def brainevents(self):
-    with self.eventsLock:
-      if not self.events:
-        return
-      # Swap the queue out rather than copy it, so a brain raising an event is
-      # held up only for the swap.
-      events=self.events
-      self.events=collections.deque()
-    while events:
-      self.sendEvent(events.popleft())
-
-  def _wait(self, timeout):
-    '''! Blocks until the control connection has something to read, a brain
-    queued an event, or the timeout runs out.
-    @return bool: whether the control connection is readable
+    Written where it is raised rather than queued for the control loop to flush:
+    the brains and that loop are on the one event loop, so the order events are
+    raised in is already the order they go out in, and a queue between them would
+    only delay each one by however long the loop takes to come round.
     '''
-    try:
-      ready, _, _ = select.select([self.conn, self._wake_r], [], [], timeout)
-    except (OSError, ValueError):
-      # The connection was closed under us; let the next read report it.
-      return False
-    if self._wake_r in ready:
-      try:
-        self._wake_r.recv(65536)
-      except OSError:
-        pass
-    return self.conn in ready
-
-  def _drain(self):
-    '''! Moves whatever the connection has ready into the line buffer. Only
-    called once select() has said it is readable.
-    @return bool: False once the connection is gone
-    '''
-    try:
-      data = self.conn.recv(65536)
-    except (BlockingIOError, socket.timeout):
-      return True
-    except Exception as e:
-      self.log.info("err {}".format(e))
-      self.conn.close()
-      return False
-    if not data:
-      # Clean EOF: the shard went without saying so. Reading on would spin.
-      self.log.info("LIFECYCLE control connection closed by the shard")
-      self.conn.close()
-      return False
-    self.buf += data
-    return True
-
-  def _takeline(self):
-    ''' Pulls one complete message off the front of the buffer, None if there is
-    not one yet '''
-    idx = self.buf.find(b'\r\n')
-    if idx < 0:
-      return None
-    line = bytes(self.buf[:idx])
-    del self.buf[:idx+2]
-    return line
-
-  def recv(self):
-    '''! Reads the next message from the control connection.
-    @return dict: the message, {} if none arrived before the poll expired,
-                  None once the connection is gone
-    '''
-    line = self._takeline()
-    if line is None:
-      # One wait and one read per call, so a message still arriving cannot hold
-      # up the brains' events - run() flushes those between two of these.
-      if self._wait(self.POLL_SECS) and not self._drain():
-        return None
-      line = self._takeline()
-      if line is None:
-        return {}
-    try:
-      return json.loads(line.decode())
-    except Exception as e:
-      self.log.error('failed to receive: {} data: "{}" buffer: "{}"'.format(
-        e,
-        line.decode(errors='replace'),
-        bytes(self.buf).decode(errors='replace')))
-      raise e
+    self.sendEvent(ev)
 
   def sendEvent(self, ev):
     '''serialization method for client events'''
@@ -1085,15 +1075,15 @@ class PolServer:
 
   def send(self, data):
     try:
-      # sendall, not send: a short write on one of the big replies - a listing,
-      # a house design - used to truncate the line, and the shard then sat
-      # waiting for an event that had been half delivered.
-      self.conn.sendall((data+"\n").encode())
+      # A stream write takes the whole line or raises; there is no short write to
+      # truncate one of the big replies - a listing, a house design - and leave the
+      # shard waiting on an event that was only half delivered.
+      self.writer.write((data+"\n").encode())
     except Exception as e:
       self.log.error("failed to send: {} {}".format(e,data))
       pass
 
-  def close_control(self):
+  async def close_control(self):
     # Closing a socket that still holds unread inbound bytes makes the stack send
     # RST, and a peer that gets one may drop what it has received but not yet read -
     # here, the last reply the shard is waiting on. Half-closing puts a FIN behind
@@ -1101,16 +1091,23 @@ class PolServer:
     # over. Neither step waits for the shard: it is on its own way out, and this
     # process is a pipeline stage cmake waits on.
     try:
-      self.conn.shutdown(socket.SHUT_WR)
-    except OSError:
+      await asyncio.wait_for(self.writer.drain(), self.SEND_TIMEOUT)
+    except (asyncio.TimeoutError, OSError):
+      pass  # nothing more can be done about a shard that stopped reading
+    try:
+      self.writer.write_eof()
+    except (OSError, NotImplementedError):
       pass  # already gone, so there is nothing to see out
     try:
-      while select.select([self.conn], [], [], 0)[0]:
-        if not self.conn.recv(65536):
-          break
-    except OSError:
+      while await asyncio.wait_for(self.reader.read(65536), 1.0):
+        pass
+    except (asyncio.TimeoutError, OSError, asyncio.IncompleteReadError):
       pass
-    self.conn.close()
+    self.writer.close()
+    try:
+      await asyncio.wait_for(self.writer.wait_closed(), 5.0)
+    except (asyncio.TimeoutError, OSError):
+      pass
 
 if __name__ == '__main__':
   # WARNING by default. The handlers below log a line per packet, and several of
@@ -1132,18 +1129,5 @@ if __name__ == '__main__':
   atexit.register(lambda: lifecycle.info("LIFECYCLE process exiting"))
   lifecycle.info("LIFECYCLE process starting (pid %d)", os.getpid())
 
-  try:
-    serv = PolServer()
-  except ShardGone as ex:
-    # Not a failure: nothing asked for a client. Exit quietly so the pipeline ends with POL.
-    lifecycle.info("LIFECYCLE %s", ex)
-    sys.exit(0)
-
-  try:
-    serv.run()
-  finally: # wake up the server and let it close first
-    lifecycle.info("LIFECYCLE run() left, releasing the control connection")
-    serv.send("{}")
-    serv.close_control()
-    lifecycle.info("LIFECYCLE control connection closed")
+  sys.exit(asyncio.run(main(lifecycle)))
 

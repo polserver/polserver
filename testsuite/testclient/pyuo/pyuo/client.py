@@ -19,12 +19,11 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 '''
 
+import asyncio
 import sys
 import collections
-import threading
 import struct
 import logging
-import select
 import socket
 import ipaddress
 import time
@@ -47,21 +46,6 @@ class status:
         raise StatusError("Status {} not valid, need {}".format(args[0].status, self.status))
       return f(*args, **kwargs)
     return wrapper
-
-
-def clientthread(f):
-  ''' Decorator, checks that method is run in the client thread only unless initing
-
-  The test read the module level name "status", which is the decorator class
-  above and never equals 'game', so this had never once checked anything.
-  '''
-  def wrapper(client, *args, **kwargs):
-    if client.status == 'game':
-      mythread = threading.current_thread()
-      if mythread is not client:
-        raise ThreadError("This must run in client thread only, currently in {}".format(mythread))
-    return f(client, *args, **kwargs)
-  return wrapper
 
 
 def logincomplete(f):
@@ -363,12 +347,12 @@ class Mobile(UOBject):
 
         self.equip[eq['layer']] = item
 
-  def getEquipByLayer(self, layer):
+  async def getEquipByLayer(self, layer):
     ''' Returns item equipped in the given layer '''
-    # Bounded: an unbounded wait here stalls the brain thread, and the shard has no
-    # way to tell that apart from a client that died. A round trip is milliseconds,
-    # so reaching this is a failure rather than a slow answer.
-    if not self.client.waitFor(lambda: self.equip is not None, 5):
+    # Bounded: an unbounded wait here parks the brain, and the shard has no way to
+    # tell that apart from a client that died. A round trip is milliseconds, so
+    # reaching this is a failure rather than a slow answer.
+    if not await self.client.waitFor(lambda: self.equip is not None, 5):
       raise RuntimeError(
           "mobile 0x{:02X} was never sent its equipment".format(self.serial))
     return self.equip[layer]
@@ -386,14 +370,14 @@ class Player(Mobile):
     ## Current target serial
     self.target = None
 
-  def openBackPack(self):
+  async def openBackPack(self):
     ''' Opens player's backpack, waits for it to be loaded '''
-    bp = self.getEquipByLayer(self.LAYER_PACK)
+    bp = await self.getEquipByLayer(self.LAYER_PACK)
     if not isinstance(bp, Container):
       self.client.doubleClick(bp)
-      if not self.client.waitFor(lambda: isinstance(bp, Container) and hasattr(bp,"content"),5):
+      if not await self.client.waitFor(lambda: isinstance(bp, Container) and hasattr(bp,"content"),5):
         return None
-    if not self.client.waitFor(lambda: bp.content is not None, 5):
+    if not await self.client.waitFor(lambda: bp.content is not None, 5):
       return None
     return bp
 
@@ -567,22 +551,57 @@ class Direction:
     self.id = id
 
 
-class Client(threading.Thread):
-  ''' The main client instance and thread
+class _Failed:
+  ''' Carries the reader task's exception to the loop, in the queue's own order '''
 
-  Runs in a mixed threading mode: first initialize the client in the main
-  thread, then call run() to move the client to a seperate thread.
-  You can call the methods that are not decorated with @clientthread from
-  any thread.
+  def __init__(self, exception):
+    self.exception = exception
+
+
+async def supervise(log, ctask, btask, grace=5.0):
+  '''! Runs a client task and its brain task, ending both when either ends.
+
+  Whichever finishes first, the other is given a bounded chance to wind down by
+  itself - a client that has just crashed has handed the brain an EVT_CLIENT_CRASH
+  and the brain should get to act on it - and is then cancelled.
+
+  Both results are then read, so a failure in either reaches the caller rather than
+  being left for the loop to mention once nobody is looking.
+  '''
+  await asyncio.wait({ctask, btask}, return_when=asyncio.FIRST_COMPLETED)
+  pending = [t for t in (ctask, btask) if not t.done()]
+  for t in pending:
+    try:
+      await asyncio.wait_for(asyncio.shield(t), grace)
+    except asyncio.TimeoutError:
+      log.warning("%s did not wind down in %.0fs, cancelling it", t.get_name(), grace)
+      t.cancel()
+    except Exception:
+      pass
+  if pending:
+    await asyncio.gather(*pending, return_exceptions=True)
+  # The client first: when both fell over, the client's failure is the cause and
+  # the brain's is the symptom of it.
+  for t in (ctask, btask):
+    if not t.cancelled():
+      t.result()
+
+
+class Client:
+  ''' The main client instance.
+
+  Owns three tasks: the loop below, a reader filling its queue, and the keep-alive.
+  Whoever starts it holds the loop's task and is told when it ends.
   '''
 
   ## Minimum interval between two pings
   PING_INTERVAL = 30
-  ## How long the main loop waits with nothing happening. An incoming packet or
-  ## anything another thread queues ends the wait early, so this only decides how
-  ## often the loop turns over to look at the ping and at whether the brain is
-  ## still there.
-  IDLE_SECS = 0.25
+  ## Longest to wait for an answer during the login handshake. Nothing here may be
+  ## unbounded: this process is the first stage of cmake's pipeline and holds the
+  ## whole run open, so a server that answers never has to end up as an error rather
+  ## than a job that sits until its timeout. It matches the 30s the exit path already
+  ## allows a client to wind down in.
+  LOGIN_TIMEOUT = 30
   ## Version sent to server
   VERSION = '7.0.9.1'
   ## Language sent to server
@@ -592,25 +611,21 @@ class Client(threading.Thread):
   FASTWALK_SLOTS = 5
 
   def __init__(self, id=None):
-    super().__init__()
-    # Change the thread name to better identify
     idstr=''if id is None else str(id)
-    self.name = 'Client' +idstr+ self.name
+    ## Names this client's tasks, so a traceback says which one it came out of
+    self.name = 'Client' + idstr
     self.id = id
 
-    ## Send queue
-    self.sendqueue = []
-    ## Lock for the send queue
-    self.sendqueueLock = threading.Lock()
-
-    self.todoqueue = []
-    ## Lock for the todo queue
-    self.todoLock = threading.Lock()
-    ## Wakes the select() in mainloop() when another thread queues a packet to
-    ## send or a todo to run, so neither waits out the idle poll.
-    self._wake_r, self._wake_w = socket.socketpair()
-    self._wake_r.setblocking(False)
-    self._wake_w.setblocking(False)
+    ## Everything the loop has to deal with, in the order it arrived: packets from
+    ## the reader task, todos from the brain. One queue and not two, so the loop has
+    ## a single thing to wait on and neither source can jump ahead of the other.
+    self._inbox = asyncio.Queue()
+    ## The client's own task and the two it owns, once start() has run
+    self._task = None
+    self._reader = None
+    self._pinger = None
+    ## What killed this client, for whoever asks after the fact
+    self._crash = None
     ## Dict info about last server connected to {ip, port, user, pass}
     self.server = None
     ## Current client status, one of:
@@ -620,6 +635,10 @@ class Client(threading.Thread):
     self.status = 'disconnected'
     ## Login complete, will be false during the initial fase of the game
     self.lc = False
+    ## Set once this client has stopped for any reason, including a login that never
+    ## completed. Everyone waiting on this client watches it, so nobody has to poll
+    ## for a death and nobody waits out a timeout for one.
+    self.stopped = asyncio.Event()
     ## When to send next ping
     self.ping = 0
     ## Barrier pings sent and not yet answered, oldest first, as (cookie, token).
@@ -627,11 +646,10 @@ class Client(threading.Thread):
     ## can never be mistaken for a barrier that is still outstanding.
     self._syncPending = collections.deque()
     self._syncCookie = 0
-    self._syncLock = threading.Lock()
-    # Signalled by the client thread once it has handled everything the server
-    # had ready. waitFor() blocks on this instead of polling, since every
-    # condition it is ever given is state a packet handler writes.
-    self._stateChanged = threading.Condition()
+    # Pulsed by the loop once it has handled everything one read brought in.
+    # waitFor() blocks on this instead of polling, since every condition it is ever
+    # given is state a packet handler writes.
+    self._stateChanged = asyncio.Event()
     ## Logger, for internal usage
     self.log = logging.getLogger('client'+idstr)
     ## Features sent with 0xb9 packet
@@ -642,8 +660,6 @@ class Client(threading.Thread):
     self.locs = None
     ## Last move sequence number used
     self.moveid = -1
-    ## Lock for incrementing moveId
-    self.moveLock = threading.Lock()
     ## Unacknowledged moves
     self.unmoves = collections.deque()
     ## The fastwalk keys the server has handed out, zero for an empty slot. The
@@ -671,9 +687,6 @@ class Client(threading.Thread):
     self.view_range = 18 # default client view range
     self.auto_delete_objs = True
     self.weather_events = False # weather/light events, for the tests that assert on them
-    ## Whether something other than an incoming packet has made the out of range
-    ## sweep worth running - see processTodo()
-    self.sweepDue = False
 
     self.gumps=[] # open gumps
     self.next_gump_reply=None # armed by the gump_reply todo, consumed by the next gump
@@ -693,7 +706,7 @@ class Client(threading.Thread):
     self.maps = {}
 
   @status('disconnected')
-  def connect(self, host, port, user, pwd):
+  async def connect(self, host, port, user, pwd):
     '''! Connnects to the server, returns a list of gameservers
       @param host string: Server IP address or hostname
       @param port string: Server port
@@ -717,7 +730,7 @@ class Client(threading.Thread):
     }
 
     self.log.info('connecting')
-    self.net = net.Network(self.server['ip'], self.server['port'])
+    self.net = await net.Network.connect(self.server['ip'], self.server['port'])
 
     # Send IP as key (will not use encryption)
     if int(self.VERSION[0])<=4:
@@ -733,11 +746,8 @@ class Client(threading.Thread):
     po.fill(self.server['user'], self.server['pass'])
     self.queue(po)
 
-    # Flush send buffer
-    self.send()
-
     # Get servers list
-    pkt = self.receive((packets.ServerListPacket, packets.LoginDeniedPacket))
+    pkt = await self.receive((packets.ServerListPacket, packets.LoginDeniedPacket))
     if isinstance(pkt, packets.LoginDeniedPacket):
       self.log.error('login denied')
       raise LoginDeniedError(pkt.reason)
@@ -748,19 +758,19 @@ class Client(threading.Thread):
     return pkt.servers
 
   @status('connected')
-  def selectServer(self, idx):
+  async def selectServer(self, idx):
     ''' Selects the game server with the given idx '''
     self.log.info('selecting server %d', idx)
     self.queue(struct.pack('>BH', 0xa0, idx))
-    self.send()
 
-    pkt = self.receive(packets.ConnectToGameServerPacket)
+    pkt = await self.receive(packets.ConnectToGameServerPacket)
     ip = '.'.join(map(str, pkt.ip))
     self.log.info("Connecting to gameserver ip %s, port %s (key %s)", ip, pkt.port, pkt.key)
 
     # Connect
     self.net.close()
-    self.net = net.Network(ip, pkt.port)
+    await self.net.wait_closed()
+    self.net = await net.Network.connect(ip, pkt.port)
 
     # Send key
     bkey = struct.pack('>I', pkt.key)
@@ -772,18 +782,15 @@ class Client(threading.Thread):
     po.fill(pkt.key, self.server['user'], self.server['pass'])
     self.queue(po)
 
-    # Flush send buffer
-    self.send()
-
     # From now on, server will use compression
     self.net.compress = True
 
     # Get features packet
-    pkt = self.receive(packets.EnableFeaturesPacket)
+    pkt = await self.receive(packets.EnableFeaturesPacket)
     self.features = pkt.features
 
     # Get character selection
-    pkt = self.receive(packets.CharactersPacket)
+    pkt = await self.receive(packets.CharactersPacket)
     self.flags = pkt.flags
     self.locs = pkt.locs
 
@@ -791,107 +798,155 @@ class Client(threading.Thread):
     return pkt.chars
 
   @status('loggedin')
-  def createCharacter(self, name, idx, **kwargs):
+  async def createCharacter(self, name, idx, **kwargs):
     ''' Creates a character in the given slot and enters the game with it '''
     self.log.info('creating character #%d %s', idx, name)
     po = packets.CreateCharacterPacket()
     po.fill(name, idx, **kwargs)
     self.queue(po)
-    self.send()
 
     self.status = 'game'
 
   @status('loggedin')
-  def selectCharacter(self, name, idx):
+  async def selectCharacter(self, name, idx):
     ''' Login the character with the given name '''
     self.log.info('selecting character #%d %s', idx, name)
     po = packets.LoginCharacterPacket()
     po.fill(name, idx)
     self.queue(po)
-    self.send()
 
     self.status = 'game'
 
   @status('game')
   def start(self, ai):
+    """! Starts the client task.
+    @return Task: the client's task, for the caller to watch
+    """
     if not isinstance(ai, brain.Brain):
       raise RuntimeError("Unknown brain, expecting a Brain instance, got {}".format(type(ai)))
     self.brain = ai
-    super().start()
+    self._task = asyncio.create_task(self._run(), name=self.name)
+    return self._task
 
-  @status('game')
-  @clientthread
-  def run(self):
-    ''' Called by threading '''
+  async def _run(self):
+    ''' The client task itself '''
     try:
-      self.mainloop()
+      self._reader = asyncio.create_task(self._readLoop(), name=self.name + '-net')
+      self._pinger = asyncio.create_task(self._pingLoop(), name=self.name + '-ping')
+      await self._loop()
+    except asyncio.CancelledError:
+      raise
     except Exception as e:
-      type, value, tb = sys.exc_info()
-      msg = ''.join(traceback.format_exception(type, value, tb))
+      self._crash = e
+      if isinstance(e, net.Disconnected) and not self.lc:
+        # The server closed the connection before the login finished. The tests ask
+        # for that outcome - a character creation the server refuses ends exactly
+        # this way - so it ends this client instead of failing the run. The brain
+        # says so on its way out, from the start gate it never got through.
+        self.log.info('server closed the connection before the login completed')
+        return
+      msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
       self.log.critical(msg)
       self.brain.event(brain.Event(brain.Event.EVT_CLIENT_CRASH, exception=e))
+      # Raised on, not swallowed: whoever holds this task is the one that can say
+      # the run failed, and a client that dies quietly leaves the shard waiting for
+      # an event that is never coming.
+      raise
     finally:
+      for t in (self._reader, self._pinger):
+        if t is not None:
+          t.cancel()
+      # Whatever happened, let go of everyone waiting on this client before the socket
+      # goes: the brain's start gate, its idle wait, and every waitFor(). A brain that
+      # is never released sits out its own timeout instead, and a login that is refused
+      # never reaches the gate at all.
+      self.stopped.set()
+      self.brain.started.set()
+      self.brain.wakeup.set()
+      self._pulse()
       # Leaving the loop is not enough to end the session: the socket would stay open and the
       # server would go on counting the character as online, which matters as soon as one client
       # goes while the rest of the run continues.
       self.log.info('closing connection')
       try:
         self.net.close()
+        await self.net.wait_closed()
       except Exception:
         pass
 
-  @status('game')
-  @clientthread
-  def mainloop(self):
-    ''' Starts the endless game loop '''
-    self.ping = time.time() + self.PING_INTERVAL
+  async def _readLoop(self):
+    '''! Takes packets off the stream and hands them to the loop.
 
+    Apart from the loop so the loop has one thing to wait on. Nothing here gives
+    way while the buffer can still produce a packet, so everything one read brought
+    in reaches the queue before the loop next runs and is handled as one burst.
+    '''
+    try:
+      while True:
+        self._inbox.put_nowait(await self.net.recv())
+    except asyncio.CancelledError:
+      raise
+    except Exception as e:
+      # The loop is parked on the queue; handing it the failure is what stops it
+      # waiting on a reader that is no longer there.
+      self._inbox.put_nowait(_Failed(e))
+
+  async def _pingLoop(self):
+    ''' Keeps the connection alive while nothing else is going on '''
     while True:
-      self.send()
-
-      if not self.processTodo():
-        break
-
-      # Check if brain is alive
-      if not threading.main_thread().is_alive():
-        self.log.info("Brain died, terminating")
-        break
-
-      # Send ping if needed
-      if self.lc and self.ping < time.time():
+      await asyncio.sleep(self.PING_INTERVAL)
+      if self.lc:
         po = packets.PingPacket()
         po.fill(0)
         self.queue(po)
-        self.ping = time.time() + self.PING_INTERVAL
 
-      # Take everything the server has ready, not one packet per turn round the
-      # loop: the server sends in bursts - a container's contents, a gump and
-      # its tooltips - and handling one per iteration made each burst cost as
-      # many idle waits as it had packets.
-      handled = False
+  def _pulse(self):
+    '''! Says that client state has moved on, for everyone in waitFor().
+
+    set() then clear(): set() resolves every waiter that is already waiting, and
+    clear() only arms the flag for the next round - it cannot take back a wakeup
+    that has already been handed out.
+    '''
+    self._stateChanged.set()
+    self._stateChanged.clear()
+
+  @status('game')
+  async def _loop(self):
+    ''' The game loop '''
+    while True:
+      item = await self._inbox.get()
+
+      # Everything the queue already holds is taken in one go rather than one per
+      # turn: the server sends in bursts - a container's contents, a gump and its
+      # tooltips - and a burst handled one packet per turn would be seen half
+      # applied by anything waiting on it.
+      handled = todo = False
       while True:
-        pkt = self.receive(blocking=False)
-        if pkt is None:
+        if isinstance(item, _Failed):
+          raise item.exception
+        if isinstance(item, brain.Event):
+          if not self.processTodo(item):
+            return
+          todo = True
+        else:
+          self.handlePacket(item)
+          handled = True
+        if self._inbox.empty():
           break
-        self.handlePacket(pkt)
-        handled = True
+        item = self._inbox.get_nowait()
 
       if handled:
-        with self._stateChanged:
-          self._stateChanged.notify_all()
+        self._pulse()
 
-      # Remove out of range objects. This walks everything the client knows, so
-      # it runs when something can actually have gone out of range rather than
-      # on every turn of an idle loop. A todo counts as well: switching the
-      # sweep back on has to catch up with what piled up while it was off.
-      if (handled or self.sweepDue) and self.player and self.auto_delete_objs:
-        self.sweepDue = False
+      # Remove out of range objects. This walks everything the client knows, so it
+      # runs when something can actually have gone out of range rather than on every
+      # turn of the loop. A todo counts as well: switching the sweep back on has to
+      # catch up with what piled up while it was off.
+      if (handled or todo) and self.player and self.auto_delete_objs:
         self.dropOutOfRange()
 
-      if not handled:
-        self.idle()
+      await self.net.drain()
 
-  @clientthread
   def dropOutOfRange(self):
     ''' Forgets the objects that are no longer close enough to be seen '''
     for key in list(self.objects.keys()):
@@ -906,27 +961,7 @@ class Client(threading.Thread):
             del self.objects[c.serial]
         del self.objects[key]
 
-  @clientthread
-  def idle(self):
-    '''! Waits for the server to send something or for another thread to queue
-    work, whichever happens first.
-
-    The wait is what used to be a flat 10ms sleep, which every incoming packet
-    and every order from the test script paid on its way through.
-    '''
-    try:
-      ready, _, _ = select.select([self.net.sock, self._wake_r], [], [], self.IDLE_SECS)
-    except (OSError, ValueError):
-      # Socket closed under us; the next read reports it properly.
-      return
-    if self._wake_r in ready:
-      try:
-        self._wake_r.recv(65536)
-      except OSError:
-        pass
-
   @status('game')
-  @clientthread
   def handlePacket(self, pkt):
     self.log.debug(pkt)
     ''' Handles an incoming packet '''
@@ -1356,7 +1391,6 @@ class Client(threading.Thread):
       self.log.warning("Unhandled packet %s", pkt.__class__)
 
   @status('game')
-  @clientthread
   def handleSecureTradingPacket(self, pkt):
     ''' Handles the secure trade window packet '''
     if pkt.action == packets.SecureTradingPacket.ACTION_INIT:
@@ -1428,7 +1462,6 @@ class Client(threading.Thread):
     self.log.info("Mobile 0x%X got container 0x%X", parent.serial, cont.serial)
 
   @status('game')
-  @clientthread
   def handleCharLocaleBodyPacket(self, pkt):
     assert not self.lc
 
@@ -1460,7 +1493,6 @@ class Client(threading.Thread):
     self.log.info("Position: %d,%d,%d facing %d", self.player.x, self.player.y, self.player.z, self.player.facing)
 
   @status('game')
-  @clientthread
   def handleDrawGamePlayerPacket(self, pkt):
     assert self.player.serial == pkt.serial
 
@@ -1487,7 +1519,6 @@ class Client(threading.Thread):
     self.log.info("Your color is %d and your status is 0x%X", self.player.color, self.player.status)
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleDrawObjectPacket(self, pkt):
     if pkt.serial in self.objects.keys():
@@ -1508,7 +1539,6 @@ class Client(threading.Thread):
       self.singleClick(mob)
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleObjectInfoPacket(self, pkt):
     if pkt.serial in self.objects.keys():
@@ -1539,7 +1569,6 @@ class Client(threading.Thread):
                                      playerpos=[self.player.x,self.player.y,self.player.z]))
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleUpdateVitalPacket(self, pkt, attrName, maxAttrName, eventId):
     if self.player.serial == pkt.serial:
@@ -1561,7 +1590,6 @@ class Client(threading.Thread):
     self.brain.event(brain.Event(eventId, old=old, new=cur, serial=pkt.serial))
 
   @status('game')
-  @clientthread
   def handleGump(self, pkt):
     ''' A gump the server opened, compressed (0xdd) or not (0xb0): both carry the same
     layout commands and text lines, so both are answered the same way.
@@ -1596,7 +1624,6 @@ class Client(threading.Thread):
         texts=pkt.texts))
 
   @status('game')
-  @clientthread
   def handlePopup(self, pkt):
     ''' A pop-up menu. The script that opened it is blocked until an entry is picked, so the
     first one is picked unless the test armed something else. A tag of 0, or a serial that is
@@ -1609,7 +1636,6 @@ class Client(threading.Thread):
       entries=pkt.entries))
 
   @status('game')
-  @clientthread
   def handleTextEntry(self, pkt):
     ''' A text entry dialog. The script that opened it is blocked until this is answered, so
     there is always a reply - "ok" unless the test armed something else. '''
@@ -1631,7 +1657,6 @@ class Client(threading.Thread):
       cancel=pkt.cancel, style=pkt.style, maximum=pkt.maximum))
 
   @status('game')
-  @clientthread
   def handleSelectColor(self, pkt):
     ''' The dye window, answered with a colour inside the range the core accepts unless the
     test armed one outside it. '''
@@ -1647,7 +1672,6 @@ class Client(threading.Thread):
       graphic=pkt.graphic))
 
   @status('game')
-  @clientthread
   def handleResurrectMenu(self, pkt):
     ''' The resurrect menu, answered with the choice the test armed. '''
     reply = self.next_dialog_reply.pop('resurrect', {})
@@ -1659,31 +1683,29 @@ class Client(threading.Thread):
     self.queue(po)
     self.brain.event(brain.Event(brain.Event.EVT_RESURRECT_MENU, choice=pkt.choice))
 
-  @clientthread
   def handlePingPacket(self, pkt):
     ''' Answers a barrier ping, or drops an echo nobody is waiting for.
 
     Not gated on the login being complete: the barrier has to work as soon as a
     client can send anything at all.
     '''
-    with self._syncLock:
-      token = None
-      if self._syncPending and self._syncPending[0][0] == pkt.seq:
-        token = self._syncPending.popleft()[1]
-      elif any(cookie == pkt.seq for cookie, _ in self._syncPending):
-        # Cannot happen: the core answers every 0x73 in the order it received them
-        # and the socket keeps that order, so the ping at the head is the one being
-        # answered. Resynchronise rather than wedge every barrier after this one,
-        # and say so - the ones skipped over will never be answered.
-        skipped = 0
-        while self._syncPending:
-          cookie, waiting = self._syncPending.popleft()
-          if cookie == pkt.seq:
-            token = waiting
-            break
-          skipped += 1
-        self.log.error("ping 0x%02x answered out of order, %d barrier(s) skipped",
-                       pkt.seq, skipped)
+    token = None
+    if self._syncPending and self._syncPending[0][0] == pkt.seq:
+      token = self._syncPending.popleft()[1]
+    elif any(cookie == pkt.seq for cookie, _ in self._syncPending):
+      # Cannot happen: the core answers every 0x73 in the order it received them
+      # and the socket keeps that order, so the ping at the head is the one being
+      # answered. Resynchronise rather than wedge every barrier after this one,
+      # and say so - the ones skipped over will never be answered.
+      skipped = 0
+      while self._syncPending:
+        cookie, waiting = self._syncPending.popleft()
+        if cookie == pkt.seq:
+          token = waiting
+          break
+        skipped += 1
+      self.log.error("ping 0x%02x answered out of order, %d barrier(s) skipped",
+                     pkt.seq, skipped)
     if token is None:
       # The keep-alive's own ping, or a barrier whose script already gave up on it.
       # Harmless either way: a script only accepts the token it is waiting for.
@@ -1692,7 +1714,6 @@ class Client(threading.Thread):
     self.brain.event(brain.Event(brain.Event.EVT_SYNC, token=token))
 
   @status('game')
-  @clientthread
   def handleStatusBar(self, pkt):
     # Creating a character brings a status bar in before the login is complete - the new character
     # is given its vitals while it is still being dressed - so this one is not gated on the login
@@ -1717,7 +1738,6 @@ class Client(threading.Thread):
       name=pkt.name, hp=pkt.hp, maxhp=pkt.maxhp))
 
   @status('game')
-  @clientthread
   def handleGeneralInfoPacket(self, pkt):
     if pkt.sub == packets.GeneralInfoPacket.SUB_CURSORMAP:
       self.cursor = pkt.cursor
@@ -1766,7 +1786,6 @@ class Client(threading.Thread):
       self.log.warn("Unhandled GeneralInfo subpacket 0x%X", pkt.sub)
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleMovePacket(self, pkt):
     if isinstance(pkt, packets.MoveAckPacket):
@@ -1774,26 +1793,24 @@ class Client(threading.Thread):
     else:
       ack = False
 
-    with self.moveLock:
-      # Match first move packet to be ackowledged. Both of these were an
-      # IndexError and a bare assert, which killed the client thread without
-      # saying which move the server was answering.
-      if not self.unmoves:
-        raise RuntimeError(
-            "server {} move {} that was never requested".format(
-                'acknowledged' if ack else 'rejected', pkt.sequence))
-      mpkt = self.unmoves.popleft()
-      if mpkt.sequence != pkt.sequence:
-        raise RuntimeError(
-            "server answered move {} while move {} was the one outstanding".format(
-                pkt.sequence, mpkt.sequence))
+    # Match first move packet to be ackowledged. A bare IndexError or assert here
+    # would not say which move the server was answering.
+    if not self.unmoves:
+      raise RuntimeError(
+          "server {} move {} that was never requested".format(
+              'acknowledged' if ack else 'rejected', pkt.sequence))
+    mpkt = self.unmoves.popleft()
+    if mpkt.sequence != pkt.sequence:
+      raise RuntimeError(
+          "server answered move {} while move {} was the one outstanding".format(
+              pkt.sequence, mpkt.sequence))
 
-      if not ack:
-        # Reset sequence counter after a reject
-        self.moveid = -1
-        # The core silently drops the requests still in flight, so keeping them
-        # queued would match every later ack against the wrong request.
-        self.unmoves.clear()
+    if not ack:
+      # Reset sequence counter after a reject
+      self.moveid = -1
+      # The core silently drops the requests still in flight, so keeping them
+      # queued would match every later ack against the wrong request.
+      self.unmoves.clear()
 
     oldx = self.player.x
     oldy = self.player.y
@@ -1850,7 +1867,6 @@ class Client(threading.Thread):
           old=old, new=self.player.notoriety))
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleSmoothBoatPacket(self, pkt):
     for obj in pkt.objs:
@@ -1865,7 +1881,6 @@ class Client(threading.Thread):
         self.brain.event(brain.Event(brain.Event.EVT_BOAT_MOVED, boat=self.objects[pkt.serial]))
 
   @status('game')
-  @clientthread
   @logincomplete
   def handleWornItemPacket(self, pkt):
     if self.player.serial == pkt.mobile:
@@ -2081,7 +2096,7 @@ class Client(threading.Thread):
     self.queue(po)
 
   @logincomplete
-  def placeMulti(self, x, y, z=0, graphic=0, timeout=5):
+  async def placeMulti(self, x, y, z=0, graphic=0, timeout=5):
     '''! Answers a multi placement cursor with a place to put it
     @param x int: where the multi goes
     @param y int
@@ -2095,7 +2110,7 @@ class Client(threading.Thread):
     assuming it is already out: the script that raises it is suspended, so the todo
     that answers has to be armed first.
     '''
-    if not self.waitFor(lambda: self.multi_placement is not None, timeout):
+    if not await self.waitFor(lambda: self.multi_placement is not None, timeout):
       return False
     cursorid = self.multi_placement['cursorid']
     self.multi_placement = None
@@ -2396,16 +2411,15 @@ class Client(threading.Thread):
     else:
       raise ValueError('dir must be Direction or int')
 
-    # Holding the lock until the packet is sent to avoid sending packets
-    # in the wrong order
-    with self.moveLock:
-      self.moveid += 1
-      if self.moveid > 0xff:
-        self.moveid = 1
-      po = packets.MoveRequestPacket()
-      po.fill(dir.id, self.moveid, self.popFastwalk())
-      self.unmoves.append(po)
-      self.queue(po)
+    # Numbered and sent in one go, with nothing awaited in between, so two moves
+    # cannot reach the server in the opposite order to their sequence numbers.
+    self.moveid += 1
+    if self.moveid > 0xff:
+      self.moveid = 1
+    po = packets.MoveRequestPacket()
+    po.fill(dir.id, self.moveid, self.popFastwalk())
+    self.unmoves.append(po)
+    self.queue(po)
 
   def pushFastwalk(self, key):
     ''' Puts a key back in the first free slot.
@@ -2433,23 +2447,23 @@ class Client(threading.Thread):
     return 0
 
   @logincomplete
-  def waitForTarget(self, timeout=None):
+  async def waitForTarget(self, timeout=None):
     '''! Waits until a target cursor is requested and return it. If timeout is given, returns after timeout
     @param timeout float: Timeout, in seconds
     @return Target on success, None on timeout
     '''
-    self.waitFor(lambda: self.target is not None, timeout)
+    await self.waitFor(lambda: self.target is not None, timeout)
     return self.target
 
   @logincomplete
-  def waitForObject(self, serial, timeout=None):
+  async def waitForObject(self, serial, timeout=None):
     '''! Waits until the given serial is an object this client knows about
 
     @param serial int: The serial to wait for
     @param timeout float: Timeout, in seconds
     @return the object, None if it never turned up
     '''
-    self.waitFor(lambda: serial in self.objects, timeout)
+    await self.waitFor(lambda: serial in self.objects, timeout)
     return self.objects.get(serial)
 
   @logincomplete
@@ -2468,32 +2482,41 @@ class Client(threading.Thread):
   ## out, so this only bounds how long a signal that never comes can cost.
   WAITFOR_SLICE = 0.1
 
-  def waitFor(self, cond, timeout=None):
+  async def waitFor(self, cond, timeout=None):
     '''! Utility function, waits until a condition is satisfied or until timeout expires
-    @return True when consition succeeds, False on timeout
+    @return True when consition succeeds, False on timeout or once the client is gone
 
-    The condition is state the client thread writes, so this blocks on the signal
-    that thread raises once it has handled everything the server had ready. The
-    deadline is computed once: a condition re-tested after a wakeup must not start
-    the caller's timeout over.
+    The condition is state the loop writes, so this blocks on the pulse the loop
+    raises once it has handled everything one read brought in. The deadline is
+    computed once: a condition re-tested after a wakeup must not start the caller's
+    timeout over.
     '''
+    if cond():
+      return True
     now = time.monotonic()
     deadline = now + timeout if timeout else None
     nextWarn = now + 5.0
-    with self._stateChanged:
-      while not cond():
-        now = time.monotonic()
-        slice = self.WAITFOR_SLICE
-        if deadline is not None:
-          remaining = deadline - now
-          if remaining <= 0:
-            return False
-          slice = min(slice, remaining)
-        elif now >= nextWarn:
-          self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
-          nextWarn = now + 5.0
-        self._stateChanged.wait(slice)
-    return True
+    while True:
+      if self.stopped.is_set():
+        # Nobody is left to make the condition true, and sitting out the rest of the
+        # timeout only delays telling the shard so.
+        return False
+      now = time.monotonic()
+      slice = self.WAITFOR_SLICE
+      if deadline is not None:
+        remaining = deadline - now
+        if remaining <= 0:
+          return False
+        slice = min(slice, remaining)
+      elif now >= nextWarn:
+        self.log.warning("Waiting for %s...", traceback.extract_stack(limit=2)[0])
+        nextWarn = now + 5.0
+      try:
+        await asyncio.wait_for(self._stateChanged.wait(), slice)
+      except asyncio.TimeoutError:
+        pass
+      if cond():
+        return True
 
   def syncPing(self, token):
     ''' Sends a 0x73 carrying a cookie of this call's own, so the echo the core
@@ -2502,92 +2525,75 @@ class Client(threading.Thread):
     The core echoes the packet verbatim and unconditionally, and everything it had
     already queued for this client goes out ahead of it, so the echo arriving is a
     proof that nothing else was on its way - which is what the test scripts use it
-    for. Called from the brain thread; the packet goes out of the client thread in
-    the same order as anything queued before it.
+    for it. Called from the brain, and the cookie is registered before the packet
+    goes out, so an echo can never arrive with nothing to match it against.
     '''
-    with self._syncLock:
-      self._syncCookie = self._syncCookie % 255 + 1
-      cookie = self._syncCookie
-      self._syncPending.append((cookie, token))
+    self._syncCookie = self._syncCookie % 255 + 1
+    cookie = self._syncCookie
+    self._syncPending.append((cookie, token))
     po = packets.PingPacket()
     po.fill(cookie)
     self.queue(po)
 
   def queue(self, data):
-    ''' Puts a packet in the queue to be sent asap '''
-    with self.sendqueueLock:
-      self.sendqueue.append(data)
-    self.wake()
+    '''! Sends a packet.
 
-  def wake(self):
-    ''' Ends the main loop's idle wait, so work queued from another thread is
-    picked up now rather than when the wait runs out '''
-    try:
-      self._wake_w.send(b'\x01')
-    except OSError:
-      # A full pipe is already readable, so the wait is going to end anyway.
-      pass
-
-  @clientthread
-  def send(self):
-    ''' Sends all packets in the queue '''
-    with self.sendqueueLock:
-      queue = self.sendqueue
-      self.sendqueue = []
-
-    for data in queue:
-      self.net.send(data)
+    What the server reads is the order queue() was called in, whether the caller
+    was the loop itself or the brain.
+    '''
+    self.net.write(data)
 
   def addTodo(self, todo):
-    with self.todoLock:
-      self.todoqueue.append(todo)
-    self.wake()
+    ''' Gives the loop something to do, behind whatever it has already been sent '''
+    self._inbox.put_nowait(todo)
 
-  @clientthread
-  def processTodo(self):
-    ''' process todos from brain '''
-    with self.todoLock:
-      queue = self.todoqueue
-      self.todoqueue = []
-    if queue:
-      # A todo can change what the client is meant to know about - switching the
-      # out of range sweep back on, most of all - so let the loop run one.
-      self.sweepDue = True
-    for todo in queue:
-      if todo.type == brain.Event.EVT_EXIT:
-        return False
-      elif todo.type == brain.Event.EVT_LIST_OBJS:
-        if hasattr(todo, 'parent') and todo.parent in self.objects:
-          parent = self.objects[todo.parent]
-          # a container the server has not sent any contents of yet has no
-          # content list at all - that is an empty listing, not a crash, and so
-          # is a parent that is no container to begin with
-          if isinstance(parent, Container) and parent.content:
-            objs = { item.serial: item for item in parent.content }
-          else:
-            objs = {}
+  def processTodo(self, todo):
+    '''! Runs one todo from the brain.
+    @return bool: False once the client has been told to stop
+    '''
+    if todo.type == brain.Event.EVT_EXIT:
+      return False
+    elif todo.type == brain.Event.EVT_LIST_OBJS:
+      if hasattr(todo, 'parent') and todo.parent in self.objects:
+        parent = self.objects[todo.parent]
+        # a container the server has not sent any contents of yet has no
+        # content list at all - that is an empty listing, not a crash, and so
+        # is a parent that is no container to begin with
+        if isinstance(parent, Container) and parent.content:
+          objs = { item.serial: item for item in parent.content }
         else:
-          objs = self.objects.copy()
-        self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = objs))
-      elif todo.type == brain.Event.EVT_LIST_EQUIPPED_ITEMS:
-        owner = self.objects[todo.serial] if todo.serial in self.objects else None
-        self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, owner = owner))
-      elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
-        self.disable_item_logging = todo.value
-        self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
+          objs = {}
       else:
-        raise NotImplementedError("Unknown todo event {}".format(todo.type))
+        objs = self.objects.copy()
+      self.brain.event(brain.Event(brain.Event.EVT_LIST_OBJS, objs = objs))
+    elif todo.type == brain.Event.EVT_LIST_EQUIPPED_ITEMS:
+      owner = self.objects[todo.serial] if todo.serial in self.objects else None
+      self.brain.event(brain.Event(brain.Event.EVT_LIST_EQUIPPED_ITEMS, owner = owner))
+    elif todo.type == brain.Event.EVT_DISABLE_ITEM_LOGGING:
+      self.disable_item_logging = todo.value
+      self.brain.event(brain.Event(brain.Event.EVT_DISABLE_ITEM_LOGGING))
+    else:
+      raise NotImplementedError("Unknown todo event {}".format(todo.type))
     return True
 
-  @clientthread
-  def receive(self, expect=None, blocking=True):
-    '''! Receives next packet from the server
+  async def receive(self, expect=None, timeout=None):
+    '''! Receives next packet from the server, for the login handshake only
     @param expect Packet/list: If given, throws an exception if packet
                                is not in the expected list/tuple
+    @param timeout float: how long to wait, LOGIN_TIMEOUT by default
     @return Packet
-    @throws UnexpectedPacketError
+    @throws UnexpectedPacketError, LoginTimeoutError
     '''
-    pkt = self.net.recv(blocking=blocking)
+    # One reader per connection. The framers in net.py carry state from one read to
+    # the next, so a second caller taking bytes off the same stream desynchronises
+    # it, and that only shows up later, as a packet id that does not exist.
+    assert self._reader is None, "receive() after start(): the reader task owns the stream"
+    wait = self.LOGIN_TIMEOUT if timeout is None else timeout
+    try:
+      pkt = await asyncio.wait_for(self.net.recv(), wait)
+    except asyncio.TimeoutError:
+      raise LoginTimeoutError(
+          "the server sent nothing for {}s while {}".format(wait, self.status)) from None
 
     if expect and not isinstance(expect, tuple) and not isinstance(expect, list):
       expect = (expect, )
@@ -2609,7 +2615,7 @@ class StatusError(Exception):
   pass
 
 
-class ThreadError(Exception):
+class LoginTimeoutError(Exception):
   pass
 
 
@@ -2640,27 +2646,3 @@ class LoginDeniedError(Exception):
     else:
       mex = "Unknown reason {:02X}".format(code)
     super().__init__(mex)
-
-
-if __name__ == '__main__':
-  import argparse
-
-  parser = argparse.ArgumentParser()
-  parser.add_argument('ip', help='Server ip')
-  parser.add_argument('port', type=int, help='Server port')
-  parser.add_argument('user', help='Username')
-  parser.add_argument('pwd', help='Password')
-  parser.add_argument('srvidx', type=int, help="Gameserver's Index")
-  parser.add_argument('charidx', type=int, help="Character's Index")
-  parser.add_argument('charname', help="Character's Name")
-  parser.add_argument('-v', '--verbose', action='store_true', help='Show debug output')
-  args = parser.parse_args()
-
-  logging.basicConfig(level=logging.DEBUG if args.verbose else logging.INFO)
-
-  c = Client()
-  servers = c.connect(args.ip, args.port, args.user, args.pwd)
-  chars = c.selectServer(args.srvidx)
-  c.selectCharacter(args.charname, args.charidx)
-  c.play()
-  print('done')

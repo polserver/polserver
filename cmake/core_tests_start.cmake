@@ -1,4 +1,4 @@
-find_package(Python3 COMPONENTS Interpreter REQUIRED QUIET)
+find_package(Python3 3.8 COMPONENTS Interpreter REQUIRED QUIET)
 # The budget below covers the whole pipeline, and the shard test runs some ten minutes
 # on a loaded machine, so it has to be several times that rather than close to it.
 # Overrunning it comes back as the res below and is reported as a shard failure, which

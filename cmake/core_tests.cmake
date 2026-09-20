@@ -191,7 +191,10 @@ set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
 # first test run
-find_package(Python3 QUIET COMPONENTS Interpreter)
+# 3.8, because the test client runs on asyncio: asyncio.run and the stream API it is
+# built on are what set the floor. A python below that disables the client rather than
+# failing the build, so the rest of the shard test still runs.
+find_package(Python3 3.8 QUIET COMPONENTS Interpreter)
 if (${Python3_FOUND})
   execute_process(
       COMMAND ${Python3_EXECUTABLE} -c "import aiosmtpd"
@@ -222,7 +225,7 @@ if (${Python3_FOUND})
     )
     set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
 else()
-  message(" - core test without testclient python3 not found")
+  message(" - core test without testclient: no python3 3.8 or newer")
   add_test(NAME shard_test_1
     COMMAND pol
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
