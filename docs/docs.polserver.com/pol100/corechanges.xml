@@ -7,6 +7,12 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>09-20-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">a gump reply claiming a switch count in the billions could crash the server. It is<br/>
+refused like any other reply that claims more than it carries.</change>
+		</entry>
+		<entry>
+			<date>09-20-2026</date>
 			<author>AsYlum:</author>
 			<change type="Fixed">Crash or wrong results when a script called one of its own function references<br/>
 while it was running inside a function of another script.</change>

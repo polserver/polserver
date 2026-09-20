@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+09-20-2026 Ins:
+    Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
+           refused like any other reply that claims more than it carries.
 09-20-2026 AsYlum:
     Fixed: Crash or wrong results when a script called one of its own function references
            while it was running inside a function of another script.

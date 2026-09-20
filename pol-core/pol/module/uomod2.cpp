@@ -1593,20 +1593,24 @@ void gumpbutton_handler( Client* client, PKTIN_B1* msg )
   // Process rest of the packet
   auto* intshdr = reinterpret_cast<PKTIN_B1::INTS_HEADER*>( hdr + 1 );
   u32 ints_count = cfBEu32( intshdr->count );
-  unsigned stridx = sizeof( PKTIN_B1::HEADER ) + sizeof( PKTIN_B1::INTS_HEADER ) +
-                    sizeof( PKTIN_B1::INT_ENTRY ) * ints_count + sizeof( PKTIN_B1::STRINGS_HEADER );
-  if ( stridx > msglen )
+  // Both counts are checked by dividing the room left rather than by multiplying the count: the
+  // product of a count this wide wraps, and a wrapped size fits any packet. The int check leaves
+  // stridx no larger than msglen, which is what keeps the string check's subtraction positive.
+  constexpr size_t fixed = sizeof( PKTIN_B1::HEADER ) + sizeof( PKTIN_B1::INTS_HEADER ) +
+                           sizeof( PKTIN_B1::STRINGS_HEADER );
+  if ( msglen < fixed || ints_count > ( msglen - fixed ) / sizeof( PKTIN_B1::INT_ENTRY ) )
   {
     SuspiciousActs::GumpResponseHasTooManyInts( client );
     inform_executor( new BError( "B1 message specified too many ints." ) );
     return;
   }
+  size_t stridx = fixed + sizeof( PKTIN_B1::INT_ENTRY ) * ints_count;
   auto* intentries = reinterpret_cast<PKTIN_B1::INT_ENTRY*>( intshdr + 1 );
   auto* strhdr = reinterpret_cast<PKTIN_B1::STRINGS_HEADER*>( intentries + ints_count );
   u32 strings_count = cfBEu32( strhdr->count );
   // even if this is ok, it could still overflow.  Have to check each string.
   // -2 per entry to only count tag+length (data has size of 2 in struct)
-  if ( stridx + ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) * strings_count > msglen + 1u )
+  if ( strings_count > ( msglen + 1u - stridx ) / ( sizeof( PKTIN_B1::STRING_ENTRY ) - 2 ) )
   {
     SuspiciousActs::GumpResponseHasTooManyIntsOrStrings( client );
     inform_executor( new BError( "B1 message specified too many ints and/or strings." ) );
