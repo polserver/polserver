@@ -60,6 +60,7 @@ void CompilerConfig::Read( const std::string& path )
   GenerateDependencyInfo = elem.remove_bool( "GenerateDependencyInfo", OnlyCompileUpdatedScripts );
 
   DisplayUpToDateScripts = elem.remove_bool( "DisplayUpToDateScripts", true );
+  DisplayFileOutcome = elem.remove_bool( "DisplayFileOutcome", true );
   ThreadedCompilation = elem.remove_bool( "ThreadedCompilation", false );
   NumberOfThreads = elem.remove_int( "NumberOfThreads", 0 );
   ParanoiaWarnings = elem.remove_bool( "ParanoiaWarnings", false );
