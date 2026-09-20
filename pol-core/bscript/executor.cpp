@@ -2735,9 +2735,13 @@ void Executor::ins_call_method_id( const Instruction& ins )
       {
         if ( funcr->constructor() )
         {
+          // The class index addresses the function reference's program, so the instance has to
+          // be built from that program and its creator's globals, not from whatever this
+          // executor currently runs.
           fparams.insert( fparams.begin(),
                           BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
-                              prog_, funcr->class_index(), Globals2, pid() ) ) ) ) );
+                              funcr->prog(), funcr->class_index(), funcr->globals,
+                              funcr->pid() ) ) ) ) );
         }
       }
 
@@ -2977,8 +2981,11 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     rc.Continuation.set( continuation );
   }
 
-  // Only store our global context if the function is external to the current program.
-  if ( funcref != nullptr && funcref->pid() != pid() )
+  // Store our context if the function belongs to another program or to another executor: the
+  // jump target is an offset into the function reference's program, and the globals it closes
+  // over are the ones its creator had. The same executor can hold references to both, since it
+  // runs another program's code for the length of an external call.
+  if ( funcref != nullptr && ( funcref->prog() != prog_ || funcref->pid() != pid() ) )
   {
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
@@ -3009,6 +3016,9 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
       }
     }
   }
+
+  // target_PC indexes the function reference's program, so it must be the one loaded.
+  passert( funcref == nullptr || funcref->prog() == prog_ );
 
   ControlStack.push_back( rc );
 

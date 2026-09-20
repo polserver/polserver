@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <set>
 
 #include "clib/refptr.h"
@@ -28,6 +29,9 @@ public:
   unsigned index() const;
   // returns nullptr if no function found
   BFunctionRef* makeMethod( const char* method_name );
+  // the method's index into the program's function reference table, empty if the class does not
+  // define it
+  std::optional<unsigned> findMethodIndex( const char* method_name ) const;
 
   // Inherited from BStruct
   const char* typetag() const override;
