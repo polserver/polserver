@@ -443,24 +443,35 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       ++i;
     }
     log += "Locals\n";
-    auto log_stack = [&]( unsigned PC, Bscript::BObjectRefVec* locals )
+    auto log_stack = [&]( const Bscript::EScriptProgram* frame_prog, unsigned PC,
+                          Bscript::BObjectRefVec* locals )
     {
+      // Only the executor's current program is known to have its debug file loaded, and a PC
+      // from one program says nothing about another program's tables.
+      if ( const_cast<Bscript::EScriptProgram*>( frame_prog )->read_dbg_file( true ) != 0 ||
+           PC >= frame_prog->dbg_filenum.size() || PC >= frame_prog->dbg_ins_blocks.size() )
+      {
+        log += "  (no debug information)\n";
+        return;
+      }
+
       fmt::format_to( std::back_inserter( log ), "  {}: {}\n",
-                      prog->dbg_filenames[prog->dbg_filenum[PC]], prog->dbg_linenum[PC] );
+                      frame_prog->dbg_filenames[frame_prog->dbg_filenum[PC]],
+                      frame_prog->dbg_linenum[PC] );
 
       // A frame at program level has no locals vector at all.
       if ( locals == nullptr )
         return;
 
-      unsigned block = prog->dbg_ins_blocks[PC];
+      unsigned block = frame_prog->dbg_ins_blocks[PC];
       size_t left = locals->size();
       while ( left )
       {
-        while ( left <= prog->blocks[block].parentvariables )
+        while ( left <= frame_prog->blocks[block].parentvariables )
         {
-          block = prog->blocks[block].parentblockidx;
+          block = frame_prog->blocks[block].parentblockidx;
         }
-        const Bscript::EPDbgBlock& progblock = prog->blocks[block];
+        const Bscript::EPDbgBlock& progblock = frame_prog->blocks[block];
         size_t varidx = left - 1 - progblock.parentvariables;
         left--;
         // varidx indexes the block's own names; the value lives at the frame-wide slot
@@ -469,11 +480,24 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
                         progblock.localvarnames[varidx], ptr->typeOf(), ptr->sizeEstimate() );
       }
     };
-    log_stack( exec->PC, exec->Locals2 );
+
+    // Each frame's PC addresses the program that frame was running, not always this one.
+    const Bscript::EScriptProgram* frame_prog = prog;
+    log_stack( frame_prog, exec->PC, exec->Locals2 );
+
+    // upperLocals2 gains an entry only where there was a locals frame to save, so it can be
+    // shorter than the control stack. Walk the two together rather than by a shared index.
+    size_t locals_i = exec->upperLocals2.size();
     for ( int stack_i = static_cast<int>( exec->ControlStack.size() ) - 1; stack_i >= 0; --stack_i )
     {
+      const auto& rc = exec->ControlStack[stack_i];
+      if ( rc.ExternalContext.has_value() )
+        frame_prog = rc.ExternalContext->Program.get();
+      if ( locals_i == 0 )
+        break;
+      --locals_i;
       fmt::format_to( std::back_inserter( log ), "Stack {}\n", stack_i );
-      log_stack( exec->ControlStack[stack_i].PC, exec->upperLocals2[stack_i] );
+      log_stack( frame_prog, rc.PC, exec->upperLocals2[locals_i] );
     }
   }
   auto path = MemoryUsage::reportPath( "vars-" + MemoryUsage::sanitizeForFilename( name ) );
