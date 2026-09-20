@@ -223,6 +223,14 @@ if (${Python3_FOUND})
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
     set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
+
+  # Pure python: no shard, so no fixture and no coretest lock. It covers packet
+  # framing that loopback rarely exercises, such as a packet split across reads.
+  add_test(NAME pyuo_framing_test
+    COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/testclient/pyuo/tests/test_framing.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/testclient/pyuo
+  )
 else()
   message(" - core test without testclient: no python3 3.8 or newer")
   add_test(NAME shard_test_1
