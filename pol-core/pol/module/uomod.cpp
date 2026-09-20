@@ -3858,7 +3858,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
           return new BError( "ArrowID must be supplied for cancelation." );
         }
 
-        msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
+        msg->WriteFlipped<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
       }
     }
     else
@@ -3870,7 +3870,7 @@ BObjectImp* UOExecutorModule::mf_SendQuestArrow()
       msg->WriteFlipped<u16>( pos.x() );
       msg->WriteFlipped<u16>( pos.y() );
       if ( usesNewPktSize )
-        msg->Write<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
+        msg->WriteFlipped<u32>( static_cast<u32>( arrowid & 0xFFFFFFFF ) );
     }
     msg.Send( chr->client );
     return new BLong( arrowid );

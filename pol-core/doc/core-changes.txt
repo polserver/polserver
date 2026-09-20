@@ -1,5 +1,9 @@
 -- POL100.3.0 --
 09-20-2026 AsYlum:
+    Fixed: uo::SendQuestArrow() sent a different arrow id than the one it returned, so a packet log
+           or an outgoing packet hook saw a number that did not match. Arrows themselves were
+           unaffected.
+09-20-2026 AsYlum:
  Improved: world data load speed - startup is around 20-30% faster, though the gain varies with
            the shard. The more objects the data files hold, the more there is to win.
      Note: nothing about the data files changes and nothing about what is loaded from them - the
