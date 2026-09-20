@@ -776,7 +776,12 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
   std::optional<std::set<u32>> offered =
       send_vendorsell( chr->client, merchant, chr->backpack(), merchant_buyable, send_aos_tooltip );
   if ( !offered )
+  {
+    // The containers went out as worn items before the list did. Without taking them back the
+    // client is left showing a merchant window that no window state answers for.
+    send_clear_vendorwindow( chr->client, merchant );
     return new BError( "The sell list is too long to send" );
+  }
 
   chr->client->gd->vendor.set( merchant );
   chr->client->gd->vendor_bought.set( merchant_bought );
@@ -816,7 +821,10 @@ std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* 
   auto& offer = client->gd->vendor_sell_offer;
   if ( !offer )
   {
-    SuspiciousActs::SellAnswerWithoutWindow( client, cfBEu32( msg->vendor_serial ) );
+    // Asking for nothing is how a client closes a sell window, and such an answer can honestly
+    // arrive after the core has closed it. Only one that names something is worth logging.
+    if ( cfBEu16( msg->num_items ) != 0 )
+      SuspiciousActs::SellAnswerWithoutWindow( client, cfBEu32( msg->vendor_serial ) );
     return {};
   }
   NPC* vendor = client->gd->vendor.get();
@@ -853,11 +861,9 @@ size_t sell_answer_entries( Client* client, const PKTIN_9F* msg )
   return std::min( claimed, room );
 }
 
-// The item an entry of an answer names, if it may still be sold: one the window listed and the
-// answer has not named before, asked for in some amount, and still sellable - at the top of the
-// pack, not a newbie item, not in use, and not a container with anything in it. An entry the
-// window did not list, or listed and the answer already named, is counted in `unlisted`: no client
-// sends one.
+// The item an entry of an answer names, if it may still be sold. An entry naming what the window
+// did not list, or naming twice what it listed once, is counted in `unlisted`: no client sends
+// one.
 Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount,
                      unsigned& unlisted )
 {
@@ -877,9 +883,8 @@ Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u
 }
 
 // Moves `amount` of an item in the seller's pack into the vendor's container, and says whether it
-// went. The rest of a stack stays in the stack's place and slot, or takes another slot when a
-// script has lowered the pack's limit under that one; only a pack with no slot left sends it to
-// the seller's feet, as it does the rest of a stack lifted in part.
+// went. What is left of a split stack needs a slot of its own when a script has lowered the pack's
+// limit under the stack's, and the seller's feet when the pack has no slot at all.
 bool hand_over( Character* seller, Item* item, u16 amount, UContainer* backpack,
                 UContainer* bought )
 {
@@ -1005,6 +1010,10 @@ void oldSellHandler( Client* client, PKTIN_9F* msg )
 
 void sellhandler( Client* client, PKTIN_9F* msg )
 {
+  // An answer shorter than its own header carries no vendor serial and no count: the bytes that
+  // would be read for them belong to whatever came before it.
+  if ( cfBEu16( msg->msglen ) < offsetof( PKTIN_9F, items ) )
+    return;
   if ( !settingsManager.ssopt.scripted_merchant_handlers )
   {
     oldSellHandler( client, msg );

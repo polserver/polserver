@@ -48,6 +48,9 @@ made went into slot 0, whatever was already there.</change>
 part went to the player's feet when its slot was past the container's limit, although<br/>
 other slots were free. It takes one of those.</change>
 			<change type="Added">with pol.cfg ShowWarningItem (on by default), the core logs a sell answer no client<br/>
+would send: one that names an item with no sell window open, names an item its window<br/>
+did not list or names one twice, or claims more entries than it carries. An answer<br/>
+that asks for nothing, which is how a window is closed, is not logged.<br/>
 would send: one that comes with no sell window open, names an item its window did<br/>
 not list or names one twice, or claims more entries than it carries.<br/>
 vendor's container and was not sold when that container had fewer slots, what was left<br/>

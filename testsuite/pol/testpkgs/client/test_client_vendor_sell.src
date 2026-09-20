@@ -483,6 +483,13 @@ function remainder_of( resmgr, name )
       return thing;
     endif
   endforeach
+  // Not in the pack means the case is about to fail; the remainder is at the seller's feet and
+  // has to be taken with it, or it stays in the shard for good.
+  foreach thing in ( ListItemsNearLocation( char.x, char.y, char.z, 0, char.realm ) )
+    if ( thing.name == name )
+      destroy_later( resmgr, thing );
+    endif
+  endforeach
   return ret_error( $"nothing called \"{name}\" is left in the pack" );
 endfunction
 
@@ -713,6 +720,42 @@ exported function sell_ignores_past_packet_end( resmgr )
   return 1;
 endfunction
 
+exported function sell_answer_too_short( resmgr )
+  // An answer shorter than its own header carries neither a vendor serial nor a count. It is
+  // ignored rather than read out of the bytes behind it, and the window it was sent to is still
+  // open afterwards.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "sold after a short answer", 5 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+
+  var stub := CreatePacket( 0x9F, MSGLEN_VARIABLE );
+  stub.SetSize( 3 );
+  var res := send_packet( clientcon, 0, stub );
+  if ( !res )
+    return res;
+  endif
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  if ( item.container != vendor.bought )
+    return ret_error( $"the short answer closed the window: the item is in {item.container}" );
+  elseif ( !told )
+    return told;
+  elseif ( told.amount != 5 )
+    return ret_error( $"the sale after the short answer paid {told.amount}, expected 5" );
+  endif
+  return 1;
+endfunction
+
 exported function sell_amount_zero_sells_nothing( resmgr )
   // An entry asking for none of an item sells none of it. How much of a stack goes is the amount
   // asked for, and none is not a way of asking for all of it.
@@ -797,6 +840,45 @@ exported function sell_only_what_was_offered( resmgr )
   return 1;
 endfunction
 
+exported function sell_names_item_twice( resmgr )
+  // The window offered the stack once. An answer naming it twice sells it once: the second entry
+  // is taken for what it is, an entry the window did not offer, and logged as one.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var lot := make_sellable( resmgr, "named twice", 5, 3, "NormalStackable" );
+  if ( !lot )
+    return lot;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var gold_before := char.gold;
+  var mark := log_mark();
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( lot ), sale_of( lot ) } );
+  var left := remainder_of( resmgr, "named twice" );
+  if ( lot.container != vendor.bought )
+    return ret_error( $"the entry the window offered was not sold: it is in {lot.container}" );
+  elseif ( !left )
+    return left;
+  elseif ( left.amount != 2 )
+    return ret_error( $"{left.amount} of the stack are left in the pack, expected 2" );
+  elseif ( char.gold - gold_before != 5 )
+    return ret_error( $"the sale paid {char.gold - gold_before} gold, expected 5" );
+  elseif ( !told )
+    return told;
+  elseif ( told.amount != 5 )
+    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  elseif ( !log_find( log_since( mark ), "tried to sell 1 item(s) more than the sell window" ) )
+    return ret_error( "an answer naming the same item twice was not logged" );
+  endif
+  return 1;
+endfunction
+
 exported function sell_needs_a_sell_window( resmgr )
   // A buy window names a vendor as well, but it offers nothing to sell: an answer to it sells
   // nothing, and the vendor hears of no sale.
@@ -814,6 +896,14 @@ exported function sell_needs_a_sell_window( resmgr )
     return ret_error( $"SendBuyWindow failed: {res.errortext}" );
   endif
 
+  // A sell window that an earlier test opened and never answered leaves an offer behind for a
+  // vendor that is gone by now, and such an offer is forgotten silently rather than logged. One
+  // answer of this test's own clears it, so what follows meets an empty slate either way.
+  res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) }, 1 );
+  if ( !res )
+    return res;
+  endif
+
   var mark := log_mark();
   res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
   if ( item.container != char.backpack )
@@ -822,6 +912,36 @@ exported function sell_needs_a_sell_window( resmgr )
     return res;
   elseif ( !log_find( log_since( mark ), WARN_NO_WINDOW ) )
     return ret_error( "an answer with no sell window open was not logged" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_cancel_not_logged( resmgr )
+  // Closing a sell window without selling sends an answer with no entries at all. It asks for
+  // nothing, so it is not logged as forged however late it comes - by then the core may have
+  // closed the window itself.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  // Answering closes the window, so the cancel that follows finds none open.
+  var told := sell_heard( clientcon, vendor.npc.serial, {} );
+  if ( !told )
+    return told;
+  endif
+
+  var mark := log_mark();
+  var res := sell_unheard( clientcon, vendor.npc.serial, {} );
+  if ( !res )
+    return res;
+  endif
+  var warned := sell_warnings( mark );
+  if ( warned.size() )
+    return ret_error( $"a cancel with no sell window open was logged: {warned}" );
   endif
   return 1;
 endfunction
@@ -927,36 +1047,54 @@ exported function sell_into_free_slot( resmgr )
   if ( !vendor )
     return vendor;
   endif
-  // Each item made takes the lowest slot left, so after three others this one has slot 3 or above.
-  for i := 1 to 3
+  // Each item made takes the lowest slot left, so after four others these have slot 5 and above.
+  for i := 1 to 4
     if ( !resmgr.CreateItemInContainer( char.backpack, "shirt_plain" ) )
       return ret_error( "failed to create the items that take the lower slots" );
     endif
   endfor
   var item := make_sellable( resmgr, "in a high slot", 5, 1, "shirt_plain" );
-  if ( !item )
-    return item;
+  var second := make_sellable( resmgr, "sold alongside it", 5, 1, "shirt_plain" );
+  if ( !item or !second )
+    return ret_error( "failed to create the items to sell" );
   endif
   var slot := client_slot( clientcon, item.serial, char.backpack.serial );
   if ( slot == error )
     return slot;
-  elseif ( slot < 3 )
+  elseif ( slot < 4 )
     return ret_error( $"the item got slot {slot}; the case needs one the vendor lacks" );
   endif
-  // Two slots in the vendor's container, both free and both below the item's.
-  vendor.bought.max_slots_mod := 2 - GetItemDescriptor( vendor.bought.objtype ).MaxSlots;
+  // Room for the two of them in the vendor's container, in slots below the one they have here.
+  // The limit is strict: a container takes items while its count plus one is under its slots.
+  resmgr.AddCleanup( struct{ cont := vendor.bought, mod := vendor.bought.max_slots_mod },
+                     @restore_max_slots );
+  vendor.bought.max_slots_mod := 3 - GetItemDescriptor( vendor.bought.objtype ).MaxSlots;
   var ev := open_sell_window( vendor );
   if ( !ev )
     return ev;
   endif
 
-  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  var told := sell_heard( clientcon, vendor.npc.serial,
+                          { sale_of( item ), sale_of( second ) } );
   if ( item.container != vendor.bought )
     return ret_error( $"the item is in {item.container}, expected the vendor's container" );
+  elseif ( second.container != vendor.bought )
+    return ret_error( $"the second item is in {second.container}" );
   elseif ( !told )
     return told;
-  elseif ( told.amount != 5 )
-    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  elseif ( told.amount != 10 )
+    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 10" );
+  endif
+
+  // A slot of its own each: the sale must not file both under the same one.
+  var first_slot := client_slot( clientcon, item.serial, vendor.bought.serial );
+  var second_slot := client_slot( clientcon, second.serial, vendor.bought.serial );
+  if ( first_slot == error )
+    return first_slot;
+  elseif ( second_slot == error )
+    return second_slot;
+  elseif ( first_slot == second_slot )
+    return ret_error( $"both items were filed under slot {first_slot}" );
   endif
   return 1;
 endfunction
@@ -1387,6 +1525,7 @@ exported function script_sell_ignores_past_end( resmgr )
     return res;
   endif
 
+  var mark := log_mark();
   var told := sell_raw_heard( clientcon,
                               sell_answer( vendor.npc.serial, 2, { sale_of( named ) } ) );
   if ( !told )
@@ -1395,6 +1534,8 @@ exported function script_sell_ignores_past_end( resmgr )
   var expected := $"0x{named.serial:x}:1 ";
   if ( shopping( told ) != expected )
     return ret_error( $"the shopping list is \"{shopping( told )}\", expected \"{expected}\"" );
+  elseif ( !log_find( log_since( mark ), "claiming 2 entries" ) )
+    return ret_error( "an answer claiming more entries than it carried was not logged" );
   endif
   return 1;
 endfunction
@@ -1418,4 +1559,431 @@ exported function script_sell_needs_sell_window( resmgr )
     return ret_error( $"SendBuyWindow failed: {res.errortext}" );
   endif
   return sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+endfunction
+
+exported function script_buy_closes_sell_window( resmgr )
+  // With ScriptedMerchantHandlers too, a purchase closes the sell window that shares the vendor
+  // fields with it: a buy window opened afterwards does not bring the sell window's list back.
+  var res := script_the_sale( resmgr );
+  if ( !res )
+    return res;
+  endif
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var gold := resmgr.CreateItemInContainer( char.backpack, "goldcoin", 1000 );
+  var item := make_sellable( resmgr, "listed before the purchase", 5 );
+  var ware := resmgr.CreateItemInContainer( vendor.for_sale, "shirt_plain" );
+  if ( !gold or !item or !ware )
+    return ret_error( "failed to create the gold, the item to sell or the ware" );
+  endif
+  ware.sellprice := 1;
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  res := SendBuyWindow( char, vendor.for_sale, vendor.npc, vendor.bought, 0 );
+  if ( !res )
+    return ret_error( $"SendBuyWindow failed: {res.errortext}" );
+  endif
+
+  // The vendor's script hears of the purchase, which is the core's last word on the answer.
+  var bought := buy_heard( clientcon, vendor.npc.serial, { sale_of( ware ) } );
+  if ( !bought )
+    return bought;
+  endif
+  res := SendBuyWindow( char, vendor.for_sale, vendor.npc, vendor.bought, 0 );
+  if ( !res )
+    return ret_error( $"the second SendBuyWindow failed: {res.errortext}" );
+  endif
+
+  return sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+endfunction
+
+exported function sell_pays_into_a_stack( resmgr )
+  // Gold already in the pack takes the payment on rather than a new pile being made. A pack that
+  // swallowed the payment that way has been paid: nothing more may go to the seller's feet.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var pile := resmgr.CreateItemInContainer( char.backpack, "goldcoin", 100 );
+  var item := make_sellable( resmgr, "paid into the pile", 5 );
+  if ( !pile or !item )
+    return ret_error( "failed to create the gold pile or the item to sell" );
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var gold_before := char.gold;
+  var piles_before := gold_at_feet();
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  var at_feet := 0;
+  foreach dropped in ( gold_at_feet() )
+    if ( !piles_before.exists( _dropped_iter ) )
+      at_feet := at_feet + dropped.amount;
+      destroy_later( resmgr, dropped );
+    endif
+  endforeach
+  if ( at_feet )
+    return ret_error( $"{at_feet} gold went to the feet of a seller whose pack took the payment" );
+  elseif ( char.gold - gold_before != 5 )
+    return ret_error( $"the pack holds {char.gold - gold_before} gold more, expected 5" );
+  elseif ( !told )
+    return told;
+  elseif ( told.amount != 5 )
+    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_refused_by_vendor( resmgr )
+  // A vendor whose container will take nothing more buys nothing: the stack is left whole in the
+  // seller's pack, and a sale that handed over nothing pays nothing.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var lot := make_sellable( resmgr, "refused by the vendor", 5, 3, "NormalStackable" );
+  var held := resmgr.CreateItemInContainer( vendor.bought, "shirt_plain" );
+  if ( !lot or !held )
+    return ret_error( "failed to create the stack to sell or what the vendor already holds" );
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  // Full to its item limit, so it can take nothing at all.
+  resmgr.AddCleanup( struct{ cont := vendor.bought, mod := vendor.bought.max_items_mod },
+                     @restore_max_items );
+  vendor.bought.max_items_mod := ( vendor.bought.item_count - 1 ) -
+                                 GetItemDescriptor( vendor.bought.objtype ).MaxItems;
+  var gold_before := char.gold;
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( lot ) } );
+  if ( lot.container != char.backpack )
+    return ret_error( $"the refused item left the pack for {lot.container}" );
+  elseif ( lot.amount != 3 )
+    return ret_error( $"the pack holds {lot.amount} of the stack, expected the whole 3" );
+  elseif ( char.gold != gold_before )
+    return ret_error( $"a sale the vendor refused paid {char.gold - gold_before} gold" );
+  elseif ( !told )
+    return told;
+  elseif ( told.amount != 0 )
+    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 0" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_remainder_to_feet( resmgr )
+  // With every slot the pack's lowered limit leaves already taken, what is left of a stack sold in
+  // part has nowhere in the pack to go, and is put at the seller's feet rather than lost.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var lot := slot_past_limit( resmgr, char.backpack, "NormalStackable", 3 );
+  if ( !lot )
+    return lot;
+  endif
+  lot.name := "sent to the feet";
+  lot.buyprice := 1;
+  // slot_past_limit leaves room for one more item, which is the slot the rest of the stack would
+  // take once the sold part has left. One lower, and there is no slot for it at all.
+  char.backpack.max_slots_mod := char.backpack.max_slots_mod - 1;
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var objtype := lot.objtype;
+  var piles_before := gold_at_feet();
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( lot ) } );
+  // The coin it paid has nowhere to go either, which is not what this case is about.
+  foreach dropped in ( gold_at_feet() )
+    if ( !piles_before.exists( _dropped_iter ) )
+      destroy_later( resmgr, dropped );
+    endif
+  endforeach
+
+  var rest := 0;
+  foreach thing in ( ListItemsNearLocationOfType( char.x, char.y, char.z, 0, objtype, char.realm ) )
+    if ( thing.name == "sent to the feet" )
+      rest := thing;
+      destroy_later( resmgr, thing );
+    endif
+  endforeach
+  if ( !rest )
+    return ret_error( "the rest of the stack is not at the seller's feet" );
+  elseif ( rest.amount != 2 )
+    return ret_error( $"{rest.amount} of the stack is at the feet, expected 2" );
+  elseif ( !told )
+    return told;
+  endif
+  return 1;
+endfunction
+
+// The hook in packethook.src that appends an entry to a sell list, armed through this property.
+const PKTHOOK_0x9E := "#PktHook0x9E";
+
+function unarm_sell_hook( key )
+  EraseGlobalProperty( key );
+  return 1;
+endfunction
+
+exported function sell_list_from_a_hook( resmgr )
+  // A packet hook may add to the list on its way out; the core still sells only what it listed
+  // itself. An answer naming the hook's entry sells nothing and is logged like anything else the
+  // window did not offer.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  // Priced, so nothing but the buyable filter keeps it off the core's list: were the core to
+  // take the answer at its word, this would be sold.
+  var stocked := resmgr.CreateItemInContainer( vendor.buyable, 0xE75 );
+  var smuggled := make_sellable( resmgr, "added by the hook", 5, 1, "shirt_plain" );
+  var listed := make_sellable( resmgr, "on the core's list", 5 );
+  if ( !stocked or !smuggled or !listed )
+    return ret_error( "failed to stock the vendor or create the items to sell" );
+  endif
+  resmgr.AddCleanup( PKTHOOK_0x9E, @unarm_sell_hook );
+  SetGlobalProperty( PKTHOOK_0x9E, struct{ serial := smuggled.serial,
+                                           graphic := smuggled.graphic,
+                                           price := 5,
+                                           desc := "added by the hook" } );
+
+  var ev := open_sell_window( vendor, VENDOR_BUYABLE_CONTAINER_FILTER );
+  if ( !ev )
+    return ev;
+  endif
+  if ( !listed_item( ev, smuggled.serial ) )
+    return ret_error( "the hook did not get its entry into the list the client received" );
+  endif
+  var gold_before := char.gold;
+  var mark := log_mark();
+
+  var told := sell_heard( clientcon, vendor.npc.serial,
+                          { sale_of( smuggled ), sale_of( listed ) } );
+  if ( smuggled.container != char.backpack )
+    return ret_error( $"the hook's entry was sold, into {smuggled.container}" );
+  elseif ( listed.container != vendor.bought )
+    return ret_error( $"the core's own entry was not sold: it is in {listed.container}" );
+  elseif ( char.gold - gold_before != 5 )
+    return ret_error( $"the sale paid {char.gold - gold_before} gold, expected 5" );
+  elseif ( !told )
+    return told;
+  elseif ( !log_find( log_since( mark ), "tried to sell 1 item(s) more than the sell window" ) )
+    return ret_error( "selling an entry the hook added was not logged" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_warnings_off( resmgr )
+  // pol.cfg ShowWarningItem is what puts these answers in the log. With it off the core drops
+  // them just the same, silently.
+  var res := resmgr.UpdateConfiguration( struct{ ShowWarningItem := 0 }, "::pol.cfg" );
+  if ( !res )
+    return res;
+  endif
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "never offered", 5 );
+  if ( !item )
+    return item;
+  endif
+  res := SendBuyWindow( char, vendor.for_sale, vendor.npc, vendor.bought, 0 );
+  if ( !res )
+    return ret_error( $"SendBuyWindow failed: {res.errortext}" );
+  endif
+
+  var mark := log_mark();
+  res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  var warned := sell_warnings( mark );
+  if ( item.container != char.backpack )
+    return ret_error( $"an answer to a buy window sold an item, into {item.container}" );
+  elseif ( !res )
+    return res;
+  elseif ( warned.size() )
+    return ret_error( $"ShowWarningItem is off and the answer was logged anyway: {warned}" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_window_container_gone( resmgr )
+  // The container a sale would go into can be destroyed while the window is open. The answer
+  // finds nothing to sell into: it sells nothing and closes the window.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "sold into nothing", 5 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  DestroyItem( vendor.bought );
+  var gold_before := char.gold;
+
+  var res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  if ( item.container != char.backpack )
+    return ret_error( $"the item was sold although the vendor's container was gone" );
+  elseif ( char.gold != gold_before )
+    return ret_error( $"the sale paid {char.gold - gold_before} gold into a container that is gone" );
+  elseif ( !res )
+    return res;
+  endif
+
+  // Closed, not merely ignored: the answer after it finds no window at all.
+  var mark := log_mark();
+  res := sell_unheard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  if ( !res )
+    return res;
+  elseif ( !log_find( log_since( mark ), WARN_NO_WINDOW ) )
+    return ret_error( "the window was left open when its container was destroyed" );
+  endif
+  return 1;
+endfunction
+
+exported function sell_window_vendor_gone( resmgr )
+  // The same for the vendor itself: killed while its window is open, the answer sells nothing.
+  keep_pack_gold( resmgr, char.backpack );
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var item := make_sellable( resmgr, "sold to nobody", 5 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  // Read before the death: what is left of the npc afterwards answers nothing.
+  var serial := vendor.npc.serial;
+  var x := vendor.npc.x, y := vendor.npc.y, z := vendor.npc.z;
+  var res := vendor.npc.kill();
+  if ( !res )
+    return ret_error( $"failed to kill the vendor: {res}" );
+  endif
+  // The corpse is made as the death is processed, and the npc is gone by then.
+  var attempts := 50;
+  while ( attempts-- )
+    foreach thing in ( ListItemsNearLocationOfType( x, y, z, 0, 0x2006 ) )
+      destroy_later( resmgr, thing );
+      attempts := 0;
+    endforeach
+    if ( attempts )
+      Sleepms( 100 );
+    endif
+  endwhile
+  var gold_before := char.gold;
+
+  res := sell_unheard( clientcon, serial, { sale_of( item ) } );
+  if ( item.container != char.backpack )
+    return ret_error( "the item was sold although the vendor was dead" );
+  elseif ( char.gold != gold_before )
+    return ret_error( $"a sale to a dead vendor paid {char.gold - gold_before} gold" );
+  elseif ( !res )
+    return res;
+  endif
+
+  // Closed, not merely ignored: the answer after it finds no window at all.
+  var mark := log_mark();
+  res := sell_unheard( clientcon, serial, { sale_of( item ) } );
+  if ( !res )
+    return res;
+  elseif ( !log_find( log_since( mark ), WARN_NO_WINDOW ) )
+    return ret_error( "the window was left open when its vendor died" );
+  endif
+  return 1;
+endfunction
+
+// Puts the character's own pack back on and takes the stand-in away. Registered before the swap,
+// so a case that gives up half way through still leaves the character wearing their own pack.
+function restore_backpack( saved )
+  if ( saved.worn and !saved.worn.orphan() )
+    DestroyItem( saved.worn );
+  endif
+  if ( saved.own and !saved.own.orphan() )
+    return EquipItem( saved.char, saved.own );
+  endif
+  return 1;
+endfunction
+
+exported function sell_pack_eats_the_payment( resmgr )
+  // A pack whose CanInsert script accepts the gold and then destroys it has been paid, and the
+  // core must not read that as a refusal and pay a second time at the seller's feet.
+  var vendor := make_vendor( resmgr );
+  if ( !vendor )
+    return vendor;
+  endif
+  var own := char.backpack;
+  var worn := CreateItemAtLocation( char.x, char.y, char.z, 0x200E76, 1, char.realm );
+  if ( !worn )
+    return ret_error( $"failed to create the pack that eats gold: {worn}" );
+  endif
+  resmgr.AddCleanup( struct{ char := char, own := own, worn := worn }, @restore_backpack );
+  // The character's own pack goes to the ground with everything in it, and comes back at cleanup.
+  var res := MoveObjectToLocation( own, char.x, char.y, char.z, char.realm,
+                                   MOVEOBJECT_FORCELOCATION + MOVEITEM_IGNOREMOVABLE );
+  if ( !res )
+    return ret_error( $"failed to take the character's own pack off: {res}" );
+  endif
+  res := EquipItem( char, worn );
+  if ( !res )
+    return ret_error( $"failed to wear the pack that eats gold: {res}" );
+  endif
+  if ( char.backpack != worn )
+    return ret_error( "the character is not wearing the pack that eats gold" );
+  endif
+
+  // Made in the worn pack, so the window lists it and the sale pays into that pack.
+  var item := make_sellable( resmgr, "paid into a hungry pack", 5 );
+  if ( !item )
+    return item;
+  endif
+  var ev := open_sell_window( vendor );
+  if ( !ev )
+    return ev;
+  endif
+  var piles_before := gold_at_feet();
+
+  var told := sell_heard( clientcon, vendor.npc.serial, { sale_of( item ) } );
+  var at_feet := 0;
+  foreach dropped in ( gold_at_feet() )
+    if ( !piles_before.exists( _dropped_iter ) )
+      at_feet := at_feet + dropped.amount;
+      destroy_later( resmgr, dropped );
+    endif
+  endforeach
+  if ( item.container != vendor.bought )
+    return ret_error( $"the item was not sold: it is in {item.container}" );
+  elseif ( at_feet )
+    return ret_error( $"{at_feet} gold was paid a second time, at the seller's feet" );
+  elseif ( !told )
+    return told;
+  elseif ( told.amount != 5 )
+    return ret_error( $"the vendor was told the sale paid {told.amount}, expected 5" );
+  endif
+  return 1;
 endfunction

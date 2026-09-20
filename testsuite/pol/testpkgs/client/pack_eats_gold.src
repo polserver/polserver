@@ -1,0 +1,12 @@
+use uo;
+
+// Approves the insert and destroys the gold going in, leaving everything else alone. A container
+// that does this has taken what it was given: whoever put it there must not read it as a refusal
+// and hand the gold over a second time.
+program pack_eats_gold( character, container, movetype, inserttype, adding_item, existing_stack,
+                        amount_to_add )
+  if ( adding_item.objtype == GetObjtypeByName( "goldcoin" ) )
+    DestroyItem( adding_item );
+  endif
+  return 1;
+endprogram

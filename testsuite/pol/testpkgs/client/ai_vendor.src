@@ -7,11 +7,12 @@ use uo;
 // the gold paid when the core handles the sale, the shopping list when a script does.
 
 const SYSEVENT_MERCHANT_BOUGHT := 0x0100;
+const SYSEVENT_MERCHANT_SOLD := 0x0200;
 
 program ai_vendor()
   while ( 1 )
     var ev := os::wait_for_event( 60 );
-    if ( ev and ev.type == SYSEVENT_MERCHANT_BOUGHT )
+    if ( ev and ( ev.type == SYSEVENT_MERCHANT_BOUGHT or ev.type == SYSEVENT_MERCHANT_SOLD ) )
       report( ev );
     endif
   endwhile
@@ -19,6 +20,9 @@ endprogram
 
 function report( ev )
   var told := struct{ type := "merchant_bought", source := ev.source.serial };
+  if ( ev.type == SYSEVENT_MERCHANT_SOLD )
+    told.type := "merchant_sold";
+  endif
   // Each handler sends only one of the two, and which one is part of what is being tested.
   if ( ev.exists( "amount" ) )
     told.+amount := ev.amount;

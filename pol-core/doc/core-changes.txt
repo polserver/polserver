@@ -40,6 +40,9 @@
            part went to the player's feet when its slot was past the container's limit, although
            other slots were free. It takes one of those.
     Added: with pol.cfg ShowWarningItem (on by default), the core logs a sell answer no client
+           would send: one that names an item with no sell window open, names an item its window
+           did not list or names one twice, or claims more entries than it carries. An answer
+           that asks for nothing, which is how a window is closed, is not logged.
            would send: one that comes with no sell window open, names an item its window did
            not list or names one twice, or claims more entries than it carries.
            vendor's container and was not sold when that container had fewer slots, what was left

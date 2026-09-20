@@ -45,9 +45,19 @@ function sell_raw_heard( clientcon, pkt )
   return wait_for_report( EVT_PACKET_SENT );
 endfunction
 
+// Answers a buy window and returns what the vendor was told about the purchase. Only a scripted
+// handler tells it; the core one keeps purchases to itself.
+function buy_heard( clientcon, vendor_serial, items )
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := EVT_BUY_ITEMS,
+                               arg := struct{ vendor_serial := vendor_serial, items := items },
+                               id := 0 } );
+  return wait_for_report( EVT_BUY_ITEMS, 10, "merchant_sold" );
+endfunction
+
 // The client's ack and the vendor's report race each other, and waitForClient() would throw the
 // report away if it came first, so both are taken as they come.
-function wait_for_report( ack, timeout := 10 )
+function wait_for_report( ack, timeout := 10, what := "merchant_bought" )
   var acked := 0;
   var report := 0;
   var deadline := ReadMillisecondClock() + timeout * 1000;
@@ -55,7 +65,7 @@ function wait_for_report( ack, timeout := 10 )
     var ev := Wait_For_Event( 1 );
     if ( !ev )
       continue;
-    elseif ( ev.type == "merchant_bought" )
+    elseif ( ev.type == what )
       report := ev;
     elseif ( ev.type == ack and ev.id == 0 )
       acked := 1;
