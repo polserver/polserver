@@ -292,8 +292,6 @@ protected:
 
 public:
   int getToken( Token& token, unsigned position );
-  BObjectRef& LocalVar( unsigned int varnum );
-  BObjectRef& GlobalVar( unsigned int varnum );
   int makeGlobal( const Token& token );
   void popParam( const Token& token );
   void popParamByRef( const Token& token );

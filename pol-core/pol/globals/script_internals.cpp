@@ -448,6 +448,9 @@ bool ScriptScheduler::logScriptVariables( const std::string& name ) const
       fmt::format_to( std::back_inserter( log ), "  {}: {}\n",
                       prog->dbg_filenames[prog->dbg_filenum[PC]], prog->dbg_linenum[PC] );
 
+      // A frame at program level has no locals vector at all.
+      if ( locals == nullptr )
+        return;
 
       unsigned block = prog->dbg_ins_blocks[PC];
       size_t left = locals->size();
