@@ -1,5 +1,5 @@
 // The war mode throttle. combat.cfg sets WarModeDelay to 0 for the client tests,
-// so this case turns it back on at the default of 1 to keep it covered.
+// so this case turns it back on to keep it covered.
 
 use os;
 use uo;
@@ -9,9 +9,12 @@ include "communication";
 
 const CFG_PATH := "::config/combat.cfg";
 
-// The core's own default, so what is proven here is the shipped behaviour. It is
-// also what the restore at the end waits out, so there is no reason to go higher.
-const GUARD_DELAY := 1;
+// The throttle arms off the whole-second game clock, so a delay of D leaves a
+// window of D - frac(now). 3 leaves at least two seconds, well above a round trip.
+const GUARD_DELAY := 3;
+
+// The restore has to outlast the window this case armed, so the two move together.
+const FORCE_TIMEOUT := ( GUARD_DELAY + 7 ) * 1000;
 
 var char;
 var clientcon := getClientConnection();
@@ -27,7 +30,7 @@ endprogram
 
 // Puts client 0 in or out of war mode, retrying while the core throttles it.
 function force_warmode( war )
-  var deadline := ReadMillisecondClock() + 10000;
+  var deadline := ReadMillisecondClock() + FORCE_TIMEOUT;
   while ( char.warmode != war and ReadMillisecondClock() < deadline )
     Clear_Event_Queue();
     clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := 0 } );
@@ -45,8 +48,14 @@ endfunction
 
 // Split out so the caller can put the config back on every path out of it.
 function check_throttle()
+  // Clear what earlier cases left in flight, so a stale war mode event is not taken
+  // for the first answer.
+  var quiet := client_sync( clientcon, 0 );
+  if ( !quiet )
+    return quiet;
+  endif
+
   // The first change after the throttle is armed goes through.
-  Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "war_mode", arg := 1, id := 0 } );
   var ev := waitForClient( 0, { EVT_WAR_MODE } );
   if ( !ev )
