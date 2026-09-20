@@ -17,6 +17,7 @@
 #include "plib/systemstate.h"
 #include "pol/accounts/account.h"
 #include "pol/globals/state.h"
+#include "pol/loadstats.h"
 #include "pol/mobile/charactr.h"
 #include "pol/ufunc.h"
 
@@ -29,15 +30,15 @@ ObjectHash::~ObjectHash() = default;
 
 bool ObjectHash::Insert( UObject* obj )
 {
-  OH_iterator itr = hash.find( obj->serial );
-  if ( itr != hash.end() )
+  LoadPhase phase( &worldLoadStats.hash_ns );
+  // try_emplace, not find-then-insert: the duplicate check comes free with the one descent.
+  if ( !hash.try_emplace( obj->serial, obj ).second )
   {
     if ( Plib::systemstate.config.loglevel >= 5 )
       POLLOGLN( "ObjectHash insert failed for object serial {:#x}. (duplicate serial?)",
                 obj->serial );
     return false;
   }
-  hash.insert( hash.end(), std::make_pair( obj->serial, UObjectRef( obj ) ) );
   return true;
 }
 

@@ -2,9 +2,22 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-19-2026</datemodified>
+		<datemodified>09-20-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-20-2026</date>
+			<author>AsYlum:</author>
+			<change type="Improved">world data load speed - startup is around 20-30% faster, though the gain varies with<br/>
+the shard. The more objects the data files hold, the more there is to win.</change>
+			<change type="Note">nothing about the data files changes and nothing about what is loaded from them - the<br/>
+same objects come back with the same properties, in the same order.</change>
+			<change type="Improved">the memory an object's custom properties need, which on a shard carrying millions of<br/>
+them is a noticeable part of what all its objects use.</change>
+			<change type="Added">pol.cfg LogWorldLoadDetails (default 0) logs where reading each world data file spent<br/>
+its time - parsing the file, creating the objects, reading their properties, placing<br/>
+them in the world - as a total and per element. Off it reads no clock at all.</change>
+		</entry>
 		<entry>
 			<date>09-19-2026</date>
 			<author>AsYlum:</author>

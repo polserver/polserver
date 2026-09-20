@@ -36,6 +36,42 @@
 
 namespace Pol::Core
 {
+LoadedContainerStack loaded_container_stack;
+
+Items::Item* LoadedContainerStack::find( pol_serial_t serial )
+{
+  while ( !conts_.empty() )
+  {
+    UContainer* cont = conts_.back();
+    if ( cont->serial == serial )
+    {
+      // A container destroyed since we descended into it is no answer at all. Saying so sends the
+      // caller to system_find_item(), which rejects an orphan too, so the item ends up deferred
+      // exactly as it would have without this stack.
+      return cont->orphan() ? nullptr : cont;
+    }
+
+    // Not this one, so we have left it behind: the file has moved on to something outside it.
+    conts_.pop_back();
+  }
+  return nullptr;
+}
+
+void LoadedContainerStack::push( Items::Item* item )
+{
+  // An item the loader gave up on is no use as a parent, and a spellbook swallows the scrolls it
+  // is handed, so what arrives here is not always still alive.
+  if ( item == nullptr || item->orphan() || !item->isa( UOBJ_CLASS::CLASS_CONTAINER ) )
+    return;
+
+  conts_.push_back( static_cast<UContainer*>( item ) );
+}
+
+void LoadedContainerStack::clear()
+{
+  conts_.clear();
+}
+
 void defer_item_insertion( Items::Item* item, pol_serial_t container_serial, u8 saved_layer,
                            u8 saved_slot )
 {

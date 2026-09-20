@@ -35,6 +35,7 @@ struct PolConfig
   bool check_integrity;
   bool inhibit_saves;
   bool log_worldsave_details;
+  bool log_worldload_details;
   unsigned short worldsave_threads;
   bool log_script_cycles;
   bool count_resource_tiles;

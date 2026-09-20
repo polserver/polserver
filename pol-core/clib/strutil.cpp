@@ -10,6 +10,8 @@
 
 #include "clib/strutil.h"
 
+#include <cstring>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
@@ -21,37 +23,46 @@
 
 namespace Pol::Clib
 {
+void splitnamevalue( std::string_view istr, std::string& propname, std::string& propvalue )
+{
+  splitnamevalue_trimmed( ltrim_view( istr ), propname, propvalue );
+}
+
+void splitnamevalue_trimmed( std::string_view istr, std::string& propname, std::string& propvalue )
+{
+  constexpr std::string_view space = " \t\r\n";
+  constexpr auto npos = std::string_view::npos;
+
+  if ( istr.empty() )
+  {
+    propname.clear();
+    propvalue.clear();
+    return;
+  }
+
+  // assign() rather than substr(): the caller's strings keep their buffers, which is the point of
+  // taking them by reference in the first place.
+  const auto delimpos = istr.find_first_of( " \t\r\n=", 1 );
+  if ( delimpos == npos )
+  {
+    propname.assign( istr );
+    propvalue.clear();
+    return;
+  }
+
+  propname.assign( istr.substr( 0, delimpos ) );
+
+  const auto valuestart = istr.find_first_not_of( space, delimpos + 1 );
+  const auto valueend = istr.find_last_not_of( space );
+  if ( valuestart != npos && valueend != npos )
+    propvalue.assign( istr.substr( valuestart, valueend - valuestart + 1 ) );
+  else
+    propvalue.clear();
+}
+
 void splitnamevalue( const std::string& istr, std::string& propname, std::string& propvalue )
 {
-  std::string::size_type start = istr.find_first_not_of( " \t\r\n" );
-  if ( start != std::string::npos )
-  {
-    std::string::size_type delimpos = istr.find_first_of( " \t\r\n=", start + 1 );
-    if ( delimpos != std::string::npos )
-    {
-      std::string::size_type valuestart = istr.find_first_not_of( " \t\r\n", delimpos + 1 );
-      std::string::size_type valueend = istr.find_last_not_of( " \t\r\n" );
-      propname = istr.substr( start, delimpos - start );
-      if ( valuestart != std::string::npos && valueend != std::string::npos )
-      {
-        propvalue = istr.substr( valuestart, valueend - valuestart + 1 );
-      }
-      else
-      {
-        propvalue = "";
-      }
-    }
-    else
-    {
-      propname = istr.substr( start, std::string::npos );
-      propvalue = "";
-    }
-  }
-  else
-  {
-    propname = "";
-    propvalue = "";
-  }
+  splitnamevalue( std::string_view( istr ), propname, propvalue );
 }
 
 void decodequotedstring( std::string& str )
@@ -162,15 +173,37 @@ bool isValidUnicode( const std::string& str )
   return utf8::find_invalid( str.begin(), str.end() ) == str.end();
 }
 
-void sanitizeUnicodeWithIso( std::string* str )
+bool isPlainAscii( std::string_view str )
 {
-  if ( isValidUnicode( *str ) )
-    return;
-  // assume iso8859
-  std::string utf8( "" );
-  utf8.reserve( 2 * str->size() + 1 );
+  const char* p = str.data();
+  const char* const end = p + str.size();
 
-  for ( const auto& s : *str )
+  constexpr size_t word = sizeof( u64 );
+  constexpr u64 high_bits = 0x8080808080808080ull;
+  for ( ; static_cast<size_t>( end - p ) >= word; p += word )
+  {
+    u64 chunk;
+    std::memcpy( &chunk, p, word );  // the input is not aligned; this is one load either way
+    if ( chunk & high_bits )
+      return false;
+  }
+  for ( ; p != end; ++p )
+  {
+    if ( static_cast<unsigned char>( *p ) & 0x80 )
+      return false;
+  }
+  return true;
+}
+
+namespace
+{
+/// The iso8859 -> utf8 rewrite, reached only for input that is not valid utf8.
+std::string isoToUtf8( std::string_view str )
+{
+  std::string utf8;
+  utf8.reserve( 2 * str.size() + 1 );
+
+  for ( const char s : str )
   {
     if ( !( s & 0x80 ) )
     {
@@ -182,7 +215,29 @@ void sanitizeUnicodeWithIso( std::string* str )
       utf8.push_back( 0xbf & s );
     }
   }
-  *str = utf8;
+  return utf8;
+}
+}  // namespace
+
+void sanitizeUnicodeWithIso( std::string* str )
+{
+  // Nothing without a high bit set can be invalid utf8, so this settles it without decoding.
+  if ( isPlainAscii( *str ) )
+    return;
+  if ( isValidUnicode( *str ) )
+    return;
+  *str = isoToUtf8( *str );
+}
+
+std::string_view sanitizeUnicodeWithIso( std::string_view str, std::string* scratch )
+{
+  if ( isPlainAscii( str ) )
+    return str;
+  if ( utf8::find_invalid( str.begin(), str.end() ) == str.end() )
+    return str;
+
+  *scratch = isoToUtf8( str );
+  return *scratch;
 }
 
 void sanitizeUnicode( std::string* str )
@@ -236,6 +291,13 @@ void remove_bom( std::string* strbuf )
     if ( utf8::starts_with_bom( strbuf->cbegin(), strbuf->cend() ) )
       strbuf->erase( 0, 3 );
   }
+}
+
+std::string_view remove_bom( std::string_view strbuf )
+{
+  if ( strbuf.size() >= 3 && utf8::starts_with_bom( strbuf.cbegin(), strbuf.cend() ) )
+    return strbuf.substr( 3 );
+  return strbuf;
 }
 
 uint8_t unicodeToCp1252( uint32_t codepoint )
