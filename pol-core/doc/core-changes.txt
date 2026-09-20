@@ -1,4 +1,17 @@
 -- POL100.3.0 --
+09-24-2026 AsYlum:
+    Fixed: the script debugger showed the wrong source file, line, function name and variable
+           names while execution was inside a function belonging to another script.
+    Fixed: PolCore().log_script_variables() showed the wrong source file, line and variable
+           names for frames inside a function belonging to another script.
+     Note: a stack frame in a script whose debug information is not available is now listed
+           without a source location instead of one taken from the wrong script.
+    Fixed: PolCore().log_script_memory() and PolCore().log_script_variables() could crash the
+           shard while reporting on a script currently running outside any function.
+    Fixed: a script that exceeded the maximum call depth while running inside another script's
+           function afterwards reported that other script's global variables.
+    Fixed: a damaged or mismatched compiled script could crash the shard on an out-of-range
+           variable access. It stops the script with an error in the log instead.
 09-22-2026 Ins:
     Fixed: after a restart, the components of a boat - tillerman, planks, hold, ropes, hull
            pieces - could take each other's places on every step or turn, and the last of them

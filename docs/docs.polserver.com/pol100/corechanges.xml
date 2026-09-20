@@ -2,9 +2,25 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-22-2026</datemodified>
+		<datemodified>09-24-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-24-2026</date>
+			<author>AsYlum:</author>
+			<change type="Fixed">the script debugger showed the wrong source file, line, function name and variable<br/>
+names while execution was inside a function belonging to another script.</change>
+			<change type="Fixed">PolCore().log_script_variables() showed the wrong source file, line and variable<br/>
+names for frames inside a function belonging to another script.</change>
+			<change type="Note">a stack frame in a script whose debug information is not available is now listed<br/>
+without a source location instead of one taken from the wrong script.</change>
+			<change type="Fixed">PolCore().log_script_memory() and PolCore().log_script_variables() could crash the<br/>
+shard while reporting on a script currently running outside any function.</change>
+			<change type="Fixed">a script that exceeded the maximum call depth while running inside another script's<br/>
+function afterwards reported that other script's global variables.</change>
+			<change type="Fixed">a damaged or mismatched compiled script could crash the shard on an out-of-range<br/>
+variable access. It stops the script with an error in the log instead.</change>
+		</entry>
 		<entry>
 			<date>09-22-2026</date>
 			<author>Ins:</author>
