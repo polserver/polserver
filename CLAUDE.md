@@ -20,7 +20,7 @@ cmake --build build --config Release --target pol -- /m
 cd build && cmake .. && make -j$(nproc)
 ```
 
-After pulling changes, build **every** target, not just `pol` — drop the `--target` argument entirely. Each of the other executables backs part of the test suite and a stale one fails in a way that looks like a real regression: the shard tests compile their scripts with `ecompile`, and the `escript_*` tests run them through `runecl`, which links the same module code as `pol` and so goes stale on any core change.
+After pulling changes, build **every** target: drop the `--target` argument. A stale executable fails in a way that looks like a real regression. The shard tests compile their scripts with `ecompile`. The `escript_*` tests run them through `runecl`, which links the same module code as `pol` and goes stale on any core change.
 
 **Useful CMake options** (single-config generators use `-DCMAKE_BUILD_TYPE=`; VS uses `--config`; full list in the root `CMakeLists.txt`):
 - `-DENABLE_ASAN/ENABLE_TSAN/ENABLE_USAN/ENABLE_MSAN=ON` — sanitizers
@@ -39,7 +39,7 @@ ctest --test-dir build -C Release -R "escript_<testname>" -VV
 
 - eScript tests: `testsuite/escript/*/` (one `.src` + expected-output file per test); server/shard tests: `testsuite/pol/`. Test definitions and fixtures live in `cmake/core_tests.cmake` and `cmake/escript_tests.cmake`; `ctest --test-dir build -N` lists everything.
 - Shard tests boot a real server in the generated `build/coretest` dir; `POLCORE_TEST_FILTER=<pkg>:<file>:<func>` narrows the run (each part matches by prefix, any part may be empty).
-- **Manual test shard**: run `bin\Release\pol.exe` with cwd `build\coretest` and no `POLCORE_TEST_RUN` set — it skips the test suite and stays up, webserver on `http://127.0.0.1:5006` (local-only, basic auth `polcore` / `test` per pol.cfg `WebServerPassword`). ctest sets `POLCORE_TEST_RUN`, which runs the suite and shuts down.
+- **Manual test shard**: run `bin\Release\pol.exe` from `build\coretest` with `POLCORE_TEST_RUN` unset. It skips the test suite and stays up. The webserver is on `http://127.0.0.1:5006` (local only, basic auth `polcore` / `test`, from pol.cfg `WebServerPassword`). ctest sets `POLCORE_TEST_RUN`, which runs the suite and shuts down.
 - On Windows, a shell cd'd into `build\coretest` blocks the `cleantestdir` fixture (dir-handle lock).
 
 ## Linting and Formatting
@@ -79,7 +79,7 @@ Shard tests live in `testsuite/pol/testpkgs/<pkg>/` (a package with a `pkg.cfg`)
 
 ### Config files
 
-All config files live in `config/` and are parsed through the same `Clib::ConfigFile` / `ConfigElem` reader — values are pulled with `elem.remove_bool/ushort/int/string/double("Key", <default>)`. To find where a given `.cfg` is read, grep its filename (e.g. `servspecopt.cfg` → `pol-core/pol/ssopt.cpp`). Options are documented in `docs/docs.polserver.com/pol100/configfiles.xml`.
+All config files live in `config/` and go through one reader, `Clib::ConfigFile` / `ConfigElem`. Values are read with `elem.remove_bool/ushort/int/string/double("Key", <default>)`. To find where a `.cfg` is read, grep its filename (e.g. `servspecopt.cfg` → `pol-core/pol/ssopt.cpp`). Options are documented in `docs/docs.polserver.com/pol100/configfiles.xml`.
 
 **Worked example — adding a server flag** (in `servspecopt.cfg`), wired in five places; grep an existing option (e.g. `StartingGold`) to see them all at once:
 
@@ -95,7 +95,13 @@ A new flag is a user-visible change, so also add a changelog entry — see **Con
 
 ## Conventions
 
-- User-visible changes need a changelog entry. Edit the **source** file `pol-core/doc/core-changes.txt` (add your entry at the top of the current `-- POLxxx --` version block, same format as existing entries), then regenerate the derived XML with `python doctools/buildcorechanges.py` — it rewrites `docs/docs.polserver.com/pol100/corechanges.xml` (including its `datemodified`). **Do not hand-edit `corechanges.xml`; it is generated, not authored.** Commit both files.
+Everything written here (changelog entries, comments, commit messages, PRs) is read by someone
+without your context. Plain sentences, one fact each. Name things as the code and shard admins
+do: identifiers (`SendSellWindow`, 0x9F, `Executor::jump()`) and domain terms (container limits,
+CanInsert script, cmdlevel), not a paraphrase. If a sentence needs "which", "so" and a
+semicolon, split it.
+
+- User-visible changes need a changelog entry. Edit the source file `pol-core/doc/core-changes.txt`: put your entry at the top of the current `-- POLxxx --` version block. Then run `python doctools/buildcorechanges.py`, which regenerates `docs/docs.polserver.com/pol100/corechanges.xml`. **Never hand-edit `corechanges.xml`.** Commit both files.
 
 ### Writing a changelog entry
 
@@ -106,7 +112,7 @@ A new flag is a user-visible change, so also add a changelog entry — see **Con
 - **Fixed:** say what went wrong and when it happened. Add the new behaviour only if it isn't obvious. Don't open with "Fixed a bug where".
 - **Changed:/Removed:** if a working script or config now behaves differently or stops working, say what to use instead.
 - **One idea per tag line.** Use `Added:`, `Changed:`, `Fixed:`, `Removed:`, `Note:`, `Improved:`. Say each fact once; a second sentence must add something the admin needs.
-- **Format:** plain text. Nothing renders Markdown, so backticks around code names show as literal backticks (which reads fine), and `**bold**`, lists or links show as raw syntax. Wrap at 100 columns. Right-align the tags so every colon is in column 10, start the text one space after the colon (column 12), and indent continuation lines 11 spaces so they line up with it. Pad the tag rather than moving the text: `Improved:` gets 1 space in front, `Changed:` gets 2, `Fixed:` gets 4, `Note:` gets 5.
+- **Format:** plain text. Nothing renders Markdown: backticks around code names show as literal backticks, which reads fine, but `**bold**`, lists and links show as raw syntax. Wrap at 100 columns. Right-align the tags so every colon is in column 10. Start the text at column 12 and indent continuation lines 11 spaces to line up with it. Pad the tag, not the text: `Improved:` gets 1 space in front, `Changed:` 2, `Fixed:` 4, `Note:` 5.
   ```
   09-05-2026 Nando:
       Added: a new thing
@@ -129,6 +135,44 @@ A comment is for someone reading the code years from now, with no access to how 
 - **Tests follow the same rules.** A header saying what behaviour the test pins, and why that matters, is useful. Where the test came from is not.
 
 Before committing, check that the diff has no such references: `git diff | grep -nE '^\+.*(specs/|\bspec [0-9]|\bfinding [0-9])'`.
+
+### Commits and pull requests
+
+The reader is a reviewer who knows the codebase but not your session. The changelog rules above
+are for `core-changes.txt` only: a PR says what the code did wrong and what it does now, in code
+terms. Don't repeat the changelog entry in the PR.
+
+- **Title:** imperative, about the effect, short enough to read whole in the PR list.
+- **Open with a 1–3 sentence summary** that stands alone: what was wrong or missing, what changed.
+- **Multi-part change:** summary, then one bullet per change (two lines at most), then "Behaviour
+  change" (what a shard sees, if anything), then "Testing". No parenthetical asides in bullets.
+- **Write the mechanism from the code, not from memory or earlier prose.** Read the diff once
+  before writing. Use the exact term (overflow, truncation, sign conversion), and for arithmetic
+  show the expression and the values.
+- **Testing:** what covers the change, and each uncovered path in one line.
+- **Leave out** how the problem was found, dead ends, and claims about your own process. Give a
+  rejected alternative one sentence, and only when a reviewer would likely propose it.
+- **Length:** a small fix needs about 150 words. If the description outweighs the interesting part
+  of the diff, cut it.
+- **Format:** don't hard-wrap or indent a PR body. GitHub keeps single line breaks in PR text, so
+  wrapped lines render ragged.
+- **Commit:** imperative subject of 72 characters or fewer; body wrapped at 72, same rules. A
+  squash commit's body is the PR summary, not the whole description.
+
+A small fix, for shape (title, then body):
+
+```
+Refuse a gump reply whose int count wraps the length check
+
+`gumpbutton_handler` computed the reply's expected size as `23 + 4 * count` in `size_t`, then
+stored it in a 32-bit `unsigned`. A count of 0x40000000 makes the size 2^32 + 23. Truncated to 32
+bits, that is 23, so a 23-byte reply passed the length check. The handler then read 4 GB past the
+packet. Any player with a gump open could crash the server.
+
+Both counts are now checked by dividing the bytes left in the packet, which cannot overflow.
+
+Testing: `gump_reply_int_count_wraps` sends that reply and crashes the server without the fix.
+```
 
 ## Key External Dependencies
 
