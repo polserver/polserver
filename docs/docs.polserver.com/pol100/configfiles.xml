@@ -1042,7 +1042,7 @@ PidFilePath=(where POL will write its .pid file {default ./})
     <explain>AllowMultiClientsPerAccount: when true, will allow multiple characters from the same account to be logged in at the same time</explain>
     <explain>ProfileCProps: when true, will record CProp usage statistics. Helps detecting unused CProps, at the cost of some RAM and an unnoticeable performance impact. It should be enabled from startup, or the core will be unable to detect the type of some CProps.</explain>
     <explain>ShowWarningGump: will show unexpected gump responses and B1 packet overflow messages on the console.</explain>
-    <explain>ShowWarningItem: will show equip item and drop item warning messages on the console, and a warning for a sell window answer no client would send: one that comes with no sell window open, names an item the window did not list or names one twice, or claims more entries than it carries.</explain>
+    <explain>ShowWarningItem: will show equip item and drop item warning messages on the console, and a warning for a sell window answer no client would send: one that names an item with no sell window open, names an item the window did not list or names one twice, or claims more entries than it carries.</explain>
     <explain>ShowWarningCursorSequence: will show a warning when a player sends click packets out of sequence, this is usually due to the player running some sort of macro or client injection program.</explain>
     <explain>MaxTileID: maximum tile id. If 0, it will be chosen according to the graphics in tiles.cfg.</explain>
     <explain>DebugPort: TCP/IP port to listen for debugger connections.</explain>
