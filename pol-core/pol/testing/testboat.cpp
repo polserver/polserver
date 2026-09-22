@@ -175,12 +175,25 @@ bool step( Multi::UBoat* boat )
                   "the boat moves" );
 }
 
-// A boat left standing would take the next case's components aboard as travellers.
 bool destroy( Multi::UBoat* boat )
 {
   Bscript::BObject res( Multi::destroy_boat( boat ) );
   return require( res.isTrue(), "the boat is destroyed" );
 }
+
+// Takes the boat back out of the world however the case ends, a failed check included. A boat left
+// standing would take the next case's components aboard as travellers.
+class BoatAfloat
+{
+public:
+  explicit BoatAfloat( Multi::UBoat* boat ) : _boat( boat ) {}
+  ~BoatAfloat() { destroy( _boat ); }
+  BoatAfloat( const BoatAfloat& ) = delete;
+  BoatAfloat& operator=( const BoatAfloat& ) = delete;
+
+private:
+  Multi::UBoat* _boat;
+};
 
 bool at( const Multi::UBoat* boat, const Items::Item* item, const Core::Vec3d& delta )
 {
@@ -217,7 +230,10 @@ void boat_load_test()
     auto* boat = load_boat(
         pos, { component( p.tillerman ), component( p.tillerman ), component( p.portplank ),
                component( p.starboardplank ), component( p.hold ) } );
-    if ( !boat || !step( boat ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
       return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 4 ),
@@ -230,9 +246,6 @@ void boat_load_test()
               "the starboard plank after a component listed twice keeps its offset" );
     UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
               "the last component after a component listed twice still moves with the boat" );
-
-    if ( !destroy( boat ) )
-      return;
   }
 
   // the same save, turned instead of moved
@@ -241,7 +254,10 @@ void boat_load_test()
     auto* boat = load_boat(
         pos, { component( p.tillerman ), component( p.tillerman ), component( p.portplank ),
                component( p.starboardplank ), component( p.hold ) } );
-    if ( !boat || !require( boat->turn( Multi::UBoat::RIGHT ), "the boat turns" ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !require( boat->turn( Multi::UBoat::RIGHT ), "the boat turns" ) )
       return;
 
     UnitTest(
@@ -262,24 +278,24 @@ void boat_load_test()
                  p.hold->graphic == TURNED_HOLD_GRAPHIC;
         },
         true, "a boat with a component listed twice gives every component its turned graphic" );
-
-    if ( !destroy( boat ) )
-      return;
   }
 
-  // the port plank listed as a traveller as well, which puts it ahead of the tillerman
+  // the port plank named on a Traveller line as well as on its own Component line
   {
     auto p = parts_at( pos );
     auto* boat = load_boat(
         pos, { traveller( p.portplank ), component( p.tillerman ), component( p.portplank ),
                component( p.starboardplank ), component( p.hold ) } );
-    if ( !boat || !step( boat ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
       return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 4 ),
               "a component also listed as a traveller is kept once" );
     UnitTest( [&]() { return at( boat, p.tillerman, TILLERMAN_DELTA ); }, true,
-              "a component read out of order moves to its own offset" );
+              "the component before one named on both lines keeps its offset" );
     UnitTest( [&]() { return at( boat, p.portplank, PORTPLANK_DELTA ); }, true,
               "a component also listed as a traveller moves to its own offset" );
     UnitTest(
@@ -287,10 +303,32 @@ void boat_load_test()
           return at( boat, p.starboardplank, STARBOARDPLANK_DELTA ) &&
                  at( boat, p.hold, HOLD_DELTA );
         },
-        true, "the components after one read out of order keep their offsets" );
+        true, "the components after one named on both lines keep their offsets" );
+  }
 
-    if ( !destroy( boat ) )
+  // a plank of the boat's own objtype lying loose on the deck, named on a Traveller line only: it
+  // is not one of the boat's components and must not take the slot of the one that is
+  {
+    auto p = parts_at( pos );
+    auto* loose_plank = part_at( Core::settingsManager.extobj.port_plank, pos );
+    auto* boat = load_boat(
+        pos, { traveller( loose_plank ), component( p.tillerman ), component( p.portplank ),
+               component( p.starboardplank ), component( p.hold ) } );
+    if ( !boat )
       return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
+      return;
+
+    UnitTest(
+        [&]()
+        {
+          return at( boat, p.tillerman, TILLERMAN_DELTA ) &&
+                 at( boat, p.portplank, PORTPLANK_DELTA ) &&
+                 at( boat, p.starboardplank, STARBOARDPLANK_DELTA ) &&
+                 at( boat, p.hold, HOLD_DELTA );
+        },
+        true, "a loose plank named as a traveller takes no component's slot" );
   }
 
   // a component that shares its objtype with another, listed twice with the extra copy first: it
@@ -308,7 +346,10 @@ void boat_load_test()
     auto* boat = load_boat(
         pos, { component( second_hold ), component( p.tillerman ), component( p.portplank ),
                component( p.starboardplank ), component( p.hold ), component( second_hold ) } );
-    if ( !boat || !step( boat ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
       return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 5 ),
@@ -317,9 +358,6 @@ void boat_load_test()
               "the first of two components sharing an objtype keeps its slot" );
     UnitTest( [&]() { return at( boat, second_hold, SECOND_HOLD_DELTA ); }, true,
               "the second of two components sharing an objtype keeps its slot" );
-
-    if ( !destroy( boat ) )
-      return;
   }
 
   // no port plank at all, as when one was destroyed before the save
@@ -328,7 +366,10 @@ void boat_load_test()
     p.portplank->destroy();
     auto* boat = load_boat(
         pos, { component( p.tillerman ), component( p.starboardplank ), component( p.hold ) } );
-    if ( !boat || !step( boat ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
       return;
 
     UnitTest( [&]() { return saved_component_count( boat ); }, size_t( 3 ),
@@ -337,9 +378,6 @@ void boat_load_test()
               "the component after a missing one does not take its offset" );
     UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
               "the last component after a missing one keeps its offset" );
-
-    if ( !destroy( boat ) )
-      return;
   }
 
   // a well-formed save, the case every shard loads
@@ -347,7 +385,10 @@ void boat_load_test()
     auto p = parts_at( pos );
     auto* boat = load_boat( pos, { component( p.tillerman ), component( p.portplank ),
                                    component( p.starboardplank ), component( p.hold ) } );
-    if ( !boat || !step( boat ) )
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
       return;
 
     UnitTest(
@@ -359,8 +400,6 @@ void boat_load_test()
                  at( boat, p.hold, HOLD_DELTA );
         },
         true, "a well-formed save moves every component to its offset" );
-
-    (void)destroy( boat );
   }
 }
 }  // namespace Pol::Testing

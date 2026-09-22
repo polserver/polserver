@@ -1335,10 +1335,11 @@ void UBoat::rescan_components()
 }
 
 /**
- * Puts the components read from a save into the slots of the boat's shape, which move_components()
- * and transform_components() pair them with by index. A component listed more than once keeps its
- * last place: an extra copy is first read from the travellers, ahead of the components, and every
- * later save keeps it ahead.
+ * Puts the components read from a save into the slots of the boat's shape, which
+ * move_components() and transform_components() pair them with by index. A component named twice
+ * keeps its last place, which is the one the rest of the list agrees with: a stray extra copy
+ * sits wherever it was written, while the run of components a working save ends with is in slot
+ * order.
  */
 void UBoat::align_components()
 {
@@ -1409,6 +1410,20 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 
   BoatContext bc( *this );
   u32 tmp_serial;
+  // The Component lines are read first, so that align_components() weighs them ahead of an item
+  // that only a Traveller line names. A plank left lying on the deck has a component's objtype
+  // and would otherwise take the slot of the boat's own.
+  while ( elem.remove_prop( "Component", &tmp_serial ) )
+  {
+    Items::Item* item = Core::system_find_item( tmp_serial );
+    if ( item != nullptr )
+    {
+      if ( BoatShape::objtype_is_component( item->objtype_ ) )
+      {
+        Components.emplace_back( item );
+      }
+    }
+  }
   while ( elem.remove_prop( "Traveller", &tmp_serial ) )
   {
     if ( Core::IsItem( tmp_serial ) )
@@ -1418,7 +1433,10 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       {
         if ( BoatShape::objtype_is_component( item->objtype_ ) )
         {
-          Components.emplace_back( item );
+          // A save can name one component on both lines. Taking it once leaves align_components()
+          // nothing to weigh against its Component line.
+          if ( std::find( Components.begin(), Components.end(), item ) == Components.end() )
+            Components.emplace_back( item );
         }
         else if ( on_ship( bc, item ) )
         {
@@ -1434,17 +1452,6 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       {
         if ( on_ship( bc, chr ) )
           travellers_.emplace_back( chr );
-      }
-    }
-  }
-  while ( elem.remove_prop( "Component", &tmp_serial ) )
-  {
-    Items::Item* item = Core::system_find_item( tmp_serial );
-    if ( item != nullptr )
-    {
-      if ( BoatShape::objtype_is_component( item->objtype_ ) )
-      {
-        Components.emplace_back( item );
       }
     }
   }
