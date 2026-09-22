@@ -32,9 +32,13 @@
 
 #include <pol_global_config.h>
 
+#include <algorithm>
+#include <climits>
+#include <cstdint>
 #include <ctype.h>
 #include <optional>
 #include <ranges>
+#include <set>
 #include <stddef.h>
 #include <stdexcept>
 #include <string>
@@ -368,6 +372,8 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
     return;
   }
   client->gd->vendor.clear();
+  // A sell window keeps its vendor in the field just cleared, so it closes as well.
+  client->gd->vendor_sell_offer.reset();
 
   UContainer* for_sale = client->gd->vendor_for_sale.get();
   if ( for_sale == nullptr || for_sale->orphan() )
@@ -520,13 +526,9 @@ void oldBuyHandler( Client* client, PKTBI_3B* msg )
           continue;
         }
 
-        // FIXME : Add Grid Index Default Location Checks here.
-        // Remember, if index fails, move to the ground.
         // The CanInsert script above is free to destroy the pack it was just asked about, so this
-        // is treated exactly as a refusal by that script.
-        if ( !Items::relocate( *tobuy,
-                               Items::InContainer{ backpack, backpack->get_random_location(),
-                                                   tobuy->slot_index() } ) )
+        // is treated exactly as a refusal by that script - as is a pack with no free slot left.
+        if ( !Items::move_into( *tobuy, *backpack ) )
         {
           numleft = 0;
           if ( fs_item )
@@ -584,6 +586,8 @@ void buyhandler( Client* client, PKTBI_3B* msg )
     return;
   }
   client->gd->vendor.clear();
+  // A sell window keeps its vendor in the field just cleared, so it closes as well.
+  client->gd->vendor_sell_offer.reset();
 
   UContainer* for_sale = client->gd->vendor_for_sale.get();
   if ( for_sale == nullptr || for_sale->orphan() )
@@ -632,9 +636,12 @@ void buyhandler( Client* client, PKTBI_3B* msg )
   send_clear_vendorwindow( client, vendor );
 }
 
-bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UContainer* buyable,
-                      bool send_aos_tooltip )
+// Returns the serials the list offers, or nothing when the list is too long for its packet and so
+// is not sent.
+std::optional<std::set<u32>> send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom,
+                                              UContainer* buyable, bool send_aos_tooltip )
 {
+  std::set<u32> offered;
   unsigned short num_items = 0;
   PktHelper::PacketOut<PktOut_9E> msg;
   msg->offset += 2;
@@ -661,11 +668,6 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       unsigned int buyprice;
       if ( !item->getbuyprice( buyprice ) )
         continue;
-      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
-      if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
-      {
-        return false;
-      }
       if ( buyable != nullptr )
       {
         for ( buyable_itr = buyable->begin(); buyable_itr != buyable_end; ++buyable_itr )
@@ -677,6 +679,11 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
         if ( buyable_itr == buyable_end )
           continue;
       }
+      std::string desc = Clib::strUtf8ToCp1252( item->merchant_description() );
+      if ( msg->offset + desc.size() + 14 > sizeof msg->buffer )
+      {
+        return {};
+      }
 
       msg->Write<u32>( item->serial_ext );
       msg->WriteFlipped<u16>( item->graphic );
@@ -686,6 +693,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
       msg->WriteFlipped<u16>( desc.size() );
       msg->Write( desc.c_str(), static_cast<u16>( desc.size() ), false );  // No null term
       ++num_items;
+      offered.insert( item->serial );
 
       if ( send_aos_tooltip )
         SendAOSTooltip( client, item, true );
@@ -699,7 +707,7 @@ bool send_vendorsell( Client* client, NPC* merchant, UContainer* sellfrom, UCont
   msg->offset += 4;
   msg->WriteFlipped<u16>( num_items );
   msg.Send( client, len );
-  return true;
+  return offered;
 }
 
 BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i3, flags */ )
@@ -765,10 +773,20 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 
   bool send_aos_tooltip = flags & VENDOR_SEND_AOS_TOOLTIP ? true : false;
 
-  send_vendorsell( chr->client, merchant, chr->backpack(), merchant_buyable, send_aos_tooltip );
+  std::optional<std::set<u32>> offered =
+      send_vendorsell( chr->client, merchant, chr->backpack(), merchant_buyable, send_aos_tooltip );
+  if ( !offered )
+  {
+    // The containers went out as worn items before the list did. Without taking them back the
+    // client is left showing a merchant window that no window state answers for.
+    send_clear_vendorwindow( chr->client, merchant );
+    return new BError( "The sell list is too long to send" );
+  }
 
   chr->client->gd->vendor.set( merchant );
   chr->client->gd->vendor_bought.set( merchant_bought );
+  chr->client->gd->vendor_sell_offer =
+      ClientGameData::SellOffer{ merchant->serial, std::move( *offered ) };
 
   return new BLong( 1 );
 }
@@ -776,125 +794,226 @@ BObjectImp* UOExecutorModule::mf_SendSellWindow( /* character, vendor, i1, i2, i
 extern BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                               unsigned short amount, bool force_stacking,
                                               std::optional<Core::Pos2d> pos,
-                                              UOExecutorModule* uoemod );
+                                              UOExecutorModule* uoemod, bool* taken );
+extern BObjectImp* _complete_create_item_at_location( Item* item, const Core::Pos4d& pos );
+
+namespace
+{
+struct SellWindow
+{
+  NPC* vendor;
+  UContainer* bought;
+};
+
+void close_sell_window( Client* client )
+{
+  client->gd->vendor.clear();
+  client->gd->vendor_bought.clear();
+  client->gd->vendor_sell_offer.reset();
+}
+
+// The sell window an answer is for. With none open, the answer is ignored. An answer naming some
+// other vendor, or one to a window whose vendor or container is gone, closes the window.
+//
+// The vendor fields are shared with the buy window. Once a window for another vendor holds them,
+// the sell window is only forgotten and they are left to that window.
+std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* msg )
+{
+  auto& offer = client->gd->vendor_sell_offer;
+  if ( !offer )
+  {
+    // Asking for nothing is how a client closes a sell window, and such an answer can honestly
+    // arrive after the core has closed it. Only one that names something is worth logging.
+    if ( cfBEu16( msg->num_items ) != 0 )
+      SuspiciousActs::SellAnswerWithoutWindow( client, cfBEu32( msg->vendor_serial ) );
+    return {};
+  }
+  NPC* vendor = client->gd->vendor.get();
+  if ( vendor != nullptr && vendor->serial != offer->vendor_serial )
+  {
+    offer.reset();
+    return {};
+  }
+  UContainer* bought = client->gd->vendor_bought.get();
+  if ( vendor == nullptr || vendor->orphan() || vendor->serial_ext != msg->vendor_serial ||
+       bought == nullptr || bought->orphan() )
+  {
+    close_sell_window( client );
+    return {};
+  }
+  return SellWindow{ vendor, bought };
+}
+
+// How many entries an answer holds: as many as its length has room for, whatever its count says.
+// Past its end lies the rest of an earlier packet. When a packet hook passed the answer on as a
+// copy, it is memory that is not the answer's at all.
+size_t sell_answer_entries( Client* client, const PKTIN_9F* msg )
+{
+  constexpr size_t header = offsetof( PKTIN_9F, items );
+  const size_t length = cfBEu16( msg->msglen );
+  if ( length <= header )
+    return 0;
+  const size_t claimed = cfBEu16( msg->num_items );
+  const size_t room =
+      std::min( ( length - header ) / sizeof msg->items[0], Clib::arsize( msg->items ) );
+  if ( claimed > room )
+    SuspiciousActs::SellAnswerOverflows( client, static_cast<unsigned>( claimed ),
+                                         static_cast<unsigned>( room ) );
+  return std::min( claimed, room );
+}
+
+// The item an entry of an answer names, if it may still be sold. Counts in `unlisted` an entry the
+// window did not list, and one naming twice what it listed once. No client sends either.
+Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount,
+                     unsigned& unlisted )
+{
+  if ( amount == 0 )
+    return nullptr;
+  if ( offered.erase( serial ) == 0 )
+  {
+    ++unlisted;
+    return nullptr;
+  }
+  Item* item = backpack->find_toplevel( serial );
+  if ( item == nullptr || item->newbie() || item->inuse() )
+    return nullptr;
+  if ( item->isa( UOBJ_CLASS::CLASS_CONTAINER ) && static_cast<UContainer*>( item )->count() != 0 )
+    return nullptr;
+  return item;
+}
+
+// Moves `amount` of an item in the seller's pack into the vendor's container, and says whether it
+// went. What is left of a split stack needs a slot of its own when a script has lowered the pack's
+// limit under the stack's, and the seller's feet when the pack has no slot at all.
+bool hand_over( Character* seller, Item* item, u16 amount, UContainer* backpack,
+                UContainer* bought )
+{
+  Item* remainder = nullptr;
+  if ( item->amount_to_remove_is_partial( amount ) )
+    remainder = item->slice_stacked_item( amount );
+  // Taken before the sale moves the item, which gives it a slot of its own in the vendor's
+  // container.
+  const Core::Pos2d packpos = item->location().grid();
+  u8 packslot = item->slot_index();
+
+  if ( !bought->can_add( *item ) ||
+       !Items::move_into( *item, *bought, bought->get_random_location() ) )
+  {
+    if ( remainder != nullptr )
+    {
+      item->add_to_self( remainder );
+      update_item_to_inrange( item );
+    }
+    return false;
+  }
+  update_item_to_inrange( item );
+
+  if ( remainder != nullptr )
+  {
+    if ( Items::move_into( *remainder, *backpack, packpos, packslot ) ||
+         Items::move_into( *remainder, *backpack, packpos ) )
+      update_item_to_inrange( remainder );
+    else if ( Items::place_at( *remainder, seller->pos() ) )
+      send_item_to_inrange( remainder );
+    else
+      POLLOG_ERRORLN( "hand_over: item {:#x} has nowhere left to go and is now detached.",
+                      remainder->serial );
+  }
+  return true;
+}
+
+// Pays a seller in stacks of at most 60000 coins. A stack their pack does not take is put at their
+// feet: what was sold gets paid for. Returns what was paid.
+unsigned int pay_seller( Character* seller, unsigned int amount )
+{
+  const ItemDesc& gold = find_itemdesc( UOBJ_GOLD_COIN );
+  unsigned int paid = 0;
+  while ( paid < amount )
+  {
+    const auto coins = static_cast<unsigned short>( std::min( amount - paid, 60000u ) );
+    // Looked up for every stack: the scripts that ran for the last one can have changed it.
+    UContainer* backpack = seller->backpack();
+    bool taken = false;
+    if ( backpack != nullptr )
+    {
+      BObject created(
+          _create_item_in_container( backpack, &gold, coins, false, {}, nullptr, &taken ) );
+    }
+    if ( !taken )
+    {
+      Item* pile = Item::create( gold );
+      if ( pile == nullptr )
+        break;
+      pile->setamount( coins );
+      // A create script that refuses answers with something false, not always an error.
+      BObject dropped( _complete_create_item_at_location( pile, seller->pos() ) );
+      if ( !dropped->isTrue() )
+        break;
+    }
+    paid += coins;
+  }
+  if ( paid < amount )
+    POLLOG_ERRORLN( "pay_seller: character {:#x} was paid {} of the {} gold a sale was worth.",
+                    seller->serial, paid, amount );
+  return paid;
+}
+}  // namespace
+
 // player selling to vendor
 void oldSellHandler( Client* client, PKTIN_9F* msg )
 {
   UContainer* backpack = client->chr->backpack();
   if ( backpack == nullptr )
     return;
-
-  NPC* vendor = client->gd->vendor.get();
-
-  if ( vendor == nullptr || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
-  {
-    client->gd->vendor.clear();
-    client->gd->vendor_bought.clear();
+  const auto window = answered_sell_window( client, msg );
+  if ( !window )
     return;
-  }
 
-  UContainer* vendor_bought = client->gd->vendor_bought.get();
-  if ( vendor_bought == nullptr || vendor_bought->orphan() )
-  {
-    client->gd->vendor.clear();
-    client->gd->vendor_bought.clear();
-    return;
-  }
-
-  unsigned int cost = 0;
-  size_t num_items = cfBEu16( msg->num_items );
-  Clib::sanitize_upperlimit( &num_items, Clib::arsize( msg->items ) );
-
+  std::set<u32>& offered = client->gd->vendor_sell_offer->items;
+  uint64_t cost = 0;
+  unsigned unlisted = 0;
+  const size_t num_items = sell_answer_entries( client, msg );
   for ( size_t i = 0; i < num_items; ++i )
   {
-    u32 serial = cfBEu32( msg->items[i].serial );
     u16 amount = cfBEu16( msg->items[i].amount );
-
+    Item* item =
+        item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount, unlisted );
     unsigned int buyprice;
-
-    Item* item = backpack->find_toplevel( serial );
-    if ( item == nullptr )
-      return;
-    if ( item->newbie() )
-      continue;
-    if ( item->inuse() )
-      continue;
-    if ( !item->getbuyprice( buyprice ) )
+    if ( item == nullptr || !item->getbuyprice( buyprice ) )
       continue;
     if ( amount > item->getamount() )
       amount = item->getamount();
-    Item* remainder_not_sold = nullptr;
-    if ( item->amount_to_remove_is_partial( amount ) )
-      remainder_not_sold = item->slice_stacked_item( amount );
-
-    if ( vendor_bought->can_add( *item ) )
-    {
-      // The remainder goes where the sold item was, so the gump cell has to be read before the sale
-      // moves it.
-      const Core::Pos2d packpos = item->location().grid();
-
-      // FIXME : Add Grid Index Default Location Checks here.
-      // Remember, if index fails, move to the ground.
-      if ( Items::relocate( *item,
-                            Items::InContainer{ vendor_bought, vendor_bought->get_random_location(),
-                                                item->slot_index() } ) )
-      {
-        if ( remainder_not_sold != nullptr &&
-             Items::relocate(
-                 *remainder_not_sold,
-                 Items::InContainer{ backpack, packpos, remainder_not_sold->slot_index() } ) )
-        {
-          update_item_to_inrange( remainder_not_sold );
-          remainder_not_sold = nullptr;
-        }
-        update_item_to_inrange( item );
-        cost += buyprice * amount;
-      }
-    }
-
-    if ( remainder_not_sold != nullptr )
-    {
-      item->add_to_self( remainder_not_sold );
-      update_item_to_inrange( item );
-    }
+    // The vendor is told what the sale paid in an int, so no sale pays more than one holds.
+    const uint64_t price = uint64_t{ buyprice } * amount;
+    if ( cost + price > INT_MAX )
+      continue;
+    if ( hand_over( client->chr, item, amount, backpack, window->bought ) )
+      cost += price;
   }
+  if ( unlisted != 0 )
+    SuspiciousActs::SellAnswerNotListed( client, window->vendor->serial, unlisted );
 
-  // dave added 12-19. If no items are sold don't create any gold in the player's pack!
-  if ( cost > 0 )
-  {
-    // dave added 12-21, create stacks of 60k gold instead of one huge, invalid stack.
-    unsigned int temp_cost = cost;
-    while ( temp_cost > 60000 )
-    {
-      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( 60000 ), false, {},
-                                            nullptr ) );
-      temp_cost -= 60000;
-    }
-    if ( temp_cost > 0 )
-    {
-      BObject o( _create_item_in_container( backpack, &find_itemdesc( UOBJ_GOLD_COIN ),
-                                            static_cast<unsigned short>( temp_cost ), false, {},
-                                            nullptr ) );
-    }
-  }
+  const unsigned int paid = pay_seller( client->chr, static_cast<unsigned int>( cost ) );
   std::unique_ptr<SourcedEvent> sale_event( new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ) );
-  sale_event->addMember( "amount", new BLong( cost ) );
-  vendor->send_event( sale_event.release() );
+  sale_event->addMember( "amount", new BLong( static_cast<int>( paid ) ) );
+  window->vendor->send_event( sale_event.release() );
 
   client->pause();
 
   send_full_statmsg( client, client->chr );
 
-  send_clear_vendorwindow( client, vendor );
+  send_clear_vendorwindow( client, window->vendor );
 
-  client->gd->vendor_bought.clear();
-  client->gd->vendor.clear();
+  close_sell_window( client );
   client->restart();
 }
 
 void sellhandler( Client* client, PKTIN_9F* msg )
 {
+  // An answer shorter than its own header carries no vendor serial and no count: the bytes that
+  // would be read for them belong to whatever came before it.
+  if ( cfBEu16( msg->msglen ) < offsetof( PKTIN_9F, items ) )
+    return;
   if ( !settingsManager.ssopt.scripted_merchant_handlers )
   {
     oldSellHandler( client, msg );
@@ -903,38 +1022,20 @@ void sellhandler( Client* client, PKTIN_9F* msg )
   UContainer* backpack = client->chr->backpack();
   if ( backpack == nullptr )
     return;
-
-  NPC* vendor = client->gd->vendor.get();
-  if ( vendor == nullptr || vendor->orphan() || vendor->serial_ext != msg->vendor_serial )
-  {
-    client->gd->vendor.clear();
-    client->gd->vendor_bought.clear();
+  const auto window = answered_sell_window( client, msg );
+  if ( !window )
     return;
-  }
 
-  UContainer* vendor_bought = client->gd->vendor_bought.get();
-  if ( vendor_bought == nullptr || vendor_bought->orphan() )
-  {
-    client->gd->vendor.clear();
-    client->gd->vendor_bought.clear();
-    return;
-  }
-
-  size_t num_items = cfBEu16( msg->num_items );
+  std::set<u32>& offered = client->gd->vendor_sell_offer->items;
   std::unique_ptr<ObjArray> items_sold( new ObjArray );
-  Clib::sanitize_upperlimit( &num_items, Clib::arsize( msg->items ) );
+  unsigned unlisted = 0;
+  const size_t num_items = sell_answer_entries( client, msg );
   for ( size_t i = 0; i < num_items; ++i )
   {
-    u32 serial = cfBEu32( msg->items[i].serial );
-    u32 amount = cfBEu16( msg->items[i].amount );
-
-    Item* item = backpack->find_toplevel( serial );
-
+    u16 amount = cfBEu16( msg->items[i].amount );
+    Item* item =
+        item_for_sale( backpack, offered, cfBEu32( msg->items[i].serial ), amount, unlisted );
     if ( item == nullptr )
-      return;
-    if ( item->newbie() )
-      continue;
-    if ( item->inuse() )
       continue;
     if ( amount > item->getamount() )
       amount = item->getamount();
@@ -945,13 +1046,14 @@ void sellhandler( Client* client, PKTIN_9F* msg )
 
     items_sold->addElement( entry.release() );
   }
+  if ( unlisted != 0 )
+    SuspiciousActs::SellAnswerNotListed( client, window->vendor->serial, unlisted );
   std::unique_ptr<SourcedEvent> sale_event( new SourcedEvent( EVID_MERCHANT_BOUGHT, client->chr ) );
   sale_event->addMember( "shoppinglist", items_sold.release() );
-  vendor->send_event( sale_event.release() );
+  window->vendor->send_event( sale_event.release() );
 
-  send_clear_vendorwindow( client, vendor );
-  client->gd->vendor.clear();
-  client->gd->vendor_bought.clear();
+  send_clear_vendorwindow( client, window->vendor );
+  close_sell_window( client );
 }
 
 //

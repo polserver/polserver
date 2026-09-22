@@ -793,6 +793,8 @@ class PolServer:
         # a spellbook drawn the pre-AOS way, where it is the spell number
         if getattr(o,"amount",None) is not None:
           res["objs"][-1]["amount"]=o.amount
+        if getattr(o,"slot",None) is not None:
+          res["objs"][-1]["slot"]=o.slot
         if hasattr(o,"parent") and o.parent is not None:
           res["objs"][-1]["parent"]=o.parent.serial
     elif ev.type==Event.EVT_LIST_EQUIPPED_ITEMS:

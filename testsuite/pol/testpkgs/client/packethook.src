@@ -19,6 +19,7 @@ const PKTHOOK_0x1C_LOG := "#PktHook0x1CLog";
 const PKTHOOK_0x34 := "#PktHook0x34";
 const PKTHOOK_0x34_LOG := "#PktHook0x34Log";
 const PKTHOOK_0x5D_LOG := "#PktHook0x5DLog";
+const PKTHOOK_0x9E := "#PktHook0x9E";
 
 // 0x1C: length at 1, serial at 3, body at 7, type at 9, colour at 10, font at 12,
 // a 30 byte name at 14 and the text from 44 to the end.
@@ -208,5 +209,27 @@ exported function CharSelect_0x5D( character, byref packet )
   entry.+acctname := character.acctname;
   record( PKTHOOK_0x5D_LOG, entry );
 
+  return 0;
+endfunction
+
+// 0x9E, a vendor's sell list. Armed with an item the core left off the list, the hook appends an
+// entry for it: the count at offset 7 goes up by one and the entry goes on the end, where the
+// client reads the last one. An entry is a serial, graphic, colour, amount and price of two bytes
+// each after the serial's four, then the length of the description and its characters.
+exported function SellList_0x9E( character, byref packet )
+  var arm := GetGlobalProperty( PKTHOOK_0x9E );
+  if ( !arm )
+    return 0;
+  endif
+
+  var at := packet.GetSize();
+  packet.SetInt32( at, arm.serial );
+  packet.SetInt16( at + 4, arm.graphic );
+  packet.SetInt16( at + 6, 0 );
+  packet.SetInt16( at + 8, 1 );
+  packet.SetInt16( at + 10, arm.price );
+  packet.SetInt16( at + 12, arm.desc.length() );
+  packet.SetString( at + 14, arm.desc, 0 );
+  packet.SetInt16( 7, packet.GetInt16( 7 ) + 1 );
   return 0;
 endfunction

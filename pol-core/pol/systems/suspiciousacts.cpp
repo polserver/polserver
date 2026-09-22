@@ -174,3 +174,35 @@ void SuspiciousActs::CharacterMovementWhilePiloting( Network::Client* client )
                     client->acct->name(), client->chr->name() );
   }
 }
+
+void SuspiciousActs::SellAnswerWithoutWindow( Network::Client* client, u32 vendor_serial )
+{
+  if ( Plib::systemstate.config.show_warning_item )
+  {
+    POLLOG_ERRORLN(
+        "Character {:#x} sent a sell answer for vendor {:#x}, but no sell window was open.",
+        client->chr->serial, vendor_serial );
+  }
+}
+
+void SuspiciousActs::SellAnswerNotListed( Network::Client* client, u32 vendor_serial,
+                                          unsigned count )
+{
+  if ( Plib::systemstate.config.show_warning_item )
+  {
+    POLLOG_ERRORLN(
+        "Character {:#x} tried to sell {} item(s) more than the sell window of vendor {:#x} "
+        "offered.",
+        client->chr->serial, count, vendor_serial );
+  }
+}
+
+void SuspiciousActs::SellAnswerOverflows( Network::Client* client, unsigned claimed, unsigned held )
+{
+  if ( Plib::systemstate.config.show_warning_item )
+  {
+    POLLOG_ERRORLN(
+        "Character {:#x} sent a sell answer claiming {} entries, where its length holds {}.",
+        client->chr->serial, claimed, held );
+  }
+}

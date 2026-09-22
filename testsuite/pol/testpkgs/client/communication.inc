@@ -459,6 +459,59 @@ function poll_client_listing( clientcon, id, serial, cont_serial, wanted, timeou
   return ret_error( $"0x{serial:x} is still in {where} after {timeout}s" );
 endfunction
 
+// The container slot client 0 was told an item has, once it is one other than `not_slot`: a listing
+// can be older than the move that changed it. Scripts cannot read a slot, so this is where to look.
+function client_slot( clientcon, serial, cont_serial, not_slot := -1, timeout := 5 )
+  var seen := error;
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var entry := client_finds_obj( clientcon, 0, serial, cont_serial, 1 );
+    if ( entry )
+      seen := CInt( entry.slot );
+      if ( seen != not_slot )
+        return seen;
+      endif
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+  return ret_error( $"client 0 never saw 0x{serial:x} out of slot {not_slot} (last saw {seen})" );
+endfunction
+
+// With UseContainerSlots on: makes an item in `cont` whose slot is past a max_slots `cont` is then
+// lowered to, with slots still free under that limit for everything `cont` holds. Items made in a
+// container take the lowest slot left, so after as many made first as `cont` holds, plus two, the
+// item's slot is past the limit. Putting max_slots_mod back is left to the resource manager.
+function slot_past_limit( resmgr, cont, objtype, amount := 1 )
+  var held := cont.item_count - 1;
+  var fillers := array{};
+  var item := error;
+  for i := 1 to held + 2
+    var filler := CreateItemInContainer( cont, "shirt_plain" );
+    if ( !filler )
+      item := ret_error( $"failed to create the items that take the lower slots: {filler}" );
+      break;
+    endif
+    fillers.append( filler );
+  endfor
+  if ( fillers.size() == held + 2 )
+    item := resmgr.CreateItemInContainer( cont, objtype, amount );
+  endif
+  foreach filler in fillers
+    DestroyItem( filler );
+  endforeach
+  if ( !item )
+    return item;
+  endif
+  resmgr.AddCleanup( struct{ cont := cont, mod := cont.max_slots_mod }, @restore_max_slots );
+  cont.max_slots_mod := ( held + 1 ) - GetItemDescriptor( cont.objtype ).MaxSlots;
+  return item;
+endfunction
+
+function restore_max_slots( saved )
+  saved.cont.max_slots_mod := saved.mod;
+  return 1;
+endfunction
+
 // Asks a client what it thinks a mobile is wearing. Drops whatever is queued
 // first, so the answer cannot be an older listing.
 //

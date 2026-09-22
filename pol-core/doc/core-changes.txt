@@ -4,6 +4,50 @@
            not in scope" when the editor spelled the script's path in a different case than the
            compiler did, for example a lowercase drive letter.
 09-20-2026 Ins:
+    Fixed: a sell answer naming an item that was no longer at the top of the seller's backpack -
+           put in a bag or used up after the window opened - gave the vendor every item listed
+           before it without paying for them, and sold nothing listed after it. With
+           servspecopt.cfg ScriptedMerchantHandlers=1 the whole answer was dropped instead, and
+           the vendor's script never got SYSEVENT_MERCHANT_BOUGHT. The rest of the sale goes
+           through, without that item.
+  Changed: a sell answer only sells what its own sell window listed, each item once, and only
+           while that window is open: nothing that came into the pack after the list went out, no
+           objtype VENDOR_BUYABLE_CONTAINER_FILTER kept off the list, and nothing named in answer
+           to a buy window. To buy from a player, open a sell window with SendSellWindow(). An
+           item an outgoing packet hook adds to the list is not sold either; give it a buyprice
+           so that the core lists it.
+  Changed: SendSellWindow() returns an error when the list does not fit into one packet, rather
+           than 1 for a window that never opened.
+    Fixed: a container sold through a sell window took along whatever the player had put in it
+           after the window opened, for the price of the container alone.
+    Fixed: a sell entry for an amount of 0 sold the whole stack for nothing.
+    Fixed: a sell answer claiming more entries than it carried was read past its end, which could
+           sell items it did not name.
+  Changed: the shopping list a script gets with ScriptedMerchantHandlers=1 leaves out what the core
+           would not sell: items the window did not list, repeats, amounts of 0, containers that
+           are no longer empty, and items no longer at the top of the pack.
+    Fixed: answering a sell window after a buy window for another vendor had opened closed that
+           buy window, which then sold nothing.
+    Fixed: an item that VENDOR_BUYABLE_CONTAINER_FILTER leaves off the sell list could still keep
+           the list from being sent, when its name was too long for the packet.
+    Fixed: gold from a sale that did not fit into the seller's backpack was lost, while the
+           vendor's SYSEVENT_MERCHANT_BOUGHT still reported it paid. It is put at their feet.
+    Fixed: a sale worth more than 2147483647 gold wrapped round, paying a fraction of its worth or
+           reporting a negative amount. An item that would take a sale past that is not sold.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, a sold item took its backpack slot into the
+           vendor's container, and was not sold when that container had fewer slots; what was
+           left of a stack sold in part lost its slot.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, a bought item, the gold paid for a sale, and
+           everything CreateItemInContainer(), CreateItemInBackpack() and CreateItemInInventory()
+           made went into slot 0, whatever was already there.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, what was left of a stack sold or lifted in
+           part went to the player's feet when its slot was past the container's limit, although
+           other slots were free. It takes one of those.
+    Added: with pol.cfg ShowWarningItem (on by default), the core logs a sell answer no client
+           would send: one that names an item with no sell window open, names an item its window
+           did not list or names one twice, or claims more entries than it carries. An answer
+           that asks for nothing, which is how a window is closed, is not logged.
+09-20-2026 Ins:
     Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
            refused like any other reply that claims more than it carries.
 09-20-2026 AsYlum:

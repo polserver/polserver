@@ -1,0 +1,89 @@
+use os;
+use uo;
+
+include "communication";
+include "testutil";
+
+// Container slots, with UseContainerSlots on: each item in a container is filed under a slot of its
+// own, which is what a client from 7.0.9.0 on lays the container out by. Scripts cannot read a
+// slot, so it is read back from the client.
+
+var char;
+var clientcon := getClientConnection();
+
+program test_container_slots()
+  var a := FindAccount( "testclient0" );
+  char := a.getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+exported function create_takes_free_slot( resmgr )
+  // Creating an item in a container gives it a slot nothing else there has, so two created one
+  // after the other never share one. Gold a vendor pays for a sale is created the same way.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var first := resmgr.CreateItemInContainer( char.backpack, "shirt_plain" );
+  var second := resmgr.CreateItemInContainer( char.backpack, "shirt_plain" );
+  if ( !first or !second )
+    return ret_error( "failed to create the items" );
+  endif
+
+  var first_slot := client_slot( clientcon, first.serial, char.backpack.serial );
+  if ( first_slot == error )
+    return first_slot;
+  endif
+  var second_slot := client_slot( clientcon, second.serial, char.backpack.serial );
+  if ( second_slot == error )
+    return second_slot;
+  endif
+  if ( first_slot == second_slot )
+    return ret_error( $"both items were filed under slot {first_slot}" );
+  endif
+  return 1;
+endfunction
+
+exported function lift_remainder_past_limit( resmgr )
+  // With container slots, what is left of a stack lifted in part stays in its container even when
+  // the stack's slot is past the container's limit, which a script can lower under items already
+  // there: it takes a free slot instead of dropping to the lifter's feet.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var lot := slot_past_limit( resmgr, char.backpack, "NormalStackable", 3 );
+  if ( !lot )
+    return lot;
+  endif
+  lot.name := "rest kept in the container";
+
+  // The lifted part stays on the cursor until the cleanup destroys it, which frees the cursor.
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item",
+                               arg := struct{ serial := lot.serial, amount := 1 },
+                               id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( "client 0 did not lift the stack" );
+  endif
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    foreach thing in ( EnumerateItemsInContainer( char.backpack, ENUMERATE_ROOT_ONLY ) )
+      if ( thing.name == "rest kept in the container" and thing.serial != lot.serial )
+        DestroyItem( thing );
+        return 1;
+      endif
+    endforeach
+    foreach thing in ( ListItemsNearLocation( char.x, char.y, char.z, 0, char.realm ) )
+      if ( thing.name == "rest kept in the container" )
+        DestroyItem( thing );
+        return ret_error( "what was left of the stack went to the lifter's feet, with slots free" );
+      endif
+    endforeach
+    Sleepms( 100 );
+  endwhile
+  return ret_error( "what was left of the stack never turned up" );
+endfunction

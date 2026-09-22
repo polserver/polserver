@@ -338,9 +338,13 @@ static bool item_create_params_ok( u32 objtype, int amount )
          amount > 0 && amount <= 60000L;
 }
 
+// `taken`, when given, is set to true once the container has taken the amount: it went in, or a
+// CanInsert script accepted it and then disposed of it itself. This can still return an error
+// after that, since the scripts that run later are free to destroy what was given.
 BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descriptor,
                                        unsigned short amount, bool force_stacking,
-                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod )
+                                       std::optional<Core::Pos2d> pos, UOExecutorModule* uoemod,
+                                       bool* taken = nullptr )
 {
   if ( ( Plib::tile_flags( descriptor->graphic ) & Plib::FLAG::STACKABLE ) || force_stacking )
   {
@@ -386,6 +390,8 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
         int newamount = item->getamount();
         newamount += amount;
         item->setamount( static_cast<unsigned short>( newamount ) );
+        if ( taken != nullptr )
+          *taken = true;
 
         update_item_to_inrange( item );
         refresh_owner_statbar( item );
@@ -455,19 +461,24 @@ BObjectImp* _create_item_in_container( UContainer* cont, const ItemDesc* descrip
       }
       if ( item->orphan() )  // dave added 1/28/3, item might be destroyed in RTC script
       {
+        if ( taken != nullptr )
+          *taken = true;
         return new BError( "Item was destroyed in CanInsert Script" );
       }
 
       if ( !pos || !cont->is_legal_posn( pos.value() ) )
         pos = cont->get_random_location();
 
-      // The CanInsert script above is free to destroy the container it was just asked about;
-      // relocate refuses instead of adding to it.
-      if ( !Items::relocate( *item, Items::InContainer{ cont, pos.value(), item->slot_index() } ) )
+      // The CanInsert script above can destroy the container it was just asked about, and
+      // move_into refuses that. It can also fill the slot found for the item, and move_into then
+      // takes another.
+      if ( !Items::move_into( *item, *cont, pos.value(), slotIndex ) )
       {
         item->destroy();
         return new BError( "Could not add the item to the container." );
       }
+      if ( taken != nullptr )
+        *taken = true;
 
       update_item_to_inrange( item );
       // DAVE added this 11/17, refresh owner's weight on item insert
