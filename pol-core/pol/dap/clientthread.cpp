@@ -32,6 +32,22 @@ namespace Network::DAP
 {
 namespace fs = std::filesystem;
 
+namespace
+{
+// The compiler stores paths with the case and separators it was given, while the client sends
+// its own spelling (VS Code lowercases the drive letter). Windows paths are case-insensitive.
+bool same_source_path( const std::string& dbg_filename, const std::string& client_path )
+{
+  auto a = fs::path( dbg_filename ).lexically_normal().generic_string();
+  auto b = fs::path( client_path ).lexically_normal().generic_string();
+#ifdef _WIN32
+  return boost::iequals( a, b );
+#else
+  return a == b;
+#endif
+}
+}  // namespace
+
 unsigned int DebugClientThread::_instance_counter = 0;
 
 DebugClientThread::DebugClientThread( const std::shared_ptr<dap::ReaderWriter>& rw )
@@ -452,8 +468,10 @@ dap::ResponseOrError<dap::SetBreakpointsResponse> DebugClientThread::handle_setB
       return dap::Error( "No source location provided." );
     }
 
-    auto filename_iter = std::find( _script->dbg_filenames.begin(), _script->dbg_filenames.end(),
-                                    request.source.path.value() );
+    auto filename_iter =
+        std::find_if( _script->dbg_filenames.begin(), _script->dbg_filenames.end(),
+                      [&]( const std::string& dbg_filename )
+                      { return same_source_path( dbg_filename, request.source.path.value() ); } );
 
     if ( filename_iter == _script->dbg_filenames.end() )
     {

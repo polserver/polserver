@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-20-2026</datemodified>
+		<datemodified>09-21-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-21-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">on Windows, breakpoints set from a debugger such as VS Code were rejected with &quot;File<br/>
+not in scope&quot; when the editor spelled the script's path in a different case than the<br/>
+compiler did, for example a lowercase drive letter.</change>
+		</entry>
 		<entry>
 			<date>09-20-2026</date>
 			<author>Ins:</author>
