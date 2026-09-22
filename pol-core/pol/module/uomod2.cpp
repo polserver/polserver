@@ -812,10 +812,11 @@ void close_sell_window( Client* client )
   client->gd->vendor_sell_offer.reset();
 }
 
-// The sell window an answer is for. With none open the answer is ignored. The vendor fields are
-// shared with the buy window, so once a window for another vendor holds them the sell window is
-// only forgotten, and they are left to that window. An answer naming some other vendor, or one to
-// a window whose vendor or container is gone, closes the window.
+// The sell window an answer is for. With none open, the answer is ignored. An answer naming some
+// other vendor, or one to a window whose vendor or container is gone, closes the window.
+//
+// The vendor fields are shared with the buy window. Once a window for another vendor holds them,
+// the sell window is only forgotten and they are left to that window.
 std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* msg )
 {
   auto& offer = client->gd->vendor_sell_offer;
@@ -844,8 +845,8 @@ std::optional<SellWindow> answered_sell_window( Client* client, const PKTIN_9F* 
 }
 
 // How many entries an answer holds: as many as its length has room for, whatever its count says.
-// Past its end lies the rest of some earlier packet or, when a packet hook passed the answer on as
-// a copy, memory that is not the answer's at all.
+// Past its end lies the rest of an earlier packet. When a packet hook passed the answer on as a
+// copy, it is memory that is not the answer's at all.
 size_t sell_answer_entries( Client* client, const PKTIN_9F* msg )
 {
   constexpr size_t header = offsetof( PKTIN_9F, items );
@@ -861,9 +862,8 @@ size_t sell_answer_entries( Client* client, const PKTIN_9F* msg )
   return std::min( claimed, room );
 }
 
-// The item an entry of an answer names, if it may still be sold. An entry naming what the window
-// did not list, or naming twice what it listed once, is counted in `unlisted`: no client sends
-// one.
+// The item an entry of an answer names, if it may still be sold. Counts in `unlisted` an entry the
+// window did not list, and one naming twice what it listed once. No client sends either.
 Item* item_for_sale( UContainer* backpack, std::set<u32>& offered, u32 serial, u16 amount,
                      unsigned& unlisted )
 {
