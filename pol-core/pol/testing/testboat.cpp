@@ -26,8 +26,8 @@
 
 // A boat moves and turns its components by pairing them, in order, with the component lines of its
 // shape in boats.cfg. These load saves whose component list does not line up with that shape - a
-// component listed twice, one listed as a traveller as well, one missing - and check where each
-// component ends up once the boat moves or turns.
+// component listed twice, one listed as a traveller as well, one out of order, one missing - and
+// check where each component ends up once the boat moves or turns.
 
 namespace Pol::Testing
 {
@@ -178,7 +178,11 @@ bool step( Multi::UBoat* boat )
 bool destroy( Multi::UBoat* boat )
 {
   Bscript::BObject res( Multi::destroy_boat( boat ) );
-  return require( res.isTrue(), "the boat is destroyed" );
+  if ( res.isTrue() )
+    return true;
+  // destroy_boat refuses over cargo, a logged-out character or a deck that is not empty, and the
+  // boat then survives into the next case. Which of the three it was only exists in the error.
+  return require( false, "the boat is destroyed: " + res->getStringRep() );
 }
 
 // Takes the boat back out of the world however the case ends, a failed check included. A boat left
@@ -329,6 +333,8 @@ void boat_load_test()
                  at( boat, p.hold, HOLD_DELTA );
         },
         true, "a loose plank named as a traveller takes no component's slot" );
+    UnitTest( [&]() { return loose_plank->pos() == pos; }, true,
+              "a loose plank keeps its place on the water while the boat sails off" );
   }
 
   // a component that shares its objtype with another, listed twice with the extra copy first: it
@@ -358,6 +364,29 @@ void boat_load_test()
               "the first of two components sharing an objtype keeps its slot" );
     UnitTest( [&]() { return at( boat, second_hold, SECOND_HOLD_DELTA ); }, true,
               "the second of two components sharing an objtype keeps its slot" );
+  }
+
+  // the components out of slot order, as an older core or a hand-edited multis.txt leaves them
+  {
+    auto p = parts_at( pos );
+    auto* boat = load_boat(
+        pos, { component( p.hold ), component( p.tillerman ), component( p.starboardplank ),
+               component( p.portplank ) } );
+    if ( !boat )
+      return;
+    BoatAfloat afloat( boat );
+    if ( !step( boat ) )
+      return;
+
+    UnitTest(
+        [&]()
+        {
+          return at( boat, p.tillerman, TILLERMAN_DELTA ) &&
+                 at( boat, p.portplank, PORTPLANK_DELTA ) &&
+                 at( boat, p.starboardplank, STARBOARDPLANK_DELTA ) &&
+                 at( boat, p.hold, HOLD_DELTA );
+        },
+        true, "a component listed out of slot order still finds its own slot" );
   }
 
   // no port plank at all, as when one was destroyed before the save

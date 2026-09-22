@@ -4,8 +4,10 @@
            pieces - could take each other's places on every step or turn, and the last of them
            stay behind. This happened when the world save listed a component twice or out of
            order, or was missing one that had been destroyed. Such a boat is put right as the
-           world loads. When the destroyed component was one of several of its kind, such as a
-           rope, the others of that kind after it each move up one place.
+           world loads.
+     Note: a boat that lost one of several components of a kind - one rope of eight, one hull
+           piece of twenty-seven - still has the later ones of that kind one place further on
+           after the restart.
     Fixed: an item of a component's objtype left lying on a boat's deck took that component's
            place after a restart, which left the boat's own behind on every step and turn.
 09-21-2026 Nando:

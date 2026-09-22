@@ -12,8 +12,10 @@
 pieces - could take each other's places on every step or turn, and the last of them<br/>
 stay behind. This happened when the world save listed a component twice or out of<br/>
 order, or was missing one that had been destroyed. Such a boat is put right as the<br/>
-world loads. When the destroyed component was one of several of its kind, such as a<br/>
-rope, the others of that kind after it each move up one place.</change>
+world loads.</change>
+			<change type="Note">a boat that lost one of several components of a kind - one rope of eight, one hull<br/>
+piece of twenty-seven - still has the later ones of that kind one place further on<br/>
+after the restart.</change>
 			<change type="Fixed">an item of a component's objtype left lying on a boat's deck took that component's<br/>
 place after a restart, which left the boat's own behind on every step and turn.</change>
 		</entry>

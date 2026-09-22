@@ -1287,8 +1287,9 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
 bool UBoat::is_component( const UObject* obj ) const
 {
-  return std::any_of( Components.begin(), Components.end(),
-                      [obj]( const Component& c ) { return c.get() == obj; } );
+  // An unfilled slot holds a null, so the null has to be ruled out before the comparison.
+  return std::any_of( Components.begin(), Components.end(), [obj]( const Component& c )
+                      { return c.get() != nullptr && c.get() == obj; } );
 }
 
 void UBoat::register_object( UObject* obj )
@@ -1337,9 +1338,8 @@ void UBoat::rescan_components()
 /**
  * Puts the components read from a save into the slots of the boat's shape, which
  * move_components() and transform_components() pair them with by index. A component named twice
- * keeps its last place, which is the one the rest of the list agrees with: a stray extra copy
- * sits wherever it was written, while the run of components a working save ends with is in slot
- * order.
+ * keeps its last place. A stray extra copy sits wherever it was written, and a working save ends
+ * with its components in slot order.
  */
 void UBoat::align_components()
 {
@@ -1369,7 +1369,7 @@ void UBoat::align_components()
     loaded.erase( itr );
   }
 
-  // a component with no slot is kept, and stays put
+  // kept, past the last slot, where move_components() and transform_components() never reach it
   Components.insert( Components.end(), loaded.begin(), loaded.end() );
 }
 
