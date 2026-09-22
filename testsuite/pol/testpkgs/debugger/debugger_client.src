@@ -242,9 +242,15 @@ function run_attach_test( debuggee_pid )
     endif
   endforeach
 
+  // A Windows client spells the path its own way: VS Code lowercases the drive letter, and a
+  // user may open the file through a differently-cased folder. The breakpoint must still bind.
+  var bp_path := stackTrace.stackFrames[1].source.path;
+  if ( bp_path[2] == ":" )
+    bp_path := StrReplace( Lower( bp_path ), "\\", "/" );
+  endif
+
   // Send request: setBreakpoints
-  if ( !request_succeeded( err, "setBreakpoints", struct{ source := struct{
-                                                          path := stackTrace.stackFrames[1].source.path },
+  if ( !request_succeeded( err, "setBreakpoints", struct{ source := struct{ path := bp_path },
                                                           breakpoints := setting_breakpoints }
        ) )
     return err;

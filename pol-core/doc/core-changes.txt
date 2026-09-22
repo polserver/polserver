@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+09-21-2026 Nando:
+    Fixed: on Windows, breakpoints set from a debugger such as VS Code were rejected with "File
+           not in scope" when the editor spelled the script's path in a different case than the
+           compiler did, for example a lowercase drive letter.
 09-20-2026 Ins:
     Fixed: a gump reply claiming a switch count in the billions could crash the server. It is
            refused like any other reply that claims more than it carries.
