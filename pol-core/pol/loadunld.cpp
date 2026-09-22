@@ -283,6 +283,7 @@ void reload_configuration()
   Plib::systemstate.config.read( false );
   apply_polcfg( false );
   ServSpecOpt::read_servspecopt();
+  CombatConfig::read_combat_config();
   load_email_cfg();
   Network::read_bannedips_config( false );
   gamestate.unload_npc_templates();
