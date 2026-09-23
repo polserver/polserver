@@ -195,6 +195,7 @@ protected:
   void do_tellmoves();
   const BoatShape& boatshape() const;
   void rescan_components();
+  void align_components();
   void reread_components();
   void transform_components( const BoatShape& old_boatshape );
   void move_components();

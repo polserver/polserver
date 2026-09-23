@@ -19,6 +19,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <iterator>
 #include <string>
 
 #include "bscript/barray.h"
@@ -1286,6 +1287,9 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
 bool UBoat::is_component( const UObject* obj ) const
 {
+  // An empty slot holds a null, which a null obj would otherwise match.
+  if ( obj == nullptr )
+    return false;
   return std::any_of( Components.begin(), Components.end(),
                       [obj]( const Component& c ) { return c.get() == obj; } );
 }
@@ -1333,6 +1337,44 @@ void UBoat::rescan_components()
   }
 }
 
+/**
+ * Puts the components read from a save into the slots of the boat's shape, which
+ * move_components() and transform_components() pair them with by index. A component named twice
+ * keeps its last place. A stray extra copy sits wherever it was written, and a working save ends
+ * with its components in slot order.
+ */
+void UBoat::align_components()
+{
+  if ( !BoatShapeExists( multiid_ ) )
+    return;
+
+  std::vector<Component> loaded;
+  for ( auto itr = Components.begin(); itr != Components.end(); ++itr )
+  {
+    if ( std::find( std::next( itr ), Components.end(), *itr ) == Components.end() )
+      loaded.push_back( *itr );
+  }
+  Components.clear();
+
+  for ( const auto& componentshape : boatshape().Componentshapes )
+  {
+    auto itr = std::find_if( loaded.begin(), loaded.end(),
+                             [&]( const Component& c )
+                             { return c != nullptr && c->objtype_ == componentshape.objtype; } );
+    if ( itr == loaded.end() )
+    {
+      // an empty slot, so that the components after it keep theirs
+      Components.emplace_back();
+      continue;
+    }
+    Components.push_back( *itr );
+    loaded.erase( itr );
+  }
+
+  // kept, past the last slot, where move_components() and transform_components() never reach it
+  Components.insert( Components.end(), loaded.begin(), loaded.end() );
+}
+
 void UBoat::reread_components()
 {
   for ( auto& component : Components )
@@ -1370,6 +1412,20 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
 
   BoatContext bc( *this );
   u32 tmp_serial;
+  // The Component lines are read first, so that align_components() weighs them ahead of an item
+  // that only a Traveller line names. A plank left lying on the deck has a component's objtype
+  // and would otherwise take the slot of the boat's own.
+  while ( elem.remove_prop( "Component", &tmp_serial ) )
+  {
+    Items::Item* item = Core::system_find_item( tmp_serial );
+    if ( item != nullptr )
+    {
+      if ( BoatShape::objtype_is_component( item->objtype_ ) )
+      {
+        Components.emplace_back( item );
+      }
+    }
+  }
   while ( elem.remove_prop( "Traveller", &tmp_serial ) )
   {
     if ( Core::IsItem( tmp_serial ) )
@@ -1379,7 +1435,10 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       {
         if ( BoatShape::objtype_is_component( item->objtype_ ) )
         {
-          Components.emplace_back( item );
+          // A save can name one component on both lines. Taking it once leaves align_components()
+          // nothing to weigh against its Component line.
+          if ( std::find( Components.begin(), Components.end(), item ) == Components.end() )
+            Components.emplace_back( item );
         }
         else if ( on_ship( bc, item ) )
         {
@@ -1398,17 +1457,7 @@ void UBoat::readProperties( Clib::ConfigElem& elem )
       }
     }
   }
-  while ( elem.remove_prop( "Component", &tmp_serial ) )
-  {
-    Items::Item* item = Core::system_find_item( tmp_serial );
-    if ( item != nullptr )
-    {
-      if ( BoatShape::objtype_is_component( item->objtype_ ) )
-      {
-        Components.emplace_back( item );
-      }
-    }
-  }
+  align_components();
   reread_components();
   rescan_components();
 
