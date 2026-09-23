@@ -1287,9 +1287,11 @@ bool UBoat::turn( RELATIVE_DIR dir )
 
 bool UBoat::is_component( const UObject* obj ) const
 {
-  // An unfilled slot holds a null, so the null has to be ruled out before the comparison.
-  return std::any_of( Components.begin(), Components.end(), [obj]( const Component& c )
-                      { return c.get() != nullptr && c.get() == obj; } );
+  // An empty slot holds a null, which a null obj would otherwise match.
+  if ( obj == nullptr )
+    return false;
+  return std::any_of( Components.begin(), Components.end(),
+                      [obj]( const Component& c ) { return c.get() == obj; } );
 }
 
 void UBoat::register_object( UObject* obj )

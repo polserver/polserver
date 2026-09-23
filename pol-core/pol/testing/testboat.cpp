@@ -407,6 +407,8 @@ void boat_load_test()
               "the component after a missing one does not take its offset" );
     UnitTest( [&]() { return at( boat, p.hold, HOLD_DELTA ); }, true,
               "the last component after a missing one keeps its offset" );
+    UnitTest( [&]() { return boat->is_component( nullptr ); }, false,
+              "the empty slot of a missing component does not match a null" );
   }
 
   // a well-formed save, the case every shard loads
