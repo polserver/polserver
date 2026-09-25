@@ -367,7 +367,12 @@ class Mobile(UOBject):
 
   def getEquipByLayer(self, layer):
     ''' Returns item equipped in the given layer '''
-    self.client.waitFor(lambda: self.equip is not None)
+    # Bounded: an unbounded wait here stalls the brain thread, and the shard has no
+    # way to tell that apart from a client that died. A round trip is milliseconds,
+    # so reaching this is a failure rather than a slow answer.
+    if not self.client.waitFor(lambda: self.equip is not None, 5):
+      raise RuntimeError(
+          "mobile 0x{:02X} was never sent its equipment".format(self.serial))
     return self.equip[layer]
 
   def __repr__(self):
@@ -619,6 +624,10 @@ class Client(threading.Thread):
     self._syncPending = collections.deque()
     self._syncCookie = 0
     self._syncLock = threading.Lock()
+    # Signalled by the client thread once it has handled everything the server
+    # had ready. waitFor() blocks on this instead of polling, since every
+    # condition it is ever given is state a packet handler writes.
+    self._stateChanged = threading.Condition()
     ## Logger, for internal usage
     self.log = logging.getLogger('client'+idstr)
     ## Features sent with 0xb9 packet
@@ -856,6 +865,10 @@ class Client(threading.Thread):
         self.handlePacket(pkt)
         handled = True
 
+      if handled:
+        with self._stateChanged:
+          self._stateChanged.notify_all()
+
       # Walks everything the client knows, so run it only when something may have left range.
       if (handled or self.sweepDue) and self.player and self.auto_delete_objs:
         self.sweepDue = False
@@ -1027,17 +1040,17 @@ class Client(threading.Thread):
     elif isinstance(pkt, packets.SendSpeechPacket) or isinstance(pkt, packets.UnicodeSpeechPacket):
       speech = Speech(self, pkt)
       if self.lc:
-        self.log.info(repr(speech))
+        self.log.info('%s', speech)
       else:
-        self.log.warn('EARLY %s', repr(speech))
+        self.log.warn('EARLY %s', speech)
       self.brain.event(brain.Event(brain.Event.EVT_SPEECH, speech=speech))
 
     elif isinstance(pkt, (packets.ClilocMsgPacket, packets.ClilocAffixMsgPacket)):
       speech = Speech(self, pkt)
       if self.lc:
-        self.log.info(repr(speech))
+        self.log.info('%s', speech)
       else:
-        self.log.warn('EARLY %s', repr(speech))
+        self.log.warn('EARLY %s', speech)
       self.brain.event(brain.Event(brain.Event.EVT_CLILOC, speech=speech))
 
     elif isinstance(pkt, packets.WorldmapQueryPacket):
@@ -1270,7 +1283,7 @@ class Client(threading.Thread):
         self.handleObjectInfoPacket(obj)
     elif isinstance(pkt, packets.VisualRangePacket):
       self.view_range = pkt.visualrange
-      self.log.info(f"update view range to {self.view_range}")
+      self.log.info("update view range to %s", self.view_range)
     elif isinstance(pkt, packets.MegaClilocRevPacket):
       # The server telling us a cached tooltip is out of date. Raised without looking the object
       # up, because the interesting case is exactly the one we may not be holding: something in a
@@ -1318,6 +1331,11 @@ class Client(threading.Thread):
       self.log.info("server refused the character: reason %d", pkt.reason)
     elif isinstance(pkt, packets.KREncryptionResponsePacket):
       self.log.info("server answered a KR encryption request")
+    elif isinstance(pkt, packets.MobAttributesPacket):
+      # A party member's vitals, scaled to 1000. Nothing waits on it; named so it is
+      # not logged as unhandled.
+      self.log.info("party vitals for 0x%X: %d/%d hits", pkt.serial,
+          pkt.hits_current, pkt.hits_max)
     else:
       self.log.warning("Unhandled packet %s", pkt.__class__)
 
@@ -1711,7 +1729,7 @@ class Client(threading.Thread):
         self.gumps.remove(pkt.gumpid)
         self.brain.event(brain.Event(brain.Event.EVT_GUMP, gumpid=pkt.gumpid,buttonid=pkt.buttonid))
       else:
-        self.log.warn(f"non-open gumpid {pkt.gumpid} should close")
+        self.log.warn("non-open gumpid %s should close", pkt.gumpid)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_POPUP_DISPLAY:
       self.handlePopup(pkt)
     elif pkt.sub == packets.GeneralInfoPacket.SUB_CLOSEWINDOW:
@@ -2420,21 +2438,35 @@ class Client(threading.Thread):
         po.fill([serial])
     self.queue(po)
 
+  ## Longest a waitFor() blocks before re-testing unprompted. Handlers signal, so
+  ## this only bounds a lost signal.
+  WAITFOR_SLICE = 0.1
+
   def waitFor(self, cond, timeout=None):
     '''! Utility function, waits until a condition is satisfied or until timeout expires
     @return True when consition succeeds, False on timeout
+
+    The condition is state the client thread writes, so this blocks on the signal
+    that thread raises once it has handled everything the server had ready. The
+    deadline is computed once: a condition re-tested after a wakeup must not start
+    the caller's timeout over.
     '''
-    wait = 0.0
-    nextWarn = 5.0
-    while not cond():
-      time.sleep(0.01)
-      wait += 0.01
-      if timeout:
-        if wait >= timeout:
-          return False
-      elif wait >= nextWarn:
-        self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
-        nextWarn = wait + 5.0
+    now = time.monotonic()
+    deadline = now + timeout if timeout else None
+    nextWarn = now + 5.0
+    with self._stateChanged:
+      while not cond():
+        now = time.monotonic()
+        slice = self.WAITFOR_SLICE
+        if deadline is not None:
+          remaining = deadline - now
+          if remaining <= 0:
+            return False
+          slice = min(slice, remaining)
+        elif now >= nextWarn:
+          self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
+          nextWarn = now + 5.0
+        self._stateChanged.wait(slice)
     return True
 
   def syncPing(self, token):

@@ -10,6 +10,13 @@ const ATTACK_X := 100;
 const ATTACK_Y := 100;
 const ATTACK_Z := 0;
 
+// The core divides the swing delay by 1 + swing_speed_increase/100, so this makes
+// a swing about 190ms instead of two seconds. Nothing here asserts a rate.
+const ATTACK_SWING_SPEED := 900;
+
+// Several swing timers, so a swing that should not happen has room to happen.
+const SWING_WINDOW := 600;
+
 var char;
 
 var clientcon := getClientConnection();
@@ -118,7 +125,7 @@ exported function test_client_attack_kill_npc( resources )
   endif
 
   // a few swing timers pass, all of them with the destroyed npc as opponent
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the npc died: {char.opponent}" );
   endif
@@ -182,7 +189,7 @@ exported function test_client_attack_npc_killed( resources )
   endif
 
   // the swing timer must not fire against the destroyed npc anymore
-  Sleepms( 2000 );
+  Sleepms( SWING_WINDOW );
   if ( char.opponent )
     return ret_error( $"Opponent reappeared after the npc died: {char.opponent}" );
   endif
@@ -374,6 +381,7 @@ function setup_attack( resources )
   // increase damage
   SetAttributeBaseValue( char, "Strength", 1000 );
   SetAttributeBaseValue( char, "Tactics", 1000 );
+  char.swing_speed_increase_mod := ATTACK_SWING_SPEED;
 
   SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
   char.hitchance_mod := 1000;

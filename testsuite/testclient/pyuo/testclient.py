@@ -1055,6 +1055,21 @@ class PolServer:
       self.log.error("failed to send: {} {}".format(e,data))
       pass
 
+  def close_control(self):
+    # Half-close so a FIN, not an RST, follows the last reply, and drain the receive
+    # buffer. An RST could discard the reply the shard is waiting on.
+    try:
+      self.conn.shutdown(socket.SHUT_WR)
+    except OSError:
+      pass  # already gone, so there is nothing to see out
+    try:
+      while select.select([self.conn], [], [], 0)[0]:
+        if not self.conn.recv(65536):
+          break
+    except OSError:
+      pass
+    self.conn.close()
+
 if __name__ == '__main__':
   # WARNING by default: the shard buffers client messages and dumps them when a
   # test fails. Raise it for a per-packet log.
@@ -1083,7 +1098,6 @@ if __name__ == '__main__':
   finally: # wake up the server and let it close first
     lifecycle.info("LIFECYCLE run() left, releasing the control connection")
     serv.send("{}")
-    time.sleep(1)
-    serv.conn.close()
+    serv.close_control()
     lifecycle.info("LIFECYCLE control connection closed")
 
