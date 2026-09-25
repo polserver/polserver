@@ -1940,7 +1940,9 @@ function destroy_lifted_item( item )
   DestroyItem( item );
 
   if ( was_held )
-    waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
+    // destroying it under the client draws a rejection; absorb it rather than leave
+    // it for whatever waits next
+    client_sync( clientcon, 0 );
   endif
 endfunction
 
@@ -1957,9 +1959,10 @@ function lift_item_succeeded( byref err, serial )
   endwhile
 
   // TODO: see top
-  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
-  if ( ev )
-    return err := ret_error( $"Got unexpected move (lift) item rejected: reason = {ev.reason}" );
+  var quiet := no_event_before_sync( clientcon, 0, { EVT_MOVE_ITEM_REJECTED },
+      @( ev ) { return $"had the lift rejected: reason {ev.reason}"; } );
+  if ( !quiet )
+    return err := quiet;
   endif
   return 1;
 endfunction

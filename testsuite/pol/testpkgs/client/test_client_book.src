@@ -68,11 +68,8 @@ exported function book_readonly_opens( resmgr )
 
   // A book that cannot be written in is sent without its contents: the client is expected to ask
   // for each page as it is turned to.
-  ev := waitForClient( 0, { EVT_BOOK_PAGE }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"a read-only book was sent its pages anyway: {ev}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_BOOK_PAGE },
+      @( ev ) { return $"was sent the pages of a read-only book anyway: {ev}"; } );
 endfunction
 
 exported function book_writable_sends_pages( resmgr )
@@ -262,11 +259,8 @@ exported function book_page_out_of_reach( resmgr )
   drain_events();
   var asked := struct{ action := BOOK_READ, serial := book.serial, page := 1 };
   clientcon.sendevent( struct{ todo := EVT_BOOK, arg := asked, id := 0 } );
-  var ev := waitForClient( 0, { EVT_BOOK_PAGE }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"a book out of reach was turned anyway: {ev}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_BOOK_PAGE },
+      @( ev ) { return $"turned a page of a book out of reach anyway: {ev}"; } );
 endfunction
 
 // The client writing to a book, which the core hands to the method script and keeps nothing of.
@@ -377,9 +371,6 @@ exported function book_contents_too_big( resmgr )
     return ret_error( $"unexpected error: {res.errortext}" );
   endif
 
-  var ev := waitForClient( 0, { EVT_BOOK }, QUIET_SECS );
-  if ( ev )
-    return ret_error( $"the header went out for a book with no pages: {ev}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_BOOK },
+      @( ev ) { return $"was sent the header of a book with no pages: {ev}"; } );
 endfunction

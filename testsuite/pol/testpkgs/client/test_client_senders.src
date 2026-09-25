@@ -156,6 +156,10 @@ exported function sender_buff_removed()
   if ( CInt( ev.duration ) != 0 )
     return ret_error( $"a removal carried a duration of {ev.duration}" );
   endif
+  // the short form stops before the clilocs, so a removal cannot name the buff it took away
+  if ( CInt( ev.cl_name ) or CInt( ev.cl_descr ) )
+    return ret_error( $"a removal carried clilocs {ev.cl_name} and {ev.cl_descr}" );
+  endif
   return 1;
 endfunction
 

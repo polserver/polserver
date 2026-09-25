@@ -98,8 +98,8 @@ exported function chr_update_range()
       break;
     endif
   endwhile
-  while ( waitForClient( 0, {}, 1 ) )
-  endwhile
+  // everything the move above sent has arrived, and is thrown away on the way
+  client_sync( clientcon, 0 );
   MoveObjectToLocation( char2, 1, 1, 1, flags := MOVEOBJECT_FORCELOCATION );
   if ( i == 0 )
     return ret_error( "char was never readded" );
@@ -141,8 +141,8 @@ exported function item_update_range( resmngr )
       break;
     endif
   endwhile
-  while ( waitForClient( 0, {}, 1 ) )
-  endwhile
+  // everything the move above sent has arrived, and is thrown away on the way
+  client_sync( clientcon, 0 );
   if ( i == 0 )
     return ret_error( "item was never visible" );
   endif

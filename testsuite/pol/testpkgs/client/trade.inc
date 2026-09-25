@@ -119,17 +119,16 @@ function wait_for_trades( action, expected := 0, expected2 := 0, timeout := 10 )
   return ret_error( $"client {missing} received no trade action {action} within {timeout}s" );
 endfunction
 
-// Asserts that no client hears about the trade window at all.
-function wait_for_no_trade( timeout := 2 )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( 1 );
-    if ( !ev or ev.type != EVT_TRADE )
-      continue;
-    endif
-    return ret_error( $"client {ev.id} was told about the trade window: action {ev.action}" );
-  endwhile
-  return 1;
+// Asserts neither client hears about the trade window. One barrier each, since
+// either client being told is the failure.
+function wait_for_no_trade()
+  var res := no_event_before_sync( sync_con(), 0, { EVT_TRADE },
+      @( ev ) { return $"was told about the trade window: action {ev.action}"; } );
+  if ( !res )
+    return res;
+  endif
+  return no_event_before_sync( sync_con(), 1, { EVT_TRADE },
+      @( ev ) { return $"was told about the trade window: action {ev.action}"; } );
 endfunction
 
 // Accepts or un-accepts the trade for the given client. Only a client can do
@@ -154,11 +153,8 @@ function lift_item( serial )
   if ( !ev )
     return ret_error( $"client 0 did not lift 0x{serial:x}: {ev}" );
   endif
-  ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED }, 1 );
-  if ( ev )
-    return ret_error( $"lifting 0x{serial:x} was rejected: reason {ev.reason}" );
-  endif
-  return 1;
+  return no_event_before_sync( clientcon, 0, { EVT_MOVE_ITEM_REJECTED },
+      @( ev ) { return $"had the lift of 0x{serial:x} rejected: reason {ev.reason}"; } );
 endfunction
 
 // Drops the item client 0 is holding onto a mobile. Does not wait for the drop

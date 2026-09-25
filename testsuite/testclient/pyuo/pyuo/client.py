@@ -614,6 +614,11 @@ class Client(threading.Thread):
     self.lc = False
     ## When to send next ping
     self.ping = 0
+    ## Barrier pings awaiting an echo, oldest first, as (cookie, token). Cookie 0 is
+    ## the keep-alive's and is never used here.
+    self._syncPending = collections.deque()
+    self._syncCookie = 0
+    self._syncLock = threading.Lock()
     ## Logger, for internal usage
     self.log = logging.getLogger('client'+idstr)
     ## Features sent with 0xb9 packet
@@ -903,7 +908,7 @@ class Client(threading.Thread):
       raise LoginDeniedError(pkt.reason)
 
     elif isinstance(pkt, packets.PingPacket):
-      self.log.debug("Server sent a ping back")
+      self.handlePingPacket(pkt)
 
     elif isinstance(pkt, packets.CharLocaleBodyPacket):
       self.handleCharLocaleBodyPacket(pkt)
@@ -1074,7 +1079,8 @@ class Client(threading.Thread):
       po = packets.PromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=False))
 
     elif isinstance(pkt, packets.UnicodePromptPacket):
       assert self.lc
@@ -1086,7 +1092,8 @@ class Client(threading.Thread):
       po = packets.UnicodePromptPacket()
       po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
       self.queue(po)
-      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial, msgid=pkt.msgid))
+      self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
+          msgid=pkt.msgid, unicode=True))
 
     elif isinstance(pkt, packets.QuestArrowPacket):
       assert self.lc
@@ -1098,8 +1105,9 @@ class Client(threading.Thread):
       # kept so placeMulti() can answer it: the script that asked for the cursor is
       # suspended until a 0x6C carrying this same cursor id comes back
       self.multi_placement = {'cursorid': pkt.cursorid, 'multiid': pkt.multiid}
-      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, cursorid=pkt.cursorid,
-          multiid=pkt.multiid, xoffset=pkt.xoffset, yoffset=pkt.yoffset, hue=pkt.hue))
+      self.brain.event(brain.Event(brain.Event.EVT_MULTI_PLACEMENT, allow=pkt.allow,
+          cursorid=pkt.cursorid, multiid=pkt.multiid, xoffset=pkt.xoffset,
+          yoffset=pkt.yoffset, hue=pkt.hue))
 
     elif isinstance(pkt, packets.MenuPacket):
       assert self.lc
@@ -1616,6 +1624,35 @@ class Client(threading.Thread):
     po.fill(reply.get('choice', packets.ResurrectMenuPacket.CHOICE_INSTARES))
     self.queue(po)
     self.brain.event(brain.Event(brain.Event.EVT_RESURRECT_MENU, choice=pkt.choice))
+
+  @clientthread
+  def handlePingPacket(self, pkt):
+    ''' Answers a barrier ping, or drops an echo nobody is waiting for.
+
+    Not gated on the login being complete: the barrier has to work as soon as a
+    client can send anything at all.
+    '''
+    with self._syncLock:
+      token = None
+      if self._syncPending and self._syncPending[0][0] == pkt.seq:
+        token = self._syncPending.popleft()[1]
+      elif any(cookie == pkt.seq for cookie, _ in self._syncPending):
+        # The core answers 0x73 in order, so this cannot happen. Resynchronise and say so,
+        # rather than wedge every later barrier.
+        skipped = 0
+        while self._syncPending:
+          cookie, waiting = self._syncPending.popleft()
+          if cookie == pkt.seq:
+            token = waiting
+            break
+          skipped += 1
+        self.log.error("ping 0x%02x answered out of order, %d barrier(s) skipped",
+                       pkt.seq, skipped)
+    if token is None:
+      # The keep-alive's ping, or a barrier its script gave up on. Harmless.
+      self.log.debug("ping 0x%02x came back with nobody waiting for it", pkt.seq)
+      return
+    self.brain.event(brain.Event(brain.Event.EVT_SYNC, token=token))
 
   @status('game')
   @clientthread
@@ -2399,6 +2436,24 @@ class Client(threading.Thread):
         self.log.warn("Waiting for {}...".format(traceback.extract_stack(limit=2)[0]))
         nextWarn = wait + 5.0
     return True
+
+  def syncPing(self, token):
+    ''' Sends a 0x73 carrying a cookie of this call's own, so the echo the core
+    sends straight back can be matched to it.
+
+    The core echoes the packet verbatim and unconditionally, and everything it had
+    already queued for this client goes out ahead of it, so the echo arriving is a
+    proof that nothing else was on its way - which is what the test scripts use it
+    for. Called from the brain thread; the packet goes out of the client thread in
+    the same order as anything queued before it.
+    '''
+    with self._syncLock:
+      self._syncCookie = self._syncCookie % 255 + 1
+      cookie = self._syncCookie
+      self._syncPending.append((cookie, token))
+    po = packets.PingPacket()
+    po.fill(cookie)
+    self.queue(po)
 
   def queue(self, data):
     ''' Puts a packet in the queue to be sent asap '''

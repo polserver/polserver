@@ -163,6 +163,8 @@ const EVT_RACE_CHANGER := "race_changer";
 // one, or writes the title and author back with the "book" todo; only a page it asked for is
 // answered, so nothing is armed here.
 const EVT_BOOK := "book";
+// The answer to a harness ping. See client_sync().
+const EVT_SYNC := "sync";
 const EVT_BOOK_PAGE := "book_page";
 const BOOK_READ := "read";
 const BOOK_WRITE := "write";
@@ -271,12 +273,12 @@ const CLILOC_SYSMESSAGE_MODEL := 0xFFFF;
 // thing it costs is how far past its deadline a wait for nothing runs. Waiting
 // a whole second at a time is what made the negative assertions below cost a
 // second more than they were asked for.
-const POLL_INTERVAL := 0.1;
+const POLL_INTERVAL := 0.02;
 
 // The default window of the "nobody was told this" assertions. It has to stay
 // comfortably above a round trip to the test client - that is all a wrongly
 // sent message needs to show up - without being paid on every single call.
-const QUIET_SECS := 0.75;
+const QUIET_SECS := 0.25;
 
 function clientTestActive()
   var testclient := GetEnvironmentVariable( "POLCORE_TESTCLIENT" ) == "TRUE";
@@ -295,12 +297,105 @@ function getClientConnection()
   return proc;
 endfunction
 
-// wait for events of given types and of given client id
-function waitForClient( id, types, timeout := 10 )
+// The connection the barrier pings, for helpers without a clientcon. Read from the
+// global property: getClientConnection() would also take over the client's events.
+var sync_con_cached := 0;
+function sync_con()
+  if ( !sync_con_cached )
+    var pid := GetGlobalProperty( "#clientcon" );
+    if ( !pid )
+      return 0;
+    endif
+    sync_con_cached := GetProcess( pid );
+  endif
+  return sync_con_cached;
+endfunction
+
+// Tokens are strings, since numbers come back as Doubles. The pid and the counter
+// make each token unique.
+var sync_seq := 0;
+function sync_send( clientcon, id )
+  if ( !clientcon )
+    return ret_error( "no client connection to synchronise against" );
+  endif
+  sync_seq += 1;
+  var token := $"{GetPid()}.{sync_seq}";
+  clientcon.sendevent( struct{ todo := "sync", arg := token, id := id } );
+  return token;
+endfunction
+
+// Returns once everything the shard had already sent this client has arrived, and
+// fails if anything matching `types` was among it.
+//
+// The client pings with a 0x73 cookie of its own. The core echoes it behind everything
+// already queued for this client, so the echo proves nothing more was sent.
+//
+// `matcher` sees only events of `types` for this id, and returns the complaint or 0.
+// An empty `types` matches nothing; that is client_sync().
+//
+// Not covered: anything a timer, task, NPC or script sends later, or other clients.
+function no_event_before_sync( clientcon, id, types, matcher := 0, timeout := 5 )
+  var token := sync_send( clientcon, id );
+  if ( !token )
+    return token;
+  endif
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  // An error is falsy, so a flag records what was found.
+  var found := 0;
+  var offender := 0;
   while ( 1 )
-    var ev := Wait_For_Event( timeout );
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
+      break;
+    endif
+    // Wait the whole remaining window: the wait ends as an event arrives.
+    var ev := Wait_For_Event( remaining / 1000.0 );
     if ( !ev )
+      continue;
+    endif
+    if ( ev.type == EVT_SYNC and ev.token == token )
+      // Keep draining to the barrier, so the queue is left clean.
+      if ( found )
+        return offender;
+      endif
+      return 1;
+    endif
+    if ( found or !( ev.type in types ) or CInt( ev.id ) != id )
+      continue;
+    endif
+    // A function reference is falsy too. TypeOf() answers "FunctionReference",
+    // though it prints as "FunctionObject".
+    var why;
+    if ( TypeOf( matcher ) == "FunctionReference" )
+      why := matcher.call( ev );
+    else
+      why := $"was sent a {ev.type} it should not have been";
+    endif
+    if ( why )
+      found := 1;
+      offender := ret_error( $"client {id} {why}" );
+    endif
+  endwhile
+  return ret_error( $"client {id} never answered the barrier within {timeout}s\n{GetProcess().stacktrace()}" );
+endfunction
+
+// A barrier with no assertion attached.
+function client_sync( clientcon, id, timeout := 5 )
+  return no_event_before_sync( clientcon, id, {}, 0, timeout );
+endfunction
+
+// Waits for an event of one of the given types from the given client. The timeout
+// bounds the whole call, so unrelated events cannot extend it.
+function waitForClient( id, types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( 1 )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( ev.id != id || !( ev.type in types ) )
       continue;
@@ -324,22 +419,11 @@ function wait_for_speech( id, text, timeout := 10 )
   return ret_error( $"client {id} never heard \"{text}\" within {timeout}s" );
 endfunction
 
-// Asserts a client is told nothing carrying the given text.
-//
-// The whole window is always paid, so it is kept to the round trip a wrongly
-// sent message would need rather than to a comfortable-looking couple of
-// seconds. Most callers have already waited out something else the core sends,
-// which proves it has sent everything it was going to.
-function no_speech_for( id, text, timeout := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + timeout * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    var ev := Wait_For_Event( POLL_INTERVAL );
-    if ( !ev or ev.type != EVT_SPEECH or CInt( ev.id ) != id or ev.msg != text )
-      continue;
-    endif
-    return ret_error( $"client {id} heard \"{text}\", which was not meant for it" );
-  endwhile
-  return 1;
+// Asserts a client is told nothing carrying the given text. Uses the barrier; see
+// no_event_before_sync().
+function no_speech_for( id, text )
+  return no_event_before_sync( sync_con(), id, { EVT_SPEECH },
+      @( ev ) { return ( ev.msg == text ) ? $"heard \"{text}\", which was not meant for it" : 0; } );
 endfunction
 
 // Waits for a client to be told about its own character, which is how a test
@@ -360,22 +444,28 @@ endfunction
 // Reads events until none have come for a while. Only for putting the queue
 // back into a known state after something went wrong - it costs its whole
 // window every time it is called.
-function drain_events( quiet := QUIET_SECS )
-  var deadline := ReadMillisecondClock() + quiet * 1000;
-  while ( ReadMillisecondClock() < deadline )
-    if ( Wait_For_Event( POLL_INTERVAL ) )
-      deadline := ReadMillisecondClock() + quiet * 1000;
-    endif
-  endwhile
-  return 1;
+// Throws away everything the shard has already sent both clients, with a barrier
+// each. It cannot wait for a script the shard started; see wait_hook_call() in
+// party.inc.
+function drain_events()
+  var res := client_sync( sync_con(), 0, 2 );
+  if ( !res )
+    return res;
+  endif
+  return client_sync( sync_con(), 1, 2 );
 endfunction
 
-function waitForClients( types )
-  // wait for events of given types of any client
+// The same, for an event of any client.
+function waitForClients( types, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
   while ( 1 )
-    var ev := Wait_For_Event( 10 );
-    if ( !ev )
+    var remaining := deadline - ReadMillisecondClock();
+    if ( remaining <= 0 )
       return ret_error( $"no signal received\n{GetProcess().stacktrace()}" );
+    endif
+    var ev := Wait_For_Event( remaining / 1000.0 );
+    if ( !ev )
+      continue;
     endif
     if ( !( ev.type in types ) )
       continue;
