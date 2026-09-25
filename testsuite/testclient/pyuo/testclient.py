@@ -3,6 +3,7 @@
 import asyncio
 import atexit
 import configparser
+import errno
 import logging
 import json
 import time
@@ -486,9 +487,10 @@ class PolServer:
   ## Longest control line. A raw_packet todo can exceed the 64KiB default.
   READ_LIMIT = 1 << 20
 
-  ## The port clientconnection.src dials. It is inside the Windows ephemeral range,
-  ## so something else may hold it.
-  CONTROL_PORT = 50000
+  ## The port testpkgs/client/setup.src dials. It sits with the other helper ports, below the
+  ## dynamic range: Windows reserves blocks of that range at boot, and a bind inside one is
+  ## refused for as long as the machine is up.
+  CONTROL_PORT = 5014
 
   ## The shard retries for ten seconds, so longer only delays the same failure.
   BIND_RETRY_SECS = 8
@@ -517,15 +519,18 @@ class PolServer:
   async def _listen(self, port):
     # Retry, and log the reason: a bare bind failure left no trace. 127.0.0.1 with
     # AF_INET, since "localhost" also binds ::1 and either being taken fails it.
-    deadline = time.monotonic() + self.BIND_RETRY_SECS
+    started = time.monotonic()
+    deadline = started + self.BIND_RETRY_SECS
     while True:
       try:
         return await asyncio.start_server(self._onControl, '127.0.0.1', port,
                                           family=socket.AF_INET, limit=self.READ_LIMIT)
       except OSError as ex:
-        if time.monotonic() >= deadline:
-          self.log.error("LIFECYCLE cannot listen on control port %d after %ds: %s",
-                         port, self.BIND_RETRY_SECS, ex)
+        # EACCES (WinError 10013 on Windows) is a reserved or forbidden port, not a holder that
+        # goes away, so a retry cannot succeed.
+        if ex.errno == errno.EACCES or time.monotonic() >= deadline:
+          self.log.error("LIFECYCLE cannot listen on control port %d after %.1fs: %s",
+                         port, time.monotonic() - started, ex)
           raise
         await asyncio.sleep(0.25)
 
