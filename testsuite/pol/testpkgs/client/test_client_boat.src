@@ -165,16 +165,9 @@ exported function boat_pilot_mbr_mth()
     return ret_error( "Character does not have an equipped mount piece." );
   endif
 
-  // the client is told about the mount piece by a packet it has not necessarily
-  // read yet, so this asks again until it has rather than judging the first
-  // listing it answers with
-  var entry := client_finds_layer( clientcon, 0, char.serial, LAYER_MOUNT );
-  if ( !entry )
-    return entry;
-  endif
-  var worn := CInt( entry.serial );
-  if ( worn != mountpiece.serial )
-    return ret_error( $"the client has 0x{worn:x} on the mount layer, not the mount piece" );
+  res := client_layer_holds( char.serial, LAYER_MOUNT, mountpiece.serial );
+  if ( !res )
+    return res;
   endif
 
   res := boat.set_pilot( 0 );
@@ -516,13 +509,41 @@ function ensure_multiid( multiid, errormsg )
     return ret_error( $"{errormsg}, expected {multiid} != actual {boat.multiid}" );
   endif
 
-  var obj := client_finds_obj( clientcon, 0, boat.serial );
-  if ( !obj )
-    return obj;
-  elseif ( obj.graphic != multiid )
-    return ret_error( $"client boat.graphic mismatch, expected {multiid} != actual {obj.graphic}" );
-  endif
-  return 1;
+  return client_graphic_is( boat.serial, multiid );
+endfunction
+
+// The two polls below wait for a value, not just for an entry: the client may answer
+// before it reads the packet that changed it, and the old value is still in place.
+function client_layer_holds( serial, layer, want, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var worn := 0;
+  while ( ReadMillisecondClock() < deadline )
+    var entry := client_finds_layer( clientcon, 0, serial, layer, 1 );
+    if ( entry )
+      worn := CInt( entry.serial );
+      if ( worn == want )
+        return 1;
+      endif
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+  return ret_error( $"the client has 0x{worn:x} on layer {layer}, not 0x{want:x}" );
+endfunction
+
+function client_graphic_is( serial, graphic, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  var seen := "nothing";
+  while ( ReadMillisecondClock() < deadline )
+    var obj := client_finds_obj( clientcon, 0, serial, 0, 1 );
+    if ( obj )
+      seen := CInt( obj.graphic );
+      if ( seen == graphic )
+        return 1;
+      endif
+    endif
+    Sleepms( POLL_INTERVAL * 1000 );
+  endwhile
+  return ret_error( $"client boat.graphic mismatch, expected {graphic} != actual {seen}" );
 endfunction
 
 exported function boat_alternate_multiid_itemdesc()

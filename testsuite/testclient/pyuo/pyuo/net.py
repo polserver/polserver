@@ -19,10 +19,8 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 '''
 
-import time
+import select
 import socket
-import struct
-import ipaddress
 import logging
 
 from . import packets
@@ -88,6 +86,10 @@ class Network:
     (-247,-245) #255
   )
 
+  ## Memoized decoder step: (node, byte) -> (bytes out, next node, halted).
+  ## Packets start on a byte boundary, so a whole byte is one lookup.
+  _STEP = {}
+
   def __init__(self, ip, port):
     '''! Connects to the socket
       @param ip IPv4Address: the IP object, from the ipaddress module
@@ -98,10 +100,16 @@ class Network:
     ## Socket connection, for internal usage
     self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     self.sock.connect((str(ip), port))
+    # Small request/reply traffic, which Nagle would hold back.
+    self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
     ## Buffer, for internal usage
-    self.buf = b''
+    self.buf = bytearray()
     ## Wether to use compression or not
     self.compress = False
+    ## Decoder state carried between two reads, see _nextCompressed()
+    self._node = 0
+    self._pos = 0
+    self._out = bytearray()
 
   def close(self):
     ''' Disconnects, makes this object unusable '''
@@ -117,102 +125,165 @@ class Network:
     else:
       raise ValueError('Expecting Packet or bytes')
 
-    self.log.debug('-> 0x%0.2X, %d bytes\n"%s"', raw[0], len(raw), raw)
-    self.sock.send(raw)
+    if self.log.isEnabledFor(logging.DEBUG):
+      self.log.debug('-> 0x%0.2X, %d bytes\n"%s"', raw[0], len(raw), raw)
+    # sendall: a short write would leave the server mid-packet.
+    self.sock.sendall(raw)
 
-  def recv(self, force=False, blocking=True):
+  def recv(self, blocking=True):
     '''! Reads next packet from the server
-    Always returns a full packet (waiting for full packet is always blocking)
 
-    @param force bool: Force wait, used internally
-    @param blocking bool: Set blocking mode
+    @param blocking bool: whether to wait for a packet. When false, returns None
+                          as soon as there is not a whole one to be had.
+    @return Packet, or None in non-blocking mode when none is ready
     '''
+    while True:
+      raw = self._nextPacket()
+      if raw is not None:
+        return self._decode(raw)
+      if not self._fill(blocking):
+        return None
 
-    self.sock.setblocking(blocking)
+  def _fill(self, blocking):
+    '''! Reads whatever the socket has into the buffer.
 
-    # Wait for a full packet
-    if len(self.buf) < 1 or force:
+    The socket itself stays blocking throughout; a poll asks select() whether
+    there is anything to read rather than flipping the mode back and forth,
+    which kept sends having to flip it back.
+    @return bool: False when nothing could be read in non-blocking mode
+    '''
+    if not blocking:
       try:
-        data = self.sock.recv(4096)
-      except socket.error:
-        if not blocking:
-          return None
-        else:
-          raise
+        ready, _, _ = select.select([self.sock], [], [], 0)
+      except (OSError, ValueError):
+        return False
+      if not ready:
+        return False
+    try:
+      data = self.sock.recv(65536)
+    except socket.error:
+      if not blocking:
+        return False
+      raise
 
-      if not len(data):
-        raise RuntimeError("Disconnected");
+    if not len(data):
+      raise RuntimeError("Disconnected")
 
-      self.buf += data
+    self.buf += data
+    return True
 
+  def _nextPacket(self):
+    '''! Takes the next whole packet off the front of the buffer.
+    @return bytes: the packet, None when there is not a whole one yet
+    '''
     if self.compress:
+      return self._nextCompressed()
+    return self._nextPlain()
+
+  def _nextPlain(self):
+    '''! The uncompressed case, which is the login phase.
+
+    Framed by length rather than by assuming the buffer holds exactly one
+    packet, because it does not have to: two of these can arrive in one segment.
+    '''
+    if len(self.buf) < 1:
+      return None
+    size = self._plainLen()
+    if size is None or len(self.buf) < size:
+      return None
+    raw = bytes(self.buf[:size])
+    del self.buf[:size]
+    return raw
+
+  def _plainLen(self):
+    '''! How long the packet at the front of the buffer is.
+    @return int: the length, None while there are too few bytes to tell
+    '''
+    cmd = self.buf[0]
+    cls = packets.classes.get(cmd)
+    if cls is None:
+      # Unknown length: guessing would desync the stream.
+      raise NotImplementedError(
+          "Unknown packet 0x%0.2X, %d bytes buffered\n%s" % (cmd, len(self.buf), bytes(self.buf)))
+    size = getattr(cls, 'length', None)
+    if size is not None:
+      return size
+    # Variable length: an ushort right behind the command says how long.
+    if len(self.buf) < 3:
+      return None
+    return ( self.buf[1] << 8 ) | self.buf[2]
+
+  def _nextCompressed(self):
+    '''! Decodes the next packet out of the Huffman stream (thanks to the
+    UltimaXNA project for the tree).
+
+    Resumable: a packet split across reads carries its state in self._node /
+    self._pos / self._out rather than being decoded from the start again.
+    @return bytes: the packet, None when there is not a whole one yet
+    '''
+    buf = self.buf
+    node = self._node
+    pos = self._pos
+    out = self._out
+    step = self._STEP
+
+    while pos < len(buf):
+      byte = buf[pos]
+      key = ( node << 8 ) | byte
       try:
-        raw, size = self.decompress(self.buf)
-      except NoFullPacketError:
-        # Not enough data to make a full packet. Try again
-        self.log.debug("No full packet. Waiting... (%d bytes in buffer)", len(self.buf))
-        return self.recv(True)
-    else:
-      raw = self.buf
-      size = len(self.buf)
+        emit, node, halted = step[key]
+      except KeyError:
+        emit, node, halted = step[key] = self._buildStep(node, byte)
+      if emit:
+        out += emit
+      pos += 1
+      if halted:
+        # The halt codeword pads to a byte, so the next packet starts at pos.
+        del buf[:pos]
+        self._node = 0
+        self._pos = 0
+        self._out = bytearray()
+        return bytes(out)
 
-    if not raw:
-      raise NotImplementedError()
+    self._node = node
+    self._pos = pos
+    self._out = out
+    return None
 
-    cinfo = '{} compressed'.format(size) if self.compress else 'not compressed'
-    self.log.debug('<- 0x%0.2X, %d bytes, %s\n"%s"', raw[0], len(raw), cinfo, raw)
+  @classmethod
+  def _buildStep(cls, node, byte):
+    '''! Walks the eight bits of one byte through the tree once, so the result
+    can be reused for every later occurrence of the same (node, byte).
+    @return tuple (bytes emitted, node to carry on from, packet ended)
+    '''
+    emit = bytearray()
+    tree = cls.DECOMPRESSION_TREE
+    for shift in range(7, -1, -1):
+      val = tree[node][( byte >> shift ) & 1]
+      # all numbers below 1 (0..-256) are codewords
+      if val == -256:
+        # the halt codeword: the rest of the byte is padding
+        return ( bytes(emit), 0, True )
+      if val < 1:
+        emit.append(-val)
+        val = 0
+      node = val
+    return ( bytes(emit), node, False )
 
-    # Creates and instance of the packet from the buffer
+  def _decode(self, raw):
+    '''! Turns the bytes of one packet into a Packet instance '''
     cmd = raw[0]
-    if cmd not in packets.classes.keys():
+    if self.log.isEnabledFor(logging.DEBUG):
+      self.log.debug('<- 0x%0.2X, %d bytes, %s\n"%s"', cmd, len(raw),
+          'compressed' if self.compress else 'not compressed', raw)
+
+    pktClass = packets.classes.get(cmd)
+    if pktClass is None:
       raise NotImplementedError(
           "Unknown packet 0x%0.2X, %d bytes\n%s" % (cmd, len(raw), raw))
-    pktClass = packets.classes[cmd]
     pkt = pktClass()
     pkt.decode(raw)
     assert pkt.validated
     assert pkt.length == len(raw), hex(cmd)+" "+str(pkt.length)+" != "+ str(len(raw))
 
-    # Remove the processed packet from the buffer the buffer
-    self.buf = self.buf[size:]
-
     return pkt
-
-  def decompress(self, buf):
-    '''! Internal usage, decompress a packet (thanks to UltimaXNA project
-    @return tuple (decompressed, compressed_size)
-    '''
-    node = 0
-    leaf = 0
-    leafVal = 0
-    bitNum = 8
-    srcPos = 0
-    dest = b''
-
-    while srcPos < len(buf):
-      # Gets next bit
-      leaf = ( buf[srcPos] >> ( bitNum - 1 ) ) & 1
-      # Look into decompression table
-      leafVal = self.DECOMPRESSION_TREE[node][leaf]
-
-      # all numbers below 1 (0..-256) are codewords
-      # if the halt codeword has been found, skip this byte
-      if leafVal == -256:
-        return ( dest, srcPos + 1)
-      elif leafVal < 1:
-        dest += bytes([0 - leafVal])
-        leafVal = 0
-
-      # Go for next bit, if its the end of the byte, go to the next byte
-      bitNum -= 1
-      node = leafVal
-      if bitNum < 1:
-        bitNum = 8;
-        srcPos += 1
-
-    raise NoFullPacketError("No full packet could be read")
-
-
-class NoFullPacketError(Exception):
-  ''' Exception thrown when no full packet is available '''
-  pass

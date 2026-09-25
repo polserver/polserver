@@ -32,13 +32,22 @@ import inspect
 ################################################################################
 
 
+## Built once rather than parsed per field.
+_U8 = struct.Struct('B')
+_S8 = struct.Struct('b')
+_U16 = struct.Struct('>H')
+_S16 = struct.Struct('>h')
+_U32 = struct.Struct('>I')
+
+
 class Packet():
   ''' Base class for packets '''
 
+  log = logging.getLogger('packet')
+
   def __init__(self):
     # 0x00 is a real command (create character), so the test is for a missing one, not a false one
-    assert self.cmd is not None
-    self.log = logging.getLogger('packet')
+    assert getattr(self, 'cmd', None) is not None
     self.validated = False
 
   def fill(self):
@@ -74,7 +83,9 @@ class Packet():
     @see encodeChild
     @return binary: The binary buffer, ready to be sent to server
     '''
-    self.buf = b''
+    # Joined once at the end, not grown per field.
+    self.parts = []
+    self.buflen = 0
     self.euchar(self.cmd)
 
     # Used by self.eulen()
@@ -82,10 +93,13 @@ class Packet():
 
     self.encodeChild()
 
-    # Replace length if needed
+    # Patch the length slot eulen() left.
     if self.lenIdx is not None:
-      self.buf = self.buf[:self.lenIdx] + struct.pack('>H', len(self.buf)) + self.buf[self.lenIdx+2:]
+      self.parts[self.lenIdx] = _U16.pack(self.buflen)
     del self.lenIdx
+
+    self.buf = b''.join(self.parts)
+    del self.parts
 
     # Validate the process
     if self.length != len(self.buf):
@@ -102,33 +116,55 @@ class Packet():
   # Decode methods -----------------------------------------------------------
 
   def rpb(self, num):
-    ''' Returns the given number of characters from the receive buffer '''
-    if num > len(self.buf):
-      raise EOFError("Trying to read {} bytes, but only {} left in buffer".format(num, len(self.buf)))
-    self.readCount += num
-    ret = self.buf[:num]
-    self.buf = self.buf[num:]
+    ''' Returns the given number of characters from the receive buffer
+
+    readCount is where the next field starts, so the buffer is read at a cursor
+    and never rewritten. Reslicing it per field copied whatever was left of the
+    packet every time, so decoding cost grew with the square of the length - and
+    the long ones are the interesting ones: container listings, gumps, house
+    designs.
+    '''
+    end = self.readCount + num
+    if end > len(self.buf):
+      raise EOFError("Trying to read {} bytes, but only {} left in buffer".format(
+          num, len(self.buf) - self.readCount))
+    ret = self.buf[self.readCount:end]
+    self.readCount = end
     return ret
+
+  def _dscalar(self, fmt):
+    ''' Reads one scalar straight out of the buffer, without a slice in between '''
+    pos = self.readCount
+    end = pos + fmt.size
+    if end > len(self.buf):
+      raise EOFError("Trying to read {} bytes, but only {} left in buffer".format(
+          fmt.size, len(self.buf) - pos))
+    self.readCount = end
+    return fmt.unpack_from(self.buf, pos)[0]
 
   def duchar(self):
     ''' Returns next unsngned byte from the receive buffer '''
-    return struct.unpack('B', self.rpb(1))[0]
+    pos = self.readCount
+    if pos >= len(self.buf):
+      raise EOFError("Trying to read 1 bytes, but only 0 left in buffer")
+    self.readCount = pos + 1
+    return self.buf[pos]
 
   def dschar(self):
     ''' Returns next signed byte from the receive buffer '''
-    return struct.unpack('b', self.rpb(1))[0]
+    return self._dscalar(_S8)
 
   def dushort(self):
     ''' Returns next unsigned short from the receive buffer '''
-    return struct.unpack('>H', self.rpb(2))[0]
+    return self._dscalar(_U16)
 
   def dsshort(self):
     ''' Returns next signed short from the receive buffer '''
-    return struct.unpack('>h', self.rpb(2))[0]
+    return self._dscalar(_S16)
 
   def duint(self):
     ''' Returns next unsigned int from the receive buffer '''
-    return struct.unpack('>I', self.rpb(4))[0]
+    return self._dscalar(_U32)
 
   def dstring(self, length):
     ''' Returns next string of the given length from the receive buffer '''
@@ -177,9 +213,14 @@ class Packet():
 
   # Encode methods -----------------------------------------------------------
 
+  def eraw(self, data):
+    ''' Appends already encoded bytes to the packet '''
+    self.parts.append(data)
+    self.buflen += len(data)
+
   def eulen(self):
     ''' Special value: will place there an ushort containing packet length '''
-    self.lenIdx = len(self.buf)
+    self.lenIdx = len(self.parts)
     self.eushort(0)
 
   def euchar(self, val):
@@ -188,7 +229,7 @@ class Packet():
       raise TypeError("Expected int, got {}".format(type(val)))
     if val < 0 or val > 255:
       raise ValueError("Byte {} out of range".format(val))
-    self.buf += struct.pack('B', val)
+    self.eraw(_U8.pack(val))
 
   def eschar(self, val):
     ''' Add a signed char (byte) to the packet '''
@@ -196,7 +237,7 @@ class Packet():
       raise TypeError("Expected int, got {}".format(type(val)))
     if val < -128 or val > 127:
       raise ValueError("Byte {} out of range".format(val))
-    self.buf += struct.pack('b', val)
+    self.eraw(_S8.pack(val))
 
   def eushort(self, val):
     ''' Adds an unsigned short to the packet '''
@@ -204,7 +245,7 @@ class Packet():
       raise TypeError("Expected int, got {}".format(type(val)))
     if val < 0 or val > 0xffff:
       raise ValueError("UShort {} out of range".format(val))
-    self.buf += struct.pack('>H', val)
+    self.eraw(_U16.pack(val))
 
   def esshort(self, val):
     ''' Adds a signed short to the packet '''
@@ -212,7 +253,7 @@ class Packet():
       raise TypeError("Expected int, got {}".format(type(val)))
     if val < -32767 or val > 32767:
       raise ValueError("Short {} out of range".format(val))
-    self.buf += struct.pack('>h', val)
+    self.eraw(_S16.pack(val))
 
   def euint(self, val):
     ''' Adds and unsigned int to the packet '''
@@ -220,7 +261,7 @@ class Packet():
       raise TypeError("Expected int, got {}".format(type(val)))
     if val < 0 or val > 0xffffffff:
       raise ValueError("UInt {} out of range".format(val))
-    self.buf += struct.pack('>I', val)
+    self.eraw(_U32.pack(val))
 
   def estring(self, val, length, unicode=False):
     ''' Adds a string to the packet '''
@@ -228,13 +269,13 @@ class Packet():
       raise TypeError("Expected str, got {}".format(type(val)))
     if len(val) > length:
       raise ValueError('String "{}" too long'.format(val))
-    self.buf += self.fixStr(val, length, unicode)
+    self.eraw(self.fixStr(val, length, unicode))
 
   def eip(self, val):
     ''' Adds an ip to the packet '''
     if not isinstance(val, str):
       raise TypeError("Expected str, got {}".format(type(val)))
-    self.buf += ipaddress.ip_address(val).packed
+    self.eraw(ipaddress.ip_address(val).packed)
 
   # Utility methods ----------------------------------------------------------
 
@@ -252,18 +293,20 @@ class Packet():
 
   @staticmethod
   def fixStr(string, length, unicode=False):
-    ''' Convert a str to fixed length, return bytes '''
+    ''' Convert a str to fixed length, return bytes
+
+    The unicode form is the same characters with a leading zero byte each, which
+    is how the protocol writes big-endian UCS-2. Length counts characters, so a
+    unicode field is twice as many bytes.
+    '''
     ##TODO: Better handling on unicode
-    enc = string.encode('ascii')
-    ret = b''
-    for i in range(0,length):
-      if unicode:
-        ret += b'\x00'
-      try:
-        ret += bytes([enc[i]])
-      except IndexError:
-        ret += b'\x00'
-    return ret
+    enc = string.encode('ascii')[:length].ljust(length, b'\x00')
+    if not unicode:
+      return enc
+    # interleave a zero byte before each character
+    out = bytearray(length * 2)
+    out[1::2] = enc
+    return bytes(out)
 
   @staticmethod
   def varStr(byt):
@@ -339,18 +382,21 @@ class MoveRequestPacket(Packet):
   cmd = 0x02
   length = 7
 
-  def fill(self, direction, sequence):
+  def fill(self, direction, sequence, key=0):
     '''!
     @param direction int: The direction code (0-7)
     @param sequence int: The sequence code (0-255)
+    @param key int: The fastwalk prevention key to spend on this step, 0 when
+                    the client has none left
     '''
     self.direction = direction
     self.sequence = sequence
+    self.key = key
 
   def encodeChild(self):
     self.euchar(self.direction)
     self.euchar(self.sequence)
-    self.euint(0) #Fastwalk prevention key
+    self.euint(self.key)
 
 
 class AttackRequestPacket(SerialOnlyPacket):
@@ -1446,7 +1492,9 @@ class DrawObjectPacket(Packet):
         break
       graphic = self.dushort()
       layer = self.duchar()
+      # The top bit says a hue follows. It is not part of the graphic.
       if graphic & 0x8000:
+        graphic &= 0x7fff
         color = self.dushort()
       else:
         color = 0
@@ -1479,11 +1527,13 @@ class CorpseEquipmentPacket(Packet):
   ''' Corpse clothing / equipment '''
 
   cmd = 0x89
-  equip = []
 
   def decodeChild(self):
     self.length = self.dushort()
     self.serial = self.duint()
+
+    # Per instance: a class attribute would be shared by every corpse.
+    self.equip = []
 
     while True:
       layer = self.duchar()
@@ -1829,7 +1879,7 @@ class BookPagePacket(Packet):
     else:
       self.eushort(len(self.lines))
       for line in self.lines:
-        self.buf += line.encode('iso8859-15') + b'\x00'
+        self.eraw(line.encode('iso8859-15') + b'\x00')
 
 
 class SelectColorPacket(Packet):
@@ -1910,7 +1960,7 @@ class TextEntryResponsePacket(Packet):
     self.euchar(self.index)
     self.euchar(self.retcode)
     self.eushort(len(self.data) if self.claim_datalen is None else self.claim_datalen)
-    self.buf += self.data
+    self.eraw(self.data)
 
 
 class UnicodeSpeechRequestPacket(Packet):
@@ -1961,7 +2011,8 @@ class UnicodeSpeechRequestPacket(Packet):
 
     self.length = 1 + 2 + 1 + 2 + 2 + 4
     if tokens:
-      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) / 8
+      # Floor division: a length is whole bytes.
+      token_byte_length = ((((1 + len(tokens)) * 12) + 7) & (-8)) // 8
       self.length = self.length + token_byte_length + len(self.text)+1
     else:
       self.length = self.length + len(self.text)*2+2
@@ -2206,7 +2257,8 @@ class GeneralInfoPacket(Packet):
 
     def checkArgLen(expLen):
       if len(args) != expLen:
-        raise TypeError("Subcommand {:02x} takes {} positional argument(s) " + \
+        # Implicit concatenation, so format() applies to the whole message.
+        raise TypeError("Subcommand {:02x} takes {} positional argument(s) "
             "but {} were given".format(self.sub, expLen, len(args)))
 
     if self.sub == self.SUB_LOGIN:
@@ -2390,7 +2442,7 @@ class GeneralInfoPacket(Packet):
       self.euchar(self.flag)
 
     else:
-      self.buf += self.body
+      self.eraw(self.body)
 
   def decodeChild(self):
     self.length = self.dushort()
@@ -2696,7 +2748,7 @@ class CloseGumpResponsePacket(Packet):
     for tag, text, claimed in self.texts:
       self.eushort(tag)
       self.eushort(claimed) # in characters, the data behind it is two bytes each
-      self.buf += text.encode('utf_16_be')
+      self.eraw(text.encode('utf_16_be'))
 
 
 class AOSTooltipPacket(Packet):
@@ -2988,6 +3040,7 @@ class SmoothBoatPacket(Packet):
     self.count = self.dushort()
     self.objs=[]
     for i in range(self.count):
+      # Say which object ran out, not a bare length mismatch.
       try:
         self.objs.append({
          'serial':self.duint(),
@@ -2995,9 +3048,9 @@ class SmoothBoatPacket(Packet):
          'y':self.dushort(),
          'z':self.dsshort(),
         })
-      except Exception as e:
-        self.log.error('failed to read obj {} of {} pktlen {}'.format(i,self.count,self.length))
-        break
+      except EOFError as e:
+        raise EOFError('0xf6 claims {} objects but ran out at {} (packet length {}): {}'.format(
+            self.count, i, self.length, e)) from e
 
 class MultipleNewObjectInfoPacket(Packet):
   ''' Draws multiple objects '''
@@ -3061,7 +3114,7 @@ class UnicodePromptPacket(Packet):
     self.estring(self.lang, 4)
     # host order, not network order: the core reads wtext straight out of the packet without
     # converting it, unlike the character profile, which it writes flipped
-    self.buf += self.text.encode('utf_16_le')
+    self.eraw(self.text.encode('utf_16_le'))
 
 
 class QuestArrowPacket(Packet):
@@ -3253,7 +3306,7 @@ class AsciiSpeechRequestPacket(Packet):
     self.euchar(self.type)
     self.eushort(self.color)
     self.eushort(self.font)
-    self.buf += self.text + b'\x00'
+    self.eraw(self.text + b'\x00')
 
 
 class BulletinBoardPacket(Packet):
@@ -3273,7 +3326,7 @@ class BulletinBoardPacket(Packet):
   def encodeChild(self):
     self.eulen()
     self.euchar(self.sub)
-    self.buf += self.body
+    self.eraw(self.body)
 
 
 class RenameCharPacket(Packet):
@@ -3573,7 +3626,7 @@ class HelpRequestPacket(Packet):
     pass
 
   def encodeChild(self):
-    self.buf += b'\x00' * 257
+    self.eraw(b'\x00' * 257)
 
 
 class GetTipPacket(Packet):
@@ -3630,6 +3683,32 @@ class OpenUrlPacket(Packet):
     # the whole field rather than up to the terminator, so the length is accounted
     # for either way; dstring stops at the null the core leaves after the url
     self.url = self.dstring(self.length - 3)
+
+
+class RejectCharacterLogonPacket(Packet):
+  ''' Why the server will not have this character in the world. The core only
+  ever sends the idle warning '''
+
+  cmd = 0x53
+  length = 2
+
+  ## the only one the core sends, see PKTOUT_53_WARN_CHARACTER_IDLE
+  WARN_CHARACTER_IDLE = 0x07
+
+  def decodeChild(self):
+    self.reason = self.duchar()
+
+
+class KREncryptionResponsePacket(Packet):
+  ''' The answer to a KR client's encryption request, a fixed blob the core
+  writes the same way every time. A 2D client never asks for one '''
+
+  cmd = 0xe3
+  length = 77
+
+  def decodeChild(self):
+    self.length = self.dushort()
+    self.rpb(74)
 
 
 ################################################################################
