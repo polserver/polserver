@@ -1,11 +1,16 @@
-// The war mode throttle. combat.cfg sets WarModeDelay to 0 for the client tests,
-// so this case turns it back on to keep it covered.
+// combat.cfg settings, each changed by rewriting the file and calling
+// ReloadConfiguration(). Every case puts the file back on every path out of it.
+// The test shard sets WarModeDelay to 0 for the client tests, so the throttle is
+// covered here, and it is also what shows whether a failed reload applied anything.
 
 use os;
 use uo;
+use vitals;
 
 include "testutil";
 include "communication";
+include "cfgedit";
+include "attack";
 
 const CFG_PATH := "::config/combat.cfg";
 
@@ -19,7 +24,7 @@ const FORCE_TIMEOUT := ( GUARD_DELAY + 7 ) * 1000;
 var char;
 var clientcon := getClientConnection();
 
-program test_client_warmode_delay()
+program test_client_combat_cfg()
   var a := FindAccount( "testclient0" );
   char := a.getcharacter( 1 );
   if ( !char )
@@ -101,6 +106,157 @@ exported function warmode_delay_throttles( unused resmgn )
   var restored := force_warmode( 0 );
   if ( !res )
     return res;
+  endif
+  return restored;
+endfunction
+
+// Split out so the caller can put the config back on every path out of it.
+function check_unthrottled( reload )
+  if ( reload )
+    return ret_error( "ReloadConfiguration() accepted a combat.cfg with a bad value" );
+  endif
+
+  var quiet := client_sync( clientcon, 0 );
+  if ( !quiet )
+    return quiet;
+  endif
+
+  // With the old WarModeDelay of 0 both changes go through. A delay applied by
+  // the failed reload drops the second one.
+  foreach war in ( array{ 1, 0 } )
+    clientcon.sendevent( struct{ todo := "war_mode", arg := war, id := 0 } );
+    var ev := waitForClient( 0, { EVT_WAR_MODE } );
+    if ( !ev )
+      return ret_error( $"war mode {war} was dropped: the failed reload armed the throttle" );
+    endif
+    if ( CInt( ev.war ) != war )
+      return ret_error( $"client answered war mode {ev.war}, expected {war}" );
+    endif
+  endforeach
+  return 1;
+endfunction
+
+// A reload that fails on a bad value must leave every combat setting as it was,
+// not apply the keys parsed before the bad one.
+exported function bad_combat_cfg_changes_nothing( unused resmgn )
+  var res := force_warmode( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  // The core parses CoreHitSounds after WarModeDelay, and a bool throws on "abc".
+  // WarModeDelay itself cannot be the bad value: a malformed number reads as 0.
+  var original := write_cfg_keys( CFG_PATH,
+                                  dictionary{ "WarModeDelay" -> GUARD_DELAY,
+                                              "CoreHitSounds" -> "abc" } );
+  if ( !original )
+    return original;
+  endif
+
+  res := check_unthrottled( ReloadConfiguration() );
+
+  restore_cfg( CFG_PATH, original );
+  var restored := force_warmode( 0 );
+  if ( !res )
+    return res;
+  endif
+  return restored;
+endfunction
+
+// Damages the character by 1 and checks whether its client is shown it. The core
+// sends the damage packet only for damage that has a source: the script controller.
+function check_damage_packet( shown )
+  var quiet := client_sync( clientcon, 0 );
+  if ( !quiet )
+    return quiet;
+  endif
+
+  var res := ApplyRawDamage( char, 1, DAMAGE_NO_REPSYS );
+  if ( !res )
+    return ret_error( $"ApplyRawDamage() failed: {res}" );
+  endif
+
+  if ( !shown )
+    return no_event_before_sync( clientcon, 0, { EVT_DAMAGE } );
+  endif
+
+  var ev;
+  while ( 1 )
+    ev := waitForClient( 0, { EVT_DAMAGE } );
+    if ( !ev )
+      return ret_error( "the client was not sent the damage with SendDamagePacket=1" );
+    endif
+    if ( ev.serial == char.serial )
+      break;
+    endif
+  endwhile
+  if ( CInt( ev.damage ) != 1 )
+    return ret_error( $"the client was shown {ev.damage} damage, expected 1" );
+  endif
+  return 1;
+endfunction
+
+// ApplyRawDamage() with its default send flag follows SendDamagePacket, in both
+// directions of a reload.
+exported function send_damage_packet_follows_cfg( unused resmgn )
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  SetScriptController( char );
+
+  var original := set_cfg_key( CFG_PATH, "SendDamagePacket", 1 );
+  if ( !original )
+    SetScriptController( 0 );
+    return original;
+  endif
+
+  var res := check_damage_packet( 1 );
+
+  // The test shard leaves SendDamagePacket at its default of 0.
+  restore_cfg( CFG_PATH, original );
+  if ( res )
+    res := check_damage_packet( 0 );
+  endif
+
+  SetScriptController( 0 );
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  return res;
+endfunction
+
+// Split out so the caller can put the config back on every path out of it.
+function check_self_attack()
+  var ev := send_attack( clientcon, char.serial, char.serial );
+  if ( !ev )
+    return ev;
+  endif
+  if ( char.opponent != char )
+    return ret_error( $"the core selected {char.opponent} as opponent, expected the character" );
+  endif
+  return 1;
+endfunction
+
+// With SingleCombat=1 a character may attack itself. test_client_attack_self in
+// test_attack.src covers the refusal at the test shard's value of 0.
+exported function single_combat_attacks_self( unused resmgn )
+  var res := force_warmode( 0 );
+  if ( !res )
+    return res;
+  endif
+
+  var original := set_cfg_key( CFG_PATH, "SingleCombat", 1 );
+  if ( !original )
+    return original;
+  endif
+
+  res := check_self_attack();
+
+  // Leaving war mode drops the opponent. Life is topped up in case a swing hit.
+  restore_cfg( CFG_PATH, original );
+  var restored := force_warmode( 0 );
+  SetVital( char, "Life", GetVitalMaximumValue( char, "Life" ) );
+  if ( !res )
+    return res;
+  endif
+  if ( restored and char.opponent )
+    return ret_error( $"the character still has an opponent: {char.opponent}" );
   endif
   return restored;
 endfunction

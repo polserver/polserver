@@ -15,6 +15,7 @@ use polsys;
 
 include "testutil";
 include "communication";
+include "cfgedit";
 include "guildutil";
 include "speech";
 

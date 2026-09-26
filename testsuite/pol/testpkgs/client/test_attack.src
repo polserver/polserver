@@ -5,6 +5,7 @@ use attributes;
 
 include "testutil";
 include "communication";
+include "attack";
 
 const ATTACK_X := 100;
 const ATTACK_Y := 100;
@@ -38,7 +39,7 @@ exported function test_client_attack_npc( resources )
   var npc_hits := GetVital( npc, "Life" );
   var char_hits := GetVital( char, "Life" );
 
-  var ev := send_attack( npc.serial, npc.serial );
+  var ev := send_attack( clientcon, npc.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
@@ -96,7 +97,7 @@ exported function test_client_attack_kill_npc( resources )
     return npc;
   endif
 
-  var ev := send_attack( npc.serial, npc.serial );
+  var ev := send_attack( clientcon, npc.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
@@ -137,7 +138,7 @@ exported function test_client_attack_kill_npc( resources )
   endif
   npc2.hitchance_mod := 1000;
 
-  ev := send_attack( npc2.serial, npc2.serial );
+  ev := send_attack( clientcon, npc2.serial, npc2.serial );
   if ( !ev )
     return ev;
   endif
@@ -159,7 +160,7 @@ exported function test_client_attack_npc_killed( resources )
     return npc;
   endif
 
-  var ev := send_attack( npc.serial, npc.serial );
+  var ev := send_attack( clientcon, npc.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
@@ -211,7 +212,7 @@ exported function test_client_attack_stop_warmode( resources )
     return npc;
   endif
 
-  var ev := send_attack( npc.serial, npc.serial );
+  var ev := send_attack( clientcon, npc.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
@@ -251,13 +252,13 @@ exported function test_client_attack_self( resources )
     return npc;
   endif
 
-  var ev := send_attack( npc.serial, npc.serial );
+  var ev := send_attack( clientcon, npc.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
 
   // the npc stays the highlighted opponent
-  ev := send_attack( char.serial, npc.serial );
+  ev := send_attack( clientcon, char.serial, npc.serial );
   if ( !ev )
     return ev;
   endif
@@ -279,7 +280,7 @@ exported function test_client_attack_hidden_npc( resources )
   endif
   npc.hidden := 1;
 
-  var ev := send_attack( npc.serial, 0 );
+  var ev := send_attack( clientcon, npc.serial, 0 );
   if ( !ev )
     return ev;
   endif
@@ -305,7 +306,7 @@ exported function test_client_attack_out_of_range( resources )
     return ret_error( $"Could not move npc: {res}" );
   endif
 
-  var ev := send_attack( npc.serial, 0 );
+  var ev := send_attack( clientcon, npc.serial, 0 );
   if ( !ev )
     return ev;
   endif
@@ -394,22 +395,6 @@ function setup_attack( resources )
 
   Clear_Event_Queue();
   return npc;
-endfunction
-
-// sends an attack request for the given serial and waits for the server to
-// highlight the expected object.
-function send_attack( serial, expected )
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "attack", arg := serial, id := 0 } );
-  while ( 1 )
-    var ev := waitForClient( 0, { EVT_ATTACK } );
-    if ( !ev )
-      return ret_error( $"No highlight of 0x{expected:x} received: {ev}" );
-    endif
-    if ( ev.serial == expected )
-      return ev;
-    endif
-  endwhile
 endfunction
 
 // waits until the client swings at the given serial.

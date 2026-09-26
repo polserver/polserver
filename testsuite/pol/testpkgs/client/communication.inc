@@ -1,8 +1,6 @@
 use os;
 use attributes;
 use vitals;
-use file;
-use polsys;
 
 // see pyuo/brain.py method typestr()
 const EVT_INIT := "init";
@@ -689,36 +687,4 @@ function enable_auto_delete( clientcon, id )
   clientcon.sendevent( struct{ todo := EVT_AUTO_DELETE_OBJS, arg := true, id := id } );
   while ( !waitForClient( id, { EVT_AUTO_DELETE_OBJS } ) )
   endwhile
-endfunction
-
-// Rewrites one setting of a config file the core re-reads on ReloadConfiguration.
-// Lines starting with the key are replaced by one appended line. Returns the
-// original contents for restore_cfg(), which the case must always call.
-function set_cfg_key( path, key, value )
-  var original := ReadFile( path );
-  if ( original == error )
-    return ret_error( $"could not read {path}: {original}" );
-  endif
-
-  var rewritten := array{};
-  foreach line in ( original )
-    if ( Find( line, key, 1 ) != 1 )
-      rewritten.append( line );
-    endif
-  endforeach
-  rewritten.append( $"{key}={value}" );
-
-  var res := WriteFile( path, rewritten );
-  if ( res == error )
-    return ret_error( $"could not write {path}: {res}" );
-  endif
-
-  ReloadConfiguration();
-  return original;
-endfunction
-
-function restore_cfg( path, original )
-  WriteFile( path, original );
-  ReloadConfiguration();
-  return 1;
 endfunction

@@ -5,6 +5,7 @@ use attributes;
 
 include "testutil";
 include "communication";
+include "attack";
 include "sysevent";
 
 const ATTACK_X := 100;
@@ -36,7 +37,7 @@ exported function test_client_attack_item( resources )
     return item;
   endif
 
-  var ev := send_attack( item.serial, item.serial );
+  var ev := send_attack( clientcon, item.serial, item.serial );
   if ( !ev )
     return ev;
   endif
@@ -83,7 +84,7 @@ exported function test_client_attack_destroy_item( resources )
     return item;
   endif
 
-  var ev := send_attack( item.serial, item.serial );
+  var ev := send_attack( clientcon, item.serial, item.serial );
   if ( !ev )
     return ev;
   endif
@@ -123,7 +124,7 @@ exported function test_client_attack_destroy_item( resources )
     return ret_error( $"Could not create item: {item2}" );
   endif
 
-  ev := send_attack( item2.serial, item2.serial );
+  ev := send_attack( clientcon, item2.serial, item2.serial );
   if ( !ev )
     return ev;
   endif
@@ -145,7 +146,7 @@ exported function test_client_attack_invis_item( resources )
   endif
   item.invisible := 1;
 
-  var ev := send_attack( item.serial, 0 );
+  var ev := send_attack( clientcon, item.serial, 0 );
   if ( !ev )
     return ev;
   endif
@@ -164,7 +165,7 @@ exported function test_client_attack_item_range( resources )
     return item;
   endif
 
-  var ev := send_attack( item.serial, 0 );
+  var ev := send_attack( clientcon, item.serial, 0 );
   if ( !ev )
     return ev;
   endif
@@ -211,7 +212,7 @@ exported function test_client_attack_kill_item( resources )
 
   item.hp := 1;
 
-  var ev := send_attack( item.serial, item.serial );
+  var ev := send_attack( clientcon, item.serial, item.serial );
   if ( !ev )
     return ev;
   endif
@@ -250,7 +251,7 @@ exported function test_client_attack_kill_item( resources )
     return ret_error( $"Could not create item: {item2}" );
   endif
 
-  ev := send_attack( item2.serial, item2.serial );
+  ev := send_attack( clientcon, item2.serial, item2.serial );
   if ( !ev )
     return ev;
   endif
@@ -427,7 +428,7 @@ exported function test_client_attack_item_no_crime( resources )
   var criminal := char.criminal;
   var murderer := char.murderer;
 
-  var ev := send_attack( item.serial, item.serial );
+  var ev := send_attack( clientcon, item.serial, item.serial );
   if ( !ev )
     return ev;
   endif
@@ -552,22 +553,6 @@ function stop_attack()
     return ret_error( $"Opponent is still set: {char.opponent}" );
   endif
   return 1;
-endfunction
-
-// sends an attack request for the given serial and waits for the server to
-// highlight the expected object.
-function send_attack( serial, expected )
-  Clear_Event_Queue();
-  clientcon.sendevent( struct{ todo := "attack", arg := serial, id := 0 } );
-  while ( 1 )
-    var ev := waitForClient( 0, { EVT_ATTACK } );
-    if ( !ev )
-      return ret_error( $"No highlight of 0x{expected:x} received: {ev}" );
-    endif
-    if ( ev.serial == expected )
-      return ev;
-    endif
-  endwhile
 endfunction
 
 // waits until the client swings at the given serial.
