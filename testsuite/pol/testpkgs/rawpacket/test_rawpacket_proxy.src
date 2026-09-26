@@ -1,0 +1,168 @@
+// The PROXY protocol v2 header a load balancer puts in front of a client's bytes, on a listener
+// with AllowProxy (this package's uoclient.cfg: port 5023, from 127.0.0.1). The header is parsed
+// before any login, from a peer the shard only trusts by its address, so each malformed shape
+// has to end in a clean disconnect.
+//
+// What the shard makes of the proxied address shows through bannedips.cfg, which bans
+// 192.0.2.0/24: a login from a banned address is answered with the two bytes of a 0x82
+// "account blocked" and a disconnect, any other login with the longer server list.
+use os;
+use uo;
+include "testutil";
+
+const RAWPEER_PORT := 5013;  // must match CONTROL_PORT in testsuite/rawpeer/rawpeer.py
+const PROXY_PORT := 5023;
+const SEED := "7f000001";
+const ACCOUNT := "rawproxy";
+
+const SIGNATURE := "0d0a0d0a000d0a515549540a";
+const PROXY_INET_STREAM := "2111";    // version 2 PROXY, IPv4 over TCP
+const LOCAL_UNSPEC := "2000";         // version 2 LOCAL, no address
+const PROXY_INET6_STREAM := "2121";   // version 2 PROXY, IPv6 over TCP
+const LOGIN_DENIED_LEN := 2;          // 0x82 and its reason byte
+
+program test_rawpacket_proxy()
+  if ( !FindAccount( ACCOUNT ) )
+    var res := CreateAccount( ACCOUNT, "pass", 1 );
+    if ( !res )
+      return ret_error( $"could not create the account: {res}" );
+    endif
+  endif
+  return 1;
+endprogram
+
+function hexbyte( b )
+  var h := $"{b:x}";
+  if ( h.length() < 2 )
+    return "0" + h;
+  endif
+  return h;
+endfunction
+
+function hexword( w )
+  return hexbyte( ( w >> 8 ) & 0xFF ) + hexbyte( w & 0xFF );
+endfunction
+
+// A string as hex, NUL padded to width bytes.
+function hexstr( s, width )
+  var res := "";
+  for i := 1 to width
+    if ( i <= s.length() )
+      res += hexbyte( CAsc( s[i] ) );
+    else
+      res += "00";
+    endif
+  endfor
+  return res;
+endfunction
+
+// A 0x80 account login for the test account.
+function login_packet()
+  return "80" + hexstr( ACCOUNT, 30 ) + hexstr( "pass", 30 ) + "00";
+endfunction
+
+// The header of a PROXY for an IPv4 client at a.b.c.d:40000, to this listener.
+function proxy_ipv4( a, b, c, d )
+  return SIGNATURE + PROXY_INET_STREAM + hexword( 12 ) + hexbyte( a ) + hexbyte( b ) +
+         hexbyte( c ) + hexbyte( d ) + "7f000001" + hexword( 40000 ) + hexword( PROXY_PORT );
+endfunction
+
+function raw_send_to_proxy( words )
+  var conn := OpenConnection( "127.0.0.1", RAWPEER_PORT, "rawctl",
+                              params := struct{
+                                test_script_pid := GetPid(),
+                                command := $"SENDTO {PROXY_PORT} " + words },
+                              assume_string := 1, keep_connection := 1,
+                              ignore_line_breaks := 0 );
+  if ( !conn )
+    return ret_error( $"could not reach the raw peer helper: {conn}" );
+  endif
+  var result := wait_for_event( 90 );
+  if ( !result )
+    return ret_error( "raw peer helper never reported a result" );
+  endif
+  if ( result.verdict == "REFUSED" )
+    return ret_error( "raw peer helper could not connect to the proxy listener" );
+  endif
+  return result;
+endfunction
+
+// The header was dropped as a whole: the connection closes with nothing sent back.
+function expect_dropped( words, what )
+  var res := raw_send_to_proxy( words );
+  if ( !res )
+    return res;
+  endif
+  if ( res.verdict != "CLOSED" || res.read_back != 0 )
+    return ret_error( $"{what}: expected a silent close, got {res.verdict} with {res.read_back} bytes" );
+  endif
+  return 1;
+endfunction
+
+// The login went through: the server list came back and the connection stays open.
+function expect_server_list( words, what )
+  var res := raw_send_to_proxy( words );
+  if ( !res )
+    return res;
+  endif
+  if ( res.verdict != "OPEN" || res.read_back <= LOGIN_DENIED_LEN )
+    return ret_error( $"{what}: expected the server list, got {res.verdict} with {res.read_back} bytes" );
+  endif
+  return 1;
+endfunction
+
+// A banned address behind the proxy is refused as that address, not as the proxy's.
+exported function proxy_banned_source_refused()
+  var res := raw_send_to_proxy( proxy_ipv4( 192, 0, 2, 5 ) + " " + SEED + " " + login_packet() );
+  if ( !res )
+    return res;
+  endif
+  if ( res.verdict != "CLOSED" || res.read_back != LOGIN_DENIED_LEN )
+    return ret_error( $"expected the 0x82 refusal, got {res.verdict} with {res.read_back} bytes" );
+  endif
+  return 1;
+endfunction
+
+exported function proxy_allowed_source_logs_in()
+  return expect_server_list( proxy_ipv4( 198, 51, 100, 7 ) + " " + SEED + " " + login_packet(),
+                             "proxied from 198.51.100.7" );
+endfunction
+
+// A LOCAL command is the proxy's own health check: the connection goes on as the proxy's.
+exported function proxy_local_command()
+  return expect_server_list( SIGNATURE + LOCAL_UNSPEC + hexword( 0 ) + " " + SEED + " " +
+                             login_packet(), "LOCAL with no payload" );
+endfunction
+
+// A LOCAL command's payload is skipped, and the stream goes on after it.
+exported function proxy_local_with_payload()
+  return expect_server_list( SIGNATURE + LOCAL_UNSPEC + hexword( 4 ) + "01020304 " + SEED +
+                             " " + login_packet(), "LOCAL with a 4-byte payload" );
+endfunction
+
+exported function proxy_bad_signature()
+  return expect_dropped( "0d0a0d0a000d0a5155495400" + PROXY_INET_STREAM + hexword( 12 ) +
+                         "c63364077f0000019c4013a7", "a signature with the last byte wrong" );
+endfunction
+
+// IPv6 is a valid family that POL does not take.
+exported function proxy_ipv6_unsupported()
+  var addr := "";
+  for i := 1 to 36
+    addr += "01";
+  endfor
+  return expect_dropped( SIGNATURE + PROXY_INET6_STREAM + hexword( 36 ) + addr,
+                         "an IPv6 address block" );
+endfunction
+
+// A payload larger than the receive buffer is refused as soon as the header says so, before
+// any of it is read. Only a little of it is sent: more than the buffer holds would be written
+// past its end by a shard that waits for all of it, and a crash is not the answer this pins.
+exported function proxy_payload_too_large()
+  var junk := "";
+  for i := 1 to 100
+    junk += "41";
+  endfor
+  return expect_dropped( SIGNATURE + PROXY_INET_STREAM + hexword( 0xFFFF ) + " " + junk,
+                         "a payload of 65535 bytes" );
+endfunction

@@ -1,0 +1,7 @@
+use uo;
+
+// the account test_rawpacket_proxy.src logs in to
+var a := FindAccount( "rawproxy" );
+if ( a )
+  a.delete();
+endif

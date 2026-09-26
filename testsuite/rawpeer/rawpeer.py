@@ -12,7 +12,8 @@ Started alongside the shard by cmake/core_tests_start.cmake, like deafclient.py.
 
 Control protocol (line based, spoken by testpkgs/rawpacket/rawctl.src):
 
-    SEND <hex> [<hex> ...]   ->  RESULT <verdict> <ms> <bytes-read-back>
+    SEND <hex> [<hex> ...]            ->  RESULT <verdict> <ms> <bytes-read-back>
+    SENDTO <port> <hex> [<hex> ...]   ->  the same, to another listener than the game port
 
 Each hex word is written as its own send() with a short gap, so a test can put a
 packet boundary where it wants one; a single word is one write. The connection is
@@ -102,7 +103,7 @@ def read_line(sock):
     return data.decode(errors="replace").strip()
 
 
-def send_raw(words):
+def send_raw(words, port=GAME_PORT):
     """Connect, write each hex word, then wait to see whether the shard hangs up.
 
     Returns (verdict, elapsed_ms, bytes_read_back).
@@ -114,7 +115,7 @@ def send_raw(words):
     peer.settimeout(10)
     started = time.monotonic()
     try:
-        peer.connect(("127.0.0.1", GAME_PORT))
+        peer.connect(("127.0.0.1", port))
     except OSError as ex:
         log(f"connect failed: {type(ex).__name__}: {ex}")
         peer.close()
@@ -170,6 +171,9 @@ def handle(control):
             words = line.split()
             if words[0] == "SEND" and len(words) > 1:
                 verdict, ms, read_back = send_raw(words[1:])
+                control.sendall(f"RESULT {verdict} {ms} {read_back}\n".encode())
+            elif words[0] == "SENDTO" and len(words) > 2:
+                verdict, ms, read_back = send_raw(words[2:], int(words[1]))
                 control.sendall(f"RESULT {verdict} {ms} {read_back}\n".encode())
             else:
                 log(f"ignoring unknown command: {line}")

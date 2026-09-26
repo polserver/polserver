@@ -545,6 +545,16 @@ bool process_data( Network::ThreadedClient* session )
         return false;
       }
 
+      // the payload is read into the same buffer, after the header
+      if ( sizeof( pp_header_v2 ) + pp_header->payload_size() > sizeof( session->buffer ) )
+      {
+        POLLOGLN( "Client#{} ({}): disconnected due to oversized proxy payload of {} bytes",
+                  session->myClient.instance_, session->ipaddrAsString(),
+                  pp_header->payload_size() );
+        session->forceDisconnect();
+        return false;
+      }
+
       if ( pp_header->command() == PP_CMD_LOCAL && pp_header->payload_size() == 0 )
       {
         // for local command with zero payload there is nothing else to read => continue with the
@@ -575,6 +585,7 @@ bool process_data( Network::ThreadedClient* session )
       {
         // local commands shouldn't have payload, but in case they do it should be skipped
         session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
+        session->bytes_received = 0;
         return true;
       }
 
