@@ -629,6 +629,9 @@ class Client:
     self.status = 'disconnected'
     ## Login complete, will be false during the initial fase of the game
     self.lc = False
+    ## Set by the expect_disconnect todo: the server is about to drop this client, and the drop
+    ## ends it rather than counting as a crash.
+    self.disconnect_expected = False
     ## Set once this client has stopped for any reason. Waiters watch it instead of
     ## polling.
     self.stopped = asyncio.Event()
@@ -829,6 +832,10 @@ class Client:
         # The server closed the connection before login finished, as it does for a
         # refused character creation. End this client without failing the run.
         self.log.info('server closed the connection before the login completed')
+        return
+      if isinstance(e, net.Disconnected) and self.disconnect_expected:
+        self.log.info('server closed the connection, as the test expected')
+        self.brain.event(brain.Event(brain.Event.EVT_DISCONNECTED))
         return
       msg = ''.join(traceback.format_exception(type(e), e, e.__traceback__))
       self.log.critical(msg)

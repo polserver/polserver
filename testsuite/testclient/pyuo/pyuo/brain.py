@@ -72,6 +72,9 @@ class Brain:
     while True:
       if self.client.stopped.is_set():
         self.processEvents()
+        if self.client.disconnect_expected:
+          self.log.info('Client was dropped by the server, as the test expected.')
+          break
         # Should not reach this point
         self.log.critical("Client crashed and didn't tell me.")
         raise RuntimeError("Client crashed and didn't tell me.")
@@ -238,6 +241,10 @@ class Event:
   EVT_OPEN_URL = 141
   # The answer to a harness ping. See client_sync() in communication.inc.
   EVT_SYNC = 142
+  # The login server's 0x82 refusal, raised instead of failing the run.
+  EVT_LOGIN_DENIED = 143
+  # The server dropped a client that had been told to expect it.
+  EVT_DISCONNECTED = 144
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -340,4 +347,6 @@ TYPESTR = {
   Event.EVT_MAP: "map",
   Event.EVT_MAP_PIN: "map_pin",
   Event.EVT_SYNC: "sync",
+  Event.EVT_LOGIN_DENIED: "login_denied",
+  Event.EVT_DISCONNECTED: "disconnected",
 }

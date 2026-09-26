@@ -165,6 +165,13 @@ const EVT_RACE_CHANGER := "race_changer";
 const EVT_BOOK := "book";
 // The answer to a harness ping. See client_sync().
 const EVT_SYNC := "sync";
+// The login server refused the account; "reason" is the 0x82 code (LOGIN_DENIED_*).
+const EVT_LOGIN_DENIED := "login_denied";
+const LOGIN_DENIED_NO_ACCOUNT := 0;
+const LOGIN_DENIED_BLOCKED := 2;
+const LOGIN_DENIED_WRONG_PASSWORD := 3;
+// The server dropped a client that the "expect_disconnect" todo had told to expect it.
+const EVT_DISCONNECTED := "disconnected";
 const EVT_BOOK_PAGE := "book_page";
 const BOOK_READ := "read";
 const BOOK_WRITE := "write";

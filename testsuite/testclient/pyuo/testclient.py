@@ -173,6 +173,9 @@ class TestBrain(brain.Brain):
       if todo=="disconnect":
         self.client.addTodo(brain.Event(brain.Event.EVT_EXIT))
         return False
+      elif todo=="expect_disconnect":
+        # The test is about to have the server drop this client (a ban, DisconnectClient).
+        self.client.disconnect_expected = True
       elif todo=="speech":
         if isinstance(arg, str):
           self.client.say(arg)
@@ -661,8 +664,17 @@ class PolServer:
   async def startclient(self,user,psw,charname,charidx,id,create=None):
     c = client.Client(id)
     self.clients.append(c)
-    await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
-    await c.selectServer(self.lconf.getint('serveridx'))
+    try:
+      await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
+      await c.selectServer(self.lconf.getint('serveridx'))
+    except client.LoginDeniedError as ex:
+      # A refusal the test asked for, reported rather than failing the run.
+      self.log.info("login for %s denied with reason %d", user, ex.code)
+      if getattr(c, "net", None) is not None:
+        c.net.close()
+        await c.net.wait_closed()
+      self.sendEvent(brain.Event(brain.Event.EVT_LOGIN_DENIED, clientid=id, reason=ex.code))
+      return
     if create is None:
       await c.selectCharacter(charname, charidx)
     else:
@@ -701,7 +713,7 @@ class PolServer:
     res={}
     res["id"]=ev.clientid
     res["type"]=ev.typestr()
-    if ev.type==Event.EVT_INIT or ev.type==Event.EVT_EXIT:
+    if ev.type in (Event.EVT_INIT, Event.EVT_EXIT, Event.EVT_DISCONNECTED):
       pass
     elif (ev.type==Event.EVT_HP_CHANGED or
         ev.type==Event.EVT_MANA_CHANGED or
@@ -931,6 +943,8 @@ class PolServer:
       pass
     elif ev.type==Event.EVT_SYNC:
       res['token']=ev.token
+    elif ev.type==Event.EVT_LOGIN_DENIED:
+      res['reason']=ev.reason
     elif ev.type==Event.EVT_WORLDMAP:
       res['subcmd']=ev.subcmd
       res['locations']=1 if ev.locations else 0
