@@ -5,7 +5,7 @@
 <ESCRIPT>
   <fileheader fname="CFGfile.em">
     <filedesc>Functions for accessing configuration files.</filedesc>
-    <datemodified>12/17/2020</datemodified>
+    <datemodified>09/26/2026</datemodified>
   </fileheader>
 
   <function name="ReadConfigFile"> 
@@ -13,6 +13,8 @@
     <parameter name="filename" value="String (not including '.cfg')" />
     <explain>Reads a given config file and returns a reference to it for use with other functions in this EM file.</explain>
     <explain>Note, takes the usual package filespec: '::cfgfile' is in /pol/config, '::regions/cfgfile' is in /pol/regions, ':*:cfgfile' is a combination of all configs named 'cfgfile' in all pacakages, and ':pkgname:cfgfile' is a specific cfgfile inside a package. If only 'cfgfile' is passed, POL looks for it first in /pol/config and then in each package sequentially.</explain>
+    <explain>Each property value is stored as an Integer, a Real or a String when the file is read. A value that is all one number becomes that number: 42, -42, 0x1F (hex), 1.5, or 42 followed by a // comment. Anything else stays a String, including 1e3, 42abc and an integer outside -2147483648..2147483647.</explain>
+    <explain>Beware leading zeros: 010 and 0123 are read as octal, 8 and 83, while 08 and 09 are read as decimal. Because the value is converted when the file is read, GetConfigString returns the converted number too, "8" for 010 and "83" for 0123. Keep zero-padded codes out of numeric-looking values, or add a character that makes them a String.</explain>
     <return>A ConfigFileRef on success.</return>
     <error>"Unable to find package X"</error>
     <error>"Poorly formed config file descriptor: X"</error>
@@ -142,6 +144,7 @@ Dessert applepie
 }
 Use: 'var madelike := GetConfigString(element,&quot;MadeLike&quot;);'
 </code></explain>
+    <explain>A numeric value comes back as that number printed, not as it was written: 0x10 gives "16" and 010 gives "8". See ReadConfigFile.</explain>
     <return>An Real value for the property</return>
     <error>"Invalid type in config file! (internal error)"</error>
     <error>"Property not found"</error>
