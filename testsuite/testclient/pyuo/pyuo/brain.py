@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software Foundation,
 Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 '''
 
-import threading
+import asyncio
 import logging
 import time
 import collections
@@ -28,20 +28,20 @@ import collections
 class Brain:
   ''' This is the Brain for the client, the code that takes decisions
 
-  Usually runs in the main thread, starts the client thread.
+  Runs as its own task, alongside the client's. Construct it, then run() it - the
+  caller owns both tasks and is the one that gets told when either ends.
   '''
 
   def __init__(self, client, id = None):
     '''! Initialize the object, must provide a connected client instance
-    @param client Client: a client instance, already connected, will start it
+    @param client Client: a client instance, already connected
     '''
     idstr=''if id is None else str(id)
     self.log = logging.getLogger('brain'+idstr)
-    self.started = threading.Event()
+    self.started = asyncio.Event()
     self.events = collections.deque()
-    self.eventsLock = threading.Lock()
-    ## Set by the client thread on an event and by the harness on a todo.
-    self.wakeup = threading.Event()
+    ## Set by the client task on an event and by the harness on a todo.
+    self.wakeup = asyncio.Event()
     ## Client reference
     self.client = client
     ## Reference to current player
@@ -51,38 +51,32 @@ class Brain:
     ## Default timeout while waiting for events
     self.timeout = 5
 
-    client.start(self)
-    self.run()
-
-  def run(self):
-    ''' This is the main Brain thread entry point, contains the main loop, internal '''
+  async def run(self):
+    ''' This is the brain task's entry point, contains the main loop, internal '''
 
     # Wait for client to start us, then initialize.
-    #
-    # The event behind this is only set when the login completes, and a login does not always
-    # complete: a character creation the server refuses drops the connection instead. Waiting
-    # forever for that would park this thread - which is the caller's, since __init__ runs the
-    # brain inline - and testclient.py joins every one of those before it exits, so one refused
-    # login used to hang the whole cmake pipeline on a 600s timeout with nothing said.
     self.log.info('Waiting for client to start')
-    while not self.started.wait(timeout=1.0):
-      if not self.client.is_alive():
-        self.log.error('client stopped before its login completed; brain is giving up')
-        return
+    await self.started.wait()
+    if self.client.stopped.is_set():
+      # Opened by a completed login or by the client giving up. The queue is left alone:
+      # it holds only the crash the client already reported, and a refused login that a
+      # test asked for must not become a failure.
+      self.log.error('client stopped before its login completed; brain is giving up')
+      return
     self.log.info('Client started')
     self.player = self.client.player
     self.objects = self.client.objects
-    self.init()
+    await self.init()
 
     # Enter main loop
     while True:
-      if not self.client.is_alive():
+      if self.client.stopped.is_set():
         self.processEvents()
         # Should not reach this point
         self.log.critical("Client crashed and didn't tell me.")
         raise RuntimeError("Client crashed and didn't tell me.")
 
-      if self.loop():
+      if await self.loop():
         self.log.info('Main loop terminated.')
         break
 
@@ -96,39 +90,35 @@ class Brain:
           remaining = deadline - time.monotonic()
           if remaining <= 0:
             break
-          # Clear before the last look at the queues, so a wakeup in between is kept.
+          # Cleared before the wait: no await separates it from the checks above, so no
+          # signal can be lost.
           self.wakeup.clear()
-          if self.hasWork() or self.hasEvents():
-            continue
-          self.wakeup.wait(remaining)
+          try:
+            await asyncio.wait_for(self.wakeup.wait(), remaining)
+          except asyncio.TimeoutError:
+            pass
 
   def onEvent(self, ev):
     raise RuntimeError('needs to be overridden')
 
   def processEvents(self):
     ''' Process event queue, internal '''
-    with self.eventsLock:
-      if not self.events:
-        return
-      # Swap rather than copy, so the producer waits only for the swap.
-      events = self.events
-      self.events = collections.deque()
+    events = self.events
+    self.events = collections.deque()
     while events:
       self.onEvent(events.popleft())
 
   def hasEvents(self):
     ''' Whether anything is queued for processEvents(), internal '''
-    with self.eventsLock:
-      return len(self.events) > 0
+    return len(self.events) > 0
 
 
   def event(self, ev):
-    ''' Internal function, injects a single event, called from the client thread '''
+    ''' Internal function, injects a single event, called from the client task '''
     if not isinstance(ev, Event):
       raise RuntimeError("Unknown event, expecting an Event instance, got {}".format(type(ev)))
 
-    with self.eventsLock:
-      self.events.append(ev)
+    self.events.append(ev)
     self.wakeup.set()
 
   def setTimeout(self, timeout):
@@ -140,11 +130,11 @@ class Brain:
   # Methods intended to be overridden
   ###################################
 
-  def init(self):
+  async def init(self):
     ''' Called just once before first loop '''
     self.log.debug('Brain inited')
 
-  def loop(self):
+  async def loop(self):
     '''! This is called once every main loop iteration, the main brain's loop
     @return Return true to terminate the program
     '''

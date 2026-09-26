@@ -1,4 +1,4 @@
-find_package(Python3 COMPONENTS Interpreter REQUIRED QUIET)
+find_package(Python3 3.8 COMPONENTS Interpreter REQUIRED QUIET)
 if(testemail)
   execute_process(
     COMMAND ${Python3_EXECUTABLE} ${testdir}/testclient/pyuo/testclient.py

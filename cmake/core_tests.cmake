@@ -191,7 +191,9 @@ set_tests_properties( shard_ecompile PROPERTIES FIXTURES_REQUIRED shard)
 set_tests_properties( shard_ecompile PROPERTIES FIXTURES_SETUP ecompile)
 
 # first test run
-find_package(Python3 QUIET COMPONENTS Interpreter)
+# 3.8, for asyncio.run and the stream API. An older python disables the client
+# rather than failing the build.
+find_package(Python3 3.8 QUIET COMPONENTS Interpreter)
 if (${Python3_FOUND})
   execute_process(
       COMMAND ${Python3_EXECUTABLE} -c "import aiosmtpd"
@@ -221,8 +223,16 @@ if (${Python3_FOUND})
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
     set_tests_properties(ecompile_watch_test PROPERTIES FIXTURES_REQUIRED shard)
+
+  # Pure python: no shard, so no fixture and no coretest lock. It covers packet
+  # framing that loopback rarely exercises, such as a packet split across reads.
+  add_test(NAME pyuo_framing_test
+    COMMAND ${Python3_EXECUTABLE}
+      ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/testclient/pyuo/tests/test_framing.py
+    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/testsuite/testclient/pyuo
+  )
 else()
-  message(" - core test without testclient python3 not found")
+  message(" - core test without testclient: no python3 3.8 or newer")
   add_test(NAME shard_test_1
     COMMAND pol
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest

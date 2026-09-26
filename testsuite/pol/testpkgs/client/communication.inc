@@ -478,13 +478,16 @@ endfunction
 // given, everything it has seen otherwise. Drops whatever is queued first, so
 // the answer cannot be an older listing.
 //
-// A client answers this out of its own loop, without regard for the packets
-// still on their way to it - the core hands those to a queue that a thread of
-// its own writes out - so a listing can be older than the change it is being
-// asked about. A caller looking for one object being there, or being gone, has
-// to be able to ask again and must go through client_finds_obj() or
-// client_lost_obj() rather than pick through the answer of a single listing.
+// Taken behind a barrier, so it reflects everything the core had already sent. For
+// something a timer or script sends later, use client_finds_obj() or
+// client_lost_obj().
 function list_client_objs( clientcon, id, cont_serial := 0, timeout := 10 )
+  // The client answers this from its own loop, so without the barrier the listing
+  // can predate packets still queued for it.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   var todo := struct{ todo := "list_objects", id := id };
   if ( cont_serial )
@@ -605,12 +608,15 @@ endfunction
 // Asks a client what it thinks a mobile is wearing. Drops whatever is queued
 // first, so the answer cannot be an older listing.
 //
-// The same race as list_client_objs(): the client answers out of its own loop
-// and knows nothing of the packets still on their way to it, so a listing taken
-// straight after equipping something can be older than the equip. A caller
-// asking whether a layer is filled, or empty, has to go through
+// Behind the same barrier as list_client_objs(). For a layer filled later, use
 // client_finds_layer() or client_lost_layer().
 function list_client_equipment( clientcon, id, serial, timeout := 10 )
+  // The client answers this from its own loop, so without the barrier the listing
+  // can predate packets still queued for it.
+  var sync := client_sync( clientcon, id, timeout );
+  if ( !sync )
+    return sync;
+  endif
   Clear_Event_Queue();
   clientcon.sendevent( struct{ todo := "list_equipped_items", arg := serial, id := id } );
   return waitForClient( id, { EVT_LIST_EQUIPPED_ITEMS }, timeout );
