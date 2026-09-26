@@ -258,6 +258,8 @@ void handle_D9( Network::Client* client, PKTIN_D9* msg )
     _msg.langcode[i] = cfBEu16( msg->langcode[i] );  // Language Code [wide-character]
 
   client->setclientinfo( &_msg );
+  if ( client->acct != nullptr )
+    client->acct->keep_clientinfo( _msg );
 }
 
 void select_server( Network::Client* client, PKTIN_A0* msg )  // Relay player to a certain IP
@@ -428,6 +430,8 @@ void login2( Network::Client* client, PKTIN_91* msg )  // Gameserver login and c
   // ENHANCEMENT: could authenticate with real loginservers.
 
   client->acct = acct;
+  if ( auto info = acct->take_clientinfo() )
+    client->setclientinfo( info.get() );
   /* NOTE: acct->client is not set here.  It is possible that another client
      is still connected, or a connection is stuck open, or similar.  When
      a character is selected, if another client is connected, measures will

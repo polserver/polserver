@@ -1,0 +1,97 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// The 0xD9 hardware report, and client.clientinfo that reads it back. A client sends the report
+// to the login server right after the server list, then reconnects to play, so what a script
+// reads in game has to have been carried across that reconnect. Every field has its own value,
+// so a field read from the wrong offset shows.
+
+const ACCOUNT := "testclientinfo";
+const CLIENT_ID := 31;
+
+program test_client_clientinfo()
+  var chr := createAccountWithChar( ACCOUNT, "pass" );
+  if ( !chr )
+    return chr;
+  endif
+  return 1;
+endprogram
+
+exported function clientinfo_reaches_game( unused resmgr )
+  var unknown2 := array{ 0x41 };
+  for i := 2 to 63
+    unknown2.append( 0 );
+  endfor
+  unknown2.append( 0x5A );
+
+  var sent := struct{ version := 2, instance := 0x01020304, os_major := 10, os_minor := 1,
+                      os_revision := 19045, cpu_manufacturer := 2, cpu_family := 6,
+                      cpu_model := 158, cpu_clockspeed := 3600, cpu_quantity := 8,
+                      memory := 16384, screen_width := 1920, screen_height := 1080,
+                      screen_depth := 32, directx_major := 9, directx_minor := 3,
+                      video_description := "Test Video", video_vendor := 0x10DE,
+                      video_device := 0x1B80, video_memory := 8192, distribution := 3,
+                      clients_running := 1, clients_installed := 4, partial_installed := 1,
+                      langcode := "enu", unknown2 := unknown2 };
+
+  var clientcon := getClientConnection();
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "ClientInfo",
+                               clientinfo := sent,
+                               id := CLIENT_ID } );
+  var ev := waitForClient( CLIENT_ID, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"could not log in: {ev}" );
+  endif
+
+  var chr := FindAccount( ACCOUNT ).getcharacter( 1 );
+  var res := check_info( SystemFindObjectBySerial( chr.serial ).client.clientinfo );
+  clientcon.sendevent( struct{ todo := "disconnect", id := CLIENT_ID } );
+  var off := wait_offline( chr );
+  return res ? off : res;
+endfunction
+
+function check_info( info )
+  // the report version is read back as unknown1
+  var expected := dictionary{ "unknown1" -> 2, "instance" -> 0x01020304, "os_major" -> 10,
+                              "os_minor" -> 1, "os_revision" -> 19045, "cpu_manufacturer" -> 2,
+                              "cpu_family" -> 6, "cpu_model" -> 158, "cpu_clockspeed" -> 3600,
+                              "cpu_quantity" -> 8, "memory" -> 16384, "screen_width" -> 1920,
+                              "screen_height" -> 1080, "screen_depth" -> 32,
+                              "directx_major" -> 9, "directx_minor" -> 3,
+                              "video_description" -> "Test Video", "video_vendor" -> 0x10DE,
+                              "video_device" -> 0x1B80, "video_memory" -> 8192,
+                              "distribution" -> 3, "clients_running" -> 1,
+                              "clients_installed" -> 4, "partial_installed" -> 1,
+                              "langcode" -> "enu" };
+  foreach name in ( expected.keys() )
+    if ( info[name] != expected[name] )
+      return ret_error( $"clientinfo.{name} is {info[name]}, expected {expected[name]}" );
+    endif
+  endforeach
+
+  var unknown2 := info.unknown2;
+  if ( unknown2.size() != 64 || unknown2[1] != 0x41 || unknown2[64] != 0x5A )
+    return ret_error( $"clientinfo.unknown2 does not carry the last 64 bytes: {unknown2}" );
+  endif
+  return 1;
+endfunction
+
+// A later package asserts nobody is online, and the character stays in use for a moment after
+// the socket drops.
+function wait_offline( chr )
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !chr.client && !chr.logged_in )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( "the character stayed online" );
+endfunction

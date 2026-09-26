@@ -8,6 +8,15 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">client.clientinfo read all zeros in game. A client sends its 0xD9 hardware report to<br/>
+the login server, and the report was lost when the client reconnected to the game<br/>
+server.</change>
+			<change type="Fixed">client.clientinfo gave video_description and langcode with the two bytes of each<br/>
+character swapped.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">account.setname() accepted a name that another account already had, in any case.<br/>
 After a restart, the renamed account's characters could end up on the other account.<br/>
 It now returns the error &quot;Account already exists.&quot;</change>

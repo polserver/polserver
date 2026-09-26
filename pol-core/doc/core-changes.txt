@@ -1,5 +1,11 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: client.clientinfo read all zeros in game. A client sends its 0xD9 hardware report to
+           the login server, and the report was lost when the client reconnected to the game
+           server.
+    Fixed: client.clientinfo gave video_description and langcode with the two bytes of each
+           character swapped.
+09-26-2026 AsYlum:
     Fixed: account.setname() accepted a name that another account already had, in any case.
            After a restart, the renamed account's characters could end up on the other account.
            It now returns the error "Account already exists."

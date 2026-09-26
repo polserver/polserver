@@ -696,10 +696,12 @@ class Client:
     self.maps = {}
 
   @status('disconnected')
-  async def connect(self, host, port, user, pwd):
+  async def connect(self, host, port, user, pwd, clientinfo=None):
     '''! Connnects to the server, returns a list of gameservers
       @param host string: Server IP address or hostname
       @param port string: Server port
+      @param clientinfo dict: the fields of a 0xD9 hardware report to send after the
+                              server list, or None to send none
       @param user string: Username
       @param pwd string: Password
       @return list of dicts{name, tz, full, idx, ip}
@@ -741,6 +743,12 @@ class Client:
     if isinstance(pkt, packets.LoginDeniedPacket):
       self.log.error('login denied')
       raise LoginDeniedError(pkt.reason)
+
+    # A real client sends its hardware report here, right after the server list.
+    if clientinfo is not None:
+      po = packets.HardwareInfoPacket()
+      po.fill(**clientinfo)
+      self.queue(po)
 
     self.log.debug("Received serverlist: %s", str(pkt.servers))
 
@@ -2339,6 +2347,15 @@ class Client:
         po.fill(po.CMD_CASTSPELL2, str(spellid))
       else:
         po.fill(po.CMD_CASTSPELL1, '{} {}'.format(spellid, bookserial))
+    self.queue(po)
+
+  @logincomplete
+  def useSkill(self, skillid):
+    '''! Asks to use a skill, as the skill gump's buttons do
+    @param skillid int: the skill id of uoskills.cfg
+    '''
+    po = packets.TextCommandPacket()
+    po.fill(po.CMD_USESKILL, '{} 0'.format(skillid))
     self.queue(po)
 
   @logincomplete

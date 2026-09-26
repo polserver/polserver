@@ -1,0 +1,133 @@
+// What a party shows its members beyond the member list: each other's mana and stamina, which
+// no one outside the party is sent, and a member who logs back in finding the party kept.
+
+include "party";
+
+const MEMBER_ACCOUNT := "testclientparty";
+const MEMBER_LOGIN_ID := 32;
+const MEMBER_RELOGIN_ID := 33;
+
+program test_party_vitals()
+  var chr := createAccountWithChar( MEMBER_ACCOUNT, "pass" );
+  if ( !chr )
+    return chr;
+  endif
+  return party_setup();
+endprogram
+
+// Sets the vital to half its maximum and waits for client 0 to be told, as the per mille of
+// the maximum the party packets carry. Regeneration may send its own update first.
+function member_vital_reaches_leader( vital, type )
+  var max := GetVitalMaximumValue( char2, vital );
+  var half := max / 2;
+  SetVital( char2, vital, half );
+  var expected := ( half / 100 ) * 1000 / ( max / 100 );
+
+  var deadline := ReadMillisecondClock() + 10000;
+  var last := 0;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := waitForClient( 0, { type }, 1 );
+    if ( !ev || CInt( ev.serial ) != char2.serial )
+      continue;
+    endif
+    last := ev;
+    if ( CInt( ev.new ) == expected )
+      return 1;
+    endif
+  endwhile
+  return ret_error( $"client 0 never saw the member's {vital} at {expected}: last {last}" );
+endfunction
+
+exported function party_member_mana_and_stamina( unused resmgn )
+  var res := build_party();
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  var mana := GetVital( char2, "Mana" );
+  var stam := GetVital( char2, "Stamina" );
+
+  res := member_vital_reaches_leader( "Mana", EVT_MANA_CHANGED );
+  if ( res )
+    res := member_vital_reaches_leader( "Stamina", EVT_STAM_CHANGED );
+  endif
+  SetVital( char2, "Mana", mana );
+  SetVital( char2, "Stamina", stam );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  return party_finish( 1 );
+endfunction
+
+// With RemoveMemberOnLogoff off, a member who logs out stays in the party, and logging back in
+// says so to the member and sends the member list again.
+exported function party_member_relogs( unused resmgn )
+  var member := FindAccount( MEMBER_ACCOUNT ).getcharacter( 1 );
+  MoveObjectToLocation( member, char.x + 2, char.y, char.z, char.realm,
+                        MOVEOBJECT_FORCELOCATION );
+  var res := log_in( MEMBER_LOGIN_ID );
+  if ( !res )
+    return res;
+  endif
+  member := SystemFindObjectBySerial( member.serial );
+  var party := CreateParty( char, member );
+  if ( !party )
+    log_out( MEMBER_LOGIN_ID, member );
+    return ret_error( $"could not create the party: {party}" );
+  endif
+  res := log_out( MEMBER_LOGIN_ID, member );
+  if ( !res )
+    return party_fail( res.errortext );
+  endif
+  if ( !( member.serial in party_serials( char.party ) ) )
+    return party_fail( "the member left the party on logout" );
+  endif
+
+  Clear_Event_Queue();
+  res := log_in( MEMBER_RELOGIN_ID );
+  if ( res )
+    var wanted := array{ want_cliloc( MEMBER_RELOGIN_ID, CLP_REJOINED ),
+                         want_party( MEMBER_RELOGIN_ID, PARTYCMD_ADD ) };
+    res := collect_events( wanted );
+  endif
+  log_out( MEMBER_RELOGIN_ID, member );
+  if ( !res )
+    return party_fail( $"the member was not told of rejoining: {res.errortext}" );
+  endif
+  return party_finish( 1 );
+endfunction
+
+function party_serials( party )
+  var res := array{};
+  foreach mem in ( party.members )
+    res.append( mem.serial );
+  endforeach
+  return res;
+endfunction
+
+function log_in( id )
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := MEMBER_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := $"PartyMember{id}",
+                               id := id } );
+  var ev := waitForClient( id, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"the member could not log in: {ev}" );
+  endif
+  return 1;
+endfunction
+
+// A later package asserts nobody is online, and the character stays in use for a moment after
+// the socket drops.
+function log_out( id, member )
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !member.client && !member.logged_in )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( "the member stayed online" );
+endfunction

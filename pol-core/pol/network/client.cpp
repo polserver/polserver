@@ -272,7 +272,8 @@ Bscript::BStruct* Client::getclientinfo() const
 
   unsigned maxlen_vd =
       sizeof( clientinfo_.video_description ) / sizeof( clientinfo_.video_description[0] );
-  std::string vd = Bscript::String::fromUTF16( &clientinfo_.video_description[0], maxlen_vd, true );
+  // handle_D9 has already turned the wide strings to host order
+  std::string vd = Bscript::String::fromUTF16( &clientinfo_.video_description[0], maxlen_vd );
   ret->addMember( "video_description",
                   new Bscript::String( vd ) );  // Video Card Description
 
@@ -289,7 +290,7 @@ Bscript::BStruct* Client::getclientinfo() const
                   new BLong( clientinfo_.partial_installed ) );  // Partial Insstalled
 
   unsigned maxlen_lc = sizeof( clientinfo_.langcode ) / sizeof( clientinfo_.langcode[0] );
-  std::string lc = Bscript::String::fromUTF16( &clientinfo_.langcode[0], maxlen_lc, true );
+  std::string lc = Bscript::String::fromUTF16( &clientinfo_.langcode[0], maxlen_lc );
   ret->addMember( "langcode",
                   new Bscript::String( lc ) );  // Language Code
 

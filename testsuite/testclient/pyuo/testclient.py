@@ -340,6 +340,8 @@ class TestBrain(brain.Brain):
         if arg.get('canloot', None) is not None:
           args.append(int(arg['canloot']))
         self.client.party(int(arg['partycmd']), *args)
+      elif todo=="use_skill":
+        self.client.useSkill(int(arg))
       elif todo=="cast":
         # a book serial picks the "cast out of this book" form of the text
         # command, and select the spellbook gump's route instead of either
@@ -604,11 +606,14 @@ class PolServer:
       arg=res.get("arg",None)
       if todo in ("connect","createchar"):
         kwargs={}
+        if res.get("clientinfo"):
+          kwargs["clientinfo"] = res["clientinfo"]
         if todo=="createchar":
           # everything past the account is handed to the create packet, so a test can pin any
           # of the values the server validates without another todo per field
           kwargs["create"] = {k:v for k,v in res.items()
-                              if k not in ("todo","account","psw","name","chrindex","id")}
+                              if k not in ("todo","account","psw","name","chrindex","id",
+                                           "clientinfo")}
         t = asyncio.create_task(
               self.startclient(res["account"],res["psw"],res["name"],res["chrindex"],
                                res["id"], **kwargs),
@@ -662,11 +667,12 @@ class PolServer:
         self.log.error("LIFECYCLE control connection stopped draining: %s", ex)
         return True
 
-  async def startclient(self,user,psw,charname,charidx,id,create=None):
+  async def startclient(self,user,psw,charname,charidx,id,create=None,clientinfo=None):
     c = client.Client(id)
     self.clients.append(c)
     try:
-      await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
+      await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw,
+                      clientinfo=clientinfo)
       await c.selectServer(self.lconf.getint('serveridx'))
     except client.LoginDeniedError as ex:
       # A refusal the test asked for, reported rather than failing the run.

@@ -1593,6 +1593,52 @@ class LoginRequestPacket(Packet):
     self.euchar(self.nlk)
 
 
+class HardwareInfoPacket(Packet):
+  ''' The 0xD9 hardware report a client sends the login server after the server list
+
+  Big-endian throughout, the two wide strings included. Every field defaults to 0 and
+  the strings to empty, so a test sets only what it checks.
+  '''
+
+  cmd = 0xd9
+  length = 268
+
+  ## (name, encoder, size) in wire order after the command byte
+  FIELDS = (
+    ('version', 'u8', 0), ('instance', 'u32', 0), ('os_major', 'u32', 0),
+    ('os_minor', 'u32', 0), ('os_revision', 'u32', 0), ('cpu_manufacturer', 'u8', 0),
+    ('cpu_family', 'u32', 0), ('cpu_model', 'u32', 0), ('cpu_clockspeed', 'u32', 0),
+    ('cpu_quantity', 'u8', 0), ('memory', 'u32', 0), ('screen_width', 'u32', 0),
+    ('screen_height', 'u32', 0), ('screen_depth', 'u32', 0), ('directx_major', 'u16', 0),
+    ('directx_minor', 'u16', 0), ('video_description', 'wstr', 64), ('video_vendor', 'u32', 0),
+    ('video_device', 'u32', 0), ('video_memory', 'u32', 0), ('distribution', 'u8', 0),
+    ('clients_running', 'u8', 0), ('clients_installed', 'u8', 0),
+    ('partial_installed', 'u8', 0), ('langcode', 'wstr', 4), ('unknown2', 'bytes', 64),
+  )
+
+  def fill(self, **fields):
+    '''! Any field of FIELDS by name; unknown2 is a list of up to 64 byte values '''
+    unknown = set(fields) - {f[0] for f in self.FIELDS}
+    if unknown:
+      raise ValueError('unknown 0xD9 fields: {}'.format(sorted(unknown)))
+    self.fields = fields
+
+  def encodeChild(self):
+    for name, kind, size in self.FIELDS:
+      val = self.fields.get(name)
+      if kind == 'u8':
+        self.euchar(int(val or 0))
+      elif kind == 'u16':
+        self.eushort(int(val or 0))
+      elif kind == 'u32':
+        self.euint(int(val or 0))
+      elif kind == 'wstr':
+        self.estring(val or '', size, unicode=True)
+      else:
+        data = bytes(int(b) for b in (val or []))
+        self.eraw(data[:size].ljust(size, b'\x00'))
+
+
 class LoginDeniedPacket(Packet):
   ''' Login Denied '''
 
@@ -2782,6 +2828,8 @@ class TextCommandPacket(Packet):
 
   cmd = 0x12
 
+  ## Use a skill: "skillid 0", the id 0-based as uoskills.cfg numbers it
+  CMD_USESKILL = 0x24
   ## Cast a spell out of a book: "spellid bookserial"
   CMD_CASTSPELL1 = 0x27
   ## Open the spellbook the character carries, no argument

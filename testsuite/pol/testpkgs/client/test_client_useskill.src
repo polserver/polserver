@@ -1,0 +1,99 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// The 0x12 use skill request, which is how a player starts a skill script. Skill 55 is defined
+// by the testattributes package: its script sets a cprop, and its one second delay is what the
+// "must wait" refusal is measured against. Skill 0 is a distro skill with no script.
+
+const USABLE_SKILL := 55;
+const SCRIPTLESS_SKILL := 0;
+// a skill id uoskills.cfg leaves undefined
+const UNDEFINED_SKILL := 33;
+const SKILL_CPROP := "TestSkillRan";
+const SKILL_DELAY_MS := 1000;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_client_useskill()
+  char := FindAccount( "testclient0" ).getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+function use_skill( skillid )
+  clientcon.sendevent( struct{ todo := "use_skill", arg := skillid, id := 0 } );
+endfunction
+
+function wait_skill_ran()
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( GetObjProperty( char, SKILL_CPROP ) )
+      return 1;
+    endif
+    sleepms( 20 );
+  endwhile
+  return 0;
+endfunction
+
+// Uses the skill in a state the core refuses, and expects the message and no script.
+function refused( skillid, message )
+  EraseObjProperty( char, SKILL_CPROP );
+  use_skill( skillid );
+  var heard := wait_for_speech( 0, message );
+  if ( !heard )
+    return heard;
+  endif
+  var res := client_sync( clientcon, 0 );
+  if ( !res )
+    return res;
+  endif
+  if ( GetObjProperty( char, SKILL_CPROP ) )
+    return ret_error( "the refused skill still ran its script" );
+  endif
+  return 1;
+endfunction
+
+// The skill runs its script, and using it again inside its delay is refused.
+exported function useskill_runs_then_waits( unused resmgr )
+  EraseObjProperty( char, SKILL_CPROP );
+  use_skill( USABLE_SKILL );
+  if ( !wait_skill_ran() )
+    return ret_error( "the skill script did not run" );
+  endif
+
+  var res := refused( USABLE_SKILL, "You must wait to perform another action." );
+  // let the delay run out, so the next case starts free
+  sleepms( SKILL_DELAY_MS + 100 );
+  return res;
+endfunction
+
+exported function useskill_refused_frozen( unused resmgr )
+  char.frozen := 1;
+  var res := refused( USABLE_SKILL, "I am frozen and cannot do that." );
+  char.frozen := 0;
+  return res;
+endfunction
+
+exported function useskill_refused_paralyzed( unused resmgr )
+  char.paralyzed := 1;
+  var res := refused( USABLE_SKILL, "I am paralyzed and cannot do that." );
+  char.paralyzed := 0;
+  return res;
+endfunction
+
+exported function useskill_scriptless( unused resmgr )
+  return refused( SCRIPTLESS_SKILL, "That skill cannot be used directly." );
+endfunction
+
+// A skill id with no entry, or past MaxSkillID, is dropped without a word.
+exported function useskill_unknown_ignored( unused resmgr )
+  use_skill( UNDEFINED_SKILL );
+  use_skill( 5000 );
+  return no_event_before_sync( clientcon, 0, { EVT_SPEECH } );
+endfunction

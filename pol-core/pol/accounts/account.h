@@ -10,6 +10,7 @@
 #ifndef ACCOUNT_H
 #define ACCOUNT_H
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -21,6 +22,10 @@
 
 namespace Pol
 {
+namespace Core
+{
+struct PKTIN_D9;
+}
 namespace Mobile
 {
 class Character;
@@ -60,6 +65,11 @@ public:
 
   void set_password( std::string newpass ) { password_ = std::move( newpass ); };
   void set_passwordhash( std::string newpass ) { passwordhash_ = std::move( newpass ); };
+
+  // A client sends its 0xD9 hardware report to the login server, then reconnects to play. The
+  // report waits here for the game connection to take it.
+  void keep_clientinfo( const Core::PKTIN_D9& info );
+  std::unique_ptr<Core::PKTIN_D9> take_clientinfo();
   friend class AccountObjImp;
 
 private:
@@ -75,6 +85,7 @@ private:
 
   Clib::StringSet options_;
   Plib::AccountExpansion expansion_;
+  std::unique_ptr<Core::PKTIN_D9> pending_clientinfo_;
 };
 }  // namespace Accounts
 }  // namespace Pol

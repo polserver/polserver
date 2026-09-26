@@ -23,6 +23,7 @@
 #include "pol/globals/uvars.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
+#include "pol/network/pktin.h"
 #include "pol/uobject.h"
 
 
@@ -162,7 +163,19 @@ size_t Account::estimatedSize() const
   size += props_.estimatedSize();
   size += default_privs_.estimatedSize();
   size += options_.estimatedSize();
+  if ( pending_clientinfo_ )
+    size += sizeof( Core::PKTIN_D9 );
   return size;
+}
+
+void Account::keep_clientinfo( const Core::PKTIN_D9& info )
+{
+  pending_clientinfo_ = std::make_unique<Core::PKTIN_D9>( info );
+}
+
+std::unique_ptr<Core::PKTIN_D9> Account::take_clientinfo()
+{
+  return std::move( pending_clientinfo_ );
 }
 
 Mobile::Character* Account::get_character( int index )

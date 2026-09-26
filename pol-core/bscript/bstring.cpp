@@ -1168,7 +1168,7 @@ std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_
   std::string s;
   size_t short_len = 0;
   // convert until the first null terminator
-  while ( code[short_len] != 0 && short_len < len )
+  while ( short_len < len && code[short_len] != 0 )
     ++short_len;
 
   // minimum incomplete iterator implementation, just for the internal usage with utf8lib to
@@ -1205,7 +1205,7 @@ std::string String::fromUTF8( const char* code, size_t len )
 {
   size_t short_len = 0;
   // convert until the first null terminator
-  while ( code[short_len] != 0 && short_len < len )
+  while ( short_len < len && code[short_len] != 0 )
     ++short_len;
   std::string s( code, short_len );
   Clib::sanitizeUnicode( &s );
