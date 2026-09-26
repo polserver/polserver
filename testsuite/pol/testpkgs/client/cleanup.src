@@ -34,7 +34,8 @@ foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );
 endforeach
 
-var clientcon := getClientConnection();
+// Runs after a failed setup too, when there may be no connection to ask.
+var clientcon := GetGlobalProperty( "#clientcon" ) ? getClientConnection() : 0;
 if ( clientcon )
   clientcon.sendevent( struct{ todo := "exit" } );
   WaitForClient( 0, { EVT_EXIT }, 2 );

@@ -275,3 +275,27 @@ add_custom_target(unittest_pol
 set_target_properties(unittest_pol PROPERTIES EXCLUDE_FROM_ALL TRUE)
 set_target_properties(unittest_pol PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
 set_target_properties(unittest_pol PROPERTIES FOLDER !BuildTargets)
+
+message("  test_all")
+# Every test in one parallel ctest run, as an alternative to running the five
+# targets above in sequence. Those five spend the escript suite's CPU - 68
+# process-spawn-bound tests - before the shard test rather than underneath it,
+# and the shard test is mostly waiting. ctest resolves the fixture chain itself,
+# so the -FA .* the split targets need in order not to re-run cleantestdir on a
+# populated coretest is not wanted here.
+#
+# Opt-in until it has been measured against the split path on the CI runners: the
+# saving is real only if the added contention does not slow the shard test by more
+# than the escript suite costs to begin with.
+set(CTEST_JOBS "4" CACHE STRING "parallel level for the combined 'test_all' target")
+mark_as_advanced(CTEST_JOBS)
+add_custom_target(test_all
+  COMMAND ${CMAKE_CTEST_COMMAND}
+    -j${CTEST_JOBS} --output-on-failure -C ${CMAKE_BUILD_TYPE}
+  COMMENT "Run every test in one parallel ctest run"
+  VERBATIM
+  USES_TERMINAL
+)
+set_target_properties(test_all PROPERTIES EXCLUDE_FROM_ALL TRUE)
+set_target_properties(test_all PROPERTIES EXCLUDE_FROM_DEFAULT_BUILD TRUE)
+set_target_properties(test_all PROPERTIES FOLDER !BuildTargets)

@@ -33,22 +33,41 @@ function (cleanup scriptname)
   endforeach()
 endfunction()
 
+# Reads a file without trailing whitespace or CR, which git is told to ignore.
+function (readnormalized path out)
+  if (NOT EXISTS "${path}")
+    # Unreadable: return something that cannot match, and let the diff name the file.
+    set(${out} "<no ${path}>" PARENT_SCOPE)
+    return()
+  endif()
+  file(READ "${path}" contents)
+  string(REGEX REPLACE "[ \t\r]+\n" "\n" contents "${contents}")
+  # A missing final newline is whitespace to git, so ignore it too.
+  string(REGEX REPLACE "\n$" "" contents "${contents}")
+  string(REGEX REPLACE "[ \t\r]+$" "" contents "${contents}")
+  set(${out} "${contents}" PARENT_SCOPE)
+endfunction()
+
 function (compareresult scriptname result optimized)
   set (outname "${scriptname}.out")
   if (optimized AND EXISTS "${scriptname}.optimized.out")
     set (outname "${scriptname}.optimized.out")
   endif()
 
+  # Compared here, not by git: a process per script per pass cost more than the
+  # script. git only draws a mismatch.
+  readnormalized("${outname}" expected)
+  readnormalized("${scriptname}.tst" actual)
+  if (expected STREQUAL actual)
+    set(${result} 1 PARENT_SCOPE)
+    return()
+  endif()
+
   execute_process(
     COMMAND ${git} diff --no-index --ignore-space-at-eol ${outname} "${scriptname}.tst"
     ERROR_QUIET
     OUTPUT_STRIP_TRAILING_WHITESPACE
-    RESULT_VARIABLE test_not_successful
   )
-  if (NOT ${test_not_successful})
-    set(${result} 1 PARENT_SCOPE)
-    return()
-  endif()
   set(${result} 0 PARENT_SCOPE)
   message(SEND_ERROR "${scriptname}.src failed")
   cleanup(${scriptname})

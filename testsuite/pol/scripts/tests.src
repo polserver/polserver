@@ -55,23 +55,30 @@ program tests()
     syslog( pkg[2], 0, CONSOLE_COLOR_MAGENTA );
     var scripts := listdirectory( ":{}:".format( pkg[1] ), "ecl" );
     scripts.sort();
+    // A package whose setup failed runs no tests but still runs its cleanup. A failed
+    // setup is the case most likely to leave something behind for later packages.
+    var setup_failed := 0;
     if ( "setup.ecl" in scripts )
       syslog( "  Calling setup.ecl..", 0, CONSOLE_COLOR_GREEN );
       var startms := ReadMillisecondClock();
       trace_mark();
       var res := run_script( ":{}:setup.ecl".format( pkg[1] ) );
       if ( res == IGNORE_TEST )
+        // Nothing was arranged, so there is nothing to clean up.
         continue;
       elseif ( res != 1 )
         syslog( "    failed: " + res.errortext, 0, CONSOLE_COLOR_RED );
         trace_dump();
         exitcode := 1;
-        continue;
+        setup_failed := 1;
+      else
+        syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
       endif
-      syslog( "  ..{}ms".format( ReadMillisecondClock() - startms ), 0, CONSOLE_COLOR_GREEN );
     endif
     foreach file in scripts
-      if ( !run_tests )
+      if ( setup_failed )
+        continue;
+      elseif ( !run_tests )
         continue;
       elseif ( file.find( "test" ) != 1 )
         continue;

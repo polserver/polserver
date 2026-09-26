@@ -3,3 +3,9 @@ use uo;
 foreach multi in ( ListMultisInBox( 0, 0, -200, 10000, 10000, 200 ) )
   DestroyMulti( multi );
 endforeach
+
+// The walkon cases leave a probe NPC corpse on 100,100 per case, where the house
+// tests place a multi.
+foreach corpse in ( ListItemsNearLocationOfType( 100, 100, 0, 15, 0x2006 ) )
+  DestroyItem( corpse );
+endforeach
