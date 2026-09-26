@@ -1,0 +1,14 @@
+// An array added to itself in place gets a copy of each of its elements once, holes included.
+var a := { 1, "two" };
+a += a;
+print( a );
+
+var holes := array{};
+holes[2] := "b";
+holes += holes;
+print( holes );
+
+// randomentry() of an empty array is uninit, and of one element is that element.
+var empty := array{};
+print( empty.randomentry() );
+print( { 7 }.randomentry() );

@@ -559,6 +559,43 @@ void test_stub_source()
 }
 }  // namespace
 
+// readraw takes a file that is one element's properties with no type line and no braces, as
+// watch.cfg is. A closing brace in it means the file was written for read().
+void test_readraw()
+{
+  UnitTest(
+      [&]()
+      {
+        const std::string path = write_cfg( "raw.cfg", "# comment\nCombat 1\nName  some text\n" );
+        Clib::ConfigFile cf( path.c_str() );
+        Clib::ConfigElem elem;
+        cf.readraw( elem );
+        const bool ok =
+            elem.remove_bool( "Combat", false ) && elem.remove_string( "Name" ) == "some text";
+        elem.set_source( static_cast<const Clib::ConfigSource*>( nullptr ) );
+        return ok;
+      },
+      true, "readraw reads properties with no element around them" );
+
+  UnitTest(
+      [&]()
+      {
+        const std::string path = write_cfg( "rawbrace.cfg", "Combat 1\n}\nProfileScripts 1\n" );
+        try
+        {
+          Clib::ConfigFile cf( path.c_str() );
+          Clib::ConfigElem elem;
+          cf.readraw( elem );
+        }
+        catch ( const std::exception& )
+        {
+          return true;
+        }
+        return false;
+      },
+      true, "readraw refuses a closing brace" );
+}
+
 void cfgfile_test()
 {
   UnitTestDir dir( testdir );
@@ -570,6 +607,7 @@ void cfgfile_test()
   test_line_reading();
   test_refusals();
   test_configfile_refusals();
+  test_readraw();
   test_stub_source();
 }
 }  // namespace Pol::Testing

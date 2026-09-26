@@ -1,0 +1,4 @@
+dict{ "a" -> 1 }
+dict{ "a" -> 1 }
+dict{ "a" -> 1, "b" -> error{ errortext = "Unknown object type 'z'" } }
+dict{ "b" -> 2 }

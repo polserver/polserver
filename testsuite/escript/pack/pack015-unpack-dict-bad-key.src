@@ -1,0 +1,7 @@
+// A packed dictionary entry whose key does not unpack to an integer, real or string is left
+// out, as it is for a struct: no script could look it up. A value that does not unpack is kept
+// as the error it unpacked to.
+print( unpack( "d2:S1:ai1zi2" ) );
+print( unpack( "d2:S1:ai1" ) );
+print( unpack( "d2:S1:ai1S1:bz" ) );
+print( unpack( "d2:a1:i1i5S1:bi2" ) );

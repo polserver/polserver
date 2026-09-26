@@ -1,0 +1,34 @@
+// Assigning into a string by position replaces that character. The two-index form replaces a
+// run: [start, length], where start is a position or the first match of a substring. Positions
+// count characters, not bytes, and an assignment out of range leaves the string as it was.
+var s := "abcdef";
+s[2] := "X";
+print( s );
+s[3] := "YYY";
+print( s );
+s[1.0] := "Z";
+print( s );
+s[99] := "Q";
+print( s );
+s[2] := 5;
+print( s );
+
+var t := "hello world";
+t[1, 5] := "HOWDY";
+print( t );
+t["world", 5] := "there";
+print( t );
+t[7, 3] := "";
+print( t );
+t[0, 2] := "no";
+print( t );
+t[99, 1] := "no";
+print( t );
+t["zzz", 1] := "no";
+print( t );
+
+var u := "äöü";
+u[2] := "o";
+print( u );
+u[1, 2] := "AO";
+print( u );

@@ -239,8 +239,13 @@ void ObjArray::selfPlusObj( String& objimp, BObject& /*obj*/ )
 }
 void ObjArray::selfPlusObj( ObjArray& objimp, BObject& /*obj*/ )
 {
-  for ( const auto& itr : objimp.ref_arr )
+  // By index over the size it had on entry, with room made first: for a += a, objimp is this
+  // array, and pushing onto it while iterating would read freed memory once it reallocates.
+  const size_t count = objimp.ref_arr.size();
+  ref_arr.reserve( ref_arr.size() + count );
+  for ( size_t i = 0; i < count; ++i )
   {
+    const auto& itr = objimp.ref_arr[i];
     if ( itr.get() )
     {
       /*

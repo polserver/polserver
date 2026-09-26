@@ -26,6 +26,17 @@
 
 namespace Pol::Bscript
 {
+namespace
+{
+// The types a dictionary may be keyed by. Anything else, an error included, has no order that
+// lookups could rely on.
+bool is_valid_key( const BObjectImp& key )
+{
+  return key.isa( BObjectImp::OTString ) || key.isa( BObjectImp::OTLong ) ||
+         key.isa( BObjectImp::OTDouble ) || key.isa( BObjectImp::OTApplicObj );
+}
+}  // namespace
+
 BDictionary::BDictionary() : BObjectImp( OTDictionary ), contents_() {}
 
 BDictionary::BDictionary( BObjectType type ) : BObjectImp( type ), contents_() {}
@@ -49,7 +60,8 @@ BDictionary::BDictionary( std::istream& is, unsigned size, BObjectType type )
   {
     BObjectImp* keyimp = BObjectImp::unpack( is );
     BObjectImp* valimp = BObjectImp::unpack( is );
-    if ( keyimp != nullptr && valimp != nullptr )
+    // an entry whose key did not unpack to a valid key is dropped, as BStruct drops its members
+    if ( keyimp != nullptr && valimp != nullptr && is_valid_key( *keyimp ) )
     {
       BObject keyobj( keyimp );
       contents_[keyobj].set( new BObject( valimp ) );
@@ -174,8 +186,7 @@ BObjectRef BDictionary::get_member( const char* membername )
 
 BObjectRef BDictionary::OperSubscript( const BObject& obj )
 {
-  if ( obj->isa( OTString ) || obj->isa( OTLong ) || obj->isa( OTDouble ) ||
-       obj->isa( OTApplicObj ) )
+  if ( is_valid_key( obj.impref() ) )
   {
     auto itr = contents_.find( obj );
     if ( itr != contents_.end() )
@@ -192,8 +203,7 @@ BObjectRef BDictionary::OperSubscript( const BObject& obj )
 
 BObjectImp* BDictionary::array_assign( BObjectImp* idx, BObjectImp* target, bool copy )
 {
-  if ( idx->isa( OTString ) || idx->isa( OTLong ) || idx->isa( OTDouble ) ||
-       idx->isa( OTApplicObj ) )
+  if ( is_valid_key( *idx ) )
   {
     BObjectImp* new_target = copy ? target->copy() : target;
 
@@ -246,8 +256,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
   case MTH_ERASE:
     if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !is_valid_key( keyobj->impref() ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       int nremove = static_cast<int>( contents_.erase( *keyobj ) );
       return new BLong( nremove );
@@ -261,8 +270,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
     if ( ex.numParams() == 2 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr &&
          ( valobj = ex.getParamObj( 1 ) ) != nullptr )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !is_valid_key( keyobj->impref() ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       BObject key( keyobj->impptr()->copy() );
       contents_[key] = BObjectRef( new BObject( valobj->impptr()->copy() ) );
@@ -276,8 +284,7 @@ BObjectImp* BDictionary::call_method_id( const int id, Executor& ex, bool /*forc
   case MTH_EXISTS:
     if ( ex.numParams() == 1 && ( keyobj = ex.getParamObj( 0 ) ) != nullptr )
     {
-      if ( !( keyobj->isa( OTLong ) || keyobj->isa( OTString ) || keyobj->isa( OTDouble ) ||
-              keyobj->isa( OTApplicObj ) ) )
+      if ( !is_valid_key( keyobj->impref() ) )
         return new BError( "Dictionary keys must be integer, real, or string" );
       int count = static_cast<int>( contents_.count( *keyobj ) );
       return new BLong( count );

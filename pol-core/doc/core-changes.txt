@@ -1,5 +1,10 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: adding an array to itself with += read freed memory, which could give wrong
+           elements or crash the server.
+    Fixed: unpack() of a packed dictionary could give keys no script can use, such as an error
+           or uninit. Such entries are left out, as they already were for a struct.
+09-26-2026 AsYlum:
     Fixed: a config file value of exactly 2147483647 or -2147483648 was read as a string, not
            an integer, for example through ReadConfigFile().
     Fixed: a package version part with a leading zero, like the 08 of 1.08, was read as an
