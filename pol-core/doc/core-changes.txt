@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+09-26-2026 Ins:
+    Fixed: with servspecopt.cfg UseContainerSlots=1, everything put into a secure trade window
+           went into slot 0, whatever was already there.
+    Fixed: with servspecopt.cfg UseContainerSlots=1, the copies a corpse takes of hair and of
+           items that cannot be moved all went into slot 0.
 09-22-2026 Ins:
     Fixed: after a restart, the components of a boat - tillerman, planks, hold, ropes, hull
            pieces - could take each other's places on every step or turn, and the last of them

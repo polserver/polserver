@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-22-2026</datemodified>
+		<datemodified>09-26-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-26-2026</date>
+			<author>Ins:</author>
+			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, everything put into a secure trade window<br/>
+went into slot 0, whatever was already there.</change>
+			<change type="Fixed">with servspecopt.cfg UseContainerSlots=1, the copies a corpse takes of hair and of<br/>
+items that cannot be moved all went into slot 0.</change>
+		</entry>
 		<entry>
 			<date>09-22-2026</date>
 			<author>Ins:</author>

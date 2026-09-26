@@ -87,3 +87,77 @@ exported function lift_remainder_past_limit( resmgr )
   endwhile
   return ret_error( "what was left of the stack never turned up" );
 endfunction
+
+function destroy_item( item )
+  return DestroyItem( item );
+endfunction
+
+exported function corpse_copies_take_free_slots( resmgr )
+  // With container slots, the copies a corpse takes of what stays on the body - hair, and
+  // anything that cannot be moved - each take a slot of their own. A clone is made with no slot,
+  // so without a slot check they all share slot 0.
+  var res := resmgr.UpdateConfiguration( struct{ UseContainerSlots := 1 } );
+  if ( !res )
+    return res;
+  endif
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x, char.y, char.z, 0,
+                                           _DEFAULT_REALM, 1 );
+  if ( !npc )
+    return ret_error( $"failed to create the npc: {npc}" );
+  endif
+  var hair := resmgr.CreateItemAtLocation( 0, 0, 0, 0x203B );
+  var shirt := resmgr.CreateItemAtLocation( 0, 0, 0, 0x1517 );
+  if ( !hair or !shirt )
+    return ret_error( "failed to create the hair and the shirt" );
+  endif
+  foreach item in ( { hair, shirt } )
+    item.movable := 1;
+    res := EquipItem( npc, item );
+    if ( !res )
+      return ret_error( $"failed to equip 0x{item.objtype:x}: {res}" );
+    endif
+  endforeach
+  // An item the body cannot drop is copied onto the corpse, as the hair is.
+  shirt.movable := 0;
+
+  var serial := npc.serial;
+  var x := npc.x, y := npc.y, z := npc.z;
+  res := npc.kill();
+  if ( !res )
+    return ret_error( $"failed to kill the npc: {res}" );
+  endif
+  // kill() returns before the death is processed, and the corpse is made during it.
+  var corpse := 0;
+  var attempts := 50;
+  while ( !corpse and attempts-- )
+    foreach thing in ( ListItemsNearLocationOfType( x, y, z, 0, 0x2006 ) )
+      if ( thing.ownerserial == serial )
+        corpse := thing;
+        resmgr.AddCleanup( corpse, @destroy_item );
+      endif
+    endforeach
+    if ( !corpse )
+      Sleepms( 100 );
+    endif
+  endwhile
+  if ( !corpse )
+    return ret_error( "the npc left no corpse" );
+  endif
+
+  var slots := array{};
+  foreach thing in ( EnumerateItemsInContainer( corpse ) )
+    if ( thing.objtype == 0x203B or thing.objtype == 0x1517 )
+      var slot := client_slot( clientcon, thing.serial, corpse.serial );
+      if ( slot == error )
+        return slot;
+      endif
+      slots.append( slot );
+    endif
+  endforeach
+  if ( slots.size() != 2 )
+    return ret_error( $"the corpse holds {slots.size()} copies, expected the hair and the shirt" );
+  elseif ( slots[1] == slots[2] )
+    return ret_error( $"the copies of the hair and the shirt share slot {slots[1]}" );
+  endif
+  return 1;
+endfunction

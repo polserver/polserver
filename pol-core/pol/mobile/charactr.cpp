@@ -2287,8 +2287,12 @@ void Character::die()
   // small lambdas to reduce the mess inside the loops
   auto _copy_item = [&]( Items::Item* _item ) {  // copy a item into the corpse
     Items::Item* copy = _item->clone();
-    if ( !Items::relocate( *copy, Items::OnCorpse{ corpse, corpse->get_random_location(),
-                                                   copy->slot_index(), copy->tile_layer } ) )
+    // A clone carries no slot of its own. can_add_to_slot writes a free one, as it does for the
+    // worn items moved onto the corpse below.
+    u8 slot = 1;
+    if ( !corpse->can_add_to_slot( slot ) ||
+         !Items::relocate( *copy, Items::OnCorpse{ corpse, corpse->get_random_location(), slot,
+                                                   copy->tile_layer } ) )
     {
       Core::destroy_item( copy );
       return;
