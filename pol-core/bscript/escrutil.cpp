@@ -7,6 +7,7 @@
 
 #include "bscript/escrutil.h"
 
+#include <cerrno>
 #include <climits>
 #include <cmath>
 #include <ctype.h>
@@ -58,7 +59,11 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
   if ( isdigit( ch ) || ch == '.' || ch == '+' || ch == '-' )
   {
     char *endptr = nullptr, *endptr2 = nullptr;
-    long l = strtol( s, &endptr, radix );
+    // long long and errno, so that INT_MAX itself is told apart from an overflow even where long
+    // is 32 bits and strtol would return LONG_MAX for both
+    errno = 0;
+    long long l = strtoll( s, &endptr, radix );
+    const bool out_of_range = errno == ERANGE || l < INT_MIN || l > INT_MAX;
     double d = strtod( s, &endptr2 );
 
     if ( endptr >= endptr2 )
@@ -66,7 +71,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
       // it's a long
       if ( endptr )
       {
-        if ( ( l > INT_MIN ) && ( l < INT_MAX ) )
+        if ( !out_of_range )
         {
           while ( *endptr )
           {
@@ -84,7 +89,7 @@ BObjectImp* convert_numeric( const std::string& str, int radix )
         else
           return nullptr;  // overflow, read it as string
       }
-      return new BLong( l );
+      return new BLong( static_cast<int>( l ) );
     }
 
     if ( !could_be_a_number( s ) )

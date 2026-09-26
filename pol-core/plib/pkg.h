@@ -23,6 +23,11 @@ class ConfigElem;
  */
 namespace Plib
 {
+// Versions are dot separated numbers compared part by part, so 1.12 is newer than 1.2 and a
+// missing part counts as 0.
+bool version_greater_or_equal( const std::string& version_have, const std::string& version_need );
+bool version_equal( const std::string& version_have, const std::string& version_need );
+
 class PackageList
 {
 private:

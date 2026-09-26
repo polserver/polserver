@@ -109,6 +109,7 @@ void clamp_test();
 void combat_test();
 void proplist_test();
 void deferred_insertion_test();
+void cfg_value_test();
 void crypt_test();
 void webscript_test();
 void maptile_geometry_test();

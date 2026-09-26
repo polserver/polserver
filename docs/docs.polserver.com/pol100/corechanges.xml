@@ -8,6 +8,15 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">a config file value of exactly 2147483647 or -2147483648 was read as a string, not<br/>
+an integer, for example through ReadConfigFile().</change>
+			<change type="Fixed">a package version part with a leading zero, like the 08 of 1.08, was read as an<br/>
+octal number. 1.08 counted as older than 1.7, both for a pkg.cfg Requires and when<br/>
+two copies of a package were found.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">a client version before 5.0.7 with a revision of 7 or more, such as 4.0.11c, was<br/>
 read without its patch letter. client.clientver_detail gave patch 0, and a<br/>
 packethooks.cfg Client version was compared the same way.</change>

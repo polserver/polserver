@@ -17,7 +17,6 @@
 #include "clib/clib.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
-#include "clib/passert.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 #include "plib/systemstate.h"
@@ -73,8 +72,9 @@ void compare_versions( const std::string& verleft, const std::string& verright, 
     char* new_vneed = nullptr;
     char* new_vhave = nullptr;
     unsigned int vneedpart, vhavepart;
-    vneedpart = ( vneed != nullptr ) ? strtoul( vneed, &new_vneed, 0 ) : 0;
-    vhavepart = ( vhave != nullptr ) ? strtoul( vhave, &new_vhave, 0 ) : 0;
+    // base 10: with base 0 a part with a leading zero, like the 08 of 1.08, is read as octal
+    vneedpart = ( vneed != nullptr ) ? strtoul( vneed, &new_vneed, 10 ) : 0;
+    vhavepart = ( vhave != nullptr ) ? strtoul( vhave, &new_vhave, 10 ) : 0;
 
     if ( vhavepart > vneedpart )
     {
@@ -110,23 +110,6 @@ bool version_equal( const std::string& version_have, const std::string& version_
   bool isequal;
   compare_versions( version_have, version_need, isgreater, isequal );
   return isequal;
-}
-
-void test_check_version()
-{  // have // need
-  passert( version_greater_or_equal( "0", "0" ) == true );
-  passert( version_greater_or_equal( "1", "0" ) == true );
-  passert( version_greater_or_equal( "0", "1" ) == false );
-  passert( version_greater_or_equal( "0.5", "1" ) == false );
-  passert( version_greater_or_equal( "0.5", "0" ) == true );
-  passert( version_greater_or_equal( "1.2", "1.12" ) == false );
-  passert( version_greater_or_equal( "1.12", "1.2" ) == true );
-  passert( version_greater_or_equal( "1.2.3", "1" ) == true );
-  passert( version_greater_or_equal( "1.1", "1.2.3" ) == false );
-  passert( version_greater_or_equal( "1.3", "1.2.3" ) == true );
-
-  passert( version_equal( "93", "93.0.0" ) == true );
-  passert( version_equal( "93.0.0", "93" ) == true );
 }
 
 PackageList::PackageList( Clib::ConfigElem& elem, const char* tag )
@@ -377,8 +360,6 @@ void check_package_deps()
 
 void load_packages( bool quiet )
 {
-  test_check_version();
-
   load_packages( "pkg/", quiet );
 
   if ( Clib::FileExists( "config/pkgroots.cfg" ) )

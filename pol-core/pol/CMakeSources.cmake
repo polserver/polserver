@@ -433,6 +433,7 @@ set (pol_sources  # sorted !
   testing/testslots.cpp
   testing/testthreadpool.cpp
   testing/testtokens.cpp
+  testing/testvalues.cpp
   testing/testuop.cpp
   testing/testvector.cpp
   testing/testwebscript.cpp
