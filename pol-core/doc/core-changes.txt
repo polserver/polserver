@@ -1,7 +1,9 @@
 -- POL100.3.0 --
-09-24-2026 AsYlum:
+09-26-2026 AsYlum:
     Fixed: polsys::ReloadConfiguration() did not re-read config/combat.cfg. An edit to it took
            effect only after a restart.
+     Note: a reload that stops on a malformed 0/1 value in combat.cfg leaves every combat setting
+           unchanged.
 09-22-2026 Ins:
     Fixed: after a restart, the components of a boat - tillerman, planks, hold, ropes, hull
            pieces - could take each other's places on every step or turn, and the last of them

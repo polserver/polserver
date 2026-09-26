@@ -2,14 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-24-2026</datemodified>
+		<datemodified>09-26-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>09-24-2026</date>
+			<date>09-26-2026</date>
 			<author>AsYlum:</author>
 			<change type="Fixed">polsys::ReloadConfiguration() did not re-read config/combat.cfg. An edit to it took<br/>
 effect only after a restart.</change>
+			<change type="Note">a reload that stops on a malformed 0/1 value in combat.cfg leaves every combat setting<br/>
+unchanged.</change>
 		</entry>
 		<entry>
 			<date>09-22-2026</date>

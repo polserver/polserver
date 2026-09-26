@@ -4,13 +4,14 @@
 <ESCRIPT>
   <fileheader fname="POLsys.em">
     <filedesc>Functions to access POL system data.</filedesc>
-    <datemodified>08/02/2026</datemodified>
+    <datemodified>09/26/2026</datemodified>
 <constant>const MSGLEN_VARIABLE := -1;</constant>
   </fileheader>
 
   <function name="ReloadConfiguration">
     <prototype>ReloadConfiguration()</prototype>
-    <explain>reloads pol.cfg (most entries), npcdesc.cfg and bannedips.cfg</explain>
+    <explain>reloads, in this order: pol.cfg (most entries), servspecopt.cfg, combat.cfg, email.cfg, bannedips.cfg, npcdesc.cfg, console.cfg and fileaccess.cfg</explain>
+    <explain>A bad value stops the reload at that file. The files after it keep what they had.</explain>
     <explain>Linux: HUP signal will cause ReloadConfiguration to be called.</explain>
     <return>1</return>
     <error>"Configuration file error"</error>
