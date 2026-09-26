@@ -9,6 +9,17 @@ namespace Pol::Network::DAP
 {
 using namespace Bscript;
 
+bool frame_has_debug_info( const EScriptProgram* prog, unsigned PC )
+{
+  // read_dbg_file() loads once and reports success ever after, so this is a lookup after the
+  // first frame of a given program.
+  if ( prog == nullptr || const_cast<EScriptProgram*>( prog )->read_dbg_file( true ) != 0 )
+    return false;
+
+  return PC < prog->dbg_filenum.size() && PC < prog->dbg_linenum.size() &&
+         PC < prog->dbg_ins_blocks.size();
+}
+
 Handles::Handles() : _nextHandle( START_HANDLE ) {}
 
 void Handles::reset()
@@ -133,9 +144,7 @@ dap::array<dap::Variable> Handles::to_variables( const BObjectRef& objref )
   return variables;
 }
 
-FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script,
-                                size_t frameId )
-    : contents()
+FrameReference::FrameReference( Core::UOExecutor* uoexec, size_t frameId ) : contents()
 {
   if ( frameId > uoexec->ControlStack.size() )
   {
@@ -158,11 +167,21 @@ FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgra
 
   auto currentFrameId = stack.size();
 
+  // Each frame's PC and block table address the program that frame was running, not always this
+  // one.
+  const EScriptProgram* prog = uoexec->prog();
+
   while ( --currentFrameId, !stack.empty() )
   {
+    // jump() only records a locals frame when there is one, so this can run out first.
+    if ( upperLocals2.empty() )
+      break;
+
     ReturnContext& rc = stack.back();
     BObjectRefVec* Locals2 = upperLocals2.back();
     PC = rc.PC;
+    if ( rc.ExternalContext.has_value() )
+      prog = rc.ExternalContext->Program.get();
     stack.pop_back();
     upperLocals2.pop_back();
 
@@ -171,16 +190,19 @@ FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgra
       continue;
     }
 
+    if ( Locals2 == nullptr || !frame_has_debug_info( prog, PC ) )
+      return;
+
     size_t left = Locals2->size();
 
-    unsigned block = _script->dbg_ins_blocks[PC];
+    unsigned block = prog->dbg_ins_blocks[PC];
     while ( left )
     {
-      while ( left <= _script->blocks[block].parentvariables )
+      while ( left <= prog->blocks[block].parentvariables )
       {
-        block = _script->blocks[block].parentblockidx;
+        block = prog->blocks[block].parentblockidx;
       }
-      const EPDbgBlock& progblock = _script->blocks[block];
+      const EPDbgBlock& progblock = prog->blocks[block];
       size_t varidx = left - 1 - progblock.parentvariables;
       left--;
       contents[progblock.localvarnames[varidx]] = &( *Locals2 )[left];
@@ -188,16 +210,18 @@ FrameReference::FrameReference( Core::UOExecutor* uoexec, Bscript::EScriptProgra
   }
 }
 
-GlobalReference::GlobalReference( Core::UOExecutor* uoexec, Bscript::EScriptProgram* _script )
-    : contents()
+GlobalReference::GlobalReference( Core::UOExecutor* uoexec ) : contents()
 {
+  // Names and values both come from the executor as it stands, which during an external call is
+  // the callee's program and the callee's globals.
+  const EScriptProgram* prog = uoexec->prog();
   BObjectRefVec::iterator itr = uoexec->Globals2->begin(), end = uoexec->Globals2->end();
 
   for ( unsigned idx = 0; itr != end; ++itr, ++idx )
   {
-    if ( _script->globalvarnames.size() > idx )
+    if ( prog->globalvarnames.size() > idx )
     {
-      contents[_script->globalvarnames[idx]] = &( *itr );
+      contents[prog->globalvarnames[idx]] = &( *itr );
     }
   }
 }

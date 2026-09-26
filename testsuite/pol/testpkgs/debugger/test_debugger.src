@@ -25,6 +25,25 @@ exported function test_debugger_attach()
   return test_result;
 endfunction
 
+// A breakpoint that lands inside a function belonging to another script has to be reported
+// against that script, not against the one the session attached to.
+exported function test_debugger_external()
+  var debuggee := start_script( "debuggee_ext" );
+  if ( !debuggee )
+    return ret_error( $"Could not start debuggee_ext: {debuggee}" );
+  endif
+
+  print( $"Started debuggee_ext {debuggee.pid}" );
+
+  var params := struct{ debuggee_pid := debuggee.pid, test_type := "external",
+                        test_script_pid := GetPid() };
+
+  var test_result := start_debugger_client( params );
+  debuggee.kill();
+
+  return test_result;
+endfunction
+
 exported function test_debugger_launch()
   var params := struct{ test_type := "launch", test_script_pid := GetPid() };
 
