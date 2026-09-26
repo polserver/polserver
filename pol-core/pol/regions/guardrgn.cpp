@@ -8,6 +8,7 @@
 
 #include <stddef.h>
 
+#include "bscript/bobject.h"
 #include "bscript/bstring.h"
 #include "clib/cfgelem.h"
 
@@ -62,9 +63,10 @@ bool JusticeRegion::RunEnterScript( Mobile::Character* chr )
   if ( !sd.exists() )
     return false;
 
-  Bscript::BObjectImp* res = run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ),
-                                                       new Bscript::String( region_name_ ) );
-  return res->isTrue();
+  // held, not left raw: the script's result belongs to the caller
+  Bscript::BObject res( run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ),
+                                                  new Bscript::String( region_name_ ) ) );
+  return res.isTrue();
 }
 
 bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
@@ -78,9 +80,10 @@ bool JusticeRegion::RunLeaveScript( Mobile::Character* chr )
   if ( !sd.exists() )
     return false;
 
-  Bscript::BObjectImp* res = run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ),
-                                                       new Bscript::String( region_name_ ) );
-  return res->isTrue();
+  // held, not left raw: the script's result belongs to the caller
+  Bscript::BObject res( run_script_to_completion( sd, new Module::ECharacterRefObjImp( chr ),
+                                                  new Bscript::String( region_name_ ) ) );
+  return res.isTrue();
 }
 
 // This function is static!

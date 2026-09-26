@@ -1,5 +1,8 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: every time a character crossed into or out of a justice region with an EnterScript
+           or LeaveScript, a little memory was lost.
+09-26-2026 AsYlum:
     Fixed: adding an array to itself with += read freed memory, which could give wrong
            elements or crash the server.
     Fixed: unpack() of a packed dictionary could give keys no script can use, such as an error

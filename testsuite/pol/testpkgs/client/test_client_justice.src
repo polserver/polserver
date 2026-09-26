@@ -1,0 +1,169 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// What a player notices crossing into or out of a justice region: its enter and leave texts, its
+// EnterScript and LeaveScript, and in a NoCombat region the end of any fight. The regions are in
+// regions/justice.cfg: JusticeA and JusticeB share their texts and run :testclient:regionscript,
+// JusticePeace is NoCombat.
+
+const OUTSIDE_X := 141;  // no region of its own: the background justice region
+const A_X := 145;
+const B_X := 149;
+const PEACE_X := 153;
+const REGION_Y := 133;
+
+const ENTER_TEXT := "You enter the test region.";
+const LEAVE_TEXT := "You leave the test region.";
+const PEACE_TEXT := "You enter a peaceful place.";
+const NO_COMBAT_TEXT := "Combat is not allowed in this area.";
+
+var char, char2;
+var clientcon := getClientConnection();
+
+program test_client_justice()
+  char := FindAccount( "testclient0" ).getcharacter( 1 );
+  char2 := FindAccount( "testclient1" ).getcharacter( 1 );
+  if ( !char || !char2 )
+    return ret_error( "Could not find the client characters" );
+  endif
+  return 1;
+endprogram
+
+function move_to( chr, x )
+  var res := MoveObjectToLocation( chr, x, REGION_Y, 0, flags := MOVEOBJECT_FORCELOCATION );
+  if ( !res )
+    return ret_error( $"could not move {chr.name} to {x},{REGION_Y}: {res}" );
+  endif
+  return 1;
+endfunction
+
+// Puts both characters back where the other client tests expect them.
+function go_home()
+  MoveObjectToLocation( char2, 101, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  MoveObjectToLocation( char, 100, 50, 0, flags := MOVEOBJECT_FORCELOCATION );
+  client_sync( clientcon, 0 );
+  client_sync( clientcon, 1 );
+endfunction
+
+function script_calls()
+  var calls := GetGlobalProperty( "#RegionScriptCalls" );
+  EraseGlobalProperty( "#RegionScriptCalls" );
+  var res := array{};
+  foreach call in ( calls ?: array{} )
+    if ( call.serial == char.serial )
+      res.append( call.region );
+    endif
+  endforeach
+  return res;
+endfunction
+
+// A step into a region and back out prints its texts and runs its scripts.
+exported function justice_enter_and_leave( unused resmgr )
+  var res := move_to( char, OUTSIDE_X );
+  if ( res )
+    client_sync( clientcon, 0 );
+    script_calls();
+
+    res := move_to( char, A_X );
+    if ( res )
+      res := wait_for_speech( 0, ENTER_TEXT );
+    endif
+    var entered := script_calls();
+    if ( res && entered != array{ "JusticeA" } )
+      res := ret_error( $"entering ran the region scripts for {entered}" );
+    endif
+
+    if ( res )
+      res := move_to( char, OUTSIDE_X );
+    endif
+    if ( res )
+      res := wait_for_speech( 0, LEAVE_TEXT );
+    endif
+    var left := script_calls();
+    if ( res && left != array{ "JusticeA" } )
+      res := ret_error( $"leaving ran the region scripts for {left}" );
+    endif
+  endif
+  go_home();
+  // res holds the last event waited for, and the harness counts only 1 as a pass
+  return res ? 1 : res;
+endfunction
+
+// Between two regions with the same texts nothing is printed, though both scripts run: the one
+// left first, then the one entered.
+exported function justice_same_texts_silent( unused resmgr )
+  var res := move_to( char, A_X );
+  if ( res )
+    client_sync( clientcon, 0 );
+    script_calls();
+    res := move_to( char, B_X );
+  endif
+  if ( res )
+    res := no_event_before_sync( clientcon, 0, { EVT_SPEECH },
+                                 @( ev ) { return ev.msg == ENTER_TEXT || ev.msg == LEAVE_TEXT
+                                                  ? $"was told \"{ev.msg}\"" : 0; } );
+  endif
+  var calls := script_calls();
+  if ( res && calls != array{ "JusticeA", "JusticeB" } )
+    res := ret_error( $"crossing ran the region scripts for {calls}" );
+  endif
+  go_home();
+  // res holds the last event waited for, and the harness counts only 1 as a pass
+  return res ? 1 : res;
+endfunction
+
+function attack( id, victim )
+  clientcon.sendevent( struct{ todo := "attack", arg := victim.serial, id := id } );
+  return client_sync( clientcon, id );
+endfunction
+
+function stop_fighting()
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 0, id := 0 } );
+  clientcon.sendevent( struct{ todo := "war_mode", arg := 0, id := 1 } );
+  client_sync( clientcon, 0 );
+  client_sync( clientcon, 1 );
+endfunction
+
+// Walking into a NoCombat region ends the fight on both sides, and a player standing in one
+// cannot be attacked.
+exported function justice_nocombat_ends_fight( unused resmgr )
+  var res := move_to( char2, B_X - 1 );
+  if ( res )
+    res := move_to( char, B_X );
+  endif
+  if ( res )
+    res := attack( 0, char2 );
+  endif
+  if ( res )
+    res := attack( 1, char );
+  endif
+  if ( res && ( char.opponent != char2 || char2.opponent != char ) )
+    res := ret_error( $"the fight did not start: {char.opponent} / {char2.opponent}" );
+  endif
+
+  if ( res )
+    res := move_to( char, PEACE_X );
+  endif
+  if ( res )
+    res := wait_for_speech( 0, PEACE_TEXT );
+  endif
+  if ( res && ( char.opponent || char2.opponent ) )
+    res := ret_error( $"the fight went on: {char.opponent} / {char2.opponent}" );
+  endif
+
+  if ( res )
+    clientcon.sendevent( struct{ todo := "attack", arg := char.serial, id := 1 } );
+    res := wait_for_speech( 1, NO_COMBAT_TEXT );
+    if ( res && char2.opponent )
+      res := ret_error( "a player in a NoCombat region was attacked" );
+    endif
+  endif
+
+  stop_fighting();
+  go_home();
+  // res holds the last event waited for, and the harness counts only 1 as a pass
+  return res ? 1 : res;
+endfunction

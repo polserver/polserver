@@ -1,0 +1,14 @@
+use uo;
+
+// A justice region's EnterScript and LeaveScript, for test_client_justice.src. Both are handed the
+// character and the region's name, and nothing says which of the two ran, so the test tells them
+// apart by order. Each call is appended to a global property for the test to read.
+program regionscript( who, region )
+  var calls := GetGlobalProperty( "#RegionScriptCalls" );
+  if ( !calls )
+    calls := array{};
+  endif
+  calls.append( struct{ serial := who.serial, region := region } );
+  SetGlobalProperty( "#RegionScriptCalls", calls );
+  return 1;
+endprogram
