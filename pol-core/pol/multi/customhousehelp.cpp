@@ -41,11 +41,12 @@ int StairSeqs[] = {
     0x789,  // Weathered Stone
     0x7A4   // Grey Stone
 };
+// IsStair() takes the direction from the position, index % 4, so every material but the last
+// needs all four. Red has only two and stays last.
 //                      N,      W,      S,      E
 int StairIDs[] = {
     0x71F,  0x736,  0x737,
-    0x749,          // Granite
-    0x7BB,  0x7BC,  // Red
+    0x749,  // Granite
     0x35D4, 0x35D3, 0x35D6,
     0x35D5,  // Crystal
     0x360B, 0x360A, 0x360D,
@@ -53,9 +54,10 @@ int StairIDs[] = {
     0x4360, 0x435E, 0x435F,
     0x4361,  // Gargish 1
     0x435C, 0x435A, 0x435B,
-    0x435C,  // Gargish 2
+    0x435D,  // Gargish 2
     0x4364, 0x4362, 0x4363,
-    0x4365  // Gargish 3
+    0x4365,        // Gargish 3
+    0x7BB,  0x7BC  // Red
 };
 
 bool CustomHouseDesign::IsStairBlock( u16 id )
@@ -83,15 +85,17 @@ bool CustomHouseDesign::IsStair( u16 id, int& dir )
     return true;
   }
 
-  delta = -1;
-
-  for ( unsigned int i = 0; delta < 0 && ( i < ( sizeof StairIDs ) / ( sizeof( int ) ) ); ++i )
+  // every entry is looked at: unlike StairSeqs, StairIDs is not sorted, so there is no point at
+  // which the rest can be skipped
+  for ( unsigned int i = 0; i < ( sizeof StairIDs ) / ( sizeof( int ) ); ++i )
   {
-    delta = ( StairIDs[i] - id );
-    dir = i % 4;
+    if ( StairIDs[i] == id )
+    {
+      dir = i % 4;
+      return true;
+    }
   }
-
-  return ( delta == 0 );
+  return false;
 }
 
 bool CustomHouseDesign::DeleteStairs( u16 id, s32 xoffset, s32 yoffset, s8 z )

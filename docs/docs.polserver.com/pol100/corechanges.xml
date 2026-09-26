@@ -8,6 +8,13 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">erasing a step of a crystal, shadow or gargish staircase while designing a custom<br/>
+house took the tiles of a staircase climbing the other way, or left the staircase<br/>
+standing.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">every time a character crossed into or out of a justice region with an EnterScript<br/>
 or LeaveScript, a little memory was lost.</change>
 		</entry>

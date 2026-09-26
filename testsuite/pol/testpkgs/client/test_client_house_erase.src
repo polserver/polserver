@@ -335,3 +335,69 @@ exported function erase_z_no_plane( resmgn )
   endif
   return quit_design( 0 );
 endfunction
+
+// A staircase laid one step at a time: four steps of one graphic climbing (dx, dy) from x, y, and
+// a decoy of the same graphic one step the other way. Erasing the lowest step has to take the four
+// and leave the decoy, which is only so if the core read the right direction from the graphic.
+function erase_stair_run( resmgn, graphic, x, y, dx, dy )
+  var started := house_start( resmgn );
+  if ( !started )
+    return started;
+  endif
+  var ev := enter_design( 0, char, house );
+  if ( !ev )
+    return ev;
+  endif
+  var revision := CInt( ev.revision );
+
+  for i := 0 to 3
+    house_add( 0, graphic, x + i * dx, y + i * dy );
+  endfor
+  house_add( 0, graphic, x - dx, y - dy );
+  ev := client_sees_revision( 0, revision + 5 );
+  if ( !ev )
+    return ev;
+  endif
+
+  house_erase( 0, graphic, x, y, CH_PLANE_Z1 );
+  ev := wait_for_design( 0 );
+  if ( !ev )
+    return ev;
+  endif
+
+  for i := 0 to 3
+    var res := expect_no_part( house, graphic, x + i * dx, y + i * dy );
+    if ( !res )
+      return res;
+    endif
+  endfor
+  var decoy := expect_part( house, graphic, x - dx, y - dy, CH_PLANE_Z1 );
+  if ( !decoy )
+    return ret_error( $"the decoy behind the stair went too: {decoy.errortext}" );
+  endif
+
+  return quit_design( 0 );
+endfunction
+
+// The light stone stair, one graphic per direction after 0x751 climbing north.
+exported function erase_stair_west( resmgn )
+  return erase_stair_run( resmgn, 0x752, 2, 0, -1, 0 );
+endfunction
+
+exported function erase_stair_south( resmgn )
+  return erase_stair_run( resmgn, 0x753, 0, -1, 0, 1 );
+endfunction
+
+exported function erase_stair_east( resmgn )
+  return erase_stair_run( resmgn, 0x754, -2, 0, 1, 0 );
+endfunction
+
+// The crystal stair is one of the graphics looked up by table rather than by sequence, which
+// has to read north from 0x35D4 and west from 0x35D3 like the table's comments say.
+exported function erase_crystal_stair_north( resmgn )
+  return erase_stair_run( resmgn, 0x35D4, 0, 2, 0, -1 );
+endfunction
+
+exported function erase_crystal_stair_west( resmgn )
+  return erase_stair_run( resmgn, 0x35D3, 2, 0, -1, 0 );
+endfunction

@@ -1,5 +1,9 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: erasing a step of a crystal, shadow or gargish staircase while designing a custom
+           house took the tiles of a staircase climbing the other way, or left the staircase
+           standing.
+09-26-2026 AsYlum:
     Fixed: every time a character crossed into or out of a justice region with an EnterScript
            or LeaveScript, a little memory was lost.
 09-26-2026 AsYlum:

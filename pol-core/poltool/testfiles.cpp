@@ -129,6 +129,13 @@ void FileGenerator::modifyTiledata( std::vector<T>& land, std::vector<U>& item )
   additem( &item[0x5c4], 0x14002000, 255, 0, 3, "wooden shingles" );
   additem( &item[0x6a5], 0x20002050, 255, 0, 20, "wooden door" );
   additem( &item[0x751], 0x00002600, 255, 0, 5, "stone stairs" );
+  // the light stone stair climbing west, south and east, and the crystal ones climbing north and
+  // west, for the custom house tests that erase a staircase in each direction
+  additem( &item[0x752], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0x753], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0x754], 0x00002600, 255, 0, 5, "stone stairs" );
+  additem( &item[0x35d3], 0x00002600, 255, 0, 5, "crystal stairs" );
+  additem( &item[0x35d4], 0x00002600, 255, 0, 5, "crystal stairs" );
   additem( &item[0x756], 0x00002600, 255, 0, 5, "stone stairs" );
   additem( &item[0x758], 0x00002600, 255, 0, 5, "stone stairs" );
   additem( &item[0xb98], 0x00000004, 255, 0, 0, "wooden signpost" );
