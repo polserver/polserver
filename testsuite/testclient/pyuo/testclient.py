@@ -468,6 +468,19 @@ async def main(lifecycle):
   return 1 if serv.failed else 0
 
 
+def pol_exited():
+  '''True once POL has exited: testsuite/runpol.py writes pol.exited when it does.
+
+  The marker holds the pid of the cmake process running the pipeline, which is this
+  process's parent too; one naming another parent is left over from an earlier run.
+  '''
+  try:
+    with open('pol.exited', encoding='utf-8') as marker:
+      return int(marker.read().strip() or 0) == os.getppid()
+  except (OSError, ValueError):
+    return False
+
+
 def game_port_free(port):
   '''True once nothing is listening on the game port, i.e. the shard is gone.
 
@@ -579,6 +592,8 @@ class PolServer:
           shard_seen = True
         elif shard_seen:
           raise ShardGone('shard stopped without connecting a test client')
+        elif pol_exited():
+          raise ShardGone('pol exited before the shard came up')
     raise ShardGone('shard never appeared within {}s'.format(HARD_DEADLINE_SECS))
 
   async def run(self):

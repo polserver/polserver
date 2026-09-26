@@ -67,6 +67,20 @@ def release_stdout():
     os.close(devnull)
 
 
+def pol_exited():
+    """True once POL has exited: testsuite/runpol.py writes pol.exited when it does.
+
+    The marker holds the pid of the cmake process running the pipeline, which is this
+    process's parent too; one naming another parent is left over from an earlier run. This is
+    what ends the wait for a shard that stopped before it ever listened on a port.
+    """
+    try:
+        with open("pol.exited", encoding="utf-8") as marker:
+            return int(marker.read().strip() or 0) == os.getppid()
+    except (OSError, ValueError):
+        return False
+
+
 def webserver_port_free():
     """True once nothing is listening on the webserver port, i.e. the shard is gone."""
     probe = socket.socket()  # bind, never connect -- see module docstring
@@ -202,6 +216,9 @@ def main():
             # it afterwards fails to connect to it. The run itself is bounded by ctest.
             if not shard_seen and waited >= HARD_DEADLINE_SECS:
                 log("hard deadline reached without a shard, exiting")
+                return
+            if not shard_seen and pol_exited():
+                log("pol exited without a shard, exiting")
                 return
             # Which of the three conditions is holding this process open, once a minute. Without
             # it a stuck deafclient is indistinguishable from a stuck shard: both end as one
