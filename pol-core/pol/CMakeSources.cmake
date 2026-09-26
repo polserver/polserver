@@ -412,6 +412,7 @@ set (pol_sources  # sorted !
   testing/testclibutil.cpp
   testing/testcrypt.cpp
   testing/testdecay.cpp
+  testing/testdeferred.cpp
   testing/testenv.cpp
   testing/testenv.h
   testing/testequipcolors.cpp
@@ -424,6 +425,7 @@ set (pol_sources  # sorted !
   testing/testmaptile.cpp
   testing/testmisc.cpp
   testing/testpos.cpp
+  testing/testproplist.cpp
   testing/testrange.cpp
   testing/testresolve.cpp
   testing/testskill.cpp

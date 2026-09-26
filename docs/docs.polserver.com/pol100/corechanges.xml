@@ -8,6 +8,13 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">a client version before 5.0.7 with a revision of 7 or more, such as 4.0.11c, was<br/>
+read without its patch letter. client.clientver_detail gave patch 0, and a<br/>
+packethooks.cfg Client version was compared the same way.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">a PROXY protocol v2 header from a uoclient.cfg AllowProxy address could announce a<br/>
 payload larger than the receive buffer, and the payload was written past its end.<br/>
 Such a header now closes the connection.</change>

@@ -21,6 +21,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <time.h>
+#include <tuple>
 
 #include "bscript/barray.h"
 #include "bscript/blong.h"
@@ -348,7 +349,8 @@ void Client::itemizeclientversion( const std::string& ver, VersionDetailStruct& 
     detail.patch = 0;
     if ( dot3 < ver.length() )
     {
-      if ( ( detail.major <= 5 ) && ( detail.minor <= 0 ) && ( detail.rev <= 6 ) )
+      // before 5.0.7 the patch is a letter after the revision
+      if ( std::tie( detail.major, detail.minor, detail.rev ) < std::make_tuple( 5, 0, 7 ) )
       {
         if ( ver[dot3] != ' ' )
           detail.patch = ( ver[dot3] - 'a' ) + 1;  // char to int
