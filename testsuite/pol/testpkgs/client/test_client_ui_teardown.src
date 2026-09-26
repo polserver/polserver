@@ -1,0 +1,267 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// A script blocked on a dialog is parked until the client answers. Two things can end that wait
+// early, and both leave a pointer behind that the core has to clear:
+// - the client disconnects, and the parked script has to be woken with nothing;
+// - the script dies, and the client's late answer has to find no script to hand it to.
+// Each case logs in a client of its own, since a disconnected client is not reconnected and a
+// client id is only used once.
+
+const ACCOUNT := "testclientui";
+
+var clientcon := getClientConnection();
+var acct;
+var chr;
+var next_id := 13;
+
+program test_client_ui_teardown()
+  chr := createAccountWithChar( ACCOUNT, "pass" );
+  if ( !chr )
+    return chr;
+  endif
+  acct := FindAccount( ACCOUNT );
+  return 1;
+endprogram
+
+function login()
+  var id := next_id;
+  next_id += 1;
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := $"UiTeardown{id}",
+                               id := id } );
+  var ev := waitForClient( id, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"could not log in: {ev}" );
+  endif
+  chr := acct.getcharacter( 1 );
+  return id;
+endfunction
+
+// The character stays in use for a moment after the socket drops, and a later package asserts
+// nobody is online.
+function wait_offline()
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !chr.client && !chr.logged_in )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( "the character stayed online" );
+endfunction
+
+function log_out( id )
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  return wait_offline();
+endfunction
+
+// Waits for an event from the waiter script. The client's events arrive in the same queue.
+function wait_waiter( member, timeout := 10 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    // .? binds looser than && and ||, so each test of it is bracketed
+    if ( !ev || ( ev.?type ) )
+      continue;
+    endif
+    if ( ( member == "opened" && ( ev.?opened ) ) || ( member == "answered" && ( ev.?answered ) ) )
+      return ev;
+    endif
+  endwhile
+  return ret_error( $"the waiter never sent \"{member}\"" );
+endfunction
+
+// Opens the dialog on a waiter script, with the client armed to leave it unanswered.
+function hold( resmgr, id, kind, arrival )
+  var arm_kind := kind;
+  if ( kind == "prompt_uc" )
+    arm_kind := DIALOG_PROMPT;
+  endif
+  if ( kind != "target" )
+    Clear_Event_Queue();
+    clientcon.sendevent( struct{ todo := EVT_DIALOG_REPLY,
+                                 arg := struct{ kind := arm_kind, skip := 1 },
+                                 id := id } );
+    if ( !waitForClient( id, { EVT_DIALOG_REPLY } ) )
+      return ret_error( $"the client never acknowledged the armed {kind} skip" );
+    endif
+  endif
+
+  // a character made by addcharacter() has no backpack, so the dye window and the prompts are
+  // given an item on the ground
+  var item := chr;
+  if ( kind != "popup" )
+    item := resmgr.CreateItemAtLocation( chr.x, chr.y, chr.z, 0xE75 );
+    if ( !item )
+      return ret_error( $"could not create the item for the {kind}: {item}" );
+    endif
+  endif
+  var args := struct{ parent := GetProcess(), chr := chr, kind := kind, item := item };
+  var waiter := resmgr.Start_Script( ":TestClient:dialogwaiter.ecl", args );
+  if ( !waiter )
+    return waiter;
+  endif
+  var ev := wait_waiter( "opened" );
+  if ( !ev )
+    return ev;
+  endif
+  // a target cursor raises no event of its own; the sync comes after it on the game socket
+  if ( arrival )
+    if ( !waitForClient( id, { arrival } ) )
+      return ret_error( $"the held {kind} never reached the client" );
+    endif
+  else
+    var res := client_sync( clientcon, id );
+    if ( !res )
+      return res;
+    endif
+  endif
+  return waiter;
+endfunction
+
+// The client drops while the dialog is open: the parked script wakes up with a false result.
+function disconnect_while( resmgr, kind, arrival )
+  var id := login();
+  if ( !id )
+    return id;
+  endif
+  var waiter := hold( resmgr, id, kind, arrival );
+  if ( !waiter )
+    log_out( id );
+    return waiter;
+  endif
+
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  var ev := wait_waiter( "answered" );
+  var off := wait_offline();
+  if ( !ev )
+    return ret_error( $"the script parked on the {kind} was not woken by the disconnect" );
+  endif
+  if ( ev.answered )
+    return ret_error( $"the {kind} of a disconnected client answered {ev.answered}" );
+  endif
+  return off;
+endfunction
+
+exported function ui_disconnect_target( resmgr )
+  return disconnect_while( resmgr, "target", 0 );
+endfunction
+
+exported function ui_disconnect_menu( resmgr )
+  return disconnect_while( resmgr, DIALOG_MENU, EVT_MENU );
+endfunction
+
+exported function ui_disconnect_popup( resmgr )
+  return disconnect_while( resmgr, DIALOG_POPUP, EVT_POPUP );
+endfunction
+
+exported function ui_disconnect_prompt( resmgr )
+  return disconnect_while( resmgr, DIALOG_PROMPT, EVT_PROMPT );
+endfunction
+
+exported function ui_disconnect_prompt_uc( resmgr )
+  return disconnect_while( resmgr, "prompt_uc", EVT_PROMPT );
+endfunction
+
+exported function ui_disconnect_textentry( resmgr )
+  return disconnect_while( resmgr, DIALOG_TEXTENTRY, EVT_TEXT_ENTRY );
+endfunction
+
+exported function ui_disconnect_color( resmgr )
+  return disconnect_while( resmgr, DIALOG_COLOR, EVT_SELECT_COLOR );
+endfunction
+
+exported function ui_disconnect_resurrect( resmgr )
+  return disconnect_while( resmgr, DIALOG_RESURRECT, EVT_RESURRECT_MENU );
+endfunction
+
+// The script dies while the dialog is open and the client answers afterwards. The answer must be
+// dropped: the script it was meant for is gone. The sync shows the server handled the answer and
+// is still talking to the client.
+function killed_then_answered( resmgr, kind, arrival, answer, ack )
+  var id := login();
+  if ( !id )
+    return id;
+  endif
+  var waiter := hold( resmgr, id, kind, arrival );
+  if ( !waiter )
+    log_out( id );
+    return waiter;
+  endif
+
+  waiter.kill();
+  answer.id := id;
+  clientcon.sendevent( answer );
+  if ( ack && !waitForClient( id, { ack } ) )
+    log_out( id );
+    return ret_error( $"the client never answered the {kind}" );
+  endif
+  var res := client_sync( clientcon, id );
+  if ( !res )
+    log_out( id );
+    return ret_error( $"the client stopped answering after the late {kind} reply: {res}" );
+  endif
+
+  return log_out( id );
+endfunction
+
+exported function ui_killed_target_late_answer( resmgr )
+  // made before the login, so the client already knows the item it targets
+  var thing := resmgr.CreateItemAtLocation( chr.x, chr.y, chr.z, 0xE75 );
+  if ( !thing )
+    return ret_error( $"could not create the item to target: {thing}" );
+  endif
+  var answer := struct{ todo := "target", arg := struct{ serial := thing.serial } };
+  return killed_then_answered( resmgr, "target", 0, answer, EVT_TARGET );
+endfunction
+
+exported function ui_killed_popup_late_answer( resmgr )
+  var answer := struct{ todo := "popup_select", arg := struct{ serial := chr.serial, tag := 1 } };
+  return killed_then_answered( resmgr, DIALOG_POPUP, EVT_POPUP, answer, 0 );
+endfunction
+
+// DisconnectClient() takes a character or its client. Both drop the connection.
+function disconnect_by( byclient )
+  var id := login();
+  if ( !id )
+    return id;
+  endif
+  clientcon.sendevent( struct{ todo := "expect_disconnect", id := id } );
+  var res := client_sync( clientcon, id );
+  if ( !res )
+    log_out( id );
+    return res;
+  endif
+
+  var online := SystemFindObjectBySerial( chr.serial );
+  if ( byclient )
+    res := DisconnectClient( online.client );
+  else
+    res := DisconnectClient( online );
+  endif
+  if ( res != 1 )
+    log_out( id );
+    return ret_error( $"DisconnectClient answered {res}" );
+  endif
+  var ev := waitForClient( id, { EVT_DISCONNECTED } );
+  var off := wait_offline();
+  if ( !ev )
+    return ret_error( $"the client was not dropped: {ev}" );
+  endif
+  return off;
+endfunction
+
+exported function ui_disconnectclient_character( unused resmgr )
+  return disconnect_by( 0 );
+endfunction
+
+exported function ui_disconnectclient_client( unused resmgr )
+  return disconnect_by( 1 );
+endfunction

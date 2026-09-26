@@ -1,5 +1,6 @@
 use uo;
 use os;
+use unicode;
 
 // Holds one of the small dialogs open on behalf of a test function.
 //
@@ -21,6 +22,14 @@ program dialogwaiter( args )
     res := SelectColor( chr, item );
   elseif ( kind == "popup" )
     res := SendPopUpMenu( chr, item, { 3000100 } );
+  elseif ( kind == "target" )
+    res := Target( chr );
+  elseif ( kind == "menu" )
+    res := SelectMenuItem2( chr, "TestMenuMain" );
+  elseif ( kind == "prompt" )
+    res := RequestInput( chr, item, "held" );
+  elseif ( kind == "prompt_uc" )
+    res := RequestInputUC( chr, item, "held", "ENU" );
   endif
 
   parent.SendEvent( struct{ answered := res } );

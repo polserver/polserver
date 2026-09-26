@@ -296,8 +296,9 @@ class TestBrain(brain.Brain):
           self.client.bookPage(int(arg['serial']), int(arg['page']),
             arg['lines'] if action == 'write' else None)
       elif todo=="dialog_reply":
-        # Arms the answer the next dialog of that kind gets: "textentry", "color" or
-        # "resurrect". Acked for the same reason the gump reply is.
+        # Arms the answer the next dialog of that kind gets: "textentry", "color", "popup",
+        # "resurrect", or a skip for "prompt" or "menu". Acked for the same reason the gump
+        # reply is.
         self.client.next_dialog_reply[arg['kind']] = arg
         self.server.addevent(
           brain.Event(brain.Event.EVT_DIALOG_REPLY,

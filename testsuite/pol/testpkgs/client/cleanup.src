@@ -51,8 +51,10 @@ if ( a )
   a.delete();
 endif
 // the accounts test_client_createchar.src makes its characters in, one per case
-// plus the one test_client_account.src logs in to
-foreach name in ( { "testclient2", "testclient3", "testclient4", "testclient5", "testclientacct" } )
+// plus the ones test_client_account.src, test_client_ui_teardown.src and
+// test_client_seehidden.src log in to
+foreach name in ( { "testclient2", "testclient3", "testclient4", "testclient5", "testclientacct",
+                    "testclientui", "testclientghost" } )
   a := FindAccount( name );
   if ( a )
     a.deletecharacter( 1 );

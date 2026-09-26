@@ -1117,11 +1117,12 @@ class Client:
       assert self.lc
       # the ascii twin of the unicode prompt below, and answered the same way:
       # RequestInput() suspends the script that raised it until this goes back
-      reply = self.next_prompt_reply
-      self.next_prompt_reply = None
-      po = packets.PromptPacket()
-      po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
-      self.queue(po)
+      if not self.next_dialog_reply.pop('prompt', {}).get('skip', 0):
+        reply = self.next_prompt_reply
+        self.next_prompt_reply = None
+        po = packets.PromptPacket()
+        po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
+        self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
           msgid=pkt.msgid, unicode=False))
 
@@ -1129,12 +1130,14 @@ class Client:
       assert self.lc
       # RequestInputUC suspends the script that raised the prompt until this is answered,
       # so the client always answers: what the prompt_reply todo armed, or a fixed line.
-      # An empty text is how a real client cancels.
-      reply = self.next_prompt_reply
-      self.next_prompt_reply = None
-      po = packets.UnicodePromptPacket()
-      po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
-      self.queue(po)
+      # An empty text is how a real client cancels. A test that holds the prompt open arms a
+      # skip through the dialog_reply todo.
+      if not self.next_dialog_reply.pop('prompt', {}).get('skip', 0):
+        reply = self.next_prompt_reply
+        self.next_prompt_reply = None
+        po = packets.UnicodePromptPacket()
+        po.fill(pkt.serial, pkt.msgid, 'typed by the client' if reply is None else reply)
+        self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_PROMPT, serial=pkt.serial,
           msgid=pkt.msgid, unicode=True))
 
@@ -1157,12 +1160,14 @@ class Client:
       # A menu blocks the script that opened it until it is answered, so the client always
       # answers: the first entry, or what the next_menu_choice todo armed. Nothing else in
       # this client picks an entry, so an unanswered menu would park the script for good.
-      choice = self.next_menu_choice
-      self.next_menu_choice = None
-      po = packets.MenuResponsePacket()
-      po.fill(pkt.serial, pkt.menuid, 1 if choice is None else int(choice),
-              pkt.entries[0]['graphic'] if pkt.entries else 0)
-      self.queue(po)
+      # A test that holds the menu open arms a skip through the dialog_reply todo.
+      if not self.next_dialog_reply.pop('menu', {}).get('skip', 0):
+        choice = self.next_menu_choice
+        self.next_menu_choice = None
+        po = packets.MenuResponsePacket()
+        po.fill(pkt.serial, pkt.menuid, 1 if choice is None else int(choice),
+                pkt.entries[0]['graphic'] if pkt.entries else 0)
+        self.queue(po)
       self.brain.event(brain.Event(brain.Event.EVT_MENU, menuid=pkt.menuid,
           title=pkt.title, entries=pkt.entries))
 

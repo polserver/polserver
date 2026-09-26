@@ -9,9 +9,8 @@ include "clientpkt";
 // The module functions that need a client and that nothing else in the suite calls: OpenURL,
 // which asks the client to open a browser, and DisconnectClient.
 //
-// DisconnectClient's successful path is not here. The harness has no client it can afford to
-// lose: testclient.py never reconnects, and the deaf client is a raw socket peer with no
-// character of its own. What is covered is the two arms that refuse.
+// DisconnectClient's successful path is in test_client_ui_teardown.src, which logs in a client
+// of its own to lose. What is covered here is the two arms that refuse.
 
 // URL_MAX_LEN from pktdef.h, which is what OpenURL clamps a long url to
 const URL_MAX_LEN := 200;

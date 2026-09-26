@@ -78,12 +78,13 @@ const EVT_CANCEL_TARGET := "cancel_target";
 const EVT_DOUBLE_CLICK := "double_click";
 const EVT_LIFT_ITEM := "lift_item";
 const EVT_MOVE_ITEM_REJECTED := "move_item_rejected";
-// The reason carried by that event, from pktdef.h. Only the first four can come out of a refused
+// The reason carried by that event, from pktdef.h. Only the first five can come out of a refused
 // lift; everything the core has no separate answer for is sent as 5.
 const MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP := 0;
 const MOVE_ITEM_FAILURE_TOO_FAR_AWAY := 1;
 const MOVE_ITEM_FAILURE_OUT_OF_SIGHT := 2;
 const MOVE_ITEM_FAILURE_BELONGS_TO_OTHER := 3;
+const MOVE_ITEM_FAILURE_ALREADY_HOLDING_AN_ITEM := 4;
 const MOVE_ITEM_FAILURE_UNKNOWN := 5;
 const EVT_DROP_ITEM := "drop_item";
 const EVT_WEAR_ITEM := "wear_item";
@@ -130,6 +131,9 @@ const DIALOG_TEXTENTRY := "textentry";
 const DIALOG_POPUP := "popup";
 const DIALOG_COLOR := "color";
 const DIALOG_RESURRECT := "resurrect";
+// Prompts (RequestInput, RequestInputUC) and menus are answered at once unless a skip is armed.
+const DIALOG_PROMPT := "prompt";
+const DIALOG_MENU := "menu";
 // The ack of the client_packet and raw_packet todos: the packet is on its way down the game
 // socket. What sends them is clientpkt.inc.
 const EVT_PACKET_SENT := "packet_sent";

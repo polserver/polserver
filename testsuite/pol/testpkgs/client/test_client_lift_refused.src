@@ -1,0 +1,144 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// The server's reasons to refuse a lift. Each refusal must leave the item where it was: a lift
+// that goes through anyway is how items get duplicated or taken from their owner.
+
+var char;
+var clientcon := getClientConnection();
+
+program test_client_lift_refused()
+  char := FindAccount( "testclient0" ).getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  return 1;
+endprogram
+
+// Asks for the lift and expects the refusal with the given system message.
+function lift_refused( item, message )
+  Clear_Event_Queue();
+  var container := item.container;
+  var x := item.x, y := item.y;
+  clientcon.sendevent( struct{ todo := "lift_item", arg := item.serial, id := 0 } );
+  // the message comes before the rejection, and each wait drops what it does not match
+  var heard := wait_for_speech( 0, message );
+  if ( !heard )
+    return heard;
+  endif
+  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  if ( !ev )
+    return ret_error( $"the lift was not refused: {ev}" );
+  endif
+  if ( ev.reason != MOVE_ITEM_FAILURE_CANNOT_PICK_THAT_UP )
+    return ret_error( $"the lift was refused for reason {ev.reason}" );
+  endif
+  if ( char.getgottenitem() )
+    return ret_error( "the character holds an item after the refusal" );
+  endif
+  if ( item.container != container || item.x != x || item.y != y )
+    return ret_error( "the refused item moved" );
+  endif
+  return 1;
+endfunction
+
+// An item another script reserved with ReserveItem() stays out of reach.
+exported function lift_refused_in_use( resmgr )
+  var item := resmgr.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return ret_error( $"could not create the item: {item}" );
+  endif
+  item.movable := 1;
+  var holder := resmgr.Start_Script( ":TestClient:reserve_holder.ecl",
+                                     struct{ parent := GetProcess(), item := item } );
+  if ( !holder )
+    return holder;
+  endif
+  var reserved := Wait_For_Event( 5 );
+  if ( !reserved )
+    return ret_error( "the helper could not reserve the item" );
+  endif
+
+  var res := lift_refused( item, "That is already being used." );
+  holder.sendevent( 1 );
+  return res;
+endfunction
+
+exported function lift_refused_not_movable( resmgr )
+  var item := resmgr.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !item )
+    return ret_error( $"could not create the item: {item}" );
+  endif
+  item.movable := 0;
+  return lift_refused( item, "You cannot move that." );
+endfunction
+
+// The UnequipTest script refusing keeps an equipped item on its layer.
+exported function lift_refused_unequip_test( resmgr )
+  var item := resmgr.CreateItemAtLocation( char.x, char.y, char.z, 0x1517 );
+  if ( !item )
+    return ret_error( $"could not create the item: {item}" );
+  endif
+  if ( !EquipItem( char, item ) )
+    return ret_error( "could not equip the shirt" );
+  endif
+  SetObjProperty( item, "#RefuseUnequip", 1 );
+  var res := client_sync( clientcon, 0 );
+  if ( !res )
+    return res;
+  endif
+
+  res := lift_refused( item, "You cannot unequip that." );
+  EraseObjProperty( item, "#RefuseUnequip" );
+  if ( res && GetEquipmentByLayer( char, item.layer ) != item )
+    return ret_error( "the shirt came off" );
+  endif
+  return res;
+endfunction
+
+// A second lift while an item is held does not replace the held item, which would be lost.
+exported function lift_refused_while_holding( resmgr )
+  var first := resmgr.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  var second := resmgr.CreateItemAtLocation( char.x, char.y, char.z, 0x1F03 );
+  if ( !first || !second )
+    return ret_error( "could not create the items" );
+  endif
+  first.movable := 1;
+  second.movable := 1;
+
+  Clear_Event_Queue();
+  clientcon.sendevent( struct{ todo := "lift_item", arg := first.serial, id := 0 } );
+  if ( !waitForClient( 0, { EVT_LIFT_ITEM } ) )
+    return ret_error( "the first lift was not sent" );
+  endif
+  var res := client_sync( clientcon, 0 );
+  if ( !res )
+    return res;
+  endif
+  var held := char.getgottenitem();
+  if ( !held || held.serial != first.serial )
+    return ret_error( $"the first item is not held: {held}" );
+  endif
+
+  clientcon.sendevent( struct{ todo := "lift_item", arg := second.serial, id := 0 } );
+  var ev := waitForClient( 0, { EVT_MOVE_ITEM_REJECTED } );
+  held := char.getgottenitem();
+  var err := 0;
+  if ( !ev )
+    err := ret_error( $"the second lift was not refused: {ev}" );
+  elseif ( ev.reason != MOVE_ITEM_FAILURE_ALREADY_HOLDING_AN_ITEM )
+    err := ret_error( $"the second lift was refused for reason {ev.reason}" );
+  elseif ( !held || held.serial != first.serial )
+    err := ret_error( $"the held item changed to {held.serial}" );
+  elseif ( second.container || second.x != char.x || second.y != char.y )
+    err := ret_error( "the second item moved" );
+  endif
+
+  // take the first item off the cursor, so the rest of the suite finds it empty
+  DestroyItem( first );
+  client_sync( clientcon, 0 );
+  return err ? err : 1;
+endfunction

@@ -2,6 +2,10 @@ use uo;
 use os;
 
 program unequiptest( unequipped_on, item, startup, unequipped_by )
+  // lets a test have an item refuse to come off
+  if ( GetObjProperty( item, "#RefuseUnequip" ) )
+    return 0;
+  endif
   var pid := GetObjProperty( item, "#TestPid" );
   if ( pid )
     var ev := struct{ type := "unequiptest", on_chr := unequipped_on,

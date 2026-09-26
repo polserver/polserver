@@ -1,0 +1,141 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// Turning seehidden or seeghosts on shows the hidden mobiles or ghosts already in range, and
+// turning it off takes them away again. Getting either direction wrong shows a player what they
+// should not see.
+
+const GHOST_ACCOUNT := "testclientghost";
+const GHOST_CLIENT_ID := 30;
+
+var char;
+var clientcon := getClientConnection();
+
+program test_client_seehidden()
+  char := FindAccount( "testclient0" ).getcharacter( 1 );
+  if ( !char )
+    return ret_error( "Could not find char at slot 1" );
+  endif
+  // where the other client tests stand, with room beside it for an npc
+  var res := MoveObjectToLocation( char, 100, 50, 0 );
+  if ( !res )
+    return ret_error( $"Could not move character: {res}" );
+  endif
+  return 1;
+endprogram
+
+// Waits for client 0 to be sent the mobile, or told to remove it.
+function wait_mobile( type, serial )
+  while ( 1 )
+    var ev := waitForClient( 0, { type } );
+    if ( !ev )
+      return ret_error( $"client 0 never got {type} for 0x{serial:x}" );
+    endif
+    if ( ev.serial == serial )
+      return 1;
+    endif
+  endwhile
+endfunction
+
+// Shows the mobile when the privilege is turned on, and takes it away when it is turned off.
+function toggle_shows( resmgr, priv, mob )
+  var granted := resmgr.GrantPrivilege( char, priv );
+  if ( !granted )
+    return granted;
+  endif
+  // granting enables it too; its show and hide are drained before the toggle under test
+  char.disable( priv );
+  var synced := client_sync( clientcon, 0 );
+  if ( !synced )
+    return synced;
+  endif
+
+  char.enable( priv );
+  var res := wait_mobile( EVT_NEW_MOBILE, mob.serial );
+  if ( !res )
+    char.disable( priv );
+    return ret_error( $"enabling {priv} did not show the mobile: {res}" );
+  endif
+
+  char.disable( priv );
+  res := wait_mobile( EVT_REMOVED_OBJ, mob.serial );
+  if ( !res )
+    return ret_error( $"disabling {priv} did not take the mobile away: {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function seehidden_toggle( resmgr )
+  var npc := resmgr.CreateNPCFromTemplate( ":testnpc:probe_npc", char.x + 1, char.y, char.z );
+  if ( !npc )
+    return ret_error( $"could not create the npc: {npc}" );
+  endif
+  var res := wait_mobile( EVT_NEW_MOBILE, npc.serial );
+  if ( !res )
+    return res;
+  endif
+  npc.hidden := 1;
+  res := wait_mobile( EVT_REMOVED_OBJ, npc.serial );
+  if ( !res )
+    return res;
+  endif
+  return toggle_shows( resmgr, "seehidden", npc );
+endfunction
+
+// A ghost has to be a player: a killed npc leaves only a corpse. It gets an account and a client
+// of its own, since the harness clients are needed alive by later tests.
+exported function seeghosts_toggle( resmgr )
+  var ghost := createAccountWithChar( GHOST_ACCOUNT, "pass" );
+  if ( !ghost )
+    return ghost;
+  endif
+  MoveObjectToLocation( ghost, char.x + 1, char.y, char.z, char.realm,
+                        MOVEOBJECT_FORCELOCATION );
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := GHOST_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "SeeGhosts",
+                               id := GHOST_CLIENT_ID } );
+  var ev := waitForClient( GHOST_CLIENT_ID, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"the ghost could not log in: {ev}" );
+  endif
+  ghost := SystemFindObjectBySerial( ghost.serial );
+
+  var res := ghost_shows( resmgr, ghost );
+  if ( ghost.dead )
+    Resurrect( ghost );
+  endif
+  clientcon.sendevent( struct{ todo := "disconnect", id := GHOST_CLIENT_ID } );
+  var off := wait_offline( ghost );
+  return res ? off : res;
+endfunction
+
+function ghost_shows( resmgr, ghost )
+  ghost.Kill();
+  if ( !ghost.dead )
+    return ret_error( "the ghost character did not die" );
+  endif
+  var res := wait_mobile( EVT_REMOVED_OBJ, ghost.serial );
+  if ( !res )
+    return ret_error( $"the living character still sees the ghost: {res}" );
+  endif
+  return toggle_shows( resmgr, "seeghosts", ghost );
+endfunction
+
+// A later package asserts nobody is online, and the character stays in use for a moment after
+// the socket drops.
+function wait_offline( mob )
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !mob.client && !mob.logged_in )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( "the ghost character stayed online" );
+endfunction
