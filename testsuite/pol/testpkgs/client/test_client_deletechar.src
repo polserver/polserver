@@ -1,0 +1,118 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// Deleting a character from the character list with 0x83. The core deletes only a character that
+// exists and that nobody on the account is playing, and answers with the list again.
+// Each request logs in a client of its own that stops at the character list.
+
+const ACCOUNT := "testclientdel";
+const FIRST_NAME := "DelFirst";
+const SECOND_NAME := "DelSecond";
+
+var clientcon := getClientConnection();
+var acct;
+var next_id := 50;
+
+program test_client_deletechar()
+  acct := FindAccount( ACCOUNT );
+  if ( !acct )
+    acct := CreateAccount( ACCOUNT, "pass", 1 );
+    if ( !acct )
+      return ret_error( $"could not create the account: {acct}" );
+    endif
+  endif
+  for slot := 1 to 2
+    if ( !acct.getcharacter( slot ) )
+      acct.addcharacter( slot );
+    endif
+  endfor
+  acct.getcharacter( 1 ).name := FIRST_NAME;
+  acct.getcharacter( 2 ).name := SECOND_NAME;
+  return 1;
+endprogram
+
+// slot is 0-based, as the packet counts it
+function delete_char( slot )
+  var id := next_id;
+  next_id += 1;
+  clientcon.sendevent( struct{ todo := "delete_char",
+                               account := ACCOUNT,
+                               psw := "pass",
+                               chrindex := slot,
+                               id := id } );
+  var ev := waitForClient( id, { EVT_CHAR_DELETED }, 20 );
+  if ( !ev )
+    return ret_error( $"no answer to the delete: {ev}" );
+  endif
+  return ev;
+endfunction
+
+function expect_refused( slot, reason )
+  var ev := delete_char( slot );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.reason != reason )
+    return ret_error( $"the delete answered {ev}, expected refusal {reason}" );
+  endif
+  if ( !acct.getcharacter( 1 ) || !acct.getcharacter( 2 ) )
+    return ret_error( "a refused delete removed a character" );
+  endif
+  return 1;
+endfunction
+
+exported function deletechar_empty_slot( unused resmgr )
+  return expect_refused( 4, LOGIN_DENIED_MISC );
+endfunction
+
+exported function deletechar_past_last_slot( unused resmgr )
+  return expect_refused( 200, LOGIN_DENIED_MISC );
+endfunction
+
+// Someone playing a character of the account keeps every character of it from being deleted.
+exported function deletechar_account_in_use( unused resmgr )
+  var id := next_id;
+  next_id += 1;
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := FIRST_NAME,
+                               id := id } );
+  var ev := waitForClient( id, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"could not log in: {ev}" );
+  endif
+
+  var res := expect_refused( 1, LOGIN_DENIED_CHAR_IN_USE );
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  var chr := acct.getcharacter( 1 );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ( chr.client || chr.logged_in ) && ReadMillisecondClock() < deadline )
+    sleepms( 50 );
+  endwhile
+  return res;
+endfunction
+
+exported function deletechar_second_slot( unused resmgr )
+  var ev := delete_char( 1 );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.reason )
+    return ret_error( $"the delete was refused with {ev.reason}" );
+  endif
+  if ( acct.getcharacter( 2 ) )
+    return ret_error( "the character is still in slot 2" );
+  endif
+  if ( !acct.getcharacter( 1 ) )
+    return ret_error( "the other character went too" );
+  endif
+  if ( !( FIRST_NAME in ev.names ) || SECOND_NAME in ev.names )
+    return ret_error( $"the list sent back is {ev.names}" );
+  endif
+  return 1;
+endfunction

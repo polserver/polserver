@@ -288,3 +288,126 @@ exported function createchar_gargoyle_body( unused resources )
   endif
   return 1;
 endfunction
+
+// Clients from 7.0.16 on create with 0xF8, which is 0x00 with a fourth skill: the four values sum
+// to 120, not 100.
+const F8_ACCOUNT := "testclient6";
+const F8_CLIENT_ID := 40;
+const F8_PROF_ACCOUNT := "testclient7";
+const F8_PROF_CLIENT_ID := 41;
+const F8_REFUSE_ACCOUNT := "testclient8";
+const F8_REFUSE_CLIENT_ID := 42;
+
+// Checks each attribute base is ten times the whole points the packet asked for.
+function check_bases( chr, wanted )
+  var bad := array{};
+  foreach entry in wanted
+    var base := GetAttributeBaseValue( chr, entry[1] );
+    if ( base != entry[2] * 10 )
+      bad.append( $"{entry[1]} base is {base}, expected {entry[2] * 10}" );
+    endif
+  endforeach
+  return bad;
+endfunction
+
+exported function createchar_f8_four_skills( unused resources )
+  var acct := account_with_a_free_slot( F8_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := F8_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "FourSkills",
+                               packet := "f8",
+                               skills := array{ array{ 1, 50 }, array{ 2, 40 },
+                                                array{ 3, 20 }, array{ 4, 10 } },
+                               id := F8_CLIENT_ID } );
+  var res := waitForClient( F8_CLIENT_ID, { EVT_INIT }, 20 );
+  if ( !res )
+    return res;
+  endif
+  var chr := acct.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "the account has no character in slot 1 after creating one" );
+  endif
+
+  var bad := check_bases( chr, { array{ "Anatomy", 50 }, array{ "AnimalLore", 40 },
+                                 array{ "ItemIdentification", 20 }, array{ "ArmsLore", 10 } } );
+  if ( chr.name != "FourSkills" )
+    bad.append( $"the character is called {chr.name}" );
+  endif
+  var gone := log_out_and_remove( acct, F8_CLIENT_ID );
+  if ( !gone )
+    bad.append( $"{gone}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Newer clients send a skill their prof.txt no longer names as 0xFF. With the mage profession the
+// core takes it for Evaluating Intelligence at 30.
+exported function createchar_f8_profession_skill( unused resources )
+  var acct := account_with_a_free_slot( F8_PROF_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := F8_PROF_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "MageProfession",
+                               packet := "f8",
+                               profession := 2,
+                               skills := array{ array{ 1, 50 }, array{ 0xFF, 0 },
+                                                array{ 3, 40 }, array{ 4, 0 } },
+                               id := F8_PROF_CLIENT_ID } );
+  var res := waitForClient( F8_PROF_CLIENT_ID, { EVT_INIT }, 20 );
+  if ( !res )
+    return res;
+  endif
+  var chr := acct.getcharacter( 1 );
+  if ( !chr )
+    return ret_error( "the account has no character in slot 1 after creating one" );
+  endif
+
+  var bad := check_bases( chr, { array{ "Anatomy", 50 }, array{ "EvaluatingIntelligence", 30 },
+                                 array{ "ItemIdentification", 40 } } );
+  var gone := log_out_and_remove( acct, F8_PROF_CLIENT_ID );
+  if ( !gone )
+    bad.append( $"{gone}" );
+  endif
+  if ( bad.size() )
+    return ret_error( $"{bad}" );
+  endif
+  return 1;
+endfunction
+
+// Three skills summing to 100 are what a 0x00 creation asks for, and a 0xF8 one is refused.
+exported function createchar_f8_refuses_100_total( unused resources )
+  var acct := account_with_a_free_slot( F8_REFUSE_ACCOUNT );
+  if ( !acct )
+    return acct;
+  endif
+  clientcon.sendevent( struct{ todo := "createchar",
+                               account := F8_REFUSE_ACCOUNT,
+                               psw := "pass",
+                               chrindex := 0,
+                               name := "TooFewPoints",
+                               packet := "f8",
+                               skills := array{ array{ 1, 50 }, array{ 2, 50 },
+                                                array{ 3, 0 }, array{ 4, 0 } },
+                               id := F8_REFUSE_CLIENT_ID } );
+  // as with the tiny stat above, no EVT_INIT is coming
+  var res := waitForClient( F8_REFUSE_CLIENT_ID, { EVT_INIT }, 3 );
+  if ( res )
+    return ret_error( "a 0xF8 character with 100 skill points was created" );
+  endif
+  if ( acct.getcharacter( 1 ) )
+    return ret_error( "the refused creation left a character in the slot" );
+  endif
+  return 1;
+endfunction

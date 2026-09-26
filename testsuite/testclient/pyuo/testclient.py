@@ -620,6 +620,13 @@ class PolServer:
               name="client{}".format(res["id"]))
         t.add_done_callback(self._clientDone)
         self.tasks.append(t)
+      elif todo=="delete_char":
+        # a client that stops at the character list, as a player does to delete one
+        t = asyncio.create_task(
+              self.deletechar(res["account"], res["psw"], int(res["chrindex"]), res["id"]),
+              name="client{}".format(res["id"]))
+        t.add_done_callback(self._clientDone)
+        self.tasks.append(t)
       elif todo=="exit":
         # Logged per step: this process is one stage of cmake's execute_process pipeline, so if a
         # client never ends, the join below holds up the whole job and the only symptom is a
@@ -689,6 +696,25 @@ class PolServer:
     b = TestBrain(c,self)
     await client.supervise(self.log, c.start(b),
                            asyncio.create_task(b.run(), name="brain{}".format(id)))
+
+  async def deletechar(self, user, psw, charidx, id):
+    ''' Logs in to the character list, deletes one, and reports what came back '''
+    c = client.Client(id)
+    self.clients.append(c)
+    names = None
+    reason = None
+    try:
+      await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
+      await c.selectServer(self.lconf.getint('serveridx'))
+      names = await c.deleteCharacter(charidx, psw)
+    except client.LoginDeniedError as ex:
+      reason = ex.code
+    finally:
+      if getattr(c, "net", None) is not None:
+        c.net.close()
+        await c.net.wait_closed()
+    self.sendEvent(brain.Event(brain.Event.EVT_CHAR_DELETED, clientid=id, names=names,
+                               reason=reason))
 
   def _clientDone(self, task):
     ''' Says what became of a client, since nothing else looks at a task's result '''
@@ -951,6 +977,9 @@ class PolServer:
     elif ev.type==Event.EVT_SYNC:
       res['token']=ev.token
     elif ev.type==Event.EVT_LOGIN_DENIED:
+      res['reason']=ev.reason
+    elif ev.type==Event.EVT_CHAR_DELETED:
+      res['names']=ev.names
       res['reason']=ev.reason
     elif ev.type==Event.EVT_WORLDMAP:
       res['subcmd']=ev.subcmd

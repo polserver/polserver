@@ -1175,6 +1175,20 @@ class CreateCharacterPacket(Packet):
     self.eushort(0x0000)   # pants color
 
 
+class CreateCharacter70160Packet(CreateCharacterPacket):
+  ''' The create request of 7.0.16 and later clients: 0x00 with a fourth skill
+
+  The skill values sum to 120 instead of 100. A skill number of 0xff with a profession
+  set is how newer clients send a skill their prof.txt no longer names.
+  '''
+
+  cmd = 0xf8
+  length = 106
+
+  def fill(self, name, slot, skills=((1, 50), (2, 50), (3, 20), (4, 0)), **kwargs):
+    super().fill(name, slot, skills=skills, **kwargs)
+
+
 class SetWeatherPacket(Packet):
   ''' Sets Weather '''
 
@@ -1659,6 +1673,26 @@ class ConnectToGameServerPacket(Packet):
     self.ip = self.dip()
     self.port = self.dushort()
     self.key = self.duint()
+
+
+class DeleteCharacterPacket(Packet):
+  ''' Asks the game server to delete a character, from the character list '''
+
+  cmd = 0x83
+  length = 39
+
+  def fill(self, password, slot):
+    '''!
+    @param password string: the account password, which the core does not check again
+    @param slot int: the 0-based character slot
+    '''
+    self.password = password
+    self.slot = slot
+
+  def encodeChild(self):
+    self.estring(self.password, 30)
+    self.euint(self.slot)
+    self.eip('127.0.0.1')
 
 
 class GameServerLoginPacket(Packet):

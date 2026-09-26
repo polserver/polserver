@@ -52,11 +52,14 @@ if ( a )
 endif
 // the accounts test_client_createchar.src makes its characters in, one per case
 // plus the ones the account, ui teardown, see hidden, client info and party vitals tests log in to
-foreach name in ( { "testclient2", "testclient3", "testclient4", "testclient5", "testclientacct",
-                    "testclientui", "testclientghost", "testclientinfo", "testclientparty" } )
+foreach name in ( { "testclient2", "testclient3", "testclient4", "testclient5", "testclient6",
+                    "testclient7", "testclient8", "testclientacct",
+                    "testclientui", "testclientghost", "testclientinfo", "testclientparty",
+                    "testclientdel" } )
   a := FindAccount( name );
   if ( a )
     a.deletecharacter( 1 );
+    a.deletecharacter( 2 );
     a.delete();
   endif
 endforeach

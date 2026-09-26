@@ -245,6 +245,8 @@ class Event:
   EVT_LOGIN_DENIED = 143
   # The server dropped a client that had been told to expect it.
   EVT_DISCONNECTED = 144
+  # The answer to the delete_char todo: the character names sent back, or the refusal.
+  EVT_CHAR_DELETED = 145
 
   EVT_INIT = 254
   EVT_CLIENT_CRASH = 255
@@ -349,4 +351,5 @@ TYPESTR = {
   Event.EVT_SYNC: "sync",
   Event.EVT_LOGIN_DENIED: "login_denied",
   Event.EVT_DISCONNECTED: "disconnected",
+  Event.EVT_CHAR_DELETED: "char_deleted",
 }

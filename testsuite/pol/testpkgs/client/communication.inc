@@ -176,6 +176,11 @@ const LOGIN_DENIED_BLOCKED := 2;
 const LOGIN_DENIED_WRONG_PASSWORD := 3;
 // The server dropped a client that the "expect_disconnect" todo had told to expect it.
 const EVT_DISCONNECTED := "disconnected";
+// The answer to the "delete_char" todo: "names" is the character list sent back after the
+// delete, or uninit with "reason" the 0x82 code of the refusal.
+const EVT_CHAR_DELETED := "char_deleted";
+const LOGIN_DENIED_CHAR_IN_USE := 1;
+const LOGIN_DENIED_MISC := 6;
 const EVT_BOOK_PAGE := "book_page";
 const BOOK_READ := "read";
 const BOOK_WRITE := "write";

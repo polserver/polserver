@@ -796,14 +796,38 @@ class Client:
     return pkt.chars
 
   @status('loggedin')
-  async def createCharacter(self, name, idx, **kwargs):
-    ''' Creates a character in the given slot and enters the game with it '''
+  async def createCharacter(self, name, idx, packet=None, **kwargs):
+    '''! Creates a character in the given slot and enters the game with it
+    @param packet str: "f8" for the 7.0.16+ request with four skills, else the 0x00 one
+    '''
     self.log.info('creating character #%d %s', idx, name)
-    po = packets.CreateCharacterPacket()
+    if packet == 'f8':
+      po = packets.CreateCharacter70160Packet()
+    else:
+      po = packets.CreateCharacterPacket()
     po.fill(name, idx, **kwargs)
     self.queue(po)
 
     self.status = 'game'
+
+  @status('loggedin')
+  async def deleteCharacter(self, idx, password):
+    '''! Deletes a character from the character list
+    @return list of the character names the server sends back
+    @throws LoginDeniedError when the server refuses
+    '''
+    self.log.info('deleting character #%d', idx)
+    po = packets.DeleteCharacterPacket()
+    po.fill(password, idx)
+    self.queue(po)
+    # the list comes again as at login, after the features packet
+    while True:
+      pkt = await self.receive((packets.CharactersPacket, packets.LoginDeniedPacket,
+                                packets.EnableFeaturesPacket))
+      if isinstance(pkt, packets.LoginDeniedPacket):
+        raise LoginDeniedError(pkt.reason)
+      if isinstance(pkt, packets.CharactersPacket):
+        return [c['name'] for c in pkt.chars]
 
   @status('loggedin')
   async def selectCharacter(self, name, idx):
