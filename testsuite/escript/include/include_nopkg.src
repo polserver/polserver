@@ -1,0 +1,4 @@
+// A package that does not exist cannot be split off the name, which stops the compile.
+include ":nosuchpkg:thing";
+
+print( "never" );

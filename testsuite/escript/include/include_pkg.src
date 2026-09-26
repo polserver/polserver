@@ -1,0 +1,6 @@
+// ":pkg:name" looks in the package directory, then in its include directory.
+include ":inctests:pkgdir";
+include ":inctests:pkgsub";
+
+print( pkgdir_name() );
+print( pkgsub_name() );

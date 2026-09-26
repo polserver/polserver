@@ -1,0 +1,4 @@
+// "::name" has an empty package part, and is looked up from PolScriptRoot.
+include "::include/rootinc";
+
+print( rootinc_name() );

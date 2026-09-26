@@ -1,0 +1,4 @@
+// With the file in both places the package directory's is used, and the compiler warns.
+include ":inctests:both";
+
+print( both_name() );

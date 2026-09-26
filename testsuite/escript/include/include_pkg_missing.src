@@ -1,0 +1,4 @@
+// A package that exists, without the file.
+include ":inctests:nosuchfile";
+
+print( "never" );
