@@ -48,10 +48,6 @@ public:
   bool call( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2,
              Bscript::BObjectImp* p3 );  // throw()
 
-  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
-  std::string call_string( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1,
-                           Bscript::BObjectImp* p2 );  // throw()
-
   int call_long( Bscript::BObjectImp* p0 );                           // throw()
   int call_long( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
   Bscript::BObject call_object( Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );

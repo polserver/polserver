@@ -46,11 +46,6 @@ public:
   bool call( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1, Bscript::BObjectImp* p2,
              Bscript::BObjectImp* p3 );  // throw()
 
-  std::string call_string( unsigned PC, Bscript::BObjectImp* p0,
-                           Bscript::BObjectImp* p1 );  // throw()
-  std::string call_string( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1,
-                           Bscript::BObjectImp* p2 );  // throw()
-
   int call_long( unsigned PC, Bscript::BObjectImp* p0 );                           // throw()
   int call_long( unsigned PC, Bscript::BObjectImp* p0, Bscript::BObjectImp* p1 );  // throw()
 
@@ -71,7 +66,6 @@ public:
 private:
   bool expect_bool();
   int expect_int();
-  std::string expect_string();
   Bscript::BObjectImp* expect_imp();
 
   ScriptDef sd;

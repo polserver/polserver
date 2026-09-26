@@ -200,63 +200,6 @@ bool ExportScript::call( unsigned PC, BObjectImp* p0 )
   }
 }
 
-std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* p1 )
-{
-  try
-  {
-    // build backup if function is called inside the same script
-    BackupStruct backup;
-    SaveStack( backup );
-
-    uoexec.initForFnCall( PC );
-
-    uoexec.pushArg( p0 );
-    uoexec.pushArg( p1 );
-
-    uoexec.exec();
-
-    std::string ret = expect_string();
-
-    // delete current state and reenable backup
-    LoadStack( backup );
-
-    return ret;
-  }
-  catch ( std::exception& )  //...
-  {
-    return "exception";
-  }
-}
-
-std::string ExportScript::call_string( unsigned PC, BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
-{
-  try
-  {
-    // build backup if function is called inside the same script
-    BackupStruct backup;
-    SaveStack( backup );
-
-    uoexec.initForFnCall( PC );
-
-    uoexec.pushArg( p0 );
-    uoexec.pushArg( p1 );
-    uoexec.pushArg( p2 );
-
-    uoexec.exec();
-
-    std::string ret = expect_string();
-
-    // delete current state and reenable backup
-    LoadStack( backup );
-
-    return ret;
-  }
-  catch ( std::exception& )  //...
-  {
-    return "exception";
-  }
-}
-
 int ExportScript::call_long( unsigned PC, BObjectImp* p0 )
 {
   try
@@ -483,15 +426,6 @@ int ExportScript::expect_int()
     ret = b->isTrue() ? 1 : 0;
   else
     ret = 0;
-  uoexec.ValueStack.pop_back();
-  return ret;
-}
-
-std::string ExportScript::expect_string()
-{
-  if ( uoexec.error() || uoexec.ValueStack.empty() )
-    return "error";
-  auto ret = uoexec.ValueStack.back().get()->impptr()->getStringRep();
   uoexec.ValueStack.pop_back();
   return ret;
 }

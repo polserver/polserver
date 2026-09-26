@@ -69,15 +69,6 @@ bool ExportedFunction::call( BObjectImp* p0, BObjectImp* p1, BObjectImp* p2, BOb
   return export_script->call( PC, p0, p1, p2, p3 );
 }
 
-std::string ExportedFunction::call_string( BObjectImp* p0, BObjectImp* p1 )
-{
-  return export_script->call_string( PC, p0, p1 );
-}
-std::string ExportedFunction::call_string( BObjectImp* p0, BObjectImp* p1, BObjectImp* p2 )
-{
-  return export_script->call_string( PC, p0, p1, p2 );
-}
-
 int ExportedFunction::call_long( BObjectImp* p0 )
 {
   return export_script->call_long( PC, p0 );
