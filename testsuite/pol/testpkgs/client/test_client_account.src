@@ -1,0 +1,177 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// What the account methods change is what the login server checks, and only a real login shows
+// it: a wrong password, a banned or disabled account, and a password set by script. Each client
+// id is used once, since the client routes todos to the first brain with that id. Each login
+// sends its own name, since test_client_pkthook_recv.src tells the logins apart by it.
+
+const ACCOUNT := "testclientacct";
+const PASSWORD := "pass";
+
+const WRONG_PSW_ID := 6;
+const BANNED_ID := 7;
+const DISABLED_ID := 8;
+const NEW_PSW_ID := 9;
+const OLD_PSW_ID := 10;
+const ONLINE_ID := 11;
+const NO_ACCOUNT_ID := 12;
+
+var clientcon := getClientConnection();
+var acct;
+
+program test_client_account()
+  var chr := createAccountWithChar( ACCOUNT, PASSWORD );
+  if ( !chr )
+    return chr;
+  endif
+  acct := FindAccount( ACCOUNT );
+  if ( !acct )
+    return ret_error( "could not find the test account" );
+  endif
+  return 1;
+endprogram
+
+function connect( id, psw )
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := ACCOUNT,
+                               psw := psw,
+                               chrindex := 0,
+                               name := $"AccountTest{id}",
+                               id := id } );
+endfunction
+
+// Waits for a login to be refused, and checks the reason the login server gave.
+function expect_denied( id, reason )
+  var ev := waitForClient( id, { EVT_LOGIN_DENIED, EVT_INIT } );
+  if ( !ev )
+    return ret_error( $"neither a refusal nor a login came: {ev}" );
+  endif
+  if ( ev.type == EVT_INIT )
+    return ret_error( "the login was accepted" );
+  endif
+  if ( ev.reason != reason )
+    return ret_error( $"login refused with reason {ev.reason}, expected {reason}" );
+  endif
+  return 1;
+endfunction
+
+// A later package asserts nobody is online, and the character stays in use for a moment after
+// the socket drops, so this waits for the core to let go of it.
+function log_out( id )
+  clientcon.sendevent( struct{ todo := "disconnect", id := id } );
+  return wait_offline();
+endfunction
+
+function wait_offline()
+  var chr := acct.getcharacter( 1 );
+  var deadline := ReadMillisecondClock() + 10000;
+  while ( ReadMillisecondClock() < deadline )
+    if ( !chr.client && !chr.logged_in )
+      return 1;
+    endif
+    sleepms( 50 );
+  endwhile
+  return ret_error( "the character stayed online" );
+endfunction
+
+exported function account_login_wrong_password( unused resources )
+  connect( WRONG_PSW_ID, "not the password" );
+  return expect_denied( WRONG_PSW_ID, LOGIN_DENIED_WRONG_PASSWORD );
+endfunction
+
+exported function account_login_unknown_account( unused resources )
+  clientcon.sendevent( struct{ todo := "connect",
+                               account := "no such account here",
+                               psw := PASSWORD,
+                               chrindex := 0,
+                               name := $"AccountTest{NO_ACCOUNT_ID}",
+                               id := NO_ACCOUNT_ID } );
+  return expect_denied( NO_ACCOUNT_ID, LOGIN_DENIED_NO_ACCOUNT );
+endfunction
+
+// The password is checked before the ban, so the right one is sent to reach the ban check.
+exported function account_login_banned( unused resources )
+  acct.ban();
+  connect( BANNED_ID, PASSWORD );
+  var res := expect_denied( BANNED_ID, LOGIN_DENIED_BLOCKED );
+  acct.unban();
+  return res;
+endfunction
+
+exported function account_login_disabled( unused resources )
+  acct.disable();
+  connect( DISABLED_ID, PASSWORD );
+  var res := expect_denied( DISABLED_ID, LOGIN_DENIED_BLOCKED );
+  acct.enable();
+  return res;
+endfunction
+
+// account.setpassword() replaces the stored hash: the new password logs in, the old one no
+// longer does.
+exported function account_login_after_setpassword( unused resources )
+  var res := acct.setpassword( "changed" );
+  if ( !res )
+    return ret_error( $"setpassword failed: {res}" );
+  endif
+
+  connect( OLD_PSW_ID, PASSWORD );
+  res := expect_denied( OLD_PSW_ID, LOGIN_DENIED_WRONG_PASSWORD );
+  if ( !res )
+    acct.setpassword( PASSWORD );
+    return res;
+  endif
+
+  connect( NEW_PSW_ID, "changed" );
+  var ev := waitForClient( NEW_PSW_ID, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  acct.setpassword( PASSWORD );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"the new password did not log in: {ev}" );
+  endif
+  return log_out( NEW_PSW_ID );
+endfunction
+
+// A banned account's player is thrown off at once. A character that is online cannot be moved
+// to another account.
+exported function account_ban_kicks_online_player( unused resources )
+  connect( ONLINE_ID, PASSWORD );
+  var ev := waitForClient( ONLINE_ID, { EVT_INIT, EVT_LOGIN_DENIED }, 20 );
+  if ( !ev || ev.type != EVT_INIT )
+    return ret_error( $"could not log in: {ev}" );
+  endif
+
+  var chr := acct.getcharacter( 1 );
+  var res := acct.split( ACCOUNT + "split", 1, PASSWORD );
+  if ( res || res.errortext != "That character is in use." )
+    log_out( ONLINE_ID );
+    return ret_error( $"split of an online character was not refused: {res}" );
+  endif
+  res := acct.move_char( "testclient0", 1 );
+  if ( res || res.errortext != "That character is in use." )
+    log_out( ONLINE_ID );
+    return ret_error( $"move_char of an online character was not refused: {res}" );
+  endif
+
+  // the sync makes sure the client has taken the todo before the ban drops it
+  clientcon.sendevent( struct{ todo := "expect_disconnect", id := ONLINE_ID } );
+  res := client_sync( clientcon, ONLINE_ID );
+  if ( !res )
+    log_out( ONLINE_ID );
+    return res;
+  endif
+
+  acct.ban();
+  ev := waitForClient( ONLINE_ID, { EVT_DISCONNECTED } );
+  res := wait_offline();
+  acct.unban();
+  if ( !ev )
+    return ret_error( $"the client was not dropped after the ban: {ev}" );
+  endif
+  if ( !res )
+    return ret_error( $"the banned player {chr.name} stayed online" );
+  endif
+  return 1;
+endfunction

@@ -1,5 +1,12 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: account.setname() accepted a name that another account already had, in any case.
+           After a restart, the renamed account's characters could end up on the other account.
+           It now returns the error "Account already exists."
+  Changed: account.split() takes the new account's password as a third parameter. It is
+           required when RetainCleartextPasswords is off. Without it, the new account kept a
+           password hash made for the old name, and no password logged in to it.
+09-26-2026 AsYlum:
     Fixed: polsys::ReloadConfiguration() did not re-read config/combat.cfg. An edit to it took
            effect only after a restart.
      Note: a reload that stops on a malformed 0/1 value in combat.cfg leaves every combat setting

@@ -227,6 +227,13 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
   ///  because account names in accounts.txt will refer to the old name
   ///
   case MTH_SETNAME:
+  {
+    // Names match case-insensitively, and a character finds its account by name on load.
+    const auto name_taken_by_other = [this]( const std::string& name )
+    {
+      const Account* holder = find_account( name.c_str() );
+      return holder != nullptr && holder != obj_.Ptr();
+    };
     // passed only new account name, and cleartext password is saved
     if ( ( ex.numParams() == 1 ) && Plib::systemstate.config.retain_cleartext_passwords )
     {
@@ -235,6 +242,8 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
       {
         if ( nmstr->value().empty() )
           return new BError( "Account name must not be empty." );
+        if ( name_taken_by_other( nmstr->value() ) )
+          return new BError( "Account already exists." );
         std::string temp;
         // passing the new name, and recalc name+pass hash (pass only hash is unchanged)
         obj_->name_ = nmstr->value();
@@ -255,6 +264,8 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
       {
         if ( nmstr->value().empty() )
           return new BError( "Account name must not be empty." );
+        if ( name_taken_by_other( nmstr->value() ) )
+          return new BError( "Account already exists." );
         obj_->name_ = nmstr->value();
         // this is the same as the "setpassword" code above
         if ( Plib::systemstate.config.retain_cleartext_passwords )
@@ -274,6 +285,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
     else
       return new BError( "account.SetName needs at least 1 parameter." );
     break;
+  }
   ///
   /// account.GetProp( propname : string ) : gets a custom account property
   ///   returns Error( "Property not found" ) if property does not exist.
@@ -404,19 +416,28 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
       return new BError( "account.Delete() doesn't take parameters." );
     break;
   ///
-  /// account.Split( newacctname : string, index : 1..5 ) : create a new account and move character
-  /// to it
+  /// account.Split( newacctname : string, index : 1..5 [, password : string] ) : create a new
+  /// account and move character to it. The password may be left out only if this account's
+  /// password is retained in cleartext.
   ///
   case MTH_SPLIT:
-    if ( ex.numParams() == 2 )
+    if ( ex.numParams() == 2 || ex.numParams() == 3 )
     {
       const String* acctname;
       int index;
+      const String* pwstr = nullptr;
       if ( ex.getStringParam( 0, acctname ) &&
-           ex.getParam( 1, index, 1, Plib::systemstate.config.character_slots ) )
+           ex.getParam( 1, index, 1, Plib::systemstate.config.character_slots ) &&
+           ( ex.numParams() == 2 || ex.getStringParam( 2, pwstr ) ) )
       {
         if ( acctname->value().empty() )
           return new BError( "Account name must not be empty." );
+
+        // The password hash covers the account name, so the old hash is no use to the new name.
+        if ( pwstr == nullptr &&
+             ( !Plib::systemstate.config.retain_cleartext_passwords || obj_->password_.empty() ) )
+          return new BError(
+              "Usage: account.Split(name,index,pass) if RetainCleartextPasswords is off." );
 
         if ( find_account( acctname->data() ) )
           return new BError( "Account already exists." );
@@ -431,6 +452,14 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
         Account* account = duplicate_account( obj_->name_, acctname->value() );
         if ( account != nullptr )
         {
+          if ( pwstr != nullptr )
+          {
+            if ( Plib::systemstate.config.retain_cleartext_passwords )
+              account->password_ = pwstr->value();
+            std::string temp;
+            Clib::MD5_Encrypt( account->name_ + pwstr->value(), temp );
+            account->passwordhash_ = temp;  // MD5
+          }
           obj_->clear_character( index - 1 );
           chr->acct.set( account );
           account->set_character( 0, chr );
@@ -448,7 +477,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
         return new BError( "Invalid parameter type." );
     }
     else
-      return new BError( "account.Split requires two parameters." );
+      return new BError( "account.Split requires two or three parameters." );
     break;
   ///
   /// account.Move_Char( destacctname : string, index : 1..5 ) : move character from this account to

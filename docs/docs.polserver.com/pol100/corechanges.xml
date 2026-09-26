@@ -8,6 +8,16 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">account.setname() accepted a name that another account already had, in any case.<br/>
+After a restart, the renamed account's characters could end up on the other account.<br/>
+It now returns the error &quot;Account already exists.&quot;</change>
+			<change type="Changed">account.split() takes the new account's password as a third parameter. It is<br/>
+required when RetainCleartextPasswords is off. Without it, the new account kept a<br/>
+password hash made for the old name, and no password logged in to it.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">polsys::ReloadConfiguration() did not re-read config/combat.cfg. An edit to it took<br/>
 effect only after a restart.</change>
 			<change type="Note">a reload that stops on a malformed 0/1 value in combat.cfg leaves every combat setting<br/>

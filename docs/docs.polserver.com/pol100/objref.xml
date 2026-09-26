@@ -26,7 +26,7 @@
 <header>Class Hierarchy</header>
 <!-- objref.svg will be inserted here -->
 <!-- todo automate updating this? -->
-<datemodified>08/22/2026</datemodified>
+<datemodified>09/26/2026</datemodified>
 </fileheader>
 
 
@@ -470,7 +470,7 @@
 <method proto="getcharacter(integer slot)" returns="true/OfflineCharacterRef">gets an OfflineCharacterRef for the character in slot 'slot'. returns error if not character in that slot (1..5)</method>
 <method proto="deletecharacter(integer slot) " returns="true/error">Deletes character in slot 'slot'. returns error if not character in that slot (1..5)</method>
 <method proto="delete()" returns="true/error">Delete this empty account.</method>
-<method proto="split(string newacctname, integer slot)" returns="AccountRef/error">Create a new account and move character to it. On success returns a reference to the new account.</method>
+<method proto="split(string newacctname, integer slot, string newpass)" returns="AccountRef/error">Create a new account and move character to it. The new account's password is newpass. The parameter newpass is only optional if you have clear text passwords (RetainCleartextPasswords), in which case the new account keeps this account's password. On success returns a reference to the new account.</method>
 <method proto="move_char(string destacctname, integer slot)" returns="true/error">Move character from this account to destination account. You can use it to flip chars on same account too.</method>
 <method proto="getprop(string propname)" returns="true/error">GetObjProperty for account objects.</method>
 <method proto="setprop(string propname, propval)" returns="true">SetObjProperty for account objects.</method>

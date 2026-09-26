@@ -5,6 +5,8 @@ include "testutil";
 
 var acct;
 
+const SPLIT_USAGE := "Usage: account.Split(name,index,pass) if RetainCleartextPasswords is off.";
+
 program testaccount()
   var char := createAccountWithChar( "test", "pass" );
   if ( !char )
@@ -85,4 +87,267 @@ exported function account_list_all( unused resmngr )
     return ret_error( $"the account this file made is not in the list: {all}" );
   endif
   return 1;
+endfunction
+
+exported function account_ban_and_unban( unused resmngr )
+  var res := acct.ban();
+  if ( !res || !acct.banned )
+    return ret_error( $"ban did not set banned: {res}" );
+  endif
+  res := acct.unban();
+  if ( !res || acct.banned )
+    return ret_error( $"unban did not clear banned: {res}" );
+  endif
+  res := acct.unban( 1 );
+  if ( res )
+    return ret_error( "unban accepted a parameter" );
+  endif
+  return 1;
+endfunction
+
+exported function account_disable_and_enable( unused resmngr )
+  var res := acct.disable();
+  if ( !res || acct.enabled )
+    return ret_error( $"disable did not clear enabled: {res}" );
+  endif
+  res := acct.enable();
+  if ( !res || !acct.enabled )
+    return ret_error( $"enable did not set enabled: {res}" );
+  endif
+  res := acct.enable( 1 );
+  if ( res )
+    return ret_error( "enable accepted a parameter" );
+  endif
+  return 1;
+endfunction
+
+exported function account_set_and_check_password( unused resmngr )
+  if ( acct.checkpassword( "pass" ) != 1 )
+    return ret_error( "the creation password does not check" );
+  endif
+  var res := acct.setpassword( "other" );
+  if ( !res )
+    return ret_error( $"setpassword failed: {res}" );
+  endif
+  var new_ok := acct.checkpassword( "other" );
+  var old_ok := acct.checkpassword( "pass" );
+  acct.setpassword( "pass" );
+  if ( new_ok != 1 || old_ok != 0 )
+    return ret_error( $"after setpassword: new checks {new_ok}, old checks {old_ok}" );
+  endif
+  return 1;
+endfunction
+
+// The password hash is taken over the account name, so a rename with a password rehashes it.
+// With RetainCleartextPasswords off, a rename without a password is refused.
+exported function account_setname( unused resmngr )
+  var res := acct.setname( "testrenamed" );
+  if ( res )
+    acct.setname( "test", "pass" );
+    return ret_error( "setname without a password was accepted with cleartext passwords off" );
+  endif
+  if ( acct.setname( "", "pass" ) )
+    return ret_error( "an empty account name was accepted" );
+  endif
+
+  res := acct.setname( "testrenamed", "pass" );
+  if ( !res )
+    return ret_error( $"setname failed: {res}" );
+  endif
+  var found_new := FindAccount( "testrenamed" );
+  var found_old := FindAccount( "test" );
+  var pw_ok := acct.checkpassword( "pass" );
+  var chr_acct := acct.getcharacter( 1 ).acctname;
+  acct.setname( "test", "pass" );
+
+  if ( !found_new || found_old )
+    return ret_error( $"after the rename, new name: {found_new}, old name: {found_old}" );
+  endif
+  if ( pw_ok != 1 )
+    return ret_error( "the password does not check after the rename" );
+  endif
+  if ( chr_acct != "testrenamed" )
+    return ret_error( $"the character reports account {chr_acct}" );
+  endif
+  return 1;
+endfunction
+
+// Account names match case-insensitively, and a character finds its account by name when the
+// world loads. A second account with the same name would take over the first one's characters.
+exported function account_setname_refuses_taken( unused resmngr )
+  var other := CreateAccount( "testnametaken", "pass", 1 );
+  if ( !other )
+    return ret_error( $"could not create the other account: {other}" );
+  endif
+  var res := acct.setname( "TESTNAMETAKEN", "pass" );
+  var name_after := acct.name;
+  other.delete();
+  if ( res || res.errortext != "Account already exists." )
+    acct.setname( "test", "pass" );
+    return ret_error( $"a rename to another account's name was not refused: {res}" );
+  endif
+  if ( name_after != "test" )
+    acct.setname( "test", "pass" );
+    return ret_error( $"the refused rename still changed the name to {name_after}" );
+  endif
+
+  // only the case changes: the name is this account's own
+  res := acct.setname( "TEST", "pass" );
+  acct.setname( "test", "pass" );
+  if ( !res )
+    return ret_error( $"a rename that changes only the case was refused: {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function account_props( unused resmngr )
+  acct.setprop( "a", 1 );
+  acct.setprop( "b", "two" );
+  var names := acct.propnames();
+  if ( !( "a" in names ) || !( "b" in names ) )
+    return ret_error( $"propnames is missing a property: {names}" );
+  endif
+  acct.eraseprop( "a" );
+  if ( TypeOf( acct.getprop( "a" ) ) != "Error" )
+    return ret_error( "an erased property still reads" );
+  endif
+  if ( "a" in acct.propnames() )
+    return ret_error( "an erased property is still listed" );
+  endif
+  if ( acct.getprop( "b" ) != "two" )
+    return ret_error( $"the other property changed: {acct.getprop( "b" )}" );
+  endif
+  acct.eraseprop( "b" );
+  return 1;
+endfunction
+
+exported function account_get_member( unused resmngr )
+  if ( acct.get_member( "name" ) != "test" )
+    return ret_error( $"get_member(\"name\") returned {acct.get_member( "name" )}" );
+  endif
+  var res := acct.get_member( "no_such_member" );
+  if ( res || res.errortext != "Member no_such_member not found on that object" )
+    return ret_error( $"unknown member: {res}" );
+  endif
+  return 1;
+endfunction
+
+exported function account_delete_needs_no_chars( unused resmngr )
+  var res := acct.delete();
+  if ( res || res.errortext != "You must delete all Character first." )
+    return ret_error( $"an account with a character was deleted: {res}" );
+  endif
+  if ( !FindAccount( "test" ) )
+    return ret_error( "the account is gone" );
+  endif
+  return 1;
+endfunction
+
+// split() makes a new account and moves one character into its first slot. move_char() moves a
+// character into the next free slot of an existing account. The password hash covers the account
+// name, so split() needs the new account's password unless cleartext passwords are kept.
+exported function account_split_and_move_char( unused resmngr )
+  var src := CreateAccount( "testsplitsrc", "pass", 1 );
+  if ( !src )
+    return ret_error( $"could not create the source account: {src}" );
+  endif
+  var res := split_and_move( src );
+  remove_account( "testsplitsrc" );
+  remove_account( "testsplitdst" );
+  return res;
+endfunction
+
+function split_and_move( src )
+  src.addcharacter( 0 );
+  src.addcharacter( 0 );
+  var chr := src.getcharacter( 2 );
+  if ( !chr )
+    return ret_error( "no character in slot 2" );
+  endif
+  var serial := chr.serial;
+
+  var res := src.split( "", 2, "newpass" );
+  if ( res.errortext != "Account name must not be empty." )
+    return ret_error( $"split to an empty name: {res}" );
+  endif
+  res := src.split( "test", 2, "newpass" );
+  if ( res.errortext != "Account already exists." )
+    return ret_error( $"split to an existing account: {res}" );
+  endif
+  res := src.split( "testsplitdst", 3, "newpass" );
+  if ( res.errortext != "No such character on this account." )
+    return ret_error( $"split of an empty slot: {res}" );
+  endif
+
+  res := src.split( "testsplitdst", 2 );
+  if ( res.errortext != SPLIT_USAGE )
+    return ret_error( $"split without a password: {res}" );
+  endif
+  if ( FindAccount( "testsplitdst" ) || !src.getcharacter( 2 ) )
+    return ret_error( "the refused split still made the account or moved the character" );
+  endif
+
+  var dst := src.split( "testsplitdst", 2, "newpass" );
+  if ( !dst || TypeOf( dst ) != "AccountRef" )
+    return ret_error( $"split failed: {dst}" );
+  endif
+  if ( dst.checkpassword( "newpass" ) != 1 || dst.checkpassword( "pass" ) != 0 )
+    return ret_error( "the new account does not take the password it was split with" );
+  endif
+  if ( dst.name != "testsplitdst" || !FindAccount( "testsplitdst" ) )
+    return ret_error( "the new account is not findable" );
+  endif
+  if ( src.getcharacter( 2 ) )
+    return ret_error( "the character is still in the source slot" );
+  endif
+  chr := dst.getcharacter( 1 );
+  if ( !chr || chr.serial != serial )
+    return ret_error( $"the new account's slot 1 holds {chr}" );
+  endif
+  if ( chr.acctname != "testsplitdst" )
+    return ret_error( $"the character reports account {chr.acctname}" );
+  endif
+
+  res := dst.move_char( "no such account", 1 );
+  if ( res.errortext != "Account doesn't exists." )
+    return ret_error( $"move_char to a missing account: {res}" );
+  endif
+  res := dst.move_char( "testsplitsrc", 2 );
+  if ( res.errortext != "No such character on this account." )
+    return ret_error( $"move_char of an empty slot: {res}" );
+  endif
+
+  // slot 1 of the source is taken, so the character lands in slot 2
+  res := dst.move_char( "testsplitsrc", 1 );
+  if ( !res )
+    return ret_error( $"move_char failed: {res}" );
+  endif
+  if ( dst.getcharacter( 1 ) )
+    return ret_error( "the character is still in the destination slot" );
+  endif
+  chr := src.getcharacter( 2 );
+  if ( !chr || chr.serial != serial || chr.acctname != "testsplitsrc" )
+    return ret_error( $"the character did not come back to slot 2: {chr}" );
+  endif
+
+  // fill the source, then a move into it is refused
+  while ( src.addcharacter( 0 ) )
+  endwhile
+  dst.addcharacter( 0 );
+  res := dst.move_char( "testsplitsrc", 1 );
+  if ( res.errortext != "Account is full." )
+    return ret_error( $"move_char to a full account: {res}" );
+  endif
+  return 1;
+endfunction
+
+function remove_account( name )
+  var a := FindAccount( name );
+  if ( !a )
+    return;
+  endif
+  for i := 1 to 5
+    a.deletecharacter( i );
+  endfor
+  a.delete();
 endfunction
