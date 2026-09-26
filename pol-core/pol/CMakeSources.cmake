@@ -406,6 +406,7 @@ set (pol_sources  # sorted !
   testing/poltest.h
   testing/testboat.cpp
   testing/testclamp.cpp
+  testing/testcombat.cpp
   testing/testcfgfile.cpp
   testing/testclibmisc.cpp
   testing/testclibutil.cpp

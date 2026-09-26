@@ -8,6 +8,12 @@
 		<entry>
 			<date>09-26-2026</date>
 			<author>AsYlum:</author>
+			<change type="Fixed">a weapon whose ProjectileType was an objtype above 0xFFFF looked for the wrong<br/>
+ammunition, so it never fired. The objtype was cut to its low 16 bits.</change>
+		</entry>
+		<entry>
+			<date>09-26-2026</date>
+			<author>AsYlum:</author>
 			<change type="Fixed">client.clientinfo read all zeros in game. A client sends its 0xD9 hardware report to<br/>
 the login server, and the report was lost when the client reconnected to the game<br/>
 server.</change>

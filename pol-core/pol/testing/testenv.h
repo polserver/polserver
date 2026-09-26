@@ -106,6 +106,7 @@ void storage_print_test();
 void save_parallel_test();
 void save_parallel_failure_test();
 void clamp_test();
+void combat_test();
 void crypt_test();
 void webscript_test();
 void maptile_geometry_test();

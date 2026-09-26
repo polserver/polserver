@@ -1,5 +1,8 @@
 -- POL100.3.0 --
 09-26-2026 AsYlum:
+    Fixed: a weapon whose ProjectileType was an objtype above 0xFFFF looked for the wrong
+           ammunition, so it never fired. The objtype was cut to its low 16 bits.
+09-26-2026 AsYlum:
     Fixed: client.clientinfo read all zeros in game. A client sends its 0xD9 hardware report to
            the login server, and the report was lost when the client reconnected to the game
            server.

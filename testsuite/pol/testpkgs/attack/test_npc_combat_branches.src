@@ -1,0 +1,167 @@
+use uo;
+use os;
+
+include "testutil";
+include "sysevent";
+
+// Two branches of a swing that need equipment: a bow takes an arrow from the pack for every
+// shot and does not swing without one, and a shield parries a hit by its armor rating.
+
+const BOW := 0x40A001;
+const ARROW := 0x40A000;
+const SHIELD := 0x40A002;
+const BACKPACK := 0xE75;
+
+program test_npc_combat_branches()
+  return 1;
+endprogram
+
+function make_npc( resmgr, name, x )
+  var npc := resmgr.CreateNPCFromTemplate( ":testattack:test_attack", x, 120, 0 );
+  if ( !npc )
+    return ret_error( $"could not create {name}: {npc}" );
+  endif
+  npc.hitchance_mod := 1000;
+  SetName( npc, name );
+  SetObjProperty( npc, "#TestPid", GetPid() );
+  // the ai script starts on a later tick, and an event sent before then is lost
+  var deadline := ReadMillisecondClock() + 2000;
+  while ( !npc.process && ReadMillisecondClock() < deadline )
+    sleepms( 10 );
+  endwhile
+  if ( !npc.process )
+    return ret_error( $"the ai script of {name} did not start" );
+  endif
+  return npc;
+endfunction
+
+function equip_new( resmgr, npc, objtype )
+  var item := resmgr.CreateItemAtLocation( npc.x, npc.y, npc.z, objtype );
+  if ( !item )
+    return ret_error( $"could not create 0x{objtype:x}: {item}" );
+  endif
+  var res := EquipItem( npc, item );
+  if ( !res )
+    return ret_error( $"could not equip 0x{objtype:x}: {res}" );
+  endif
+  return item;
+endfunction
+
+// The next hit landed by the named attacker, or an error once the timeout passes.
+function next_hit_by( name, timeout := 5 )
+  var deadline := ReadMillisecondClock() + timeout * 1000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( ev && ev.type == "HIT" && ev.attacker.name == name )
+      return ev;
+    endif
+  endwhile
+  return ret_error( $"{name} landed no hit within {timeout}s" );
+endfunction
+
+// The ai reports what SetOpponent answered, so a refusal shows here rather than as no swing.
+function engage( attacker, defender )
+  Clear_Event_Queue();
+  attacker.process.sendevent( struct{ type := "set_opponent", source := defender } );
+  var deadline := ReadMillisecondClock() + 5000;
+  while ( ReadMillisecondClock() < deadline )
+    var ev := Wait_For_Event( 1 );
+    if ( ev && ev.type == "set_opponent_result" )
+      if ( !ev.result )
+        return ret_error( $"SetOpponent refused: {ev.errortext}" );
+      endif
+      return 1;
+    endif
+  endwhile
+  return ret_error( "the ai never answered set_opponent" );
+endfunction
+
+function disengage( npc )
+  npc.process.sendevent( struct{ type := SYSEVENT_DISENGAGED } );
+endfunction
+
+exported function combat_bow_takes_arrows( resmgr )
+  var archer := make_npc( resmgr, "archer", 120 );
+  var victim := make_npc( resmgr, "victim", 121 );
+  if ( !archer || !victim )
+    return archer ? victim : archer;
+  endif
+  var quiver := equip_new( resmgr, archer, BACKPACK );
+  var bow := equip_new( resmgr, archer, BOW );
+  if ( !quiver || !bow )
+    return quiver ? bow : quiver;
+  endif
+  var arrows := CreateItemInContainer( quiver, ARROW, 3 );
+  if ( !arrows )
+    return ret_error( $"could not create the arrows: {arrows}" );
+  endif
+
+  var res := engage( archer, victim );
+  if ( !res )
+    return res;
+  endif
+  res := next_hit_by( "archer" );
+  if ( !res )
+    disengage( archer );
+    return res;
+  endif
+  if ( arrows.amount >= 3 )
+    disengage( archer );
+    return ret_error( $"a shot left {arrows.amount} of the 3 arrows" );
+  endif
+
+  // with the pack empty the bow does not swing at all
+  DestroyItem( arrows );
+  sleepms( 1500 );
+  Clear_Event_Queue();
+  res := next_hit_by( "archer", 3 );
+  disengage( archer );
+  if ( res )
+    return ret_error( "the archer hit with no arrows left" );
+  endif
+  return 1;
+endfunction
+
+exported function combat_shield_parries( resmgr )
+  var attacker := make_npc( resmgr, "swinger", 124 );
+  var defender := make_npc( resmgr, "shielded", 125 );
+  if ( !attacker || !defender )
+    return attacker ? defender : attacker;
+  endif
+  var shield := equip_new( resmgr, defender, SHIELD );
+  if ( !shield )
+    return shield;
+  endif
+
+  // a parry chance above 1 always parries, and the shield's 100 armor takes the whole hit
+  defender.parrychance_mod := 2000;
+  var ev := engage( attacker, defender );
+  if ( !ev )
+    return ev;
+  endif
+  ev := next_hit_by( "swinger" );
+  if ( !ev )
+    disengage( attacker );
+    return ev;
+  endif
+  if ( ev.basedamage != 0 )
+    disengage( attacker );
+    return ret_error( $"a parried hit did {ev.basedamage} damage" );
+  endif
+
+  // a parry chance below 0 never parries
+  defender.parrychance_mod := -2000;
+  ev := next_hit_by( "swinger" );
+  // skip a hit already in flight when the chance changed
+  if ( ev && ev.basedamage == 0 )
+    ev := next_hit_by( "swinger" );
+  endif
+  disengage( attacker );
+  if ( !ev )
+    return ev;
+  endif
+  if ( ev.basedamage <= 0 )
+    return ret_error( $"an unparried hit did {ev.basedamage} damage" );
+  endif
+  return 1;
+endfunction

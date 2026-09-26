@@ -10,6 +10,7 @@
 
 #include <string>
 
+#include "clib/rawtypes.h"
 #include "pol/action.h"
 #include "pol/dice.h"
 #include "pol/equipdsc.h"
@@ -44,7 +45,7 @@ public:
   Core::Dice damage_dice;
 
   bool projectile;
-  unsigned short projectile_type;
+  u32 projectile_type;  // an objtype, which is wider than 16 bits
   unsigned short projectile_anim;
   unsigned short projectile_sound;
   Core::UACTION anim;

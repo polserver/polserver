@@ -151,7 +151,7 @@ WeaponDesc::WeaponDesc( u32 objtype, Clib::ConfigElem& elem, const Plib::Package
 
   if ( projectile )
   {
-    projectile_type = elem.remove_ushort( "ProjectileType" );
+    projectile_type = elem.remove_ulong( "ProjectileType" );
     projectile_anim = elem.remove_ushort( "ProjectileAnim" );
     projectile_sound = elem.remove_ushort( "ProjectileSound" );
   }
@@ -204,7 +204,7 @@ size_t WeaponDesc::estimatedSize() const
          + sizeof( Core::ScriptDef )                                /*hit_script*/
          + sizeof( Core::Dice )                                     /*damage_dice*/
          + sizeof( bool )                                           /*projectile*/
-         + sizeof( unsigned short )                                 /*projectile_type*/
+         + sizeof( u32 )                                            /*projectile_type*/
          + sizeof( unsigned short )                                 /*projectile_anim*/
          + sizeof( unsigned short )                                 /*projectile_sound*/
          + sizeof( Core::UACTION )                                  /*anim*/
