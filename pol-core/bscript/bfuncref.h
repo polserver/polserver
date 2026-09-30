@@ -17,9 +17,8 @@ class BFunctionRef final : public BObjectImp
   using base = BObjectImp;
 
 public:
-  BFunctionRef( ref_ptr<EScriptProgram> program, unsigned int pid,
-                unsigned function_reference_index, std::weak_ptr<ValueStackCont> globals,
-                ValueStackCont&& captures );
+  BFunctionRef( ref_ptr<EScriptProgram> program, unsigned function_reference_index,
+                std::weak_ptr<ValueStackCont> globals, ValueStackCont&& captures );
   BFunctionRef( const BFunctionRef& B );
 
 private:
@@ -33,7 +32,6 @@ public:
   unsigned pc() const;
   bool variadic() const;
   ref_ptr<EScriptProgram> prog() const;
-  unsigned int pid() const;
   unsigned class_index() const;
   bool constructor() const;
   bool class_method() const;
@@ -58,7 +56,6 @@ private:
   // Need to reference the program, not the Executor, as the exec that created
   // this funcref could be destroyed by the time the funcref gets called
   ref_ptr<EScriptProgram> prog_;
-  unsigned int original_pid_;
   unsigned function_reference_index_;
 
 public:

@@ -9,7 +9,6 @@ Clib::fixed_allocator<UninitObject, 256> uninit_alloc;
 
 UninitObject* UninitObject::SharedInstance;
 ref_ptr<BObjectImp> UninitObject::SharedInstanceOwner;
-BObjectRef UninitObject::SharedInstanceRef;
 
 UninitObject::UninitObject() : BObjectImp( OTUninit ) {}
 

@@ -36,6 +36,8 @@ program auxservice( conn, params )
 
   if ( test_type == "attach" )
     result := run_attach_test( params.debuggee_pid );
+  elseif ( test_type == "external" )
+    result := run_external_test( params.debuggee_pid );
   elseif ( test_type == "launch" )
     result := run_launch_test();
   else
@@ -140,6 +142,101 @@ function run_launch_test()
   // Wait for event: exited
   if ( !event_received( err, "exited" ) )
     return err;
+  endif
+
+  return 1;
+endfunction
+
+// The debuggee calls a function reference it received from another script. While it is halted
+// in there, the source, the globals and the locals the debugger reports must all be that other
+// script's, although the session attached to the debuggee.
+function run_external_test( debuggee_pid )
+  var err;
+
+  if ( !request_succeeded( err, "initialize", struct{ adapterID := "pol", password := "debugme" } ) )
+    return err;
+  endif
+
+  if ( !event_received( err, "initialized" ) )
+    return err;
+  endif
+
+  if ( !request_succeeded( err, "attach", struct{ pid := debuggee_pid } ) )
+    return err;
+  endif
+
+  if ( !event_received( err, "stopped" ) )
+    return err;
+  endif
+
+  var threads;
+  if ( !( threads := request_succeeded( err, "threads" ) ) )
+    return err;
+  endif
+  var threadId := threads.threads[1].id;
+
+  // Run on until the call into the other script halts there.
+  if ( !request_succeeded( err, "continue", struct{ threadId := threadId } ) )
+    return err;
+  endif
+
+  if ( !event_received( err, "stopped" ) )
+    return err;
+  endif
+
+  var stackTrace;
+  if ( !( stackTrace := request_succeeded( err, "stackTrace", struct{ threadId := threadId } ) ) )
+    return err;
+  endif
+
+  if ( stackTrace.stackFrames[1].name != "ExtFunc" )
+    return ret_error( $"Expected to be in `ExtFunc`: '{stackTrace.stackFrames[1].name}'" );
+  endif
+
+  if ( !stackTrace.stackFrames[1].source.path.find( "extlib.src" ) )
+    return ret_error( $"Innermost frame is not in extlib.src: '{stackTrace.stackFrames[1].source.path}'" );
+  endif
+
+  var outerFrame := stackTrace.stackFrames[Len( stackTrace.stackFrames )];
+  if ( !outerFrame.source.path.find( "debuggee_ext.src" ) )
+    return ret_error( $"Outermost frame is not in debuggee_ext.src: '{outerFrame.source.path}'" );
+  endif
+
+  var scopes;
+  if ( !( scopes := request_succeeded( err, "scopes", struct{ frameId := stackTrace.stackFrames[1].id }
+       ) ) )
+    return err;
+  endif
+
+  var globals;
+  if ( !( globals := request_succeeded( err, "variables", struct{ variablesReference := scopes.scopes[Len(
+                                                          scopes.scopes )].variablesReference }
+       ) ) )
+    return err;
+  endif
+
+  var found_global := 0;
+  foreach variable in ( globals.variables )
+    if ( variable.name == "extlib_global" )
+      found_global := 1;
+    elseif ( variable.name == "debuggee_ext_global" )
+      return ret_error( "Globals are the attached script's, not the called script's" );
+    endif
+  endforeach
+
+  if ( !found_global )
+    return ret_error( $"`extlib_global` is missing from the globals scope: {globals.variables}" );
+  endif
+
+  var evaluate;
+  if ( !( evaluate := request_succeeded( err, "evaluate", struct{ expression := "ext_local",
+                                                                  frameId := stackTrace.stackFrames[1].id }
+       ) ) )
+    return err;
+  endif
+
+  if ( evaluate.result != "\"ext_param\"" )
+    return ret_error( $"Expected `ext_local` to be '\"ext_param\"': '{evaluate.result}'" );
   endif
 
   return 1;

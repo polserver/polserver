@@ -71,22 +71,26 @@ void EvaluationVisitor::visit_identifier( Identifier& identifier )
 
   auto name = identifier.name();
 
-  unsigned block = _script->dbg_ins_blocks[_exec->PC];
-  size_t left = _exec->Locals2->size();
-
-  while ( left )
+  // Locals are nameable only where the program's debug symbols cover this PC.
+  if ( _exec->Locals2 != nullptr && _exec->PC < _script->dbg_ins_blocks.size() )
   {
-    while ( left <= _script->blocks[block].parentvariables )
+    unsigned block = _script->dbg_ins_blocks[_exec->PC];
+    size_t left = _exec->Locals2->size();
+
+    while ( left )
     {
-      block = _script->blocks[block].parentblockidx;
+      while ( left <= _script->blocks[block].parentvariables )
+      {
+        block = _script->blocks[block].parentblockidx;
+      }
+      size_t varidx = left - 1 - _script->blocks[block].parentvariables;
+      if ( _script->blocks[block].localvarnames[varidx] == name )
+      {
+        stack.push( ( *_exec->Locals2 )[left - 1] );
+        return;
+      }
+      --left;
     }
-    size_t varidx = left - 1 - _script->blocks[block].parentvariables;
-    if ( _script->blocks[block].localvarnames[varidx] == name )
-    {
-      stack.push( ( *_exec->Locals2 )[left - 1] );
-      return;
-    }
-    --left;
   }
 
   // Then check globals

@@ -1,0 +1,24 @@
+use os;
+
+var debuggee_ext_global := "debuggee_ext_global";
+
+program debuggee_ext()
+  var helper := start_script( ":testdebugger:extlib", GetPid() );
+  if ( !helper )
+    return 0;
+  endif
+
+  var ev := Wait_For_Event( 10 );
+  if ( !ev )
+    return 0;
+  endif
+
+  // Through a variable: `ev.fn( ... )` would be a method call on the struct.
+  var fn := ev.fn;
+
+  while ( 1 )
+    Debugger();
+    fn( "ext_param" );
+    Sleepms( 1 );
+  endwhile
+endprogram

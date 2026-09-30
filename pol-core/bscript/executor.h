@@ -78,6 +78,9 @@ public:
 // FIXME: how to make this a nested struct in Executor?
 struct ReturnContext
 {
+  // The program, modules and globals the executor had before the external call this frame
+  // returns from. A frame's PC addresses the program that frame was running, so the frame that
+  // saved one of these is the first one back in its caller's program.
   struct External
   {
     External( ref_ptr<EScriptProgram> program, std::vector<ExecutorModule*> modules,
@@ -292,8 +295,6 @@ protected:
 
 public:
   int getToken( Token& token, unsigned position );
-  BObjectRef& LocalVar( unsigned int varnum );
-  BObjectRef& GlobalVar( unsigned int varnum );
   int makeGlobal( const Token& token );
   void popParam( const Token& token );
   void popParamByRef( const Token& token );
@@ -547,6 +548,13 @@ private:
   // no-rule case once per program with the script and PC.
   BObjectImp* operator_fallback( BTokenId token_id, BObjectImp& left, BObjectImp& right );
 
+  // Only a damaged .ecl, or a core bug that runs code against another frame, fails these: the
+  // compiler never emits an index its frame lacks. The report is out of line to keep the variable
+  // opcodes small.
+  bool has_local( size_t index ) const;
+  bool has_global( size_t index ) const;
+  void report_variable_out_of_range( const char* kind );
+
   ref_ptr<EScriptProgram> prog_;
   bool prog_ok_;
   bool viewmode_;
@@ -602,6 +610,14 @@ inline void Executor::seterror( bool err )
 {
   error_ = err;
   calcrunnable();
+}
+inline bool Executor::has_local( size_t index ) const
+{
+  return Locals2 != nullptr && index < Locals2->size();
+}
+inline bool Executor::has_global( size_t index ) const
+{
+  return index < Globals2->size();
 }
 inline bool Executor::error() const
 {

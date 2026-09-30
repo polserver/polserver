@@ -13,11 +13,10 @@
 namespace Pol::Bscript
 {
 BClassInstance::BClassInstance( ref_ptr<EScriptProgram> program, int index,
-                                std::weak_ptr<ValueStackCont> globals, unsigned int pid )
+                                std::weak_ptr<ValueStackCont> globals )
     : BStruct( OTClassInstance ),
       prog_( std::move( program ) ),
       index_( index ),
-      pid_( pid ),
       globals( std::move( globals ) )
 {
   passert( index_ < prog_->class_descriptors.size() );
@@ -27,7 +26,6 @@ BClassInstance::BClassInstance( const BClassInstance& B ) : BStruct( B, OTClassI
 {
   prog_ = B.prog_;
   index_ = B.index_;
-  pid_ = B.pid_;
   globals = B.globals;
 }
 
@@ -75,7 +73,7 @@ BFunctionRef* BClassInstance::makeMethod( const char* method_name )
   if ( !funcref_index )
     return nullptr;
 
-  return new BFunctionRef( prog_, pid_, *funcref_index, globals, ValueStackCont{} );
+  return new BFunctionRef( prog_, *funcref_index, globals, ValueStackCont{} );
 }
 
 const char* BClassInstance::typetag() const
@@ -147,8 +145,7 @@ BObjectImp* BClassInstance::call_method( const char* method_name, Executor& ex )
       // Switch the callee to the function reference: if the
       // funcr->validCall fails, we will go into the funcref
       // ins_call_method, giving the error about invalid parameter counts.
-      method_owner.set(
-          new BFunctionRef( prog_, pid_, *funcref_index, globals, ValueStackCont{} ) );
+      method_owner.set( new BFunctionRef( prog_, *funcref_index, globals, ValueStackCont{} ) );
       funcr = method_owner->impptr<BFunctionRef>();
       callee = funcr;
       method_name = getObjMethod( MTH_CALL_METHOD )->code;
@@ -198,7 +195,7 @@ BObjectRef BClassInstance::get_member_id( const int id )
     const auto funcref_index =
         prog_->class_descriptors.at( index_ ).constructor_function_reference_index;
 
-    return BObjectRef( new BFunctionRef( prog_, pid_, funcref_index, globals, ValueStackCont{} ) );
+    return BObjectRef( new BFunctionRef( prog_, funcref_index, globals, ValueStackCont{} ) );
   }
 
   return base::get_member_id( id );

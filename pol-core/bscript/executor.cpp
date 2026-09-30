@@ -831,27 +831,6 @@ bool Executor::getUnicodeStringParam( unsigned param, const String*& pstr )
   return false;
 }
 
-BObjectRef& Executor::LocalVar( unsigned int varnum )
-{
-  passert( Locals2 );
-  passert( varnum < Locals2->size() );
-
-  return ( *Locals2 )[varnum];
-}
-
-BObjectRef& Executor::GlobalVar( unsigned int varnum )
-{
-  if ( varnum >= Globals2->size() )
-  {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
-    UninitObject::SharedInstanceRef.set( UninitObject::SharedInstance );
-    return UninitObject::SharedInstanceRef;
-  }
-  return ( *Globals2 )[varnum];
-}
-
 int Executor::getToken( Token& token, unsigned position )
 {
   if ( position >= nLines )
@@ -1063,8 +1042,21 @@ void Executor::ins_initforeach( const Instruction& ins )
   PC = ins.token.lval;
 }
 
+void Executor::report_variable_out_of_range( const char* kind )
+{
+  POLLOG_ERRORLN( "Fatal error: {} access out of range! ({},PC={}){}", kind, prog_->name, PC,
+                  script_stack_block() );
+  seterror( true );
+}
+
 void Executor::ins_stepforeach( const Instruction& ins )
 {
+  // initforeach leaves three locals behind; without them the subtractions below wrap around.
+  if ( !has_local( 2 ) ) [[unlikely]]
+  {
+    report_variable_out_of_range( "Locals" );
+    return;
+  }
   size_t locsize = Locals2->size();
   ContIterator* pIter = ( *Locals2 )[locsize - 2]->impptr<ContIterator>();
 
@@ -1102,6 +1094,12 @@ void Executor::ins_initfor( const Instruction& ins )
 
 void Executor::ins_nextfor( const Instruction& ins )
 {
+  // initfor leaves the iterator and the end value behind; without them the subtractions wrap.
+  if ( !has_local( 1 ) ) [[unlikely]]
+  {
+    report_variable_out_of_range( "Locals" );
+    return;
+  }
   size_t locsize = Locals2->size();
   BObjectImp* itr = ( *Locals2 )[locsize - 2]->impptr();
   BObjectImp* end = ( *Locals2 )[locsize - 1]->impptr();
@@ -1416,6 +1414,12 @@ void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
 // case TOK_LOCALVAR:
 void Executor::ins_localvar( const Instruction& ins )
 {
+  if ( !has_local( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
+  {
+    report_variable_out_of_range( "Locals" );
+    ValueStack.emplace_back( UninitObject::create() );
+    return;
+  }
   ValueStack.push_back( ( *Locals2 )[ins.token.lval] );
 }
 
@@ -1423,11 +1427,9 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.emplace_back( UninitObject::create() );
     return;
   }
@@ -1643,6 +1645,12 @@ void Executor::ins_get_member_id( const Instruction& ins )
 
 void Executor::ins_assign_localvar( const Instruction& ins )
 {
+  if ( !has_local( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
+  {
+    report_variable_out_of_range( "Locals" );
+    ValueStack.pop_back();
+    return;
+  }
   BObjectRef& lvar = ( *Locals2 )[ins.token.lval];
 
   BObjectRef& rightref = ValueStack.back();
@@ -1663,11 +1671,9 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.pop_back();
     return;
   }
@@ -2403,11 +2409,9 @@ void Executor::ins_take_global( const Instruction& ins )
 {
   passert( !ValueStack.empty() );
 
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.pop_back();
     return;
   }
@@ -2740,8 +2744,7 @@ void Executor::ins_call_method_id( const Instruction& ins )
           // executor currently runs.
           fparams.insert( fparams.begin(),
                           BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
-                              funcr->prog(), funcr->class_index(), funcr->globals,
-                              funcr->pid() ) ) ) ) );
+                              funcr->prog(), funcr->class_index(), funcr->globals ) ) ) ) );
         }
       }
 
@@ -2981,11 +2984,14 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
     rc.Continuation.set( continuation );
   }
 
-  // Store our context if the function belongs to another program or to another executor: the
-  // jump target is an offset into the function reference's program, and the globals it closes
-  // over are the ones its creator had. The same executor can hold references to both, since it
-  // runs another program's code for the length of an external call.
-  if ( funcref != nullptr && ( funcref->prog() != prog_ || funcref->pid() != pid() ) )
+  // Switch context unless both the program and the globals loaded are the function reference's
+  // own: the jump target indexes its program, and its body addresses the globals it closes over.
+  // Compare globals by owner, not by executor: during an external call this executor has
+  // another's globals loaded, and a reference of its own must not run against them. The
+  // reference's weak_ptr keeps the control block, so a dead owner's cannot compare equal.
+  if ( funcref != nullptr &&
+       ( funcref->prog() != prog_ || funcref->globals.owner_before( Globals2 ) ||
+         Globals2.owner_before( funcref->globals ) ) )
   {
     // Store external context for the return path.
     rc.ExternalContext = ReturnContext::External( prog_, std::move( execmodules ), Globals2 );
@@ -3029,11 +3035,24 @@ void Executor::jump( int target_PC, BContinuation* continuation, BFunctionRef* f
         "Script {} exceeded maximum call depth\n"
         "Return path PCs: ",
         scriptname() );
+    // Draining the stack discards the pending external calls with it, so the context each of
+    // them saved has to be put back by hand. Frames pop innermost first, so the last one seen
+    // holds the program this executor started out in.
+    std::optional<ReturnContext::External> outermost;
     while ( !ControlStack.empty() )
     {
       rc = ControlStack.back();
       ControlStack.pop_back();
+      if ( rc.ExternalContext.has_value() )
+        outermost = std::move( rc.ExternalContext );
       fmt::format_to( std::back_inserter( tmp ), "{} ", rc.PC );
+    }
+    if ( outermost.has_value() )
+    {
+      prog_ = std::move( outermost->Program );
+      nLines = static_cast<unsigned int>( prog_->instr.size() );
+      execmodules = std::move( outermost->Modules );
+      Globals2 = std::move( outermost->Globals );
     }
     POLLOGLN( tmp );
     seterror( true );
@@ -3223,12 +3242,13 @@ void Executor::ins_leave_block( const Instruction& ins )
 {
   if ( Locals2 )
   {
-    for ( int i = 0; i < ins.token.lval; i++ )
+    for ( int i = 0; i < ins.token.lval && !Locals2->empty(); i++ )
       Locals2->pop_back();
   }
   else  // at global level.  ick.
   {
-    for ( int i = 0; i < ins.token.lval; i++ )
+    // Globals2 can be a vector this executor only borrows, so never pop past its start.
+    for ( int i = 0; i < ins.token.lval && !Globals2->empty(); i++ )
       Globals2->pop_back();
   }
 }
@@ -3357,7 +3377,7 @@ void Executor::ins_double( const Instruction& ins )
 void Executor::ins_classinst( const Instruction& ins )
 {
   ValueStack.emplace_back( new BConstObject(
-      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2, pid() ) ) ) );
+      new BClassInstanceRef( new BClassInstance( prog_, ins.token.lval, Globals2 ) ) ) );
 }
 
 void Executor::ins_string( const Instruction& ins )
@@ -3561,27 +3581,34 @@ void Executor::ins_funcref( const Instruction& ins )
 
   auto funcref_index = static_cast<unsigned>( ins.token.lval );
 
-  ValueStack.emplace_back(
-      new BFunctionRef( prog_, pid(), funcref_index, Globals2, {} /* captures */ ) );
+  ValueStack.emplace_back( new BFunctionRef( prog_, funcref_index, Globals2, {} /* captures */ ) );
 }
 
 void Executor::ins_functor( const Instruction& ins )
 {
   auto funcref_index = static_cast<int>( ins.token.type );
 
+  if ( funcref_index >= static_cast<int>( prog_->function_references.size() ) )
+  {
+    POLLOG_ERRORLN( "Function reference index out of bounds: {} >= {}", funcref_index,
+                    prog_->function_references.size() );
+    seterror( true );
+    return;
+  }
+
   const auto& ep_funcref = prog_->function_references[funcref_index];
 
   int capture_count = ep_funcref.capture_count;
 
   auto captures = ValueStackCont();
-  while ( capture_count > 0 )
+  while ( capture_count > 0 && !ValueStack.empty() )
   {
     captures.push_back( ValueStack.back() );
     ValueStack.pop_back();
     capture_count--;
   }
 
-  auto func = new BFunctionRef( prog_, pid(), funcref_index, Globals2, std::move( captures ) );
+  auto func = new BFunctionRef( prog_, funcref_index, Globals2, std::move( captures ) );
 
   ValueStack.emplace_back( func );
 
@@ -4287,11 +4314,14 @@ size_t Executor::sizeEstimate() const
   }
   size += Clib::memsize( ControlStack );
 
-  size += Clib::memsize( *Locals2 );
-  for ( const auto& bojectref : *Locals2 )
+  if ( Locals2 != nullptr )
   {
-    if ( bojectref != nullptr )
-      size += bojectref->sizeEstimate();
+    size += Clib::memsize( *Locals2 );
+    for ( const auto& bojectref : *Locals2 )
+    {
+      if ( bojectref != nullptr )
+        size += bojectref->sizeEstimate();
+    }
   }
   size += Clib::memsize( *Globals2 );
   for ( const auto& bojectref : *Globals2 )

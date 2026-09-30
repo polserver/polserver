@@ -1,0 +1,34 @@
+use os;
+
+var state;
+
+program prog( args )
+  state := args[2];
+  var parent := GetProcess( args[1] );
+  if ( state == "main" )
+    return spawn();
+  else
+    parent.SendEvent( struct{ callee := @( cb ) { return $"{state}|{cb()}"; } } );
+    Wait_For_Event( 1 );
+  endif
+endprogram
+
+// Both instances run this program. The main one calls the secondary's reference, which loads the
+// secondary's globals, and hands it a reference of its own. Calling that one back has to load the
+// main instance's globals again, although program and executor both match the current ones.
+function spawn()
+  var spawned := start_script( ":testfuncref:call_back_same_prog", { GetPid(), "secondary" } );
+
+  if ( !spawned )
+    return $"failed to spawn: {spawned}";
+  endif
+
+  var ev := Wait_For_Event( 1 );
+  if ( !ev )
+    return $"no event: {ev}";
+  endif
+  var callee := ev.callee;
+  var res := callee( @() { return state; } );
+  spawned.SendEvent( 1 );
+  return res;
+endfunction
