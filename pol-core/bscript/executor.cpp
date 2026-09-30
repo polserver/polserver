@@ -1042,14 +1042,19 @@ void Executor::ins_initforeach( const Instruction& ins )
   PC = ins.token.lval;
 }
 
+void Executor::report_variable_out_of_range( const char* kind )
+{
+  POLLOG_ERRORLN( "Fatal error: {} access out of range! ({},PC={}){}", kind, prog_->name, PC,
+                  script_stack_block() );
+  seterror( true );
+}
+
 void Executor::ins_stepforeach( const Instruction& ins )
 {
   // initforeach leaves three locals behind; without them the subtractions below wrap around.
-  if ( Locals2 == nullptr || Locals2->size() < 3 )
+  if ( !has_local( 2 ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Locals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Locals" );
     return;
   }
   size_t locsize = Locals2->size();
@@ -1090,11 +1095,9 @@ void Executor::ins_initfor( const Instruction& ins )
 void Executor::ins_nextfor( const Instruction& ins )
 {
   // initfor leaves the iterator and the end value behind; without them the subtractions wrap.
-  if ( Locals2 == nullptr || Locals2->size() < 2 )
+  if ( !has_local( 1 ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Locals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Locals" );
     return;
   }
   size_t locsize = Locals2->size();
@@ -1411,11 +1414,9 @@ void Executor::ins_skipiftrue_else_consume( const Instruction& ins )
 // case TOK_LOCALVAR:
 void Executor::ins_localvar( const Instruction& ins )
 {
-  if ( Locals2 == nullptr || static_cast<unsigned>( ins.token.lval ) >= Locals2->size() )
+  if ( !has_local( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Locals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Locals" );
     ValueStack.emplace_back( UninitObject::create() );
     return;
   }
@@ -1426,11 +1427,9 @@ void Executor::ins_localvar( const Instruction& ins )
 // case TOK_GLOBALVAR:
 void Executor::ins_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.emplace_back( UninitObject::create() );
     return;
   }
@@ -1646,11 +1645,9 @@ void Executor::ins_get_member_id( const Instruction& ins )
 
 void Executor::ins_assign_localvar( const Instruction& ins )
 {
-  if ( Locals2 == nullptr || static_cast<unsigned>( ins.token.lval ) >= Locals2->size() )
+  if ( !has_local( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Locals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Locals" );
     ValueStack.pop_back();
     return;
   }
@@ -1674,11 +1671,9 @@ void Executor::ins_assign_localvar( const Instruction& ins )
 }
 void Executor::ins_assign_globalvar( const Instruction& ins )
 {
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.pop_back();
     return;
   }
@@ -2414,11 +2409,9 @@ void Executor::ins_take_global( const Instruction& ins )
 {
   passert( !ValueStack.empty() );
 
-  if ( (unsigned)ins.token.lval >= Globals2->size() )
+  if ( !has_global( static_cast<unsigned>( ins.token.lval ) ) ) [[unlikely]]
   {
-    POLLOG_ERRORLN( "Fatal error: Globals access out of range! ({},PC={}){}", prog_->name, PC,
-                    script_stack_block() );
-    seterror( true );
+    report_variable_out_of_range( "Globals" );
     ValueStack.pop_back();
     return;
   }
