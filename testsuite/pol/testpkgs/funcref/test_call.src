@@ -158,6 +158,13 @@ exported function test_call_sameprog()
   return ret_error_not_equal( res, "secondary", $"wrong global capture: {res}" );
 endfunction
 
+// A reference passed back into its own executor, while that executor runs another instance's
+// function of the same program, must run against its own globals, not the ones loaded.
+exported function test_call_back_sameprog()
+  var res := run_script( ":testfuncref:call_back_same_prog", { GetPid(), "main" } );
+  return ret_error_not_equal( res, "secondary|main", $"wrong globals for own reference: {res}" );
+endfunction
+
 function user_func()
   glob := "glob set inside user_func";
   return "return from user_func";

@@ -18,8 +18,8 @@ class BClassInstance final : public BStruct
   using base = BStruct;
 
 public:
-  BClassInstance( ref_ptr<EScriptProgram> program, int index, std::weak_ptr<ValueStackCont> globals,
-                  u64 owner_id );
+  BClassInstance( ref_ptr<EScriptProgram> program, int index,
+                  std::weak_ptr<ValueStackCont> globals );
   BClassInstance( const BClassInstance& B );
   ~BClassInstance() override = default;
 
@@ -53,8 +53,6 @@ public:  // Class Machinery
 private:
   ref_ptr<EScriptProgram> prog_;
   unsigned int index_;
-  // Executor::instance_id() of the executor that created this instance.
-  u64 owner_id_;
 
 public:
   std::weak_ptr<ValueStackCont> globals;

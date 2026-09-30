@@ -2,7 +2,7 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-26-2026</datemodified>
+		<datemodified>09-30-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
@@ -18,6 +18,8 @@ without a source location instead of one taken from the wrong script.</change>
 shard while reporting on a script currently running outside any function.</change>
 			<change type="Fixed">a script that exceeded the maximum call depth while running inside another script's<br/>
 function afterwards reported that other script's global variables.</change>
+			<change type="Fixed">a script calling one of its own function references from inside a function of<br/>
+another running copy of the same script used that copy's global variables.</change>
 			<change type="Fixed">a damaged or mismatched compiled script could crash the shard on an out-of-range<br/>
 variable access. It stops the script with an error in the log instead.</change>
 		</entry>

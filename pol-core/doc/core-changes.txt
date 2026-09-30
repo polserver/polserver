@@ -10,6 +10,8 @@
            shard while reporting on a script currently running outside any function.
     Fixed: a script that exceeded the maximum call depth while running inside another script's
            function afterwards reported that other script's global variables.
+    Fixed: a script calling one of its own function references from inside a function of
+           another running copy of the same script used that copy's global variables.
     Fixed: a damaged or mismatched compiled script could crash the shard on an out-of-range
            variable access. It stops the script with an error in the log instead.
 09-26-2026 Ins:
