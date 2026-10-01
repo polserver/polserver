@@ -422,6 +422,7 @@ set (pol_sources  # sorted !
   testing/testmapsize.cpp
   testing/testmaptile.cpp
   testing/testmisc.cpp
+  testing/testnetwork.cpp
   testing/testpos.cpp
   testing/testrange.cpp
   testing/testresolve.cpp
