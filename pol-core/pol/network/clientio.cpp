@@ -5,11 +5,13 @@
  */
 
 
+#include <algorithm>
 #include <errno.h>
 #include <iterator>
 #include <mutex>
 #include <stddef.h>
 #include <string>
+#include <vector>
 
 #include "clib/fdump.h"
 #include "clib/logfacility.h"
@@ -23,6 +25,7 @@
 #include "pol/globals/network.h"
 #include "pol/globals/state.h"
 #include "pol/network/client.h"
+#include "pol/network/clientio.h"
 #include "pol/network/clienttransmit.h"
 #include "pol/network/packethelper.h"
 #include "pol/network/packethooks.h"
@@ -158,90 +161,56 @@ void ThreadedClient::recv_remaining_nocrypt( int total_expected )
 /* NOTE: If this changes, code in client.cpp must change - pause() and restart() use
    pre-encrypted values of 33 00 and 33 01.
    */
+void huffman_compress( const unsigned char* data, size_t len, std::vector<unsigned char>& out )
+{
+  // Size the output from the codes first: at 11 bits per byte, a 65535-byte packet encodes to
+  // more than 65535 bytes.
+  size_t nbits = Core::keydesc[0x100].nbits;
+  for ( size_t i = 0; i < len; ++i )
+    nbits += Core::keydesc[data[i]].nbits;
+  out.assign( ( nbits + 7 ) / 8, 0 );
+
+  unsigned char* pch = out.data();
+  int bidx = 0;  // bits already in *pch
+  auto put = [&]( const Core::SVR_KEYDESC& key )
+  {
+    unsigned short inval = key.bits_reversed;
+    for ( int n = key.nbits; n > 0; --n )
+    {
+      *pch = static_cast<unsigned char>( ( *pch << 1 ) | ( inval & 1 ) );
+      inval >>= 1;
+      if ( ++bidx == 8 )
+      {
+        ++pch;
+        bidx = 0;
+      }
+    }
+  };
+  for ( size_t i = 0; i < len; ++i )
+    put( Core::keydesc[data[i]] );
+  put( Core::keydesc[0x100] );
+  if ( bidx != 0 )
+    *pch <<= ( 8 - bidx );
+}
+
 void ThreadedClient::transmit_encrypted( const void* data, int len )
 {
   THREAD_CHECKPOINT( active_client, 100 );
-  const unsigned char* cdata = (const unsigned char*)data;
-  unsigned char* pch;
-  int i;
-  int bidx;  // Offset in output byte
-  EncryptedPktBuffer* outbuffer =
-      PktHelper::RequestPacket<EncryptedPktBuffer>( ENCRYPTEDPKTBUFFER );
-  pch = reinterpret_cast<unsigned char*>( outbuffer->getBuffer() );
-  bidx = 0;
-  THREAD_CHECKPOINT( active_client, 101 );
-  for ( i = 0; i < len; i++ )
-  {
-    THREAD_CHECKPOINT( active_client, 102 );
-    unsigned char ch = cdata[i];
-    int nbits = Core::keydesc[ch].nbits;
-    unsigned short inval = Core::keydesc[ch].bits_reversed;
-
-    THREAD_CHECKPOINT( active_client, 103 );
-
-    while ( nbits-- )
-    {
-      THREAD_CHECKPOINT( active_client, 104 );
-      *pch <<= 1;
-      if ( inval & 1 )
-        *pch |= 1;
-      bidx++;
-      if ( bidx == 8 )
-      {
-        THREAD_CHECKPOINT( active_client, 105 );
-        pch++;
-        bidx = 0;
-      }
-      THREAD_CHECKPOINT( active_client, 106 );
-
-      inval >>= 1;
-    }
-    THREAD_CHECKPOINT( active_client, 107 );
-  }
-  THREAD_CHECKPOINT( active_client, 108 );
-
-  {
-    int nbits = Core::keydesc[0x100].nbits;
-    unsigned short inval = Core::keydesc[0x100].bits_reversed;
-
-    THREAD_CHECKPOINT( active_client, 109 );
-
-    while ( nbits-- )
-    {
-      THREAD_CHECKPOINT( active_client, 110 );
-      *pch <<= 1;
-      if ( inval & 1 )
-        *pch |= 1;
-      bidx++;
-      THREAD_CHECKPOINT( active_client, 111 );
-      if ( bidx == 8 )
-      {
-        pch++;
-        bidx = 0;
-      }
-      THREAD_CHECKPOINT( active_client, 112 );
-
-      inval >>= 1;
-    }
-  }
-  THREAD_CHECKPOINT( active_client, 113 );
-
-  if ( bidx == 0 )
-  {
-    pch--;
-  }
-  else
-  {
-    *pch <<= ( 8 - bidx );
-  }
+  thread_local std::vector<unsigned char> compressed;
+  huffman_compress( static_cast<const unsigned char*>( data ), len, compressed );
   THREAD_CHECKPOINT( active_client, 114 );
 
-  passert_always( pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 <=
-                  int( sizeof outbuffer->buffer ) );
-  THREAD_CHECKPOINT( active_client, 115 );
-  xmit( &outbuffer->buffer, static_cast<unsigned short>(
-                                pch - reinterpret_cast<unsigned char*>( outbuffer->buffer ) + 1 ) );
-  PktHelper::ReAddPacket( outbuffer );
+  // The compressed stream has no framing of its own, so output longer than xmit's 16-bit length
+  // can go out in pieces. xmit encrypts each piece in place.
+  unsigned char* pch = compressed.data();
+  size_t left = compressed.size();
+  while ( left > 0 )
+  {
+    const auto n = static_cast<unsigned short>( std::min<size_t>( left, 0xFFFF ) );
+    xmit( pch, n );
+    pch += n;
+    left -= n;
+  }
   THREAD_CHECKPOINT( active_client, 116 );
 }
 
@@ -268,6 +237,15 @@ void Client::transmit( const void* data, int len )
 
   if ( handled )
     return;
+
+  // Every packet carries a 16-bit length, so anything longer is a builder bug. Sending it
+  // would put a truncated length on the wire.
+  if ( len <= 0 || len > 0xFFFF )
+  {
+    POLLOG_ERRORLN( "Client#{}: refused to send a packet of {} bytes (type {:#x})", instance_, len,
+                    len > 0 ? *static_cast<const unsigned char*>( data ) : 0 );
+    return;
+  }
 
   unsigned char msgtype = *(const char*)data;
 

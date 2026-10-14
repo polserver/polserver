@@ -1,4 +1,12 @@
 -- POL100.3.0 --
+09-29-2026 Nando:
+    Fixed: sending a client a packet of more than about 57 KB, such as a large gump or custom
+           house design, could corrupt server memory and crash the server.
+    Fixed: a proxy-protocol header from an address in a uoclient.cfg AllowProxy entry could
+           corrupt server memory when it announced more than 2544 bytes of payload. Such
+           connections are now disconnected, with a line in the log.
+    Fixed: a custom house design too large for one packet was sent to clients cut short. It is
+           no longer sent, and the log names the house.
 09-26-2026 Ins:
     Fixed: with servspecopt.cfg UseContainerSlots=1, everything put into a secure trade window
            went into slot 0, whatever was already there.

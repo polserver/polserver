@@ -2,9 +2,20 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-26-2026</datemodified>
+		<datemodified>09-29-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>09-29-2026</date>
+			<author>Nando:</author>
+			<change type="Fixed">sending a client a packet of more than about 57 KB, such as a large gump or custom<br/>
+house design, could corrupt server memory and crash the server.</change>
+			<change type="Fixed">a proxy-protocol header from an address in a uoclient.cfg AllowProxy entry could<br/>
+corrupt server memory when it announced more than 2544 bytes of payload. Such<br/>
+connections are now disconnected, with a line in the log.</change>
+			<change type="Fixed">a custom house design too large for one packet was sent to clients cut short. It is<br/>
+no longer sent, and the log names the house.</change>
+		</entry>
 		<entry>
 			<date>09-26-2026</date>
 			<author>Ins:</author>

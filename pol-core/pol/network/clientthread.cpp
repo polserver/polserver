@@ -545,6 +545,21 @@ bool process_data( Network::ThreadedClient* session )
         return false;
       }
 
+      // The payload is read into the receive buffer behind the header. Any type-length-value
+      // (TLV) records a proxy appends after the addresses count towards payload_size, so allow
+      // what the buffer holds, not just the largest address block.
+      static_assert( sizeof( pp_header_v2 ) + sizeof( pp_payload_v2 ) <=
+                     sizeof( Network::ThreadedClient::buffer ) );
+      if ( pp_header->payload_size() > sizeof( session->buffer ) - sizeof( pp_header_v2 ) )
+      {
+        POLLOGLN( "Client#{} ({}): disconnected due to oversized proxy header ({} bytes)",
+                  session->myClient.instance_, session->ipaddrAsString(),
+                  pp_header->payload_size() );
+
+        session->forceDisconnect();
+        return false;
+      }
+
       if ( pp_header->command() == PP_CMD_LOCAL && pp_header->payload_size() == 0 )
       {
         // for local command with zero payload there is nothing else to read => continue with the

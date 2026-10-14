@@ -1130,16 +1130,25 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
       planeheader |= ( ( ulen & 0xFF ) << 16 );
       planeheader |= ( ( clen & 0xFF ) << 8 );
       planeheader |= ( ( ( ulen >> 4 ) & 0xF0 ) | ( ( clen >> 8 ) & 0xF ) );
+      // sbuflen is an estimate of the compressed size; check the real one before each write.
+      if ( buffer_len + data_offset + 4 + clen > sbuflen )
+      {
+        POLLOG_ERRORLN( "Custom house {:#x}: compressed design does not fit its packet",
+                        house->serial );
+        return;
+      }
       u32* p_planeheader = reinterpret_cast<u32*>( &( packet[buffer_len + data_offset] ) );
       *p_planeheader = ctBEu32( planeheader );
       buffer_len += 4;
-      // Since we're working with memcpy, add passert to ensure we don't
-      // overflow the buffer... just in case :)
-      passert_always_r( buffer_len + data_offset + clen < sbuflen,
-                        "CustomHousesSendFull: buffer_len + data_offset + clen >= sbuflen" );
       memcpy( &( packet[buffer_len + data_offset] ), data.data.get(), clen );
       buffer_len += clen;
     }
+  }
+  if ( buffer_len + data_offset > 0xFFFF )
+  {
+    POLLOG_ERRORLN( "Custom house {:#x}: design needs {} bytes, more than one packet holds",
+                    house->serial, buffer_len + data_offset );
+    return;
   }
   msg->msglen = ctBEu16( static_cast<u16>( buffer_len ) + data_offset );
   msg->planebuffer_len = ctBEu16( static_cast<u16>( buffer_len ) );
