@@ -17,6 +17,7 @@ public:
   explicit Constants( Report& );
 
   ConstDeclaration* find( const std::string& name ) const;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::vector<ConstDeclaration*> list( const std::string& prefix ) const;
 
   void create( ConstDeclaration& );

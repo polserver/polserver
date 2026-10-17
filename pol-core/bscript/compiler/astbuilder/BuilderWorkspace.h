@@ -21,7 +21,7 @@ class BuilderWorkspace
 {
 public:
   BuilderWorkspace( CompilerWorkspace&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
-                    bool continue_on_error, Profile& profile, Report& report );
+                    bool continue_on_error, bool analysis_mode, Profile& profile, Report& report );
   ~BuilderWorkspace();
 
   CompilerWorkspace& compiler_workspace;
@@ -30,6 +30,8 @@ public:
   SourceFileCache& inc_cache;
 
   const bool continue_on_error;
+  // Set by Compiler::analyze() for vscode-escript; ecompile and pol leave it false.
+  const bool analysis_mode;
 
   Profile& profile;
   Report& report;

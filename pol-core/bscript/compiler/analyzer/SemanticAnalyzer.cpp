@@ -77,8 +77,8 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       captures( VariableScope::Capture, report ),
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
-      local_scopes( workspace.scope_tree, locals, report ),
-      capture_scopes( workspace.scope_tree, captures, report )
+      local_scopes( workspace.scope_tree.get(), locals, report ),
+      capture_scopes( workspace.scope_tree.get(), captures, report )
 {
   current_scope_names.push( ScopeName::Global );
 }
@@ -97,8 +97,9 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
-  workspace.scope_tree.push_scope(
-      SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
+  if ( workspace.scope_tree )
+    workspace.scope_tree->push_scope(
+        SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -123,8 +124,8 @@ void SemanticAnalyzer::analyze()
 
   workspace.global_variable_names = globals.get_names();
 
-  auto global_variables = globals.remove_all_but( 0 );
-  workspace.scope_tree.set_globals( std::move( global_variables ) );
+  if ( workspace.scope_tree )
+    workspace.scope_tree->set_globals( globals.remove_all_but( 0 ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )

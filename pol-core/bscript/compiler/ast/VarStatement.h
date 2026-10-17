@@ -29,6 +29,7 @@ public:
   const bool initialize_as_empty_array = false;
 
   std::shared_ptr<Variable> variable;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   const SourceLocation var_decl_location;
 };
 

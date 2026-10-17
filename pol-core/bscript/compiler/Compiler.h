@@ -36,8 +36,10 @@ public:
 
   void compile_file_steps( const std::string& pathname, Report& );
   bool format_file( const std::string& filename, bool is_module, bool inplace );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::unique_ptr<CompilerWorkspace> analyze( const std::string& pathname, Report&, bool is_module,
                                               bool continue_on_error );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::string to_formatted_string( const std::string& filename, bool is_module,
                                    std::optional<Range> format_range );
 
@@ -47,13 +49,14 @@ public:
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,
-                                                      bool continue_on_error );
+                                                      bool continue_on_error, bool analysis_mode );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );
   void analyze( CompilerWorkspace&, Report& );
   void check_short_circuit( CompilerWorkspace&, Report& );
   std::unique_ptr<CompiledScript> generate( std::unique_ptr<CompilerWorkspace>, Report& );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   void tokenize( CompilerWorkspace& );
 
   void display_outcome( const std::string& filename, Report& );

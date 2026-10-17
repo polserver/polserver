@@ -9,7 +9,7 @@ class SourceFileLoader
 {
 public:
   virtual ~SourceFileLoader() = default;
-  // Throws
+  // Throws. Virtual so vscode-escript can serve unsaved editor buffers.
   virtual std::string get_contents( const std::string& pathname ) const;
 };
 

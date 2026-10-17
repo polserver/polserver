@@ -19,7 +19,8 @@ LocalVariableScope::LocalVariableScope( const SourceLocation& location, LocalVar
       local_variable_scope_info( local_variable_scope_info )
 {
   local_variable_scope_info.base_index = prev_locals;
-  scopes.tree.push_scope( location );
+  if ( scopes.tree )
+    scopes.tree->push_scope( location );
   scopes.local_variable_scopes.push_back( this );
 }
 
@@ -31,7 +32,8 @@ LocalVariableScope::~LocalVariableScope()
   {
     scopes.local_variables.restore_shadowed( variable );
   }
-  scopes.tree.pop_scope( removed );
+  if ( scopes.tree )
+    scopes.tree->pop_scope( removed );
   scopes.local_variable_scopes.pop_back();
 }
 

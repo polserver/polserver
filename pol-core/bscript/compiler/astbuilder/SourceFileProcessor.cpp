@@ -15,10 +15,10 @@
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "bscript/compilercfg.h"
 #include "plib/pkg.h"
 
 using EscriptGrammar::EscriptParser;
@@ -62,7 +62,9 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    // But in diagnostics mode, we want to continue, so...
+    // Analysis keeps going: vscode-escript still needs the rest of the file.
+    if ( !workspace.analysis_mode )
+      report.fatal( including_location, "Unable to use module '{}'.", module_name );
     report.error( including_location, "Unable to use module '{}'.", module_name );
     // Move the failed-to-load SourceFileIdentifier to the compiler to properly
     // own diagnostic references.
@@ -239,7 +241,9 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
     {
       // This is fatal because if we keep going, we'll likely report a bunch of errors
       // that would just be noise, like missing functions or constants.
-      // But in diagnostics mode, we want to continue, so...
+      // Analysis keeps going: vscode-escript still needs the rest of the file.
+      if ( !workspace.analysis_mode )
+        report.fatal( source_location, "Unable to read include file '{}'", include_name );
       report.error( source_location, "Unable to read include file '{}'", include_name );
       return {};
     }
