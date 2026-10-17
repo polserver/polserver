@@ -25,6 +25,7 @@ public:
                             Profile&, Report& );
 
   std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::unique_ptr<CompilerWorkspace> build_module( const std::string& pathname );
 
 private:

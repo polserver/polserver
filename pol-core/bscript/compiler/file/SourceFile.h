@@ -53,6 +53,7 @@ public:
   std::vector<antlr4::Token*> get_all_tokens();
   std::vector<antlr4::Token*> get_hidden_tokens_before( const Position& position );
   std::vector<antlr4::Token*> get_hidden_tokens_before( size_t tokenIndex );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   SemanticTokens get_tokens();
 
   const std::string pathname;

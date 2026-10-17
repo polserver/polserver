@@ -38,6 +38,7 @@ public:
 
   void accept( NodeVisitor& );
 
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::shared_ptr<SourceFile> source;
 
   std::vector<std::unique_ptr<ConstDeclaration>> const_declarations;
@@ -62,6 +63,7 @@ public:
   std::map<std::string, FlowControlLabel> user_function_labels;
   // Analysis only: used by vscode-escript, not by ecompile or pol. Null outside analysis mode.
   std::unique_ptr<ScopeTree> scope_tree;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   SemanticTokens tokens;
   BuilderWorkspace builder_workspace;
 };
