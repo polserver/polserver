@@ -29,11 +29,11 @@ ExpressionEvaluator::ExpressionEvaluator()
       _consoleReporter( false, false ),
       _report( _consoleReporter ),
       _ident( 0, "<eval>" ),
-      _compiler_workspace( _report, _cache, _cache, true /* continue_on_error */,
+      _compiler_workspace( _report, _cache, _cache, false /* continue_on_error */,
                            false /* analysis_mode */, _profile ),
       _loader(),
       _cache( _loader, _profile ),
-      _builder_workspace( _compiler_workspace, _cache, _cache, true /* continue_on_error */,
+      _builder_workspace( _compiler_workspace, _cache, _cache, false /* continue_on_error */,
                           false /* analysis_mode */, _profile, _report ),
       _expression_builder( _ident, _builder_workspace )
 {
