@@ -33,7 +33,7 @@ class CompilerWorkspace
 {
 public:
   explicit CompilerWorkspace( Report&, SourceFileCache& em_cache, SourceFileCache& inc_cache,
-                              bool continue_on_error, Profile& profile );
+                              bool continue_on_error, bool analysis_mode, Profile& profile );
   ~CompilerWorkspace();
 
   void accept( NodeVisitor& );

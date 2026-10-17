@@ -134,7 +134,9 @@ bool Compiler::compile_file( const std::string& filename )
 
 void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
-  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report, false, false );
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( pathname, report, false /* is_module */, false /* continue_on_error */,
+                       false /* analysis_mode */ );
   if ( report.error_count() )
     return;
 
@@ -191,7 +193,7 @@ std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathnam
 {
   // Let's see how this explodes...
   std::unique_ptr<CompilerWorkspace> workspace =
-      build_workspace( pathname, report, is_module, continue_on_error );
+      build_workspace( pathname, report, is_module, continue_on_error, true /* analysis_mode */ );
   if ( workspace )
   {
     register_constants( *workspace, report );
@@ -220,11 +222,12 @@ std::string Compiler::to_formatted_string( const std::string& filename, bool is_
 
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
                                                               Report& report, bool is_module,
-                                                              bool continue_on_error )
+                                                              bool continue_on_error,
+                                                              bool analysis_mode )
 {
   Pol::Tools::HighPerfTimer timer;
   CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, continue_on_error,
-                                              profile, report );
+                                              analysis_mode, profile, report );
   auto workspace = is_module ? workspace_builder.build_module( pathname )
                              : workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();

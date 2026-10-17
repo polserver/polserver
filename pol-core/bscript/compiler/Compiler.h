@@ -47,7 +47,7 @@ public:
 
 private:
   std::unique_ptr<CompilerWorkspace> build_workspace( const std::string&, Report&, bool is_module,
-                                                      bool continue_on_error );
+                                                      bool continue_on_error, bool analysis_mode );
   void register_constants( CompilerWorkspace&, Report& );
   void optimize( CompilerWorkspace&, Report& );
   void disambiguate( CompilerWorkspace&, Report& );
