@@ -145,7 +145,7 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                                                                      true /* requires_ctor */ );
                 }
                 // 3b. Otherwise: method
-                else
+                else if ( !methods.contains( func_name ) )
                 {
                   methods[func_name] = std::make_shared<FunctionLink>( func_loc, func_name );
                 }
