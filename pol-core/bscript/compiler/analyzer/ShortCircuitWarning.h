@@ -13,7 +13,7 @@ class CompilerWorkspace;
 class ShortCircuitReporter : public NodeVisitor
 {
 public:
-  ShortCircuitReporter( Report& );
+  ShortCircuitReporter( Report&, bool analysis_mode );
 
   void visit_binary_operator( BinaryOperator& ) override;
   void visit_element_assignment( ElementAssignment& ) override;
@@ -26,13 +26,15 @@ public:
 
 private:
   Report& report;
+  // vscode-escript shows the warning at its location, so the source line would be noise.
+  const bool analysis_mode;
   void trigger( Node& op );
 };
 
 class ShortCircuitWarning : public NodeVisitor
 {
 public:
-  ShortCircuitWarning( Report& );
+  ShortCircuitWarning( Report&, bool analysis_mode );
   void warn( CompilerWorkspace& workspace );
 
   void visit_binary_operator_short_circuit( BinaryOperatorShortCircuit& ) override;

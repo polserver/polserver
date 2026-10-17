@@ -267,7 +267,7 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
 
 void Compiler::check_short_circuit( CompilerWorkspace& workspace, Report& report )
 {
-  ShortCircuitWarning warn{ report };
+  ShortCircuitWarning warn{ report, workspace.builder_workspace.analysis_mode };
   warn.warn( workspace );
 }
 
