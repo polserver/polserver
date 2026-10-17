@@ -1858,7 +1858,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
                                   } ),
                   comments.end() );
   linebuilder.setComments( std::move( comments ) );
-  linebuilder.setSkipLines( std::move( skiplines ) );
+  linebuilder.setSkipLines( std::move( skiplines ), format_range.has_value() );
   linebuilder.setRawLines( std::move( rawlines ) );
 }
 
