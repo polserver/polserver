@@ -60,7 +60,8 @@ public:
 
   std::vector<std::string> global_variable_names;
   std::map<std::string, FlowControlLabel> user_function_labels;
-  ScopeTree scope_tree;
+  // Analysis only: used by vscode-escript, not by ecompile or pol. Null outside analysis mode.
+  std::unique_ptr<ScopeTree> scope_tree;
   SemanticTokens tokens;
   BuilderWorkspace builder_workspace;
 };

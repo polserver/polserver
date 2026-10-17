@@ -17,7 +17,7 @@ CompilerWorkspace::CompilerWorkspace( Report& report, SourceFileCache& em_cache,
                                       SourceFileCache& inc_cache, bool continue_on_error,
                                       bool analysis_mode, Profile& profile )
     : constants( report ),
-      scope_tree( *this ),
+      scope_tree( analysis_mode ? std::make_unique<ScopeTree>( *this ) : nullptr ),
       builder_workspace( *this, em_cache, inc_cache, continue_on_error, analysis_mode, profile,
                          report )
 {

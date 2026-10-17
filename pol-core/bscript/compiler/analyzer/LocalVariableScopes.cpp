@@ -5,7 +5,7 @@
 
 namespace Pol::Bscript::Compiler
 {
-LocalVariableScopes::LocalVariableScopes( ScopeTree& scope_tree, Variables& local_variables,
+LocalVariableScopes::LocalVariableScopes( ScopeTree* scope_tree, Variables& local_variables,
                                           Report& report )
     : local_variables( local_variables ), tree( scope_tree ), report( report )
 {

@@ -48,6 +48,8 @@ private:
   // visit_const_declaration to the constant's scope. Reset to Global after
   // visiting the constant's children.
   ScopeName current_constant_scope_name;
+  // Keep a folded Identifier as unoptimized_node, for vscode-escript's references.
+  bool keep_unoptimized_nodes = false;
 };
 
 }  // namespace Pol::Bscript::Compiler
