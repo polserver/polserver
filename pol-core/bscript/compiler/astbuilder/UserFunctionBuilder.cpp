@@ -152,9 +152,10 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
               }
             }
           }
-          workspace.compiler_workspace.all_function_locations.emplace(
-              ScopableName( class_name, func_name ).string(), func_loc );
         }
+
+        workspace.compiler_workspace.all_function_locations.emplace(
+            ScopableName( class_name, func_name ).string(), func_loc );
       }
       else if ( auto var_statement = classStatement->varStatement() )
       {
