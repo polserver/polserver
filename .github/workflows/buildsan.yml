@@ -34,6 +34,10 @@ jobs:
 
     runs-on: "ubuntu-latest"
 
+    env:
+      # Checks ASan has but leaves off by default; the other sanitizers ignore this variable.
+      ASAN_OPTIONS: "detect_stack_use_after_return=1:check_initialization_order=1:strict_init_order=1:strict_string_checks=1"
+
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
