@@ -648,9 +648,6 @@ bool UOExecutor::getObjtypeParam( unsigned param, const Items::ItemDesc*& itemde
       itemdesc_out = Core::gamestate.temp_itemdesc.get();
       Core::gamestate.temp_itemdesc->objtype = objtype;
       Core::gamestate.temp_itemdesc->graphic = static_cast<u16>( objtype );
-      Core::gamestate.temp_itemdesc->decay_time = settingsManager.ssopt.default_decay_time;
-      Core::gamestate.temp_itemdesc->doubleclick_range =
-          settingsManager.ssopt.default_doubleclick_range;
     }
 
     return true;

@@ -2,9 +2,18 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>09-29-2026</datemodified>
+		<datemodified>10-18-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>10-18-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">items of an objtype without an itemdesc.cfg entry that the core creates itself, such<br/>
+as hair and beards at character creation, ignored servspecopt.cfg DefaultDecayTime and<br/>
+DefaultDoubleclickRange.</change>
+			<change type="Fixed">reloading the configuration did not apply changed servspecopt.cfg DefaultDecayTime<br/>
+and DefaultDoubleclickRange to objtypes without an itemdesc.cfg entry.</change>
+		</entry>
 		<entry>
 			<date>09-29-2026</date>
 			<author>Nando:</author>

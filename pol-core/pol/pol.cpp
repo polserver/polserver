@@ -1096,9 +1096,7 @@ int xmain_inner( bool testing )
 #endif
 
   Core::checkpoint( "init default itemdesc defaults" );
-  Core::gamestate.empty_itemdesc->doubleclick_range =
-      Core::settingsManager.ssopt.default_doubleclick_range;
-  Core::gamestate.empty_itemdesc->decay_time = Core::settingsManager.ssopt.default_decay_time;
+  Items::apply_ssopt_itemdesc_defaults();
 
   Core::checkpoint( "loading POL map file" );
   if ( !Core::load_realms() )

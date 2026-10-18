@@ -45,14 +45,14 @@
 #include "pol/extobj.h"
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
+#include "pol/item/armrtmpl.h"
+#include "pol/item/wepntmpl.h"
 #include "pol/multi/multidef.h"
 #include "pol/network/pktdef.h"
 #include "pol/proplist.h"
+#include "pol/regions/resource.h"
 #include "pol/syshookscript.h"
 #include "pol/uobject.h"
-#include "pol/item/armrtmpl.h"
-#include "pol/regions/resource.h"
-#include "pol/item/wepntmpl.h"
 
 
 namespace Pol::Items
@@ -679,9 +679,12 @@ ItemDesc::ItemDesc( Type type )
       lockable( false ),
       vendor_sells_for( 0 ),
       vendor_buys_for( 0 ),
-      decay_time( Core::settingsManager.ssopt.default_decay_time ),
+      // only gamestate's static ItemDescs use this constructor, before servspecopt.cfg is read;
+      // apply_ssopt_itemdesc_defaults() fills these in at the "init default itemdesc defaults"
+      // checkpoint and on every configuration reload
+      decay_time( 0 ),
       movable( DEFAULT ),
-      doubleclick_range( Core::settingsManager.ssopt.default_doubleclick_range ),
+      doubleclick_range( 0 ),
       use_requires_los( true ),
       ghosts_can_use( false ),
       can_use_while_paralyzed( false ),
@@ -1180,6 +1183,15 @@ const ItemDesc& find_itemdesc( unsigned int objtype )
   if ( obj != Core::gamestate.desctable.end() )
     return *( obj->second );
   return *( Core::gamestate.empty_itemdesc.get() );
+}
+
+void apply_ssopt_itemdesc_defaults()
+{
+  for ( auto* desc : { Core::gamestate.empty_itemdesc.get(), Core::gamestate.temp_itemdesc.get() } )
+  {
+    desc->doubleclick_range = Core::settingsManager.ssopt.default_doubleclick_range;
+    desc->decay_time = Core::settingsManager.ssopt.default_decay_time;
+  }
 }
 
 const ContainerDesc& find_container_desc( u32 objtype )

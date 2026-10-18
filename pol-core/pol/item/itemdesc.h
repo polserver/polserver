@@ -13,12 +13,12 @@
 
 #include "clib/boostutils.h"
 #include "clib/rawtypes.h"
+#include "pol/base/range.h"
+#include "pol/base/vector.h"
 #include "pol/dice.h"
 #include "pol/proplist.h"
 #include "pol/scrdef.h"
 #include "pol/uobject.h"
-#include "pol/base/range.h"
-#include "pol/base/vector.h"
 
 namespace Pol
 {
@@ -319,6 +319,8 @@ unsigned int get_objtype_from_string( const std::string& str );
 bool objtype_is_lockable( u32 objtype );
 
 void load_itemdesc( Clib::ConfigElem& elem );
+// Copies the servspecopt.cfg item defaults into the descriptors used for undefined objtypes.
+void apply_ssopt_itemdesc_defaults();
 
 const ItemDesc* CreateItemDescriptor( Bscript::BStruct* itemdesc_struct );
 }  // namespace Items
