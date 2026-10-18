@@ -25,7 +25,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 12
+            compiler-version: 14
             build-type: RelWithDebInfo
             cmake-cfg: ""
             tests: true
@@ -34,7 +34,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 16
+            compiler-version: 18
             build-type: RelWithDebInfo
             cmake-cfg: ""
             tests: true
@@ -53,7 +53,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: clang++
             c-compiler: clang
-            compiler-version: 16
+            compiler-version: 18
             build-type: Release
             cmake-cfg: "-DNO_PCH=1"
             tests: false
@@ -97,9 +97,10 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          if ($version -ne 'default') {
-            sudo apt-get install "$compiler-$version" -y
-          }
+          # The compiler version is preinstalled on ubuntu-latest. Uncomment for one the image lacks.
+          # if ($version -ne 'default') {
+          #   sudo apt-get install "$compiler-$version" -y
+          # }
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
           pip install aiosmtpd
