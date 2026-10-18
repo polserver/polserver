@@ -45,6 +45,6 @@ void ThisMemberAssignmentGatherer::visit_function_expression( FunctionExpression
     }
   }
 
-visit_children( node );
+  visit_children( node );
 }
 }  // namespace Pol::Bscript::Compiler

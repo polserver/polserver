@@ -41,21 +41,6 @@ enum class SemanticTokenType
   OPERATOR
 };
 
-class SemanticTokenType2
-{
-public:
-  enum Value : uint8_t
-  {
-    Apple,
-    Pear,
-    Banana,
-    Strawberry
-  };
-};
-
-// void foo() {
-//   // SemanticTokenType2::Apple;
-// }
 // FIXME: truncate list after identifying proper usages
 enum SemanticTokenModifier
 {

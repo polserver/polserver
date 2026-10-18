@@ -11,7 +11,7 @@ class SourceLocation;
 class ErrorReporter
 {
 public:
-  virtual ~ErrorReporter(){};
+  virtual ~ErrorReporter() {};
   virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
   virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
   virtual void report_debug( const SourceLocation&, const std::string& msg ) = 0;

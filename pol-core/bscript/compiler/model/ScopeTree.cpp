@@ -28,6 +28,8 @@ ScopeInfo::ScopeInfo( const SourceLocation& loc ) : location( loc ) {}
 
 ScopeTree::ScopeTree( CompilerWorkspace& workspace ) : workspace( workspace ) {}
 
+namespace
+{
 bool starts_with( const std::string& str, const std::string& prefix )
 {
   if ( prefix.size() > str.size() )
@@ -37,8 +39,10 @@ bool starts_with( const std::string& str, const std::string& prefix )
 
   // Perform case-insensitive comparison
   return std::equal( prefix.begin(), prefix.end(), str.begin(),
-                     []( char a, char b ) { return std::tolower( a ) == std::tolower( b ); } );
+                     []( unsigned char a, unsigned char b )
+                     { return std::tolower( a ) == std::tolower( b ); } );
 }
+}  // namespace
 
 void ScopeTree::push_scope( const SourceLocation& location )
 {
@@ -79,6 +83,8 @@ void ScopeTree::set_globals( std::vector<std::shared_ptr<Variable>> variables )
   }
 }
 
+namespace
+{
 // Callable returns true if the search should stop.
 template <typename Callable>
 void with_base_classes( ClassDeclaration* class_decl, Callable callable )
@@ -113,6 +119,7 @@ void with_base_classes( ClassDeclaration* class_decl, Callable callable )
     }
   }
 }
+}  // namespace
 
 UserFunction* ScopeTree::find_user_function( const ScopeTreeQuery& query ) const
 {
@@ -340,10 +347,9 @@ ConstDeclaration* ScopeTree::find_constant( std::string name ) const
 
 ClassDeclaration* ScopeTree::find_class( const std::string& name ) const
 {
-  auto class_itr =
-      std::find_if( workspace.class_declarations.begin(), workspace.class_declarations.end(),
-                    [&]( const auto& class_decl )
-                    { return Clib::caseInsensitiveEqual( class_decl->name, name ); } );
+  auto class_itr = std::find_if( workspace.class_declarations.begin(),
+                                 workspace.class_declarations.end(), [&]( const auto& class_decl )
+                                 { return Clib::caseInsensitiveEqual( class_decl->name, name ); } );
 
   if ( class_itr != workspace.class_declarations.end() )
   {
@@ -482,7 +488,8 @@ std::vector<std::string> ScopeTree::list_scopes( const ScopeTreeQuery& query ) c
                        {
                          auto user_function_itr = std::find_if(
                              workspace.user_functions.begin(), workspace.user_functions.end(),
-                             [&]( const auto& user_function ) {
+                             [&]( const auto& user_function )
+                             {
                                return Pol::Clib::caseInsensitiveEqual( user_function->scope,
                                                                        base_class->name );
                              } );

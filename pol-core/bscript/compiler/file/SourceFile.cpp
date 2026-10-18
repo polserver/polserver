@@ -8,10 +8,10 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
-#include "bscript/compilercfg.h"
 #include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/model/ScopeTree.h"
 #include "bscript/compiler/model/SemanticTokens.h"
+#include "bscript/compilercfg.h"
 #include "compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
 
