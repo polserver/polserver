@@ -10,9 +10,9 @@
 #include "bscript/compiler/representation/FunctionReferenceDescriptor.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
+#include "bscript/filefmt.h"
 #include "clib/clib.h"
 #include "clib/logfacility.h"
-#include "bscript/filefmt.h"
 
 namespace Pol::Bscript::Compiler
 {

@@ -4,9 +4,10 @@
 #include "bscript/compiler/representation/DebugStore.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
-#include "clib/strutil.h"
 #include "bscript/objmembers.h"
 #include "bscript/objmethods.h"
+#include "clib/clib_endian.h"
+#include "clib/strutil.h"
 #include <algorithm>
 #include <iterator>
 
@@ -20,28 +21,30 @@ StoredTokenDecoder::StoredTokenDecoder( const std::vector<ModuleDescriptor>& mod
 
 void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 {
+  // StoredToken is packed, so its offset member must not bind to a reference (fmt takes const&)
+  const unsigned short offset = tkn.offset;
   switch ( tkn.id )
   {
   case TOK_LONG:
-    fmt::format_to( std::back_inserter( w ), "{} (integer) offset={:#x}", integer_at( tkn.offset ),
-                    tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "{} (integer) offset={:#x}", integer_at( offset ),
+                    offset );
     break;
   case TOK_DOUBLE:
-    fmt::format_to( std::back_inserter( w ), "{} (float) offset={:#x}", double_at( tkn.offset ),
-                    tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "{} (float) offset={:#x}", double_at( offset ),
+                    offset );
     break;
   case TOK_STRING:
   {
-    auto s = string_at( tkn.offset );
+    auto s = string_at( offset );
     fmt::format_to( std::back_inserter( w ), "{} (string) len={} offset={:#x}",
-                    Clib::getencodedquotedstring( s ), s.length(), tkn.offset );
+                    Clib::getencodedquotedstring( s ), s.length(), offset );
     break;
   }
   case TOK_REGEXP:
     w += "create-regular-expression (TOK_REGEXP)";
     break;
   case TOK_BOOL:
-    fmt::format_to( std::back_inserter( w ), "{} (boolean)", static_cast<bool>( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "{} (boolean)", static_cast<bool>( offset ) );
     break;
   case TOK_ADD:
     w += "+";
@@ -147,7 +150,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case CTRL_STATEMENTBEGIN:
   {
-    const Pol::Bscript::DebugToken& debug_token = debug_token_at( tkn.offset );
+    const auto debug_token = debug_token_at( offset );
 
     fmt::format_to( std::back_inserter( w ), "CTRL_STATEMENTBEGIN sourceFile={} x={} y={}",
                     debug_token.sourceFile, debug_token.offset,
@@ -161,26 +164,26 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += "makelocal";
     break;
   case INS_CHECK_MRO:
-    fmt::format_to( std::back_inserter( w ), "check mro (this @ offset {})", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "check mro (this @ offset {})", offset );
     break;
   case CTRL_JSR_USERFUNC:
-    fmt::format_to( std::back_inserter( w ), "jsr userfunc @{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "jsr userfunc @{}", offset );
     break;
   case INS_POP_PARAM:
-    fmt::format_to( std::back_inserter( w ), "pop param '{}'", string_at( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "pop param '{}'", string_at( offset ) );
     break;
   case CTRL_LEAVE_BLOCK:
-    fmt::format_to( std::back_inserter( w ), "leave block (remove {} locals)", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "leave block (remove {} locals)", offset );
     break;
 
   case RSV_JMPIFFALSE:
-    fmt::format_to( std::back_inserter( w ), "if false goto {}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "if false goto {}", offset );
     break;
   case RSV_JMPIFTRUE:
-    fmt::format_to( std::back_inserter( w ), "if true goto {}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "if true goto {}", offset );
     break;
   case RSV_GOTO:
-    fmt::format_to( std::back_inserter( w ), "goto {}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "goto {}", offset );
     break;
   case RSV_RETURN:
     w += "return";
@@ -190,18 +193,18 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
 
   case RSV_LOCAL:
-    fmt::format_to( std::back_inserter( w ), "declare local #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "declare local #{}", offset );
     break;
   case RSV_GLOBAL:
-    fmt::format_to( std::back_inserter( w ), "declare global #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "declare global #{}", offset );
     break;
 
   case INS_TAKE_LOCAL:
-    fmt::format_to( std::back_inserter( w ), "take local #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "take local #{}", offset );
     break;
 
   case INS_TAKE_GLOBAL:
-    fmt::format_to( std::back_inserter( w ), "take global #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "take global #{}", offset );
     break;
 
   case INS_DECLARE_ARRAY:
@@ -236,46 +239,46 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
 
   case TOK_LOCALVAR:
-    fmt::format_to( std::back_inserter( w ), "local variable #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "local variable #{}", offset );
     break;
   case TOK_GLOBALVAR:
-    fmt::format_to( std::back_inserter( w ), "global variable #{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "global variable #{}", offset );
     break;
 
   case INS_INITFOREACH:
-    fmt::format_to( std::back_inserter( w ), "initforeach @{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "initforeach @{}", offset );
     break;
   case INS_STEPFOREACH:
-    fmt::format_to( std::back_inserter( w ), "stepforeach @{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "stepforeach @{}", offset );
     break;
   case INS_CASEJMP:
   {
     w += "casejmp";
-    decode_casejmp_table( w, tkn.offset );
+    decode_casejmp_table( w, offset );
     break;
   }
   case INS_GET_ARG:
-    fmt::format_to( std::back_inserter( w ), "get arg '{}'", string_at( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "get arg '{}'", string_at( offset ) );
     break;
   case TOK_ARRAY:
     w += "create-array (TOK_ARRAY)";
     break;
 
   case INS_CALL_METHOD:
-    fmt::format_to( std::back_inserter( w ), "call method '{}'", string_at( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "call method '{}'", string_at( offset ) );
     break;
 
   case TOK_DICTIONARY:
     w += "TOK_DICTIONARY";
     break;
   case INS_INITFOR:
-    fmt::format_to( std::back_inserter( w ), "initfor @{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "initfor @{}", offset );
     break;
   case INS_NEXTFOR:
-    fmt::format_to( std::back_inserter( w ), "nextfor @{}", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "nextfor @{}", offset );
     break;
   case INS_POP_PARAM_BYREF:
-    fmt::format_to( std::back_inserter( w ), "pop param byref '{}'", string_at( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "pop param byref '{}'", string_at( offset ) );
     break;
   case TOK_MODULUS:
     w += "modulus";
@@ -301,7 +304,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += "create empty struct";
     break;
   case TOK_CLASSINST:
-    fmt::format_to( std::back_inserter( w ), "create class instance (index={})", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "create class instance (index={})", offset );
     break;
   case INS_SUBSCRIPT_ASSIGN:
     w += "subscript assign";
@@ -310,37 +313,37 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     w += "subscript assign and consume";
     break;
   case INS_MULTISUBSCRIPT:
-    fmt::format_to( std::back_inserter( w ), "multi subscript get ({} indexes)", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "multi subscript get ({} indexes)", offset );
     break;
   case INS_MULTISUBSCRIPT_ASSIGN:
-    fmt::format_to( std::back_inserter( w ), "multi subscript assign ({} indexes)", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "multi subscript assign ({} indexes)", offset );
     break;
   case INS_ASSIGN_LOCALVAR:
-    fmt::format_to( std::back_inserter( w ), "local #{} :=", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "local #{} :=", offset );
     break;
   case INS_ASSIGN_GLOBALVAR:
-    fmt::format_to( std::back_inserter( w ), "global #{} :=", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "global #{} :=", offset );
     break;
 
   case INS_GET_MEMBER:
-    fmt::format_to( std::back_inserter( w ), "get-member {} (offset {})", string_at( tkn.offset ),
-                    tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "get-member {} (offset {})", string_at( offset ),
+                    offset );
     break;
   case INS_SET_MEMBER:
-    fmt::format_to( std::back_inserter( w ), "set-member {} (offset {})", string_at( tkn.offset ),
-                    tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "set-member {} (offset {})", string_at( offset ),
+                    offset );
     break;
   case INS_SET_MEMBER_CONSUME:
     fmt::format_to( std::back_inserter( w ), "set-member-consume {} (offset {})",
-                    string_at( tkn.offset ), tkn.offset );
+                    string_at( offset ), offset );
     break;
 
   case INS_ADDMEMBER2:
     fmt::format_to( std::back_inserter( w ), "add uninitialized member ({}) to struct",
-                    string_at( tkn.offset ) );
+                    string_at( offset ) );
     break;
   case INS_ADDMEMBER_ASSIGN:
-    fmt::format_to( std::back_inserter( w ), "add member ({}) to struct", string_at( tkn.offset ) );
+    fmt::format_to( std::back_inserter( w ), "add member ({}) to struct", string_at( offset ) );
     break;
   case INS_UNINIT:
     w += "push-uninit";
@@ -351,46 +354,46 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case INS_GET_MEMBER_ID:
     fmt::format_to( std::back_inserter( w ), "get-member-id '{}' ({})",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID:
     fmt::format_to( std::back_inserter( w ), "set-member-id '{}' ({})",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME:
     fmt::format_to( std::back_inserter( w ), "set-member-id-consume '{}' ({})",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_CALL_METHOD_ID:
     fmt::format_to( std::back_inserter( w ), "call-method-id '{}' (#{}, {} arguments)",
-                    getObjMethod( tkn.offset )->code, tkn.offset, tkn.type );
+                    getObjMethod( offset )->code, offset, tkn.type );
     break;
 
   case INS_SET_MEMBER_ID_CONSUME_PLUSEQUAL:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' ({}) += #",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME_MINUSEQUAL:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' ({}) -=#",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME_TIMESEQUAL:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' ({}) *= #",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME_DIVIDEEQUAL:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' ({}) /= #",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
   case INS_SET_MEMBER_ID_CONSUME_MODULUSEQUAL:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' ({}) %= #",
-                    getObjMember( tkn.offset )->code, tkn.offset );
+                    getObjMember( offset )->code, offset );
     break;
 
   case TOK_SPREAD:
   {
     fmt::format_to( std::back_inserter( w ), "{} (TOK_SPREAD)",
-                    tkn.offset ? "spread-into" : "create-spread" );
+                    offset ? "spread-into" : "create-spread" );
 
     break;
   }
@@ -399,13 +402,13 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
   {
     fmt::format_to( std::back_inserter( w ),
                     "create-functor index={} instructions={} (TOK_FUNCTOR)",
-                    static_cast<int>( tkn.type ), tkn.offset );
+                    static_cast<int>( tkn.type ), offset );
     break;
   }
 
   case TOK_FUNCREF:
   {
-    fmt::format_to( std::back_inserter( w ), "create-funcref index={} (TOK_FUNCREF)", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "create-funcref index={} (TOK_FUNCREF)", offset );
     break;
   }
 
@@ -423,28 +426,28 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
     break;
   case INS_SET_MEMBER_ID_UNPLUSPLUS:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' unary ++",
-                    getObjMember( tkn.offset )->code );
+                    getObjMember( offset )->code );
     break;
   case INS_SET_MEMBER_ID_UNMINUSMINUS:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' unary --",
-                    getObjMember( tkn.offset )->code );
+                    getObjMember( offset )->code );
     break;
   case INS_SET_MEMBER_ID_UNPLUSPLUS_POST:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' unary ++ post",
-                    getObjMember( tkn.offset )->code );
+                    getObjMember( offset )->code );
     break;
   case INS_SET_MEMBER_ID_UNMINUSMINUS_POST:
     fmt::format_to( std::back_inserter( w ), "set member id '{}' unary -- post",
-                    getObjMember( tkn.offset )->code );
+                    getObjMember( offset )->code );
     break;
   case INS_SKIPIFTRUE_ELSE_CONSUME:
     fmt::format_to( std::back_inserter( w ),
                     "peek at top of stack; skip {}"
                     " instructions if true, otherwise consume it",
-                    tkn.offset );
+                    offset );
     break;
   case TOK_INTERPOLATE_STRING:
-    fmt::format_to( std::back_inserter( w ), "interpolate string ({} parts)", tkn.offset );
+    fmt::format_to( std::back_inserter( w ), "interpolate string ({} parts)", offset );
     break;
   case TOK_FORMAT_EXPRESSION:
     w += "format expression";
@@ -452,23 +455,23 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   case INS_UNPACK_SEQUENCE:
   {
-    int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
+    int rest_index = offset > 0x7F ? ( ( offset >> 7 ) & 0x7F ) : -1;
     fmt::format_to( std::back_inserter( w ), "unpack sequence ({} elements, rest index {})",
-                    tkn.offset & 0x7F, rest_index );
+                    offset & 0x7F, rest_index );
     break;
   }
 
   case INS_UNPACK_INDICES:
   {
-    int rest_index = tkn.offset > 0x7F ? ( ( tkn.offset >> 7 ) & 0x7F ) : -1;
+    int rest_index = offset > 0x7F ? ( ( offset >> 7 ) & 0x7F ) : -1;
     fmt::format_to( std::back_inserter( w ), "unpack indices ({} elements, rest index {})",
-                    tkn.offset & 0x7F, rest_index );
+                    offset & 0x7F, rest_index );
     break;
   }
 
   case INS_LOGICAL_JUMP:
     fmt::format_to( std::back_inserter( w ), "logical jump if {} to {}",
-                    tkn.type != TYP_LOGICAL_JUMP_FALSE, tkn.offset );
+                    tkn.type != TYP_LOGICAL_JUMP_FALSE, offset );
     break;
   case INS_LOGICAL_CONVERT:
     w += "logical convert";
@@ -476,7 +479,7 @@ void StoredTokenDecoder::decode_to( const StoredToken& tkn, std::string& w )
 
   default:
     fmt::format_to( std::back_inserter( w ), "id={:#x} type={} offset={} module={}", tkn.id,
-                    tkn.type, tkn.offset, tkn.module );
+                    tkn.type, offset, tkn.module );
   }
 }
 
@@ -486,7 +489,7 @@ double StoredTokenDecoder::double_at( unsigned offset ) const
     throw std::runtime_error( "data overflow reading double at offset " + std::to_string( offset ) +
                               ".  Data size is " + std::to_string( data.size() ) );
 
-  return *reinterpret_cast<const double*>( &data[offset] );
+  return Clib::load_unaligned<double>( &data[offset] );
 }
 
 int StoredTokenDecoder::integer_at( unsigned offset ) const
@@ -496,7 +499,7 @@ int StoredTokenDecoder::integer_at( unsigned offset ) const
                               std::to_string( offset ) + ".  Data size is " +
                               std::to_string( data.size() ) );
 
-  return *reinterpret_cast<const int*>( &data[offset] );
+  return Clib::load_unaligned<int>( &data[offset] );
 }
 
 uint16_t StoredTokenDecoder::uint16_t_at( unsigned offset ) const
@@ -506,7 +509,7 @@ uint16_t StoredTokenDecoder::uint16_t_at( unsigned offset ) const
                               std::to_string( offset ) + ".  Data size is " +
                               std::to_string( data.size() ) );
 
-  return *reinterpret_cast<const uint16_t*>( &data[offset] );
+  return Clib::load_unaligned<uint16_t>( &data[offset] );
 }
 
 std::string StoredTokenDecoder::string_at( unsigned offset ) const
@@ -527,14 +530,14 @@ std::string StoredTokenDecoder::string_at( unsigned offset ) const
   return std::string( s_begin, s_end );
 }
 
-const Pol::Bscript::DebugToken& StoredTokenDecoder::debug_token_at( unsigned offset ) const
+Pol::Bscript::DebugToken StoredTokenDecoder::debug_token_at( unsigned offset ) const
 {
   if ( offset > data.size() - sizeof( Pol::Bscript::DebugToken ) )
     throw std::runtime_error( "data overflow reading DebugToken at offset " +
                               std::to_string( offset ) + ".  Data size is " +
                               std::to_string( data.size() ) );
 
-  return *reinterpret_cast<const Pol::Bscript::DebugToken*>( &data[offset] );
+  return Clib::load_unaligned<Pol::Bscript::DebugToken>( &data[offset] );
 }
 
 void StoredTokenDecoder::decode_casejmp_table( std::string& w, unsigned offset ) const
