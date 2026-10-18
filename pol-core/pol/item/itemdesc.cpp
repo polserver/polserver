@@ -738,7 +738,8 @@ ItemDesc::ItemDesc( Type type )
       max_attack_range_increase_mod( 0 ),
       damage_increase( 0 ),
       damage_increase_mod( 0 ),
-      props( Core::CPropProfiler::Type::ITEM ),
+      // force skips reading Plib::systemstate, which may not be constructed yet
+      props( Core::CPropProfiler::Type::ITEM, /* force */ true ),
       method_script( nullptr ),
       save_on_exit( true )
 {
