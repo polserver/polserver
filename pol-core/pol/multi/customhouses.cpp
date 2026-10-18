@@ -1064,7 +1064,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
     {
       Core::networkManager.clientTransmit->AddToQueue(
           client, &house->CurrentCompressed[0],
-          ctBEu16( *( reinterpret_cast<u16*>( &house->CurrentCompressed[1] ) ) ) );
+          cfBEu16( Clib::load_unaligned<u16>( &house->CurrentCompressed[1] ) ) );
       return;
     }
     break;
@@ -1078,7 +1078,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
     {
       Core::networkManager.clientTransmit->AddToQueue(
           client, &house->WorkingCompressed[0],
-          ctBEu16( *( reinterpret_cast<u16*>( &house->WorkingCompressed[1] ) ) ) );
+          cfBEu16( Clib::load_unaligned<u16>( &house->WorkingCompressed[1] ) ) );
       return;
     }
     break;
@@ -1137,8 +1137,7 @@ void CustomHousesSendFull( UHouse* house, Network::Client* client, int design )
                         house->serial );
         return;
       }
-      u32* p_planeheader = reinterpret_cast<u32*>( &( packet[buffer_len + data_offset] ) );
-      *p_planeheader = ctBEu32( planeheader );
+      Clib::store_unaligned<u32>( &packet[buffer_len + data_offset], ctBEu32( planeheader ) );
       buffer_len += 4;
       memcpy( &( packet[buffer_len + data_offset] ), data.data.get(), clen );
       buffer_len += clen;

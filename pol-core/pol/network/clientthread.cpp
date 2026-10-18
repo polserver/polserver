@@ -533,9 +533,10 @@ bool process_data( Network::ThreadedClient* session )
 
     if ( session->bytes_received == sizeof( pp_header_v2 ) )
     {
-      pp_header_v2* pp_header = reinterpret_cast<pp_header_v2*>( &session->buffer );
+      // The receive buffer has no alignment, so the header is read into a copy
+      auto pp_header = Clib::load_unaligned<pp_header_v2>( session->buffer );
 
-      if ( !pp_header->is_valid() )
+      if ( !pp_header.is_valid() )
       {
         POLLOGLN( "Client#{} ({}): disconnected due to invalid proxy header",
                   session->myClient.instance_, session->ipaddrAsString() );
@@ -550,17 +551,17 @@ bool process_data( Network::ThreadedClient* session )
       // what the buffer holds, not just the largest address block.
       static_assert( sizeof( pp_header_v2 ) + sizeof( pp_payload_v2 ) <=
                      sizeof( Network::ThreadedClient::buffer ) );
-      if ( pp_header->payload_size() > sizeof( session->buffer ) - sizeof( pp_header_v2 ) )
+      if ( pp_header.payload_size() > sizeof( session->buffer ) - sizeof( pp_header_v2 ) )
       {
         POLLOGLN( "Client#{} ({}): disconnected due to oversized proxy header ({} bytes)",
                   session->myClient.instance_, session->ipaddrAsString(),
-                  pp_header->payload_size() );
+                  pp_header.payload_size() );
 
         session->forceDisconnect();
         return false;
       }
 
-      if ( pp_header->command() == PP_CMD_LOCAL && pp_header->payload_size() == 0 )
+      if ( pp_header.command() == PP_CMD_LOCAL && pp_header.payload_size() == 0 )
       {
         // for local command with zero payload there is nothing else to read => continue with the
         // stream
@@ -578,51 +579,50 @@ bool process_data( Network::ThreadedClient* session )
 
   if ( session->recv_state == Network::ThreadedClient::RECV_STATE_PROXYPROTOCOLPAYLOAD_WAIT )
   {
-    pp_header_v2* pp_header = reinterpret_cast<pp_header_v2*>( &session->buffer );
-    session->recv_remaining_nocrypt( sizeof( pp_header_v2 ) + pp_header->payload_size() );
+    auto pp_header = Clib::load_unaligned<pp_header_v2>( session->buffer );
+    session->recv_remaining_nocrypt( sizeof( pp_header_v2 ) + pp_header.payload_size() );
 
-    if ( session->bytes_received == sizeof( pp_header_v2 ) + pp_header->payload_size() )
+    if ( session->bytes_received == sizeof( pp_header_v2 ) + pp_header.payload_size() )
     {
-      pp_payload_v2* pp_payload =
-          reinterpret_cast<pp_payload_v2*>( &session->buffer[sizeof( pp_header_v2 )] );
+      auto pp_payload =
+          Clib::load_unaligned<pp_payload_v2>( &session->buffer[sizeof( pp_header_v2 )] );
 
-      if ( pp_header->command() == PP_CMD_LOCAL )
+      if ( pp_header.command() == PP_CMD_LOCAL )
       {
         // local commands shouldn't have payload, but in case they do it should be skipped
         session->recv_state = Network::ThreadedClient::RECV_STATE_CRYPTSEED_WAIT;
         return true;
       }
 
-      if ( pp_header->command() == PP_CMD_PROXY && pp_header->protocol() == PP_TP_STREAM )
+      if ( pp_header.command() == PP_CMD_PROXY && pp_header.protocol() == PP_TP_STREAM )
       {
         bool was_proxied = false;
 
-        if ( pp_header->address_family() == PP_AF_INET &&
-             pp_header->payload_size() >= sizeof( pp_payload->ipv4_addr ) )
+        if ( pp_header.address_family() == PP_AF_INET &&
+             pp_header.payload_size() >= sizeof( pp_payload.ipv4_addr ) )
         {
-          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof( session->ipaddr_proxy ) );
-          memset( &session->ipaddr, 0, sizeof( session->ipaddr ) );
+          session->ipaddr_proxy = session->ipaddr;
+          session->ipaddr = {};
 
           auto ipaddr_in = reinterpret_cast<sockaddr_in*>( &session->ipaddr );
           ipaddr_in->sin_family = AF_INET;
-          ipaddr_in->sin_port = pp_payload->ipv4_addr.src_port;
-          memcpy( &ipaddr_in->sin_addr, &pp_payload->ipv4_addr.src_addr,
-                  sizeof( ipaddr_in->sin_addr ) );
+          ipaddr_in->sin_port = pp_payload.ipv4_addr.src_port;
+          ipaddr_in->sin_addr.s_addr = pp_payload.ipv4_addr.src_addr;  // both in network order
 
           was_proxied = true;
         }
 
         /* IPv6 isn't supported
-        if ( pp_header->address_family() == PP_AF_INET6 &&
-             pp_header->payload_size() >= sizeof( pp_payload->ipv6_addr ) )
+        if ( pp_header.address_family() == PP_AF_INET6 &&
+             pp_header.payload_size() >= sizeof( pp_payload.ipv6_addr ) )
         {
-          memcpy( &session->ipaddr_proxy, &session->ipaddr, sizeof( session->ipaddr_proxy ) );
-          memset( &session->ipaddr, 0, sizeof( session->ipaddr ) );
+          session->ipaddr_proxy = session->ipaddr;
+          session->ipaddr = {};
 
           auto ipaddr_in6 = reinterpret_cast<sockaddr_in6*>( &session->ipaddr );
           ipaddr_in6->sin6_family = AF_INET6;
-          ipaddr_in6->sin6_port = pp_payload->ipv6_addr.src_port;
-          memcpy( &ipaddr_in6->sin6_addr, &pp_payload->ipv6_addr.src_addr,
+          ipaddr_in6->sin6_port = pp_payload.ipv6_addr.src_port;
+          memcpy( &ipaddr_in6->sin6_addr, &pp_payload.ipv6_addr.src_addr,
                   sizeof(ipaddr_in6->sin6_addr) );
 
           was_proxied = true;

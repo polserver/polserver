@@ -392,9 +392,9 @@ u16 Get12BitNumber( u8* thearray, u16 theindex )
   int thenibble = theindex * 3;
   int thebyte = thenibble / 2;
   if ( thenibble % 2 )
-    theresult = cfBEu16( *( (u16*)( thearray + thebyte ) ) ) & 0x0FFF;
+    theresult = cfBEu16( Clib::load_unaligned<u16>( thearray + thebyte ) ) & 0x0FFF;
   else
-    theresult = cfBEu16( *( (u16*)( thearray + thebyte ) ) ) >> 4;
+    theresult = cfBEu16( Clib::load_unaligned<u16>( thearray + thebyte ) ) >> 4;
   return theresult;
 }
 
