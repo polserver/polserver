@@ -212,6 +212,21 @@ void test_login_crypt()
   T_LOGIN_ROUNDTRIP( Decrypt_1_25_36 );
 #undef T_LOGIN_ROUNDTRIP
 
+  // A round trip cannot see a changed keystream, so pin the bytes the 1.25.36 client expects.
+  // Its key update shifts by counts of 32 and more, which the client's CPU takes mod 32.
+  UnitTest(
+      [&]()
+      {
+        std::vector<u8> out( data.size() );
+        LoginCrypt crypt;
+        crypt.Init( client_seed, key1_200, key2_200 );
+        crypt.Decrypt_1_25_36( data.data(), out.data(), (int)out.size() );
+        return hex( out.data(), out.size() );
+      },
+      std::string(
+          "a8844bf685a8375ae1cc93be4dd0ff0229f4db66151887ca713c632edd404fb2b964ab166588177a" ),
+      "LoginCrypt::Decrypt_1_25_36 keystream" );
+
   // The three variants advance the key differently, so they must not agree.
   UnitTest(
       [&]()

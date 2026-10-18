@@ -72,9 +72,10 @@ void LoginCrypt::Decrypt_1_25_36( unsigned char* in, unsigned char* out, int len
     table[0] = lkey[0];
     table[1] = lkey[1];
 
-    lkey[1] = ( m_k1 >> ( ( 5 * table[1] * table[1] ) & 0xff ) ) + ( table[1] * m_k1 ) +
+    // The client's x86 shift takes its count mod 32; a count of 32 or more is undefined in C++
+    lkey[1] = ( m_k1 >> ( ( 5 * table[1] * table[1] ) & 0x1f ) ) + ( table[1] * m_k1 ) +
               ( table[0] * table[0] * 0x35ce9581 ) + 0x07afcc37;
-    lkey[0] = ( m_k2 >> ( ( 3 * table[0] * table[0] ) & 0xff ) ) + ( table[0] * m_k2 ) -
+    lkey[0] = ( m_k2 >> ( ( 3 * table[0] * table[0] ) & 0x1f ) ) + ( table[0] * m_k2 ) -
               ( lkey[1] * lkey[1] * 0x4c3a1353 ) + 0x16ef783f;
   }
 }

@@ -14,8 +14,9 @@
 
 namespace Pol::Crypt
 {
-// Encryption Types
-enum ECryptType
+// Encryption Types. Fixed underlying type so an unknown value is defined and reaches the
+// fallback in create_crypt_engine().
+enum ECryptType : int
 {
   CRYPT_NOCRYPT = 0,  //- no encryption
   CRYPT_OLD_BLOWFISH = 1,

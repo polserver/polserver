@@ -118,7 +118,7 @@ PacketsSingleton::PacketsSingleton()
   packets.insert( PacketQueuePair( PKTOUT_DF_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_E2_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_E3_ID, new PacketQueueSingle() ) );
-  packets.insert( PacketQueuePair( PKTBI_F0_ID, new PacketQueueSingle() ) );
+  packets.insert( PacketQueuePair( PKTBI_F0_ID, new PacketQueueSubs() ) );
   packets.insert( PacketQueuePair( PKTOUT_F3_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F5_ID, new PacketQueueSingle() ) );
   packets.insert( PacketQueuePair( PKTOUT_F6_ID, new PacketQueueSingle() ) );
