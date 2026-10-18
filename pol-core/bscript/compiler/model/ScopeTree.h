@@ -59,13 +59,13 @@ public:
   void push_scope( const SourceLocation& );
   void pop_scope( std::vector<std::shared_ptr<Variable>> variables );
   void set_globals( std::vector<std::shared_ptr<Variable>> variables );
-  std::shared_ptr<Variable> find_variable( std::string name, const Position& ) const;
+  std::shared_ptr<Variable> find_variable( const std::string& name, const Position& ) const;
   // Data is owned by CompilerWorkspace
   UserFunction* find_user_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
   ModuleFunctionDeclaration* find_module_function( const ScopeTreeQuery& query ) const;
   // Data is owned by CompilerWorkspace
-  ConstDeclaration* find_constant( std::string name ) const;
+  ConstDeclaration* find_constant( const std::string& name ) const;
   ClassDeclaration* find_class( const std::string& name ) const;
   MemberAssignment* find_class_member( const ScopeTreeQuery& query ) const;
   UserFunction* find_class_method( const ScopeTreeQuery& query ) const;

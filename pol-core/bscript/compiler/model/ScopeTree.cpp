@@ -18,6 +18,7 @@
 #include "clib/maputil.h"
 #include "clib/strutil.h"
 #include <algorithm>
+#include <deque>
 #include <memory>
 #include <set>
 #include <utility>
@@ -92,8 +93,8 @@ void with_base_classes( ClassDeclaration* class_decl, Callable callable )
   if ( !class_decl )
     return;
 
-  std::list<std::shared_ptr<ClassLink>> to_visit( class_decl->base_class_links.begin(),
-                                                  class_decl->base_class_links.end() );
+  std::deque<std::shared_ptr<ClassLink>> to_visit( class_decl->base_class_links.begin(),
+                                                   class_decl->base_class_links.end() );
   std::set<ClassDeclaration*> visited;
   while ( !to_visit.empty() )
   {
@@ -102,12 +103,8 @@ void with_base_classes( ClassDeclaration* class_decl, Callable callable )
 
     if ( auto base_class = base_class_link->class_declaration() )
     {
-      if ( visited.find( base_class ) != visited.end() )
-      {
+      if ( !visited.insert( base_class ).second )
         continue;
-      }
-
-      visited.insert( base_class );
 
       if ( callable( base_class ) )
       {
@@ -132,8 +129,8 @@ UserFunction* ScopeTree::find_user_function( const ScopeTreeQuery& query ) const
         class_decl,
         [&]( ClassDeclaration* base_class ) -> bool
         {
-          auto user_function_itr = std::find_if(
-              workspace.user_functions.begin(), workspace.user_functions.end(),
+          auto user_function_itr = std::ranges::find_if(
+              workspace.user_functions,
               [&]( const auto& user_function )
               {
                 return Clib::caseInsensitiveEqual( user_function->name, query.prefix ) &&
@@ -297,7 +294,7 @@ std::vector<ModuleFunctionDeclaration*> ScopeTree::list_module_functions(
   return results;
 }
 
-std::shared_ptr<Variable> ScopeTree::find_variable( std::string name,
+std::shared_ptr<Variable> ScopeTree::find_variable( const std::string& name,
                                                     const Position& position ) const
 {
   auto variable = scopes[0]->walk( name, position );
@@ -324,32 +321,29 @@ std::vector<std::shared_ptr<Variable>> ScopeTree::list_variables( const ScopeTre
                                               : std::vector<std::shared_ptr<Variable>>();
 
   // TODO BUG: Global variables are returned outside of the `position` context.
-  std::for_each(
-      globals.begin(), globals.end(),
-      [&]( const auto& p )
-      {
-        auto scoped_name = p.second->scoped_name();
-        if ( Clib::caseInsensitiveEqual( query.prefix_scope.string(),
-                                         scoped_name.scope.string() ) ||
-             ( !query.calling_scope.empty() &&
-               Clib::caseInsensitiveEqual( query.calling_scope, scoped_name.scope.string() ) ) )
-        {
-          variables.push_back( p.second );
-        }
-      } );
+  for ( const auto& [name, variable] : globals )
+  {
+    auto scoped_name = variable->scoped_name();
+    if ( Clib::caseInsensitiveEqual( query.prefix_scope.string(), scoped_name.scope.string() ) ||
+         ( !query.calling_scope.empty() &&
+           Clib::caseInsensitiveEqual( query.calling_scope, scoped_name.scope.string() ) ) )
+    {
+      variables.push_back( variable );
+    }
+  }
   return variables;
 }
 
-ConstDeclaration* ScopeTree::find_constant( std::string name ) const
+ConstDeclaration* ScopeTree::find_constant( const std::string& name ) const
 {
   return workspace.constants.find( name );
 }
 
 ClassDeclaration* ScopeTree::find_class( const std::string& name ) const
 {
-  auto class_itr = std::find_if( workspace.class_declarations.begin(),
-                                 workspace.class_declarations.end(), [&]( const auto& class_decl )
-                                 { return Clib::caseInsensitiveEqual( class_decl->name, name ); } );
+  auto class_itr =
+      std::ranges::find_if( workspace.class_declarations, [&]( const auto& class_decl )
+                            { return Clib::caseInsensitiveEqual( class_decl->name, name ); } );
 
   if ( class_itr != workspace.class_declarations.end() )
   {
@@ -486,13 +480,13 @@ std::vector<std::string> ScopeTree::list_scopes( const ScopeTreeQuery& query ) c
     with_base_classes( class_decl,
                        [&]( ClassDeclaration* base_class ) -> bool
                        {
-                         auto user_function_itr = std::find_if(
-                             workspace.user_functions.begin(), workspace.user_functions.end(),
-                             [&]( const auto& user_function )
-                             {
-                               return Pol::Clib::caseInsensitiveEqual( user_function->scope,
-                                                                       base_class->name );
-                             } );
+                         auto user_function_itr =
+                             std::ranges::find_if( workspace.user_functions,
+                                                   [&]( const auto& user_function )
+                                                   {
+                                                     return Pol::Clib::caseInsensitiveEqual(
+                                                         user_function->scope, base_class->name );
+                                                   } );
 
                          if ( user_function_itr != workspace.user_functions.end() )
                          {
@@ -525,9 +519,9 @@ std::vector<std::string> ScopeTree::list_modules( const ScopeTreeQuery& query ) 
     if ( starts_with( ident->pathname, module_path ) )
     {
       // Check if ident->pathname ends with ".em":
-      bool ends_with = ident->pathname.size() >= 3 &&
-                       Clib::caseInsensitiveEqual(
-                           std::string( ident->pathname.end() - 3, ident->pathname.end() ), ".em" );
+      bool ends_with =
+          ident->pathname.size() >= 3 &&
+          Clib::caseInsensitiveEqual( ident->pathname.substr( ident->pathname.size() - 3 ), ".em" );
 
       if ( ends_with )
       {
@@ -570,7 +564,7 @@ std::vector<MemberAssignment*> ScopeTree::list_class_members( const ScopeTreeQue
         for ( auto* assignment : gatherer.assignments )
         {
           if ( starts_with( assignment->name, query.prefix ) &&
-               added_names.find( assignment->name ) == added_names.end() )
+               !added_names.contains( assignment->name ) )
           {
             results.push_back( assignment );
             added_names.emplace( assignment->name );
@@ -605,7 +599,7 @@ std::vector<UserFunction*> ScopeTree::list_class_methods( const ScopeTreeQuery& 
       if ( auto user_function = function_link->user_function() )
       {
         if ( starts_with( user_function->name, query.prefix ) &&
-             added_names.find( user_function->name ) == added_names.end() )
+             !added_names.contains( user_function->name ) )
         {
           results.push_back( user_function );
           added_names.emplace( user_function->name );
@@ -635,14 +629,11 @@ std::shared_ptr<Variable> ScopeInfo::resolve( const std::string& name ) const
 std::vector<std::shared_ptr<Variable>> ScopeInfo::resolve_list( const std::string& prefix ) const
 {
   std::vector<std::shared_ptr<Variable>> results;
-  std::for_each( variables.begin(), variables.end(),
-                 [&]( const auto& p )
-                 {
-                   if ( p.first.rfind( prefix, 0 ) == 0 )
-                   {
-                     results.push_back( p.second );
-                   }
-                 } );
+  for ( const auto& [name, variable] : variables )
+  {
+    if ( name.starts_with( prefix ) )
+      results.push_back( variable );
+  }
 
   return results;
 }

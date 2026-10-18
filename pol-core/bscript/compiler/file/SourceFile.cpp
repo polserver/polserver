@@ -228,15 +228,7 @@ SemanticTokens SourceFile::get_tokens()
   SemanticTokens tokens;
 
   for ( auto* lexer_token : token_stream.getTokens() )
-  {
-    auto semantic_token = SemanticToken::from_lexer_token( *lexer_token );
-    if ( semantic_token )
-    {
-      auto& t = *semantic_token;
-      tokens.insert( tokens.end(), std::make_move_iterator( t.begin() ),
-                     std::make_move_iterator( t.end() ) );
-    }
-  }
+    SemanticToken::append_from_lexer_token( *lexer_token, tokens );
   return tokens;
 }
 

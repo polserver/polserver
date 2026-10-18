@@ -18,14 +18,11 @@ ConstDeclaration* Constants::find( const std::string& name ) const
 std::vector<ConstDeclaration*> Constants::list( const std::string& prefix ) const
 {
   std::vector<ConstDeclaration*> results;
-  std::for_each( constants.begin(), constants.end(),
-                 [&]( const auto& p )
-                 {
-                   if ( p.first.rfind( prefix, 0 ) == 0 )
-                   {
-                     results.push_back( p.second );
-                   }
-                 } );
+  for ( const auto& [name, constant] : constants )
+  {
+    if ( name.starts_with( prefix ) )
+      results.push_back( constant );
+  }
   return results;
 }
 

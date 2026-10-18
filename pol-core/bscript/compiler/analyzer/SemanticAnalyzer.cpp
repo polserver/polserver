@@ -816,7 +816,7 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
     return;
   }
 
-  auto parameters = *params;
+  const auto& parameters = *params;
 
   bool has_class_inst_parameter = false;
 

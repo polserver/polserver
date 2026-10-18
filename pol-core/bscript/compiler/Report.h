@@ -11,7 +11,7 @@ class SourceLocation;
 class ErrorReporter
 {
 public:
-  virtual ~ErrorReporter() {};
+  virtual ~ErrorReporter() = default;
   virtual void report_error( const SourceLocation&, const std::string& msg ) = 0;
   virtual void report_warning( const SourceLocation&, const std::string& msg ) = 0;
   virtual void report_debug( const SourceLocation&, const std::string& msg ) = 0;
@@ -47,7 +47,7 @@ struct Diagnostic
 class DiagnosticReporter : public ErrorReporter
 {
 public:
-  explicit DiagnosticReporter() = default;
+  DiagnosticReporter() = default;
   DiagnosticReporter( const DiagnosticReporter& ) = delete;
   DiagnosticReporter& operator=( const DiagnosticReporter& ) = delete;
   void report_error( const SourceLocation&, const std::string& ) override;
