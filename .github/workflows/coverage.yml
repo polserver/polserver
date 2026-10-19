@@ -15,7 +15,7 @@ jobs:
           - os: "ubuntu-latest"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 12
+            compiler-version: 14
             build-type: RelWithDebInfo
     runs-on: ${{ matrix.config.os }}
 
@@ -51,9 +51,10 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          if ($version -ne 'default') {
-            sudo apt-get install "$compiler-$version" -y
-          }
+          # The compiler version is preinstalled on ubuntu-latest. Uncomment for one the image lacks.
+          # if ($version -ne 'default') {
+          #   sudo apt-get install "$compiler-$version" -y
+          # }
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
           sudo apt-get install lcov -y
