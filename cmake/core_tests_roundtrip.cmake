@@ -8,7 +8,8 @@
 # to it. Each execute_process takes exactly one COMMAND: several COMMANDs in one call is a
 # pipeline, not a sequence.
 
-find_package(Python3 COMPONENTS Interpreter REQUIRED QUIET)
+# The interpreter configure found. A find_package in script mode can find a different one.
+set(Python3_EXECUTABLE "${python}")
 
 execute_process(
   COMMAND ${CMAKE_COMMAND} -E rm -rf data_before

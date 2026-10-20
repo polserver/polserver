@@ -5,6 +5,7 @@
 #include <EscriptGrammar/EscriptLexer.h>
 
 #include <algorithm>
+#include <optional>
 #include <utility>
 
 // #define DEBUG_FORMAT_BREAK

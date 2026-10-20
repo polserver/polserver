@@ -10,6 +10,7 @@
 #include "clib/clib_MD5.h"
 
 #include <fmt/format.h>
+#include <iterator>
 
 #include "clib/stlutil.h"
 
