@@ -212,6 +212,7 @@ if (${Python3_FOUND})
       -Dpol=$<TARGET_FILE:pol>
       -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
       -Dtestemail=${HAS_AIOSMTPD}
+      -Dpython=${Python3_EXECUTABLE}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_start.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
@@ -219,6 +220,7 @@ if (${Python3_FOUND})
     COMMAND ${CMAKE_COMMAND}
       -Decompile=$<TARGET_FILE:ecompile>
       -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -Dpython=${Python3_EXECUTABLE}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_ecompile_watch.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
     )
@@ -272,6 +274,7 @@ if (${Python3_FOUND})
     COMMAND ${CMAKE_COMMAND}
       -Dpol=$<TARGET_FILE:pol>
       -Dtestdir=${CMAKE_CURRENT_SOURCE_DIR}/testsuite
+      -Dpython=${Python3_EXECUTABLE}
       -P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/core_tests_roundtrip.cmake
     WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/coretest
   )
