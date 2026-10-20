@@ -3,11 +3,8 @@
 #include "bscript/tokens.h"
 
 #include "bscript/compiler/ast/BinaryOperator.h"
-#include "bscript/compiler/ast/ElementAssignment.h"
-#include "bscript/compiler/ast/ElementIndexes.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/MemberAccess.h"
-#include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"
 #include "bscript/compiler/ast/ValueConsumer.h"
 #include "bscript/compiler/ast/VariableAssignmentStatement.h"

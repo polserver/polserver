@@ -31,11 +31,13 @@
 #define H_UOMOD_H
 
 #include "clib/rawtypes.h"
-#include "plib/poltype.h"
 #include "pol/base/range.h"
-#include "pol/network/packethelper.h"
 #include "pol/polmodl.h"
 #include "pol/reftypes.h"
+#include <cstddef>
+#include <string>
+#include <utility>
+#include <vector>
 
 
 namespace Pol::Bscript
@@ -345,14 +347,6 @@ protected:
   static Core::Range3d internal_InBoxAreaChecks( const Core::Pos2d& p1, int z1,
                                                  const Core::Pos2d& p2, int z2,
                                                  Realms::Realm* realm );
-
-private:
-  static std::string buildUnCompressedGumpMenu(
-      Network::PktHelper::PacketOut<Network::PktOut_B0>& msg, Bscript::ObjArray* layout_arr,
-      Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
-  static std::string buildCompressedGumpMenu(
-      Network::PktHelper::PacketOut<Network::PktOut_DD>& msg, Bscript::ObjArray* layout_arr,
-      Bscript::ObjArray* data_arr, int x, int y, u32 gumpid );
 };
 }  // namespace Module
 }  // namespace Pol

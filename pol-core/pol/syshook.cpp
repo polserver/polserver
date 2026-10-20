@@ -9,7 +9,6 @@
 
 #include <stddef.h>
 #include <string>
-#include <tuple>
 
 #include "bscript/bobject.h"
 #include "bscript/executor.h"
@@ -20,14 +19,12 @@
 #include "clib/strutil.h"
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
-#include "pol/accounts/account.h"
 #include "pol/accounts/acscrobj.h"
 #include "pol/globals/uvars.h"
 #include "pol/guildscrobj.h"
 #include "pol/module/guildmod.h"
 #include "pol/module/partymod.h"
 #include "pol/partyscrobj.h"
-#include "pol/polclass.h"
 #include "pol/scrdef.h"
 #include "pol/syshookscript.h"
 #include "pol/uobject.h"

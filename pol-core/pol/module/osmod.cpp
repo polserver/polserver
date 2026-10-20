@@ -56,6 +56,7 @@
 #endif
 #include <ctime>
 #include <curl/curl.h>
+#include <fmt/chrono.h>
 #include <memory>
 #include <stdlib.h>
 #include <string.h>

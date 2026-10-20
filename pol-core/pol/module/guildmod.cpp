@@ -18,8 +18,6 @@
 #include "bscript/executor.h"
 #include "bscript/objmembers.h"
 #include "bscript/objmethods.h"
-#include "clib/rawtypes.h"
-#include "clib/stlutil.h"
 
 #include "pol/fnsearch.h"
 #include "pol/globals/uvars.h"

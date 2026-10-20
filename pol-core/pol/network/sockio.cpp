@@ -12,7 +12,6 @@
 struct utsname my_utsname;
 #endif
 
-#include <cstdio>
 #include <cstring>
 #include <string>
 
@@ -21,7 +20,6 @@ struct utsname my_utsname;
 #include "clib/network/resolve.h"
 #include "clib/network/sockets.h"
 #include "clib/network/wnsckt.h"
-#include "clib/strutil.h"
 #include "pol/globals/network.h"
 
 

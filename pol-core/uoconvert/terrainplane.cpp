@@ -3,7 +3,6 @@
 #include <cstddef>
 #include <cstdlib>
 
-#include "plib/clidata.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/ustruct.h"
 #include "uoconvert/parallel.h"
@@ -58,10 +57,9 @@ void TerrainPlane::build( const Plib::UoClientFiles& uof, int w, int h, bool nee
           // for water, don't average with surrounding tiles -- use the raw cell z. This lands
           // in eff_z only; avg_z stays the plain average because get_lowestadjacentz reads
           // neighbors' *un-overridden* averages.
-          eff_z[i] =
-              ( uof.landtile_uoflags_read( landtile[i] ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
-                  ? raw_z[i]
-                  : avg;
+          eff_z[i] = ( uof.landtile_uoflags_read( landtile[i] ) & Plib::USTRUCT_TILE::FLAG_LIQUID )
+                         ? raw_z[i]
+                         : avg;
         }
       },
       threads );

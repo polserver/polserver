@@ -11,18 +11,12 @@
 #include <cerrno>
 #include <exception>
 #include <filesystem>
-#include <fstream>
 
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"
-#include "clib/clib_endian.h"
 #include "clib/esignal.h"
-#include "clib/fileutil.h"
-#include "clib/iohelp.h"
 #include "clib/logfacility.h"
-#include "clib/rawtypes.h"
 #include "clib/streamsaver.h"
-#include "clib/strutil.h"
 #include "clib/timer.h"
 #include "plib/systemstate.h"
 #include "pol/accounts/accounts.h"
@@ -36,7 +30,6 @@
 #include "pol/multi/house.h"
 #include "pol/multi/multi.h"
 #include "pol/objecthash.h"
-#include "pol/polsem.h"
 #include "pol/realms/realm.h"
 #include "pol/regions/resource.h"
 #include "pol/saveparallel.h"

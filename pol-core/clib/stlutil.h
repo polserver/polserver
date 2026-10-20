@@ -10,16 +10,18 @@
 
 #pragma once
 
+#include <algorithm>
 #include <cstring>
 #include <deque>
 #include <list>
 #include <map>
 #include <queue>
 #include <set>
-#include <sstream>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
 namespace Pol::Clib

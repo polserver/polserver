@@ -16,7 +16,6 @@
 #include "clib/cfgfile.h"
 #include "clib/fileutil.h"
 #include "clib/stlutil.h"
-#include "plib/poltype.h"
 
 #include "pol/base/range.h"
 #include "pol/globals/uvars.h"

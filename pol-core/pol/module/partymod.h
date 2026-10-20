@@ -7,7 +7,7 @@
 #ifndef PARTYMOD_H
 #define PARTYMOD_H
 
-#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
 #include "pol/polmodl.h"
 
 

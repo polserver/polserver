@@ -2,7 +2,6 @@
 #include "plib/systemstate.h"
 
 #include "clib/stlutil.h"
-#include "plib/objtype.h"
 #include "plib/pkg.h"
 #include "plib/tiles.h"
 

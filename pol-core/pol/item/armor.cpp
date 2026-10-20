@@ -12,7 +12,6 @@
 
 #include "bscript/barray.h"
 #include "bscript/blong.h"
-#include "bscript/bobject.h"
 #include "bscript/bstring.h"
 #include "bscript/bstruct.h"
 #include "bscript/executor.h"

@@ -9,12 +9,9 @@
 
 #include <cstring>
 #include <limits>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <queue>
 #include <string.h>
 #include <type_traits>
+#include <vector>
 
 #include "clib/clib_endian.h"
 #include "clib/logfacility.h"
@@ -22,14 +19,11 @@
 #include "clib/rawtypes.h"
 #include "clib/spinlock.h"
 #include "clib/strutil.h"
-#include "plib/uconst.h"
 #include "pol/layers.h"
 #include "pol/network/packetinterface.h"
 #include "pol/network/pktboth.h"
 #include "pol/network/pktbothid.h"
-#include "pol/network/pktdef.h"
 #include "pol/network/pktoutid.h"
-#include "pol/realms/realms.h"
 
 
 namespace Pol::Network

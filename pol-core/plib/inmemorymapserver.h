@@ -7,9 +7,9 @@
 #ifndef PLIB_INMEMORYMAPSERVER_H
 #define PLIB_INMEMORYMAPSERVER_H
 
+#include <cstddef>
 #include <vector>
 
-#include "clib/binaryfile.h"
 #include "plib/mapblock.h"
 #include "plib/mapcell.h"
 #include "plib/mapserver.h"

@@ -22,7 +22,6 @@
 #include "pol/console.h"
 #include "pol/core.h"
 #include "pol/extobj.h"
-#include "pol/globals/multidefs.h"
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/equipmnt.h"

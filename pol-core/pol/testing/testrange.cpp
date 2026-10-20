@@ -1,12 +1,9 @@
 
 #include "clib/logfacility.h"
-#include "clib/rawtypes.h"
 
 #include "pol/base/position.h"
 #include "pol/base/range.h"
-#include "pol/base/vector.h"
 #include "pol/globals/uvars.h"
-#include "pol/realms/realm.h"
 #include "pol/testing/testenv.h"
 
 
@@ -185,22 +182,26 @@ void range3d_test()
       { return Range3d( p2, p1, r ).intersect( Range2d( Pos2d( 4, 3 ), Pos2d( 4, 4 ), r ) ); },
       false, "intersect(4,3,4,4)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Range3d( p2, p1, r ).intersect( Range3d( Pos3d( 0, 0, 0 ), Pos3d( 2, 2, 2 ), r ) );
       },
       true, "intersect(0,0,0,2,2,2)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Range3d( p2, p1, r ).intersect( Range3d( Pos3d( 3, 3, -10 ), Pos3d( 4, 4, 4 ), r ) );
       },
       true, "intersect(3,3,-10,4,4,4)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Range3d( p2, p1, r ).intersect( Range3d( Pos3d( 3, 3, 4 ), Pos3d( 4, 4, 40 ), r ) );
       },
       true, "intersect(3,3,4,4,4,40)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Range3d( p2, p1, r ).intersect( Range3d( Pos3d( 4, 3, 0 ), Pos3d( 4, 4, 4 ), r ) );
       },
       false, "intersect(4,3,0,4,4,4)" );

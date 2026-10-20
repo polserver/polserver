@@ -9,7 +9,6 @@
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/tracebuf.h"
-#include "plib/systemstate.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/polclock.h"

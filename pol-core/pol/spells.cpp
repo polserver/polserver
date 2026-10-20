@@ -37,7 +37,6 @@
 #include "pol/polsig.h"
 #include "pol/regions/miscrgn.h"
 #include "pol/scrstore.h"
-#include "pol/skillid.h"
 #include "pol/spelbook.h"
 #include "pol/syshook.h"
 #include "pol/ufunc.h"

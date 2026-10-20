@@ -11,11 +11,9 @@
 #ifndef CLIB_STRUTIL_H
 #define CLIB_STRUTIL_H
 
-#include "clib/rawtypes.h"
+#include <cstdint>
 #include <fmt/compile.h>
 #include <fmt/format.h>
-#include <fmt/std.h>
-#include <iterator>
 #include <string>
 #include <string_view>
 #include <type_traits>

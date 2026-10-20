@@ -3,7 +3,6 @@
 
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include <memory>
 #include <optional>
 #include <string>
 
@@ -30,7 +29,7 @@ public:
   void handle_include_declaration( EscriptGrammar::EscriptParser::IncludeDeclarationContext*,
                                    long long* micros_counted );
   std::optional<std::string> locate_include_file( const SourceLocation& source_location,
-                                                    const std::string& include_name );
+                                                  const std::string& include_name );
 
   void handle_use_declaration( EscriptGrammar::EscriptParser::UseDeclarationContext*,
                                long long* micros_counted );

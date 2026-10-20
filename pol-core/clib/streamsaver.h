@@ -3,12 +3,9 @@
 #include <algorithm>
 #include <array>
 #include <cstddef>
+#include <fmt/base.h>
 #include <fmt/compile.h>
 #include <fmt/format.h>
-#include <fmt/os.h>
-#include <fmt/ostream.h>
-#include <fstream>
-#include <iosfwd>
 #include <iterator>
 #include <stdio.h>
 #include <string>

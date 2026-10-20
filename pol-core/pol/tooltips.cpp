@@ -21,6 +21,7 @@
 #include "plib/uoexpansion.h"
 
 #include "pol/globals/network.h"
+#include "pol/globals/settings.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"

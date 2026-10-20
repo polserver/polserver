@@ -2,12 +2,10 @@
 
 #include "bscript/compiler/ast/ArrayInitializer.h"
 #include "bscript/compiler/ast/BooleanValue.h"
-#include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/DictionaryInitializer.h"
 #include "bscript/compiler/ast/ErrorInitializer.h"
 #include "bscript/compiler/ast/FloatValue.h"
 #include "bscript/compiler/ast/FunctionCall.h"
-#include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/StringValue.h"
 #include "bscript/compiler/ast/StructInitializer.h"
@@ -75,8 +73,6 @@ void ConstantValidator::visit_uninitialized_value( UninitializedValue& )
   valid = true;
 }
 
-void ConstantValidator::visit_children( Node& )
-{
-}
+void ConstantValidator::visit_children( Node& ) {}
 
 }  // namespace Pol::Bscript::Compiler

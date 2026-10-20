@@ -9,7 +9,6 @@
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
-#include "clib/fileutil.h"
 #include "pol/testing/testenv.h"
 
 // The ConfigElem accessors that only C++ uses. Everything reachable from a script is already

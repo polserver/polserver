@@ -7,7 +7,8 @@
 
 #include <array>
 #include <atomic>
-#include <fstream>
+#include <cstddef>
+#include <functional>
 #include <future>
 #include <optional>
 #include <string>
@@ -19,7 +20,6 @@
 #include "clib/streamsaver.h"
 #include "pol/gameclck.h"
 #include "pol/saveparallel.h"
-#include "pol/uoexec.h"
 
 namespace Pol::Core
 {

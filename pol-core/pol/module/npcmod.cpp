@@ -12,16 +12,14 @@
 #include "bscript/berror.h"
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
-#include "clib/clib.h"
 #include "clib/logfacility.h"
 #include "clib/random.h"
 #include "clib/rawtypes.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
-#include "plib/objtype.h"
-#include "plib/poltype.h"
 
 #include "pol/containr.h"
+#include "pol/globals/settings.h"
 #include "pol/item/item.h"
 #include "pol/mobile/attack.h"
 #include "pol/mobile/boundbox.h"
@@ -36,7 +34,6 @@
 #include "pol/polobject.h"
 #include "pol/uoscrobj.h"
 #include "pol/uworld.h"
-
 #include <module_defs/npc.h>
 
 

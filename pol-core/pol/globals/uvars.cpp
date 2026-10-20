@@ -62,6 +62,7 @@
 #include "pol/storage.h"
 #include "pol/syshook.h"
 #include "pol/syshookscript.h"
+#include "pol/tasks.h"
 #include "pol/uoskills.h"
 #include "pol/uworld.h"
 #include "pol/vital.h"

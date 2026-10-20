@@ -6,7 +6,6 @@
  */
 
 #include "pol/module/unimod.h"
-#include <iostream>
 #include <string.h>
 
 #include "bscript/berror.h"
@@ -17,6 +16,7 @@
 #include "pol/accounts/account.h"
 #include "pol/item/item.h"
 #include "pol/mobile/charactr.h"
+#include "pol/module/uomod.h"
 #include "pol/network/cgdata.h"
 #include "pol/network/client.h"
 #include "pol/network/packethelper.h"
@@ -25,9 +25,8 @@
 #include "pol/network/pktdef.h"
 #include "pol/ufunc.h"
 #include "pol/uoexec.h"
-#include "pol/module/uomod.h"
-
 #include <module_defs/unicode.h>
+
 
 namespace Pol
 {

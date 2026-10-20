@@ -1,9 +1,13 @@
 #pragma once
 
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/astbuilder/AvailableParseTree.h"
+#include "clib/maputil.h"
 namespace Pol::Bscript::Compiler
 {
 class ClassParameterList;

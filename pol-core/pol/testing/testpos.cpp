@@ -1,6 +1,5 @@
 
 #include "clib/logfacility.h"
-#include "clib/rawtypes.h"
 
 #include "pol/base/position.h"
 #include "pol/base/vector.h"
@@ -60,13 +59,15 @@ void pos2d_test()
   UnitTest( []() { return Pos2d( 2, 1 ).can_move_to( Vec2d( 2, 2 ), nullptr ); }, true,
             "2,1.can_move_to(2,2)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Pos2d( realm->width() - 1, realm->height() - 1 )
             .can_move_to( Vec2d( 2, 2 ), nullptr );
       },
       true, "realm.can_move_to(2,2,nullptr)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Pos2d( realm->width() - 1, realm->height() - 1 ).can_move_to( Vec2d( 2, 2 ), realm );
       },
       false, "realm.can_move_to(2,2,realm)" );
@@ -188,7 +189,8 @@ void pos3d_test()
       },
       true, "realm.can_move_to(2,2,nullptr)" );
   UnitTest(
-      [&]() {
+      [&]()
+      {
         return Pos3d( realm->width() - 1, realm->height() - 1, 0 )
             .can_move_to( Vec2d( 2, 2 ), realm );
       },

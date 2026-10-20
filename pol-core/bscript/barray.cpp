@@ -14,7 +14,6 @@
 #include "bscript/buninit.h"
 #include "bscript/executor.h"
 #include "bscript/executor.inl.h"
-#include "bscript/objmembers.h"
 #include "bscript/objmethods.h"
 #include "bscript/str.h"
 

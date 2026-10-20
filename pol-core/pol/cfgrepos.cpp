@@ -19,12 +19,12 @@
 
 #include <ctype.h>
 #include <exception>
+#include <fstream>
 #include <iosfwd>
 #include <stdlib.h>
 #include <sys/stat.h>
 
 #include "bscript/barray.h"
-#include "bscript/bobject.h"
 #include "bscript/bstring.h"
 #include "bscript/escrutil.h"
 #include "clib/cfgelem.h"

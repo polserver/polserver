@@ -7,7 +7,7 @@
 #ifndef ITEMDESC_H
 #define ITEMDESC_H
 
-#include <map>
+#include <cstddef>
 #include <string>
 #include <vector>
 

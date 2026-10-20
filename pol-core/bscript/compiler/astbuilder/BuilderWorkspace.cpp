@@ -1,9 +1,7 @@
 #include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 
-#include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileCache.h"
-#include "bscript/compiler/file/SourceFileIdentifier.h"
 
 namespace Pol::Bscript::Compiler
 {

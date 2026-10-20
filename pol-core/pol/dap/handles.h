@@ -3,15 +3,14 @@
 
 #include "bscript/barray.h"
 #include "bscript/bdict.h"
+#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
 #include "bscript/bstruct.h"
-#include "bscript/objmembers.h"
-#include "clib/logfacility.h"
-#include "clib/stlutil.h"
-#include "clib/strutil.h"
-#include "pol/polclass.h"
-#include "pol/uoscrobj.h"
-#include <array>
+#include <cstddef>
 #include <dap/protocol.h>
+#include <map>
+#include <string>
+#include <variant>
 
 namespace Pol
 {

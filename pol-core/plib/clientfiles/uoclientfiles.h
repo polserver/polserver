@@ -5,14 +5,13 @@
 #include <cstdio>
 #include <map>
 #include <span>
+#include <string>
 #include <vector>
 
 #include "clib/rawtypes.h"
-#include "plib/clidata.h"
 #include "plib/clientfiles/RawMap.h"
 #include "plib/clientfiles/staticscache.h"
 #include "plib/clientfiles/tiledatacache.h"
-#include "plib/uconst.h"
 #include "plib/udatfile.h"
 #include "plib/ustruct.h"
 

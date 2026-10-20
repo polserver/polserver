@@ -16,9 +16,9 @@
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/streamsaver.h"
-#include "plib/uconst.h"
 
 #include "pol/baseobject.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"

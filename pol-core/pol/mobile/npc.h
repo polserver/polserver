@@ -22,14 +22,11 @@
 #include "pol/item/armor.h"
 #endif
 
-#include <iosfwd>
-#include <map>
 #include <memory>
 #include <stddef.h>
 #include <string>
 #include <string_view>
 
-#include "bscript/bobject.h"
 #include "clib/boostutils.h"
 #include "clib/rawtypes.h"
 #include "plib/uconst.h"

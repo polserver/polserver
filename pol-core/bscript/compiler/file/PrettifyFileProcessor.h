@@ -6,8 +6,7 @@
 
 #include "bscript/compiler/file/PrettifyLineBuilder.h"
 
-#include <memory>
-#include <optional>
+#include <cstddef>
 #include <string>
 
 namespace Pol::Bscript::Compiler

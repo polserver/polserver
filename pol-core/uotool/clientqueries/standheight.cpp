@@ -11,7 +11,6 @@
 #include "uotool/clientqueries/mapqueries.h"
 #include "uotool/clientqueries/staticsqueries.h"  // static_debug_on
 
-#include "plib/clidata.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/uconst.h"
 #include "plib/udatfile.h"

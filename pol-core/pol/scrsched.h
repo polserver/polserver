@@ -7,8 +7,6 @@
 #ifndef __SCRSCHED_H
 #define __SCRSCHED_H
 
-#include <list>
-#include <set>
 
 #include "clib/refptr.h"
 #include "pol/polclock.h"

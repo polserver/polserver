@@ -8,7 +8,6 @@
 #define CLIB_THREADHELP_H
 
 #include <atomic>
-#include <functional>
 #include <future>
 #include <map>
 #include <mutex>
@@ -17,6 +16,8 @@
 #include <vector>
 
 #include <boost/compat/move_only_function.hpp>
+#include <cstddef>
+#include <memory>
 
 #include "clib/Header_Windows.h"
 #include "clib/message_queue.h"

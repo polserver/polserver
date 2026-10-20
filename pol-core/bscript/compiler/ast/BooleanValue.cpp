@@ -1,6 +1,5 @@
 #include "bscript/compiler/ast/BooleanValue.h"
 
-#include <fmt/format.h>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 

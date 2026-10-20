@@ -6,7 +6,6 @@
 
 #include "pol/tildecmd.h"
 
-#include <iostream>
 #include <stdlib.h>
 #include <string>
 

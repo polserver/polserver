@@ -15,11 +15,10 @@
 #include "clib/logfacility.h"
 #include "clib/passert.h"
 #include "clib/rawtypes.h"
-#include "plib/clidata.h"
+#include "plib/clientfiles/uoclientfiles.h"
 #include "plib/realmdescriptor.h"
 #include "plib/staticblock.h"
 #include "plib/systemstate.h"
-#include "plib/clientfiles/uoclientfiles.h"
 #include "plib/ustruct.h"
 
 

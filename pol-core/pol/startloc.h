@@ -7,7 +7,6 @@
 #ifndef STARTLOC_H
 #define STARTLOC_H
 
-#include "clib/rawtypes.h"
 #include "pol/base/position.h"
 #include <string>
 #include <vector>

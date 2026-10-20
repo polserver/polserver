@@ -10,16 +10,12 @@
 #ifndef BOAT_H
 #define BOAT_H
 
-#include <climits>
 #include <optional>
 #include <stddef.h>
 #include <string>
 #include <vector>
 
-#include "bscript/bobject.h"
 #include "clib/rawtypes.h"
-#include "plib/poltype.h"
-#include "plib/uconst.h"
 #include "pol/base/position.h"
 #include "pol/multi/multi.h"
 #include "pol/reftypes.h"

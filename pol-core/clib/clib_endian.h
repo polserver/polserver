@@ -8,7 +8,6 @@
 #ifndef __CLIB_ENDIAN_H
 #define __CLIB_ENDIAN_H
 
-#include "clib/rawtypes.h"
 
 #include <cstring>
 

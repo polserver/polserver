@@ -7,7 +7,7 @@
 #ifndef MUSICRGN_H
 #define MUSICRGN_H
 
-#include <string>
+#include <cstddef>
 #include <vector>
 
 #include "pol/regions/region.h"

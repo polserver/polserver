@@ -18,8 +18,8 @@
 #include "pol/polsem.h"
 #include "pol/sqlscrobj.h"
 #include "pol/uoexec.h"
-
 #include <module_defs/sql.h>
+
 
 #include <memory>
 

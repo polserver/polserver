@@ -22,7 +22,6 @@
 /* MISCMSG.CPP: Miscellaneous message handlers.  Handlers shouldn't stay here long,
    only until they find a better home - but this is better than putting them in POL.CPP. */
 
-#include <algorithm>
 #include <cstddef>
 #include <ctype.h>
 #include <iterator>
@@ -59,7 +58,6 @@
 #include "pol/network/pktboth.h"
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
-#include "pol/network/sockio.h"
 #include "pol/party.h"
 #include "pol/polclass.h"
 #include "pol/realms/realm.h"

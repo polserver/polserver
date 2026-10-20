@@ -13,7 +13,7 @@
 #include "bscript/bobject.h"
 #include "bscript/exectype.h"
 
-#include <exception>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <optional>

@@ -1,9 +1,8 @@
 #include "bscript/compiler/ast/FunctionExpression.h"
 
-#include <fmt/format.h>
 
-#include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/ast/Function.h"
+#include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
 namespace Pol::Bscript::Compiler

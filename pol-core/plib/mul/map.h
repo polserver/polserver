@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stdexcept>
+#include <cstddef>
 
 namespace Pol::Plib::MUL
 {

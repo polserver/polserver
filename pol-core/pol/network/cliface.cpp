@@ -13,19 +13,18 @@
 #include "clib/rawtypes.h"
 #include "pol/globals/network.h"
 #include "pol/globals/settings.h"
-#include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/mobile/attribute.h"
 #include "pol/mobile/charactr.h"
+#include "pol/network/client.h"
 #include "pol/network/packethelper.h"
+#include "pol/network/packets.h"
 #include "pol/party.h"
 #include "pol/statmsg.h"
 #include "pol/ufunc.h"
 #include "pol/uoclient.h"
 #include "pol/uoskills.h"
 #include "pol/vital.h"
-#include "pol/network/client.h"
-#include "pol/network/packets.h"
 
 
 namespace Pol::Network

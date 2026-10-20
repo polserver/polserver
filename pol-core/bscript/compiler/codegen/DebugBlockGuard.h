@@ -1,8 +1,6 @@
 #ifndef POLSERVER_DEBUGBLOCKGUARD_H
 #define POLSERVER_DEBUGBLOCKGUARD_H
 
-#include <memory>
-#include <vector>
 
 namespace Pol::Bscript::Compiler
 {

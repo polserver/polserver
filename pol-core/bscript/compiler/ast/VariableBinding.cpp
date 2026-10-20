@@ -1,6 +1,5 @@
 #include "bscript/compiler/ast/VariableBinding.h"
 
-#include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/ScopableName.h"

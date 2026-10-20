@@ -5,9 +5,7 @@
 
 #include <string>
 #include <utility>
-#include <vector>
 
-#include "clib/rawtypes.h"
 #include "pol/testing/testenv.h"
 #include "pol/textcmd.h"
 

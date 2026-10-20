@@ -1,7 +1,6 @@
 #ifndef E_COMPILE_MAIN_H
 #define E_COMPILE_MAIN_H
 
-#include <string>
 
 #include "clib/Program/ProgramMain.h"
 

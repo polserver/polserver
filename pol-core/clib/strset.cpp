@@ -6,6 +6,7 @@
 #include "clib/strset.h"
 
 #include "clib/stlutil.h"
+#include <sstream>
 
 
 namespace Pol::Clib

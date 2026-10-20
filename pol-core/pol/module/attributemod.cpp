@@ -19,7 +19,6 @@
 #include "pol/skillid.h"
 
 #include "pol/polmodl.h"
-
 #include <module_defs/attributes.h>
 
 

@@ -30,7 +30,6 @@
 #include "bscript/compiler/ast/CstyleForLoop.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/ForeachLoop.h"
-#include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/FunctionExpression.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
@@ -41,7 +40,6 @@
 #include "bscript/compiler/ast/IndexBinding.h"
 #include "bscript/compiler/ast/IntegerValue.h"
 #include "bscript/compiler/ast/JumpStatement.h"
-#include "bscript/compiler/ast/MemberAccess.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
@@ -63,8 +61,8 @@
 #include "bscript/compiler/model/ScopeName.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
-#include "clib/strutil.h"
 #include "bscript/filefmt.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {

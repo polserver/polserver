@@ -10,7 +10,6 @@
 
 #include "pol/spelbook.h"
 
-#include <sstream>
 #include <stddef.h>
 
 #include "bscript/executor.h"
@@ -21,6 +20,7 @@
 #include "plib/systemstate.h"
 #include "plib/uoexpansion.h"
 #include "pol/baseobject.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"

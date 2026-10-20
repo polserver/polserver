@@ -7,14 +7,13 @@
 
 #include "pol/sngclick.h"
 
-#include <cstdio>
 #include <string>
 
 #include "clib/clib_endian.h"
 #include "clib/passert.h"
-#include "plib/uconst.h"
 #include "pol/base/range.h"
 #include "pol/containr.h"
+#include "pol/globals/settings.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
 #include "pol/network/pktin.h"

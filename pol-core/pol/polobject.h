@@ -1,9 +1,10 @@
 #ifndef POLOBJECT_H
 #define POLOBJECT_H
 
-#include "bscript/bobject.h"
 #include "bscript/executor.h"
 
+#include "bscript/bobjectimp.h"
+#include "clib/passert.h"
 #include "pol/uoexec.h"
 
 

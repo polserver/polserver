@@ -68,7 +68,6 @@
 #include "bscript/objmethods.h"
 #include "clib/clib.h"
 #include "clib/stlutil.h"
-#include "plib/poltype.h"
 #include "plib/uconst.h"
 
 #include "pol/accounts/account.h"
@@ -82,6 +81,7 @@
 #include "pol/exscrobj.h"
 #include "pol/fnsearch.h"
 #include "pol/globals/network.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/armor.h"
 #include "pol/item/equipmnt.h"
@@ -121,7 +121,6 @@
 #include "pol/uobject.h"
 #include "pol/uoclient.h"
 #include "pol/uoexec.h"
-#include "pol/uworld.h"
 
 namespace Pol
 {

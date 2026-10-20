@@ -20,7 +20,6 @@
 #include "clib/rawtypes.h"
 #include "pol/baseobject.h"
 #include "pol/dynproperties.h"
-#include "pol/globals/settings.h"
 #include "pol/item/location.h"
 #include "pol/layers.h"
 #include "pol/mobile/attack.h"

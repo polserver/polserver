@@ -6,7 +6,6 @@
 #include <algorithm>
 #include <array>
 #include <cstring>
-#include <limits>
 #include <string>
 #include <string_view>
 
@@ -19,7 +18,6 @@
 #include "pol/testing/testenv.h"
 
 #include <curl/curl.h>
-#include <type_traits>
 
 
 namespace Pol::Testing

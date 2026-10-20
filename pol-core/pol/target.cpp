@@ -14,7 +14,6 @@
 #include "clib/clib_endian.h"
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
-#include "plib/systemstate.h"
 #include "pol/fnsearch.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"

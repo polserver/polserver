@@ -8,7 +8,6 @@
 #ifndef NPCTMPL_H
 #define NPCTMPL_H
 
-#include <map>
 #include <memory>
 #include <stddef.h>
 #include <string>

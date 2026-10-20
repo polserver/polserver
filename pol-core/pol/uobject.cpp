@@ -12,7 +12,6 @@
 #include "pol/loadstats.h"
 
 #include <atomic>
-#include <iosfwd>
 #include <stddef.h>
 #include <string>
 #include <utility>
@@ -23,11 +22,9 @@
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
 #include "clib/streamsaver.h"
-#include "clib/strutil.h"
 #include "plib/clidata.h"
 #include "plib/objtype.h"
 #include "plib/systemstate.h"
-#include "plib/uconst.h"
 #include "pol/baseobject.h"
 #include "pol/dynproperties.h"
 #include "pol/globals/state.h"

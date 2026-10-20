@@ -30,8 +30,10 @@
 #include "plib/uconst.h"
 #include "plib/udatfile.h"
 
+#include "plib/objtype.h"
 #include "pol/core.h"
 #include "pol/fnsearch.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/landtile.h"
@@ -42,7 +44,6 @@
 #include "pol/multi/multidef.h"
 #include "pol/network/cgdata.h"
 #include "pol/network/client.h"
-#include "plib/objtype.h"
 #include "pol/realms/realm.h"
 #include "pol/uworld.h"
 

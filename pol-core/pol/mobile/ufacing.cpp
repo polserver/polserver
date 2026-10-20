@@ -2,11 +2,8 @@
 
 #include "clib/clib.h"
 #include "clib/random.h"
-#include "plib/uconst.h"
 
 #include "pol/base/position.h"
-#include "pol/mobile/charactr.h"
-#include "pol/uobject.h"
 
 namespace Pol
 {

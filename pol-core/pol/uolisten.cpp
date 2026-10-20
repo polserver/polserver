@@ -5,11 +5,9 @@
  */
 
 
-#include <chrono>
 #include <iterator>
 #include <string.h>
 #include <string>
-#include <thread>
 
 #include "clib/esignal.h"
 #include "clib/logfacility.h"
@@ -25,6 +23,7 @@
 #include "pol/network/clientthread.h"
 #include "pol/network/clienttransmit.h"
 #include "pol/network/cliface.h"
+#include "pol/network/sockio.h"
 #include "pol/polclock.h"
 #include "pol/polsem.h"
 #include "pol/threadwatch.h"

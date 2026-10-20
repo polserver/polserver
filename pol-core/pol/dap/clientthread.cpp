@@ -7,6 +7,7 @@
 #include "clib/esignal.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
+#include "clib/strutil.h"
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 #include "pol/module/uomod.h"

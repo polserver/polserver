@@ -12,7 +12,6 @@
 #endif
 
 #include "clib/rawtypes.h"
-#include "pol/network/pktdef.h"
 #include "pol/uoexec.h"
 
 namespace Pol

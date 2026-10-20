@@ -14,7 +14,6 @@
 #include "clib/cfgfile.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
-#include "clib/strutil.h"
 
 #include "plib/mapfunc.h"
 #include "plib/objtype.h"

@@ -2,7 +2,6 @@
 #define UOINSTALLFINDER_H
 
 #include <string>
-#include <vector>
 
 namespace Pol
 {

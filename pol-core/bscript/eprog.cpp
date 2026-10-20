@@ -10,10 +10,9 @@
 #include <fmt/ostream.h>
 #include <iomanip>
 
+#include "bscript/escriptv.h"
 #include "clib/refptr.h"
 #include "clib/stlutil.h"
-#include "bscript/escriptv.h"
-#include "bscript/fmodule.h"
 
 
 namespace Pol::Bscript

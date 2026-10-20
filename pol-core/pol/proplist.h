@@ -10,9 +10,10 @@
 #define PROPLIST_H
 
 #include <array>
-#include <boost/flyweight.hpp>
+#include <cstddef>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <set>
 #include <string>
 #include <utility>
@@ -162,8 +163,7 @@ protected:
    * contiguous memory beats a node allocation each. Sorted order is load-bearing -- the save file
    * is written in it -- and a save written in this order reloads as a run of appends.
    */
-  using Property =
-      std::pair<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>;
+  using Property = std::pair<boost_utils::cprop_name_flystring, boost_utils::cprop_value_flystring>;
   using Properties = std::vector<Property>;
 
   /// Orders by name alone; the value takes no part in the ordering.

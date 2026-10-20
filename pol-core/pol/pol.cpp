@@ -96,6 +96,7 @@
 #include "pol/gameclck.h"
 #include "pol/globals/network.h"
 #include "pol/globals/object_storage.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/armor.h"
@@ -159,6 +160,9 @@
 #include <cstdio>
 #include <cstring>
 #include <exception>
+#include <fmt/ranges.h>
+#include <fmt/std.h>
+#include <fstream>
 #include <iosfwd>
 #include <string>
 

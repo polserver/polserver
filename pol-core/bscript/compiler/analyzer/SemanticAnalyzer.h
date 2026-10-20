@@ -3,10 +3,10 @@
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 
-#include <map>
 #include <memory>
 #include <set>
 #include <stack>
+#include <string>
 
 #include "bscript/compiler/analyzer/FlowControlScopes.h"
 #include "bscript/compiler/analyzer/LocalVariableScopes.h"

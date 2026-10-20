@@ -7,7 +7,6 @@
 #ifndef PARTY_CFG_H
 #define PARTY_CFG_H
 
-#include "pol/network/pktdef.h"
 #include <string>
 
 

@@ -3,17 +3,16 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace antlr4
 {
-  class ParserRuleContext;
-  class Token;
-  namespace tree
-  {
-    class TerminalNode;
-  }
+class ParserRuleContext;
+class Token;
+namespace tree
+{
+class TerminalNode;
 }
+}  // namespace antlr4
 namespace Pol::Bscript::Compiler
 {
 class BuilderWorkspace;
@@ -34,8 +33,8 @@ public:
 
   std::string text( antlr4::tree::TerminalNode* );
   std::string text( antlr4::Token* );
-protected:
 
+protected:
   Report& report;
 
   const SourceFileIdentifier& source_file_identifier;

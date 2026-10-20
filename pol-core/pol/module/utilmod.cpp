@@ -27,7 +27,6 @@
 #include "clib/random.h"
 
 #include "pol/dice.h"
-
 #include <module_defs/util.h>
 
 

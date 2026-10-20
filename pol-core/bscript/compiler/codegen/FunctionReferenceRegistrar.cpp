@@ -6,7 +6,6 @@
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"
 #include "bscript/compiler/ast/FunctionParameterList.h"
-#include "bscript/compiler/ast/FunctionReference.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FlowControlLabel.h"

@@ -7,9 +7,8 @@
 #include <stdlib.h>
 
 #include "clib/logfacility.h"
-#include "clib/passert.h"
 #include "clib/network/socketsvc.h"
-#include "clib/strutil.h"
+#include "clib/passert.h"
 #include "clib/threadhelp.h"
 
 

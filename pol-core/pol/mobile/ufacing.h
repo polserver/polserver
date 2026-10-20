@@ -7,7 +7,6 @@
 #ifndef __UFACING_H
 #define __UFACING_H
 
-#include "plib/poltype.h"
 
 #include "pol/base/position.h"
 

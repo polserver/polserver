@@ -17,7 +17,6 @@
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
 #include "clib/stlutil.h"
-
 #include <module_defs/math.h>
 
 

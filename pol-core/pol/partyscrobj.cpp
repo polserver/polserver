@@ -15,10 +15,12 @@
 
 #include "pol/clfunc.h"
 #include "pol/fnsearch.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/module/polsystemmod.h"
 #include "pol/module/uomod.h"
 #include "pol/party.h"
+#include "pol/party_cfg.h"
 #include "pol/uoexec.h"
 #include "pol/uoscrobj.h"
 

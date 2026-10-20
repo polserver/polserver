@@ -28,7 +28,6 @@
 #include "bscript/executor.h"
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"
-#include "clib/clib.h"
 #include "clib/clib_endian.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
@@ -36,7 +35,6 @@
 #include "clib/streamsaver.h"
 #include "plib/systemstate.h"
 #include "plib/tiles.h"
-#include "plib/uconst.h"
 #include "plib/ustruct.h"
 
 #include "pol/containr.h"
@@ -1358,8 +1356,7 @@ void UBoat::align_components()
 
   for ( const auto& componentshape : boatshape().Componentshapes )
   {
-    auto itr = std::find_if( loaded.begin(), loaded.end(),
-                             [&]( const Component& c )
+    auto itr = std::find_if( loaded.begin(), loaded.end(), [&]( const Component& c )
                              { return c != nullptr && c->objtype_ == componentshape.objtype; } );
     if ( itr == loaded.end() )
     {

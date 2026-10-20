@@ -15,7 +15,6 @@
 
 #include "pol/getitem.h"
 
-#include <cstdio>
 #include <optional>
 #include <variant>
 
@@ -23,8 +22,8 @@
 #include "clib/rawtypes.h"
 #include "pol/containr.h"
 #include "pol/fnsearch.h"
+#include "pol/globals/settings.h"
 #include "pol/item/item.h"
-#include "pol/layers.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/corpse.h"
 #include "pol/network/client.h"

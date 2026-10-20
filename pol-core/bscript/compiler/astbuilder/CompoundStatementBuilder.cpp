@@ -12,7 +12,6 @@
 #include "bscript/compiler/ast/CaseStatement.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/CstyleForLoop.h"
-#include "bscript/compiler/ast/DebugStatementMarker.h"
 #include "bscript/compiler/ast/DoWhileLoop.h"
 #include "bscript/compiler/ast/EmptyStatement.h"
 #include "bscript/compiler/ast/EnumDeclaration.h"

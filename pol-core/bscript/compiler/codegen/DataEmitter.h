@@ -1,8 +1,8 @@
 #ifndef POLSERVER_DATAEMITTER_H
 #define POLSERVER_DATAEMITTER_H
 
+#include <cstddef>
 #include <string>
-#include <vector>
 
 #include "bscript/compiler/representation/CompiledScript.h"
 
@@ -20,7 +20,7 @@ public:
 
   unsigned append( const std::byte* data, size_t len );
   unsigned find( const std::byte* data, size_t len );
-  unsigned store( const std::byte* data, size_t len ); // find or append
+  unsigned store( const std::byte* data, size_t len );  // find or append
 
 private:
   DataSection& data_section;

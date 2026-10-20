@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <map>
-#include <unordered_map>
 #include <vector>
 
 #include "clib/rawtypes.h"

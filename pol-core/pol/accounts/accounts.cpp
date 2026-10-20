@@ -10,7 +10,6 @@
 
 #include "pol/accounts/accounts.h"
 
-#include <iosfwd>
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
@@ -25,10 +24,10 @@
 #include "clib/streamsaver.h"
 #include "clib/timer.h"
 #include "plib/systemstate.h"
+#include "pol/accounts/account.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/polsig.h"
-#include "pol/accounts/account.h"
 
 
 namespace Pol::Accounts

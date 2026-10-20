@@ -12,11 +12,12 @@
 #endif
 #include <mariadb/mysql.h>
 
-#include <functional>
 #include <memory>
 #include <string>
 
 #include <boost/compat/move_only_function.hpp>
+#include <cstddef>
+#include <vector>
 
 #include "bscript/bobject.h"
 #include "clib/message_queue.h"

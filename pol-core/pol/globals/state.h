@@ -1,13 +1,13 @@
 #ifndef GLOBALS_STATE_H
 #define GLOBALS_STATE_H
 
-#include <atomic>
 
 #include "clib/clib.h"
 #include "clib/rawtypes.h"
 #include "pol/polsig.h"
 #include "pol/profile.h"
 #include "pol/uobjcnt.h"
+#include <cstddef>
 
 
 namespace Pol::Core

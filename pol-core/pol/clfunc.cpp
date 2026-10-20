@@ -10,7 +10,6 @@
 #include "pol/clfunc.h"
 
 #include <cstddef>
-#include <string.h>
 
 #include "bscript/bstring.h"
 #include "pol/mobile/charactr.h"

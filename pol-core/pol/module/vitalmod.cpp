@@ -23,7 +23,6 @@
 #include "pol/spells.h"
 #include "pol/ufunc.h"
 #include "pol/vital.h"
-
 #include <module_defs/vitals.h>
 
 

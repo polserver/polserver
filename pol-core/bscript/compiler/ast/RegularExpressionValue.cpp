@@ -2,7 +2,6 @@
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"
-#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {

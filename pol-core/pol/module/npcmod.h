@@ -10,13 +10,11 @@
 #ifndef NPCEMOD_H
 #define NPCEMOD_H
 
-#include <string>
-
-#include "plib/uconst.h"
 
 #include "pol/base/position.h"
 #include "pol/polmodl.h"
 #include "pol/reftypes.h"
+#include <cstddef>
 
 
 namespace Pol::Bscript

@@ -11,7 +11,6 @@
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 
-#include <memory>
 #include <stack>
 
 

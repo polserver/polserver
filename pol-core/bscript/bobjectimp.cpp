@@ -1,6 +1,7 @@
 #include "bscript/bobjectimp.h"
 
 #include <fmt/format.h>
+#include <sstream>
 
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"

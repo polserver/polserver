@@ -12,7 +12,6 @@
 #include "clib/stlutil.h"
 #include "plib/mapserver.h"
 #include "plib/maptileserver.h"
-#include "plib/poltype.h"
 #include "plib/realmdescriptor.h"
 #include "plib/staticserver.h"
 

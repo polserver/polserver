@@ -1,6 +1,5 @@
 #include "pol/globals/object_storage.h"
 
-#include <string.h>
 
 #include "clib/stlutil.h"
 #include "pol/objecthash.h"

@@ -14,13 +14,9 @@
 #include "plib/polcfg.h"
 
 #include <algorithm>
-#include <cstdio>
-#include <exception>
 #include <sstream>
-#include <string.h>
 #include <string>
 #include <sys/stat.h>
-#include <time.h>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"

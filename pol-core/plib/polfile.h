@@ -8,9 +8,7 @@
 #define POLFILE_H
 
 #include "plib/udatfile.h"
-
-#include <map>
-#include <vector>
+#include <string>
 
 
 namespace Pol::Plib

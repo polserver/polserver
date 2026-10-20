@@ -4,7 +4,6 @@
 #include "bscript/blong.h"
 
 #include <fmt/compile.h>
-#include <fmt/format.h>
 #include <istream>
 
 namespace Pol::Bscript

@@ -7,7 +7,6 @@
 #ifndef __TARGET_H
 #define __TARGET_H
 
-#include <array>
 
 #include "clib/rawtypes.h"
 #include "pol/network/pktboth.h"

@@ -2,7 +2,6 @@
 
 #include "bscript/compiler/codegen/InstructionEmitter.h"
 #include "bscript/compiler/model/LocalVariableScopeInfo.h"
-#include "bscript/compiler/model/Variable.h"
 
 namespace Pol::Bscript::Compiler
 {

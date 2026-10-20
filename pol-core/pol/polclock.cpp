@@ -6,7 +6,6 @@
 
 #include "pol/polclock.h"
 
-#include <atomic>
 #include <chrono>
 #include <thread>
 

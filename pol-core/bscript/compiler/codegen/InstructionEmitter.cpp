@@ -27,6 +27,7 @@
 #include "bscript/modules.h"
 #include "bscript/token.h"
 #include "bscript/tokens.h"
+#include "clib/maputil.h"
 
 namespace Pol::Bscript::Compiler
 {

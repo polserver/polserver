@@ -10,7 +10,6 @@
 #include <map>
 #include <string>
 
-#include "plib/poltype.h"
 #include "pol/base/position.h"
 #include "pol/proplist.h"
 #include "pol/zone.h"

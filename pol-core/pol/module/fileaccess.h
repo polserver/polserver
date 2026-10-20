@@ -7,10 +7,11 @@
 #ifndef FILEACCESS_H
 #define FILEACCESS_H
 
-#include "clib/maputil.h"
 
+#include <cstddef>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace Pol
@@ -52,6 +53,6 @@ public:
 
 bool HasWriteAccess( const Plib::Package* pkg, const Plib::Package* filepackage,
                      const std::string& path );
-}
-}
+}  // namespace Module
+}  // namespace Pol
 #endif

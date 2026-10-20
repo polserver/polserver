@@ -7,13 +7,10 @@
 #ifndef FMODULE_H
 #define FMODULE_H
 
-#include <map>
 #include <stddef.h>
-#include <string>
 #include <vector>
 
 #include "clib/boostutils.h"
-#include "clib/maputil.h"
 
 
 namespace Pol::Bscript

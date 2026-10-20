@@ -3,6 +3,7 @@
 #include <chrono>
 #include <errno.h>
 #include <exception>
+#include <fmt/std.h>
 #include <iterator>
 #include <stddef.h>
 #include <string>
@@ -14,13 +15,13 @@
 #include "clib/network/singlepoller.h"
 #include "clib/passert.h"
 #include "clib/spinlock.h"
-#include "clib/stlutil.h"
 #include "plib/systemstate.h"
 
 #include "clib/network/sockets.h"
 #include "pol/accounts/account.h"
 #include "pol/core.h"
 #include "pol/crypt/cryptbase.h"
+#include "pol/globals/settings.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/cgdata.h"  // This might not be needed if the client has a clear_gd() method
 #include "pol/network/client.h"

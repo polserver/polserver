@@ -2,7 +2,6 @@
 #include "pol/testing/testenv.h"
 
 #include "clib/threadhelp.h"
-#include <thread>
 
 namespace Pol::Testing
 {

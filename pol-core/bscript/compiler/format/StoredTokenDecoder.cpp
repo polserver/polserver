@@ -1,7 +1,6 @@
 #include "bscript/compiler/format/StoredTokenDecoder.h"
 
 #include "bscript/StoredToken.h"
-#include "bscript/compiler/representation/DebugStore.h"
 #include "bscript/compiler/representation/ModuleDescriptor.h"
 #include "bscript/compiler/representation/ModuleFunctionDescriptor.h"
 #include "bscript/objmembers.h"

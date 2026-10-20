@@ -10,9 +10,7 @@
 #ifndef REALMS_H
 #define REALMS_H
 
-#include <map>
 #include <string>
-#include <vector>
 
 namespace Pol
 {
@@ -29,6 +27,6 @@ void remove_realm( const std::string& name );
 
 // Support up to 5 Maps: Britannia, Britannia_alt, Ilshenar, Malas, Tokuno, TerMur
 #define MAX_NUMER_REALMS 6
-}
-}
+}  // namespace Core
+}  // namespace Pol
 #endif

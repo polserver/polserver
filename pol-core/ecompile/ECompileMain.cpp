@@ -13,6 +13,7 @@
 #include <time.h>
 #include <vector>
 
+#include <fmt/ranges.h>
 #include <fmt/std.h>
 
 #include "ecompile/EfswFileWatchListener.h"

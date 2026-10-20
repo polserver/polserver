@@ -14,6 +14,8 @@
 
 #include <cstddef>
 #include <ctype.h>
+#include <fmt/std.h>
+#include <fstream>
 #include <iosfwd>
 #include <stdio.h>
 #include <stdlib.h>
@@ -37,11 +39,9 @@
 #include "clib/random.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
-#include "clib/spinlock.h"
 #include "clib/stlutil.h"
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
-#include "plib/clidata.h"
 #include "plib/pkg.h"
 #include "plib/systemstate.h"
 #include "plib/uconst.h"
@@ -67,7 +67,6 @@
 #include "pol/ufuncstd.h"
 #include "pol/uoexec.h"
 #include "pol/uoscrobj.h"
-#include "pol/utype.h"
 #include "pol/uworld.h"
 
 

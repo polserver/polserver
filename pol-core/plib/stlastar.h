@@ -13,14 +13,11 @@
 #ifndef STLASTAR_H
 #define STLASTAR_H
 
-#include <iostream>
 #include <stdio.h>
 // #include <conio.h>
 #include <assert.h>
 
 // stl includes
-#include <algorithm>
-#include <set>
 #include <vector>
 
 // fast fixed size memory allocator, used for fast node memory management

@@ -15,7 +15,6 @@
 #include <cstring>
 #include <picojson/picojson.h>
 #include <string>
-#include <utf8cpp/utf8.h>
 
 #include "bscript/barray.h"
 #include "bscript/bboolean.h"
@@ -29,7 +28,6 @@
 #include "bscript/buninit.h"
 #include "bscript/executor.h"
 #include "clib/stlutil.h"
-
 #include <module_defs/basic.h>
 
 

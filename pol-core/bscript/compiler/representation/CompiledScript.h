@@ -1,7 +1,6 @@
 #ifndef POLSERVER_COMPILEDSCRIPT_H
 #define POLSERVER_COMPILEDSCRIPT_H
 
-#include <cstdint>
 #include <memory>
 #include <string>
 #include <vector>

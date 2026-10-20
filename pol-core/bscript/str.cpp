@@ -2,7 +2,6 @@
 
 #include "bscript/bdouble.h"
 #include "bscript/blong.h"
-#include "bscript/bobject.h"
 
 namespace Pol::Bscript
 {

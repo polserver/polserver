@@ -5,7 +5,6 @@
 
 #ifndef H_CHECKPNT
 #define H_CHECKPNT
-#include <string>
 
 
 namespace Pol::Core

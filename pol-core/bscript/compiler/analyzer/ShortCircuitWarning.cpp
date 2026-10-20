@@ -4,7 +4,6 @@
 #include "bscript/compiler/ast/BinaryOperator.h"
 #include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compiler/ast/ElementAssignment.h"
-#include "bscript/compiler/ast/Function.h"
 #include "bscript/compiler/ast/FunctionCall.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/MemberAssignmentByOperator.h"

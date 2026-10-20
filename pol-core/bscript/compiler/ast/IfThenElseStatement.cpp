@@ -3,7 +3,6 @@
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/BranchSelector.h"
-#include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 
 namespace Pol::Bscript::Compiler

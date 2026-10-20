@@ -1,12 +1,13 @@
 #pragma once
 
 #include "bscript/compiler/file/SourceLocation.h"
-#include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
+#include <cstddef>
+#include <cstdint>
 #include <map>
-#include <memory>
-#include <optional>
 #include <string>
+#include <utility>
+#include <vector>
 
 namespace Pol::Bscript::Compiler
 {
@@ -98,7 +99,7 @@ struct FmtToken
         group( group ),
         token_type( token_type ),
         context( context ),
-        scope( scope ){};
+        scope( scope ) {};
 };
 
 class PrettifyLineBuilder

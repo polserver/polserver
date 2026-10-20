@@ -9,11 +9,9 @@
 #define WEAPON_H
 
 
-#include <iosfwd>
-#include <memory>
+#include <cstddef>
 #include <string>
 
-#include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 #include "pol/action.h"
 #include "pol/dynproperties.h"

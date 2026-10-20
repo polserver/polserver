@@ -3,8 +3,6 @@
  * @par History
  */
 
-#include <algorithm>
-#include <array>
 #include <cstring>
 #include <string>
 
@@ -17,8 +15,8 @@
 #include "pol/polclock.h"
 #include "pol/realms/realm.h"
 #include "pol/realms/realms.h"
-#include "pol/uworld.h"
 #include "pol/testing/testenv.h"
+#include "pol/uworld.h"
 
 namespace Pol::Testing
 {

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <string>
 #include <vector>
 
 #include "bscript/compiler/representation/ConstructorDescriptor.h"

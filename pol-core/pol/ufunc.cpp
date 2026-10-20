@@ -54,7 +54,6 @@
 #include "clib/stlutil.h"
 #include "plib/mapcell.h"
 #include "plib/objtype.h"
-#include "plib/systemstate.h"
 #include "plib/uoexpansion.h"
 
 #include "pol/accounts/account.h"
@@ -62,6 +61,7 @@
 #include "pol/fnsearch.h"
 #include "pol/globals/network.h"
 #include "pol/globals/object_storage.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"

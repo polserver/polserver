@@ -24,15 +24,14 @@
 #include "pol/globals/object_storage.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
-#include "pol/layers.h"
-#include "pol/mobile/charactr.h"
-#include "pol/syshookscript.h"
-#include "pol/tooltips.h"
-#include "pol/ufunc.h"
 #include "pol/item/armor.h"
 #include "pol/item/item.h"
 #include "pol/item/itemdesc.h"
 #include "pol/item/weapon.h"
+#include "pol/mobile/charactr.h"
+#include "pol/syshookscript.h"
+#include "pol/tooltips.h"
+#include "pol/ufunc.h"
 
 
 namespace Pol::Items

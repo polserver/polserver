@@ -18,6 +18,7 @@
 #include <ctype.h>
 #include <errno.h>
 #include <fmt/format.h>
+#include <fstream>
 #include <iosfwd>
 #include <iterator>
 #include <map>
@@ -717,7 +718,8 @@ void send_binary( Clib::Socket& sck, const std::string& page, const std::string&
 {
   unsigned int fsize = Clib::filesize( filename.c_str() );
   std::ifstream ifs( filename.c_str(), std::ios::binary );
-  if ( !ifs.is_open() ) {
+  if ( !ifs.is_open() )
+  {
     http_not_found( sck, page );
     return;
   }

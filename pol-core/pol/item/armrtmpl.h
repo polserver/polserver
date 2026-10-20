@@ -7,8 +7,8 @@
 #ifndef ARMRTMPL_H
 #define ARMRTMPL_H
 
+#include <cstddef>
 #include <set>
-#include <string>
 
 #include "pol/equipdsc.h"
 namespace Pol

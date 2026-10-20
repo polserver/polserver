@@ -6,7 +6,6 @@
 
 #include "pol/network/bannedips.h"
 
-#include <string>
 
 #include "clib/cfgelem.h"
 #include "clib/cfgfile.h"

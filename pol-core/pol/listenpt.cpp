@@ -15,7 +15,6 @@
 #include <stddef.h>
 
 #include "bscript/barray.h"
-#include "bscript/bobject.h"
 #include "plib/uconst.h"
 
 #include "pol/globals/settings.h"

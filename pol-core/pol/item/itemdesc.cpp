@@ -16,6 +16,7 @@
 #include "pol/item/itemdesc.h"
 
 #include <ctype.h>
+#include <fstream>
 #include <iosfwd>
 #include <iterator>
 #include <stdlib.h>

@@ -25,7 +25,6 @@
 #include <atomic>
 #include <boost/asio/ip/network_v4.hpp>
 #include <cstring>
-#include <memory>
 #include <mutex>
 #include <queue>
 #include <string>

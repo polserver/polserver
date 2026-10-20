@@ -2,9 +2,7 @@
 #define POLSERVER_INSTRUCTIONEMITTER_H
 
 #include <map>
-#include <memory>
 #include <string>
-#include <vector>
 
 #ifndef OBJMEMBERS_H
 #include "bscript/objmembers.h"

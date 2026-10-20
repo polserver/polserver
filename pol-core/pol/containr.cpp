@@ -39,12 +39,12 @@
 #include "clib/stlutil.h"
 #include "clib/streamsaver.h"
 #include "plib/uconst.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/client.h"
-#include "pol/profile.h"
 #include "pol/scrdef.h"
 #include "pol/scrsched.h"
 #include "pol/statmsg.h"
@@ -53,7 +53,6 @@
 #include "pol/umanip.h"
 #include "pol/uobject.h"
 #include "pol/uoscrobj.h"
-#include "pol/uworld.h"
 
 
 namespace Pol::Core

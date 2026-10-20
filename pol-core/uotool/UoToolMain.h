@@ -1,7 +1,6 @@
 #ifndef UO_TOOL_MAIN_H
 #define UO_TOOL_MAIN_H
 
-#include <string>
 
 #include "clib/Program/ProgramMain.h"
 

@@ -2,7 +2,6 @@
 #define POLSERVER_CONSTANTS_H
 
 #include <map>
-#include <memory>
 #include <string>
 
 namespace Pol::Bscript::Compiler

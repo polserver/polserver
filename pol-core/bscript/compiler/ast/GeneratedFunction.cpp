@@ -1,6 +1,5 @@
 #include "bscript/compiler/ast/GeneratedFunction.h"
 
-#include "bscript/compiler/ast/Argument.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/FunctionBody.h"
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"

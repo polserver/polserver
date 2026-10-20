@@ -33,6 +33,7 @@
 #include "pol/containr.h"
 #include "pol/eventid.h"
 #include "pol/gameclck.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/mobile/charactr.h"

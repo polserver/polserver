@@ -2,7 +2,6 @@
 
 #include "bscript/compiler/Profile.h"
 #include "bscript/compiler/Report.h"
-#include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/file/PrettifyLineBuilder.h"
 #include "bscript/compiler/file/SourceFile.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
@@ -12,8 +11,7 @@
 
 #include <algorithm>
 #include <any>
-#include <iostream>
-#include <memory>
+#include <fmt/ranges.h>
 #include <utility>
 #include <vector>
 

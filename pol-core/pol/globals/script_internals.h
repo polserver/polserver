@@ -1,14 +1,15 @@
 #ifndef GLOBALS_SCRIPT_INTERNALS_H
 #define GLOBALS_SCRIPT_INTERNALS_H
 
+#include <cstddef>
 #include <deque>
 #include <map>
 #include <set>
 
 #include "bscript/eprog.h"
 #include "clib/maputil.h"
+#include "clib/refptr.h"
 #include "pol/polclock.h"
-#include "pol/reftypes.h"
 
 
 namespace Pol::Core

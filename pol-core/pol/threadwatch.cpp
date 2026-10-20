@@ -12,6 +12,7 @@
 
 #include "clib/strutil.h"
 #include "clib/threadhelp.h"
+#include "pol/polclock.h"
 
 namespace Pol::Core
 {

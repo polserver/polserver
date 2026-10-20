@@ -7,7 +7,6 @@
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
 #include "bscript/compiler/analyzer/ShortCircuitWarning.h"
-#include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
 #include "bscript/compiler/codegen/CodeGenerator.h"
 #include "bscript/compiler/file/PrettifyBuilder.h"
@@ -19,10 +18,10 @@
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/Optimizer.h"
 #include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "bscript/compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {

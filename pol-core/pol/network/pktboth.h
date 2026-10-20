@@ -14,7 +14,6 @@
 
 #include "clib/rawtypes.h"
 #include "plib/uconst.h"
-#include "pol/network/pktbothid.h"
 #include "pol/network/pktdef.h"
 
 

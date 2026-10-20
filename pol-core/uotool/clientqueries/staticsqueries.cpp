@@ -15,7 +15,6 @@
 #include "uotool/clientqueries/staticsqueries.h"
 
 #include "clib/logfacility.h"
-#include "clib/strutil.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/udatfile.h"
 #include "plib/ustruct.h"

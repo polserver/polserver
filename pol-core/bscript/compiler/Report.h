@@ -3,7 +3,9 @@
 
 
 #include "bscript/compiler/ast/Node.h"
-#include "clib/logfacility.h"
+#include <fmt/format.h>
+#include <stdexcept>
+#include <string>
 
 namespace Pol::Bscript::Compiler
 {

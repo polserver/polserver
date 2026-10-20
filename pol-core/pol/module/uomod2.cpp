@@ -76,6 +76,7 @@
 #include "pol/globals/memoryusage.h"
 #include "pol/globals/object_storage.h"
 #include "pol/globals/script_internals.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/state.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
@@ -1056,6 +1057,209 @@ void sellhandler( Client* client, PKTIN_9F* msg )
   close_sell_window( client );
 }
 
+namespace
+{
+std::string buildUnCompressedGumpMenu( PktHelper::PacketOut<PktOut_B0>& msg, ObjArray* layout_arr,
+                                       ObjArray* data_arr, int x, int y, u32 gumpid )
+{
+  msg->offset += 2;
+  msg->offset += 4;  // msg->Write<u32>( chr->serial_ext );
+  msg->WriteFlipped<u32>( gumpid );
+  msg->WriteFlipped<u32>( static_cast<u32>( x ) );
+  msg->WriteFlipped<u32>( static_cast<u32>( y ) );
+  u16 pos = msg->offset;
+  msg->offset += 2;  // layoutlen
+  size_t layoutlen = 0;
+  for ( auto& layout : layout_arr->ref_arr )
+  {
+    BObject* bo = layout.get();
+    if ( bo == nullptr )
+      continue;
+    BObjectImp* imp = bo->impptr();
+    std::string s = imp->getStringRep();
+
+    size_t addlen = 4 + s.length();
+    layoutlen += addlen;
+    if ( msg->offset + addlen > sizeof msg->buffer )
+    {
+      return "Buffer length exceeded";
+    }
+    msg->Write( "{ ", 2, false );
+    msg->Write( s.c_str(), static_cast<u16>( s.length() ), false );
+    msg->Write( " }", 2, false );
+  }
+
+  if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
+  {
+    return "Buffer length exceeded";
+  }
+  msg->offset++;  // nullterm
+  layoutlen++;
+
+  u16 len = msg->offset;
+  msg->offset = pos;
+  msg->WriteFlipped<u16>( layoutlen );
+  msg->offset = len;
+
+  pos = msg->offset;
+
+  if ( msg->offset + 2 > static_cast<int>( sizeof msg->buffer ) )
+  {
+    return "Buffer length exceeded";
+  }
+  msg->offset += 2;  // numlines
+
+  u16 numlines = 0;
+  for ( auto& data : data_arr->ref_arr )
+  {
+    BObject* bo = data.get();
+    if ( bo == nullptr )
+      continue;
+    BObjectImp* imp = bo->impptr();
+    std::string s = imp->getStringRep();
+
+    ++numlines;
+    auto utf16 = Bscript::String::toUTF16( s );
+
+    if ( msg->offset + 2 + utf16.size() * 2 > sizeof msg->buffer )
+    {
+      return "Buffer length exceeded";
+    }
+
+    msg->WriteFlipped<u16>( utf16.size() );
+    msg->WriteFlipped( utf16, false );
+  }
+
+  if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
+  {
+    return "Buffer length exceeded";
+  }
+  msg->offset++;  // nullterm
+
+  len = msg->offset;
+  msg->offset = pos;
+  msg->WriteFlipped<u16>( numlines );
+  msg->offset = 1;
+  msg->WriteFlipped<u16>( len );
+  msg->offset = len;
+
+  return {};
+}
+
+std::string buildCompressedGumpMenu( PktHelper::PacketOut<PktOut_DD>& msg, ObjArray* layout_arr,
+                                     ObjArray* data_arr, int x, int y, u32 gumpid )
+{
+  PktHelper::PacketOut<PktOut_DD> bfr;  // compress buffer
+  bfr->offset = 0;
+  msg->offset += 2;
+  msg->offset += 4;  //  msg->Write<u32>( chr->serial_ext );
+  msg->WriteFlipped<u32>( gumpid );
+  msg->WriteFlipped<u32>( static_cast<u16>( x ) );
+  msg->WriteFlipped<u32>( static_cast<u16>( y ) );
+  msg->offset += 8;  // u32 layout_clen,layout_dlen
+
+  u32 layoutdlen = 0;
+
+  for ( auto& layout : layout_arr->ref_arr )
+  {
+    BObject* bo = layout.get();
+    if ( bo == nullptr )
+      continue;
+    BObjectImp* imp = bo->impptr();
+    std::string s = imp->getStringRep();
+
+    size_t addlen = 4 + s.length();
+    if ( layoutdlen + addlen > sizeof bfr->buffer )
+    {
+      return "Buffer length exceeded";
+    }
+    layoutdlen += static_cast<u32>( addlen );
+    bfr->Write( "{ ", 2, false );
+    bfr->Write( s.c_str(), static_cast<u16>( s.length() ), false );
+    bfr->Write( " }", 2, false );
+  }
+  if ( layoutdlen + 1 > static_cast<u32>( sizeof bfr->buffer ) )
+  {
+    return "Buffer length exceeded";
+  }
+  layoutdlen++;
+  bfr->offset++;  // nullterm
+
+  unsigned long cbuflen =
+      ( ( (unsigned long)( ( (float)( layoutdlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
+  if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
+  {
+    return "Compression error";
+  }
+
+  if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
+                  reinterpret_cast<unsigned char*>( &bfr->buffer ), layoutdlen,
+                  Z_DEFAULT_COMPRESSION ) != Z_OK )
+  {
+    return "Compression error";
+  }
+  msg->offset -= 8;
+  msg->WriteFlipped<u32>( cbuflen + 4 );
+  msg->WriteFlipped<u32>( layoutdlen );
+  msg->offset += static_cast<u16>( cbuflen );
+
+  bfr->offset = 0;
+
+  u32 numlines = 0;
+  u32 datadlen = 0;
+
+  for ( auto& data : data_arr->ref_arr )
+  {
+    BObject* bo = data.get();
+    if ( bo == nullptr )
+      continue;
+    BObjectImp* imp = bo->impptr();
+    std::string s = imp->getStringRep();
+
+    auto utf16 = Bscript::String::toUTF16( s );
+    ++numlines;
+    size_t addlen = ( utf16.size() + 1 ) * 2;
+    if ( datadlen + addlen > sizeof bfr->buffer )
+    {
+      return "Buffer length exceeded";
+    }
+    datadlen += static_cast<u32>( addlen );
+    bfr->WriteFlipped<u16>( utf16.size() );
+    bfr->WriteFlipped( utf16, false );
+  }
+  msg->WriteFlipped<u32>( numlines );
+  if ( numlines != 0 )
+  {
+    msg->offset += 8;  // u32 text_clen, text_dlen
+
+    cbuflen = ( ( (unsigned long)( ( (float)( datadlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
+    if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
+    {
+      return "Compression error";
+    }
+    if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
+                    reinterpret_cast<unsigned char*>( &bfr->buffer ), datadlen,
+                    Z_DEFAULT_COMPRESSION ) != Z_OK )
+    {
+      return "Compression error";
+    }
+
+    msg->offset -= 8;
+    msg->WriteFlipped<u32>( cbuflen + 4 );
+    msg->WriteFlipped<u32>( datadlen );
+    msg->offset += static_cast<u16>( cbuflen );
+  }
+  else
+    msg->Write<u32>( 0u );
+  u16 len = msg->offset;
+  msg->offset = 1;
+  msg->WriteFlipped<u16>( len );
+  msg->offset = len;
+
+  return {};
+}
+}  // namespace
+
 //
 //  "GUMP" Functions
 //
@@ -1238,208 +1442,6 @@ BObjectImp* UOExecutorModule::mf_DisplayDialogGump(
     send_chrs->addElement( chr->make_ref() );
   }
   return send_chrs.release();
-}
-
-std::string UOExecutorModule::buildUnCompressedGumpMenu( PktHelper::PacketOut<PktOut_B0>& msg,
-                                                         ObjArray* layout_arr, ObjArray* data_arr,
-                                                         int x, int y, u32 gumpid )
-{
-  msg->offset += 2;
-  msg->offset += 4;  // msg->Write<u32>( chr->serial_ext );
-  msg->WriteFlipped<u32>( gumpid );
-  msg->WriteFlipped<u32>( static_cast<u32>( x ) );
-  msg->WriteFlipped<u32>( static_cast<u32>( y ) );
-  u16 pos = msg->offset;
-  msg->offset += 2;  // layoutlen
-  size_t layoutlen = 0;
-  for ( auto& layout : layout_arr->ref_arr )
-  {
-    BObject* bo = layout.get();
-    if ( bo == nullptr )
-      continue;
-    BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
-
-    size_t addlen = 4 + s.length();
-    layoutlen += addlen;
-    if ( msg->offset + addlen > sizeof msg->buffer )
-    {
-      return "Buffer length exceeded";
-    }
-    msg->Write( "{ ", 2, false );
-    msg->Write( s.c_str(), static_cast<u16>( s.length() ), false );
-    msg->Write( " }", 2, false );
-  }
-
-  if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
-  {
-    return "Buffer length exceeded";
-  }
-  msg->offset++;  // nullterm
-  layoutlen++;
-
-  u16 len = msg->offset;
-  msg->offset = pos;
-  msg->WriteFlipped<u16>( layoutlen );
-  msg->offset = len;
-
-  pos = msg->offset;
-
-  if ( msg->offset + 2 > static_cast<int>( sizeof msg->buffer ) )
-  {
-    return "Buffer length exceeded";
-  }
-  msg->offset += 2;  // numlines
-
-  u16 numlines = 0;
-  for ( auto& data : data_arr->ref_arr )
-  {
-    BObject* bo = data.get();
-    if ( bo == nullptr )
-      continue;
-    BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
-
-    ++numlines;
-    auto utf16 = Bscript::String::toUTF16( s );
-
-    if ( msg->offset + 2 + utf16.size() * 2 > sizeof msg->buffer )
-    {
-      return "Buffer length exceeded";
-    }
-
-    msg->WriteFlipped<u16>( utf16.size() );
-    msg->WriteFlipped( utf16, false );
-  }
-
-  if ( msg->offset + 1 > static_cast<int>( sizeof msg->buffer ) )
-  {
-    return "Buffer length exceeded";
-  }
-  msg->offset++;  // nullterm
-
-  len = msg->offset;
-  msg->offset = pos;
-  msg->WriteFlipped<u16>( numlines );
-  msg->offset = 1;
-  msg->WriteFlipped<u16>( len );
-  msg->offset = len;
-
-  return {};
-}
-
-std::string UOExecutorModule::buildCompressedGumpMenu( PktHelper::PacketOut<PktOut_DD>& msg,
-                                                       ObjArray* layout_arr, ObjArray* data_arr,
-                                                       int x, int y, u32 gumpid )
-{
-  PktHelper::PacketOut<PktOut_DD> bfr;  // compress buffer
-  bfr->offset = 0;
-  msg->offset += 2;
-  msg->offset += 4;  //  msg->Write<u32>( chr->serial_ext );
-  msg->WriteFlipped<u32>( gumpid );
-  msg->WriteFlipped<u32>( static_cast<u16>( x ) );
-  msg->WriteFlipped<u32>( static_cast<u16>( y ) );
-  msg->offset += 8;  // u32 layout_clen,layout_dlen
-
-  u32 layoutdlen = 0;
-
-  for ( auto& layout : layout_arr->ref_arr )
-  {
-    BObject* bo = layout.get();
-    if ( bo == nullptr )
-      continue;
-    BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
-
-    size_t addlen = 4 + s.length();
-    if ( layoutdlen + addlen > sizeof bfr->buffer )
-    {
-      return "Buffer length exceeded";
-    }
-    layoutdlen += static_cast<u32>( addlen );
-    bfr->Write( "{ ", 2, false );
-    bfr->Write( s.c_str(), static_cast<u16>( s.length() ), false );
-    bfr->Write( " }", 2, false );
-  }
-  if ( layoutdlen + 1 > static_cast<u32>( sizeof bfr->buffer ) )
-  {
-    return "Buffer length exceeded";
-  }
-  layoutdlen++;
-  bfr->offset++;  // nullterm
-
-  unsigned long cbuflen =
-      ( ( (unsigned long)( ( (float)( layoutdlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
-  if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
-  {
-    return "Compression error";
-  }
-
-  if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
-                  reinterpret_cast<unsigned char*>( &bfr->buffer ), layoutdlen,
-                  Z_DEFAULT_COMPRESSION ) != Z_OK )
-  {
-    return "Compression error";
-  }
-  msg->offset -= 8;
-  msg->WriteFlipped<u32>( cbuflen + 4 );
-  msg->WriteFlipped<u32>( layoutdlen );
-  msg->offset += static_cast<u16>( cbuflen );
-
-  bfr->offset = 0;
-
-  u32 numlines = 0;
-  u32 datadlen = 0;
-
-  for ( auto& data : data_arr->ref_arr )
-  {
-    BObject* bo = data.get();
-    if ( bo == nullptr )
-      continue;
-    BObjectImp* imp = bo->impptr();
-    std::string s = imp->getStringRep();
-
-    auto utf16 = Bscript::String::toUTF16( s );
-    ++numlines;
-    size_t addlen = ( utf16.size() + 1 ) * 2;
-    if ( datadlen + addlen > sizeof bfr->buffer )
-    {
-      return "Buffer length exceeded";
-    }
-    datadlen += static_cast<u32>( addlen );
-    bfr->WriteFlipped<u16>( utf16.size() );
-    bfr->WriteFlipped( utf16, false );
-  }
-  msg->WriteFlipped<u32>( numlines );
-  if ( numlines != 0 )
-  {
-    msg->offset += 8;  // u32 text_clen, text_dlen
-
-    cbuflen = ( ( (unsigned long)( ( (float)( datadlen ) ) * 1.001f ) ) + 12 );  // as per zlib spec
-    if ( cbuflen > ( (unsigned long)( 0xFFFF - msg->offset ) ) )
-    {
-      return "Compression error";
-    }
-    if ( compress2( reinterpret_cast<unsigned char*>( msg->getBuffer() ), &cbuflen,
-                    reinterpret_cast<unsigned char*>( &bfr->buffer ), datadlen,
-                    Z_DEFAULT_COMPRESSION ) != Z_OK )
-    {
-      return "Compression error";
-    }
-
-    msg->offset -= 8;
-    msg->WriteFlipped<u32>( cbuflen + 4 );
-    msg->WriteFlipped<u32>( datadlen );
-    msg->offset += static_cast<u16>( cbuflen );
-  }
-  else
-    msg->Write<u32>( 0u );
-  u16 len = msg->offset;
-  msg->offset = 1;
-  msg->WriteFlipped<u16>( len );
-  msg->offset = len;
-
-  return {};
 }
 
 class BIntHash final : public BObjectImp

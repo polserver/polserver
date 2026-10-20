@@ -7,11 +7,10 @@
 #ifndef ARMOR_H
 #define ARMOR_H
 
-#include <iosfwd>
+#include <cstddef>
 #include <set>
 #include <string>
 
-#include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 #include "pol/dynproperties.h"
 #include "pol/item/equipmnt.h"

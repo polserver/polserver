@@ -7,7 +7,7 @@
 #ifndef GUILDSMOD_H
 #define GUILDSMOD_H
 
-#include "bscript/bobject.h"
+#include "bscript/bobjectimp.h"
 #include "pol/polmodl.h"
 
 

@@ -3,12 +3,10 @@
 #include "bscript/compiler/Antlr4Inc.h"
 
 #include "bscript/compiler/file/SourceFileIdentifier.h"
-#include "clib/filecont.h"
 #include "clib/logfacility.h"
 
 #include <iterator>
 
-#include <climits>
 
 namespace Pol::Bscript::Compiler
 {

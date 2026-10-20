@@ -8,11 +8,11 @@
 #ifndef WEPNTMPL_H
 #define WEPNTMPL_H
 
-#include <string>
 
 #include "pol/action.h"
 #include "pol/dice.h"
 #include "pol/equipdsc.h"
+#include <cstddef>
 
 namespace Pol
 {

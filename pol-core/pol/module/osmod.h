@@ -14,11 +14,10 @@
 
 #include <ctime>
 #include <deque>
-#include <map>
 
+#include "clib/rawtypes.h"
 #include "pol/globals/script_internals.h"
 #include "pol/polclock.h"
-#include "clib/rawtypes.h"
 
 namespace Pol
 {

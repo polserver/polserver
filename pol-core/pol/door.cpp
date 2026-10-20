@@ -10,7 +10,6 @@
 #include "bscript/executor.h"
 #include "clib/rawtypes.h"
 
-#include "pol/base/vector.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/itemdesc.h"
 #include "pol/item/location.h"

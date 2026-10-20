@@ -16,7 +16,6 @@
 
 #include "pol/packetscrobj.h"
 
-#include <iomanip>
 #include <stddef.h>
 
 #include "bscript/berror.h"

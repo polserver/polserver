@@ -10,7 +10,7 @@
 #include <stddef.h>
 
 #include "clib/rawtypes.h"
-#include "plib/uconst.h"
+#include "pol/globals/settings.h"
 #include "pol/mobile/charactr.h"
 #include "pol/multi/customhouses.h"
 #include "pol/multi/house.h"

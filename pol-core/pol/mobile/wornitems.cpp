@@ -1,7 +1,6 @@
 
 #include "pol/mobile/wornitems.h"
 
-#include "bscript/bobject.h"
 #include "clib/passert.h"
 #include "plib/objtype.h"
 #include "pol/containr.h"

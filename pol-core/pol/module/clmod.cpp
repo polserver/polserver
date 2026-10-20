@@ -11,12 +11,10 @@
 #include "bscript/blong.h"
 #include "bscript/bstring.h"
 #include "clib/passert.h"
-#include "clib/rawtypes.h"
 
 #include "pol/clfunc.h"
 #include "pol/mobile/charactr.h"
 #include "pol/network/pktdef.h"
-
 #include <module_defs/cliloc.h>
 
 

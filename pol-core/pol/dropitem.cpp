@@ -22,7 +22,6 @@
  */
 
 
-#include <cstdio>
 #include <string>
 
 #include "bscript/berror.h"
@@ -30,7 +29,6 @@
 #include "clib/clib_endian.h"
 #include "clib/logfacility.h"
 #include "clib/passert.h"
-#include "clib/random.h"
 #include "clib/rawtypes.h"
 #include "plib/objtype.h"
 #include "plib/systemstate.h"
@@ -39,9 +37,9 @@
 #include "pol/eventid.h"
 #include "pol/fnsearch.h"
 #include "pol/getitem.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
-#include "pol/layers.h"
 #include "pol/los.h"
 #include "pol/mobile/charactr.h"
 #include "pol/mobile/corpse.h"
@@ -64,7 +62,6 @@
 #include "pol/ufunc.h"
 #include "pol/uobject.h"
 #include "pol/uoscrobj.h"
-#include "pol/uworld.h"
 
 
 namespace Pol::Core

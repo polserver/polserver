@@ -8,6 +8,7 @@
 #define __UVARS_H
 
 #include <array>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <queue>
@@ -22,7 +23,6 @@
 #include "clib/threadhelp.h"
 #include "plib/clidata.h"
 #include "pol/action.h"
-#include "pol/base/vector.h"
 #include "pol/cmdlevel.h"
 #include "pol/decay.h"
 #include "pol/layers.h"
@@ -33,7 +33,6 @@
 #include "pol/storage.h"
 #include "pol/syshook.h"
 #include "pol/target.h"
-#include "pol/tasks.h"
 #include "pol/textcmd.h"
 #include "pol/uoskills.h"
 

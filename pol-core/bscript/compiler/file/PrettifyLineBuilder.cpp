@@ -1,12 +1,10 @@
 #include "bscript/compiler/file/PrettifyLineBuilder.h"
 
 #include "bscript/compilercfg.h"
-#include "clib/filecont.h"
 #include "clib/logfacility.h"
 #include <EscriptGrammar/EscriptLexer.h>
 
 #include <algorithm>
-#include <iostream>
 #include <utility>
 
 // #define DEBUG_FORMAT_BREAK

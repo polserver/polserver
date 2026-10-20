@@ -3,7 +3,6 @@
 
 #include <EscriptGrammar/EscriptParserBaseVisitor.h>
 
-#include <memory>
 #include <string>
 
 #include "bscript/compiler/astbuilder/ModuleDeclarationBuilder.h"

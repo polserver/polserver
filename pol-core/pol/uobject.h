@@ -17,14 +17,11 @@
 #endif
 
 #include <atomic>
-#include <boost/any.hpp>
-#include <boost/flyweight.hpp>
-#include <iosfwd>
-#include <map>
-#include <set>
+#include <cstddef>
 #include <string>
 #include <string_view>
 #include <type_traits>
+#include <vector>
 
 #include "clib/boostutils.h"
 #include "clib/refptr.h"

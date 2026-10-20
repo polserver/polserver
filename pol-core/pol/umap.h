@@ -7,13 +7,14 @@
 #ifndef UMAP_H
 #define UMAP_H
 
-#include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 #ifndef ITEM_H
 #include "pol/item/item.h"
 #endif
 #include "pol/base/position.h"
 #include "pol/base/range.h"
+#include <cstddef>
+#include <vector>
 
 namespace Pol
 {

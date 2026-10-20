@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <fmt/ranges.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -24,7 +25,6 @@
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "clib/refptr.h"
-#include "plib/clidata.h"
 #include "plib/objtype.h"
 #include "plib/systemstate.h"
 #include "plib/uconst.h"
@@ -34,9 +34,9 @@
 #include "pol/gameclck.h"
 #include "pol/globals/network.h"
 #include "pol/globals/object_storage.h"
+#include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/item/item.h"
-#include "pol/layers.h"
 #include "pol/mkscrobj.h"
 #include "pol/mobile/attribute.h"
 #include "pol/mobile/charactr.h"
@@ -46,6 +46,7 @@
 #include "pol/network/pktdef.h"
 #include "pol/network/pktin.h"
 #include "pol/realms/WorldChangeReasons.h"
+#include "pol/realms/realms.h"
 #include "pol/scrsched.h"
 #include "pol/scrstore.h"
 #include "pol/skillid.h"

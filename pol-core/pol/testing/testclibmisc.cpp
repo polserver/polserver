@@ -14,7 +14,6 @@
 #include "clib/binaryfile.h"
 #include "clib/clib.h"
 #include "clib/filecont.h"
-#include "clib/fileutil.h"
 #include "clib/passert.h"
 #include "clib/streamsaver.h"
 #include "clib/strset.h"

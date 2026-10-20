@@ -3,7 +3,6 @@
 #include "bscript/bdouble.h"
 #include "bscript/blong.h"
 #include "bscript/buninit.h"
-#include "clib/boostutils.h"
 #include "clib/clib.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"

@@ -32,10 +32,9 @@
 #include "pol/binaryfilescrobj.h"
 #include "pol/core.h"
 #include "pol/globals/ucfg.h"
-#include "pol/xmlfilescrobj.h"
 #include "pol/module/fileaccess.h"
 #include "pol/module/filemod.h"
-
+#include "pol/xmlfilescrobj.h"
 #include <module_defs/file.h>
 
 

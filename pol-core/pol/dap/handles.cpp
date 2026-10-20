@@ -2,6 +2,8 @@
 
 #include "bscript/buninit.h"
 #include "bscript/eprog.h"
+#include "bscript/objmembers.h"
+#include "clib/strutil.h"
 #include "pol/uoexec.h"
 
 

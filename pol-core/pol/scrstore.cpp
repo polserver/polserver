@@ -11,7 +11,6 @@
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
 #include "clib/strutil.h"
-#include "plib/systemstate.h"
 #include "pol/globals/script_internals.h"
 #include "pol/globals/state.h"
 #include "pol/profile.h"

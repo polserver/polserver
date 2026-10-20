@@ -11,7 +11,6 @@
 #include "pol/network/iostats.h"
 #include "pol/network/ipmatch.h"
 #include "pol/network/msghandl.h"
-#include "pol/network/sockio.h"
 #include "pol/polstats.h"
 #include "pol/uoclient.h"
 

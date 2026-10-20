@@ -6,10 +6,12 @@ Remove the include in all StdAfx.h files or live with the consequences :)
 
 #pragma once
 
+#include <concepts>
+#include <fmt/base.h>
 #include <fmt/format.h>
-#include <fmt/ranges.h>
 #include <map>
 #include <memory>
+#include <string>
 #include <type_traits>
 #include <vector>
 

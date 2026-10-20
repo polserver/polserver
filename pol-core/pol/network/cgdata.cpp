@@ -12,17 +12,15 @@
 #include "clib/stlutil.h"
 #include "pol/containr.h"
 #include "pol/fnsearch.h"
-#include "pol/menu.h"
+#include "pol/globals/settings.h"
 #include "pol/mobile/npc.h"
 #include "pol/module/unimod.h"
 #include "pol/module/uomod.h"
 #include "pol/multi/customhouses.h"
 #include "pol/multi/house.h"
 #include "pol/multi/multi.h"
-#include "plib/systemstate.h"
 #include "pol/target.h"
 #include "pol/uoexec.h"
-#include "pol/network/pktin.h"
 
 
 namespace Pol::Network

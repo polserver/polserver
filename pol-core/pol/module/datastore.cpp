@@ -35,7 +35,6 @@
 #include "pol/module/datastoreimp.h"
 #include "pol/proplist.h"
 #include "pol/saveparallel.h"
-
 #include <module_defs/datafile.h>
 
 

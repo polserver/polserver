@@ -1,7 +1,6 @@
 #include "bscript/compiler/optimizer/BinaryOperatorOptimizer.h"
 
 #include "bscript/compiler/ast/BinaryOperator.h"
-#include "bscript/compiler/ast/BinaryOperatorShortCircuit.h"
 #include "bscript/compilercfg.h"
 
 #include "bscript/compiler/optimizer/BinaryOperatorShortCircuitOptimizer.h"

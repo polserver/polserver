@@ -1,11 +1,12 @@
 #ifndef POLSERVER_NODE_H
 #define POLSERVER_NODE_H
 
+#include <cstddef>
 #include <fmt/format.h>
-#include <iterator>
 #include <memory>
 #include <string>
 #include <type_traits>
+#include <utility>
 #include <vector>
 
 #include "bscript/compiler/file/SourceLocation.h"

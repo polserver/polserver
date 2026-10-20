@@ -29,7 +29,6 @@
 #include "pol/threadwatch.h"
 #include "pol/ufunc.h"
 #include "pol/uoscrobj.h"
-#include "pol/uworld.h"
 
 
 namespace Pol::Core

@@ -7,11 +7,9 @@
 #ifndef EQUIPMNT_H
 #define EQUIPMNT_H
 
-#include <iosfwd>
+#include <cstddef>
 #include <string>
 
-#include "bscript/bobject.h"
-#include "clib/rawtypes.h"
 #include "pol/baseobject.h"
 
 namespace Pol

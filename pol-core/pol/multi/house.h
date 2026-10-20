@@ -8,11 +8,13 @@
 #ifndef _HOUSE_H
 #define _HOUSE_H
 
+#include <cstddef>
 #include <functional>
 #include <list>
+#include <string>
+#include <utility>
 #include <vector>
 
-#include "bscript/bobject.h"
 #include "clib/rawtypes.h"
 #include "plib/udatfile.h"
 #include "pol/item/item.h"

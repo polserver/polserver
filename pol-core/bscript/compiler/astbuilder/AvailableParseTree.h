@@ -3,9 +3,10 @@
 #include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/model/UserFunctionType.h"
+#include <fmt/base.h>
+#include <fmt/format.h>
+#include <string>
 
-#include <clib/maputil.h>
-#include <map>
 
 namespace antlr4
 {

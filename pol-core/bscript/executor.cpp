@@ -62,9 +62,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <exception>
-#include <numeric>
 #include <ranges>
-#include <string_view>
 #include <typeinfo>
 
 
@@ -420,22 +418,22 @@ int Executor::paramAsLong( unsigned param )
 }
 BObject* Executor::getParam( unsigned param )
 {
-  passert_r( param < fparams.size(),
-             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
-                 "You should use *.em-files shipped with this Core and "
-                 "recompile ALL of your Scripts _now_! RTFM" +
-                 script_stack_block() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" +
+                                         script_stack_block() );
 
   return fparams[param].get();
 }
 
 BObjectImp* Executor::getParamImp( unsigned param )
 {
-  passert_r( param < fparams.size(),
-             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
-                 "You should use *.em-files shipped with this Core and "
-                 "recompile ALL of your Scripts _now_! RTFM" +
-                 script_stack_block() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" +
+                                         script_stack_block() );
 
   return fparams[param].get()->impptr();
 }
@@ -449,11 +447,11 @@ BObject* Executor::getParamObj( unsigned param )
 
 BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type )
 {
-  passert_r( param < fparams.size(),
-             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
-                 "You should use *.em-files shipped with this Core and "
-                 "recompile ALL of your Scripts _now_! RTFM" +
-                 script_stack_block() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" +
+                                         script_stack_block() );
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
@@ -480,11 +478,11 @@ BObjectImp* Executor::getParamImp( unsigned param, BObjectImp::BObjectType type 
 
 BObjectImp* Executor::getParamImp2( unsigned param, BObjectImp::BObjectType type )
 {
-  passert_r( param < fparams.size(),
-             "Script Error in '" + scriptname() + ": Less Parameter than expected. " +
-                 "You should use *.em-files shipped with this Core and "
-                 "recompile ALL of your Scripts _now_! RTFM" +
-                 script_stack_block() );
+  passert_r( param < fparams.size(), "Script Error in '" + scriptname() +
+                                         ": Less Parameter than expected. " +
+                                         "You should use *.em-files shipped with this Core and "
+                                         "recompile ALL of your Scripts _now_! RTFM" +
+                                         script_stack_block() );
 
   BObjectImp* imp = fparams[param].get()->impptr();
 
@@ -2738,10 +2736,10 @@ void Executor::ins_call_method_id( const Instruction& ins )
           // The class index addresses the function reference's program, so the instance has to
           // be built from that program and its creator's globals, not from whatever this
           // executor currently runs.
-          fparams.insert( fparams.begin(),
-                          BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
-                              funcr->prog(), funcr->class_index(), funcr->globals,
-                              funcr->pid() ) ) ) ) );
+          fparams.insert(
+              fparams.begin(),
+              BObjectRef( new BConstObject( new BClassInstanceRef( new BClassInstance(
+                  funcr->prog(), funcr->class_index(), funcr->globals, funcr->pid() ) ) ) ) );
         }
       }
 

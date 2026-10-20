@@ -7,12 +7,9 @@
  */
 
 
-#include <cstdio>
-
 #include "clib/clib_endian.h"
 #include "clib/logfacility.h"
 #include "clib/rawtypes.h"
-#include "plib/systemstate.h"
 #include "pol/getitem.h"
 #include "pol/item/item.h"
 #include "pol/layers.h"
