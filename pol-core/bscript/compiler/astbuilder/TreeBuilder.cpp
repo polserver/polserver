@@ -9,9 +9,9 @@ namespace Pol::Bscript::Compiler
 {
 TreeBuilder::TreeBuilder( const SourceFileIdentifier& source_file_identifier,
                           BuilderWorkspace& workspace )
-  : report( workspace.report ),
-    source_file_identifier( source_file_identifier ),
-    workspace( workspace )
+    : report( workspace.report ),
+      source_file_identifier( source_file_identifier ),
+      workspace( workspace )
 {
 }
 

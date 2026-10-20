@@ -145,16 +145,17 @@ std::unique_ptr<ClassDeclaration> UserFunctionBuilder::class_declaration(
                                                                      true /* requires_ctor */ );
                 }
                 // 3b. Otherwise: method
-                else
+                else if ( !methods.contains( func_name ) )
                 {
                   methods[func_name] = std::make_shared<FunctionLink>( func_loc, func_name );
                 }
               }
             }
           }
-          workspace.compiler_workspace.all_function_locations.emplace(
-              ScopableName( class_name, func_name ).string(), func_loc );
         }
+
+        workspace.compiler_workspace.all_function_locations.emplace(
+            ScopableName( class_name, func_name ).string(), func_loc );
       }
       else if ( auto var_statement = classStatement->varStatement() )
       {

@@ -21,9 +21,11 @@ class CompilerWorkspaceBuilder
 {
 public:
   CompilerWorkspaceBuilder( SourceFileLoader& source_loader, SourceFileCache& em_cache,
-                            SourceFileCache& inc_cache, bool continue_on_error, Profile&, Report& );
+                            SourceFileCache& inc_cache, bool continue_on_error, bool analysis_mode,
+                            Profile&, Report& );
 
   std::unique_ptr<CompilerWorkspace> build( const std::string& pathname, UserFunctionInclusion );
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::unique_ptr<CompilerWorkspace> build_module( const std::string& pathname );
 
 private:
@@ -33,6 +35,7 @@ private:
   SourceFileCache& em_cache;
   SourceFileCache& inc_cache;
   const bool continue_on_error;
+  const bool analysis_mode;
   Profile& profile;
   Report& report;
 };

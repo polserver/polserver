@@ -4,6 +4,10 @@
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/model/ScopableName.h"
 
+#include <functional>
+#include <optional>
+#include <vector>
+
 namespace Pol::Bscript::Compiler
 {
 class Argument;
@@ -26,7 +30,8 @@ public:
   void describe_to( std::string& ) const override;
 
   std::vector<std::unique_ptr<Argument>> take_arguments();
-  [[nodiscard]] std::unique_ptr<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>
+  // Empty when the call is not linked to a function.
+  [[nodiscard]] std::optional<std::vector<std::reference_wrapper<FunctionParameterDeclaration>>>
   parameters() const;
 
   const std::shared_ptr<FunctionLink> function_link;

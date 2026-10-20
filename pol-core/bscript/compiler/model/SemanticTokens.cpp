@@ -6,9 +6,14 @@
 
 namespace Pol::Bscript::Compiler
 {
-std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
-    const antlr4::Token& token )
+void SemanticToken::append_from_lexer_token( const antlr4::Token& token, SemanticTokens& tokens )
 {
+  auto add = [&]( SemanticTokenType type, std::vector<SemanticTokenModifier> modifiers = {} )
+  {
+    tokens.push_back( SemanticToken{ token.getLine(), token.getCharPositionInLine() + 1,
+                                     token.getText().length(), type, std::move( modifiers ) } );
+  };
+
   switch ( token.getType() )
   {
   case EscriptGrammar::EscriptLexer::IF:
@@ -64,14 +69,8 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::IS:
   case EscriptGrammar::EscriptLexer::CLASS:
   case EscriptGrammar::EscriptLexer::ENDCLASS:
-  {
-    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
-                                                  token.getCharPositionInLine() + 1,
-                                                  token.getText().length(),
-                                                  SemanticTokenType::KEYWORD,
-                                                  {} } };
-    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
-  }
+    add( SemanticTokenType::KEYWORD );
+    return;
   case EscriptGrammar::EscriptLexer::AND_A:
   case EscriptGrammar::EscriptLexer::AND_B:
   case EscriptGrammar::EscriptLexer::OR_A:
@@ -125,26 +124,14 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::DEC:
   case EscriptGrammar::EscriptLexer::ELVIS:
   case EscriptGrammar::EscriptLexer::QUESTION:
-  {
-    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
-                                                  token.getCharPositionInLine() + 1,
-                                                  token.getText().length(),
-                                                  SemanticTokenType::OPERATOR,
-                                                  {} } };
-    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
-  }
+    add( SemanticTokenType::OPERATOR );
+    return;
 
   case EscriptGrammar::EscriptLexer::BOOL_FALSE:
   case EscriptGrammar::EscriptLexer::BOOL_TRUE:
   case EscriptGrammar::EscriptLexer::UNINIT:
-  {
-    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
-                                                  token.getCharPositionInLine() + 1,
-                                                  token.getText().length(),
-                                                  SemanticTokenType::VARIABLE,
-                                                  { SemanticTokenModifier::READONLY } } };
-    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
-  }
+    add( SemanticTokenType::VARIABLE, { SemanticTokenModifier::READONLY } );
+    return;
 
 
   case EscriptGrammar::EscriptLexer::DECIMAL_LITERAL:
@@ -153,14 +140,8 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
   case EscriptGrammar::EscriptLexer::BINARY_LITERAL:
   case EscriptGrammar::EscriptLexer::FLOAT_LITERAL:
   case EscriptGrammar::EscriptLexer::HEX_FLOAT_LITERAL:
-  {
-    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
-                                                  token.getCharPositionInLine() + 1,
-                                                  token.getText().length(),
-                                                  SemanticTokenType::NUMBER,
-                                                  {} } };
-    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
-  }
+    add( SemanticTokenType::NUMBER );
+    return;
   case EscriptGrammar::EscriptLexer::STRING_LITERAL:
   case EscriptGrammar::EscriptLexer::INTERPOLATED_STRING_START:
   case EscriptGrammar::EscriptLexer::STRING_LITERAL_INSIDE:
@@ -169,7 +150,6 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
     const auto& str = token.getText();
     const auto size = str.size();
 
-    auto tokens = std::make_unique<std::list<SemanticToken>>();
     size_t line = token.getLine();
     size_t character = token.getCharPositionInLine() + 1;
     size_t token_length = 0;
@@ -177,7 +157,7 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
     {
       if ( str[i] == '\r' || str[i] == '\n' )
       {
-        tokens->push_back(
+        tokens.push_back(
             SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
         ++line;
         character = 1;
@@ -191,22 +171,14 @@ std::unique_ptr<std::list<SemanticToken>> SemanticToken::from_lexer_token(
         ++token_length;
       }
     }
-    tokens->push_back(
+    tokens.push_back(
         SemanticToken{ line, character, token_length, SemanticTokenType::STRING, {} } );
-    return tokens;
+    return;
   }
   case EscriptGrammar::EscriptLexer::REGEXP_LITERAL:
-  {
-    std::list<SemanticToken> list{ SemanticToken{ token.getLine(),
-                                                  token.getCharPositionInLine() + 1,
-                                                  token.getText().length(),
-                                                  SemanticTokenType::REGEXP,
-                                                  {} } };
-    return std::make_unique<std::list<SemanticToken>>( std::move( list ) );
+    add( SemanticTokenType::REGEXP );
+    return;
   }
-  }
-
-  return {};
 }
 
 

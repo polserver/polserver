@@ -14,7 +14,7 @@ namespace Pol::Bscript::Compiler
 class ThisMemberAssignmentGatherer : public NodeVisitor
 {
 public:
-  ThisMemberAssignmentGatherer();
+  ThisMemberAssignmentGatherer() = default;
 
   void visit_member_assignment( MemberAssignment& ) override;
   void visit_function_expression( FunctionExpression& ) override;

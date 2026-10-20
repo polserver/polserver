@@ -31,12 +31,12 @@
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/optimizer/BinaryOperatorOptimizer.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
 #include "bscript/compiler/optimizer/ReferencedFunctionGatherer.h"
 #include "bscript/compiler/optimizer/UnaryOperatorOptimizer.h"
 #include "bscript/compiler/optimizer/ValueConsumerOptimizer.h"
-#include "bscript/compiler/model/ScopableName.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -48,6 +48,7 @@ Optimizer::Optimizer( Constants& constants, Report& report )
 void Optimizer::optimize( CompilerWorkspace& workspace,
                           UserFunctionInclusion user_function_inclusion )
 {
+  keep_unoptimized_nodes = workspace.builder_workspace.analysis_mode;
   workspace.accept( *this );
 
   std::vector<UserFunction*> all_user_functions;
@@ -107,7 +108,7 @@ void Optimizer::visit_children( Node& node )
 
     if ( optimized_replacement )
     {
-      if ( dynamic_cast<Identifier*>( node.children[i].get() ) )
+      if ( keep_unoptimized_nodes && dynamic_cast<Identifier*>( node.children[i].get() ) )
       {
         optimized_replacement->unoptimized_node.swap( node.children[i] );
       }

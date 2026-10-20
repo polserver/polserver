@@ -30,9 +30,10 @@ void PrettifyLineBuilder::setComments( std::vector<FmtToken> comments )
   _comments = std::move( comments );
 }
 
-void PrettifyLineBuilder::setSkipLines( std::vector<Range> skiplines )
+void PrettifyLineBuilder::setSkipLines( std::vector<Range> skiplines, bool has_format_range )
 {
   _skiplines = std::move( skiplines );
+  _has_format_range = has_format_range;
 }
 
 void PrettifyLineBuilder::addPart( FmtToken part )
@@ -66,7 +67,7 @@ void PrettifyLineBuilder::mergeRawContent( size_t nextlineno )
       {
         if ( i >= _rawlines.size() )
         {
-          _rangeSkippedNewlineAtEOF = true;
+          _rangeSkippedNewlineAtEOF = _has_format_range;
           break;
         }
         else if ( i >= itr->end.line_number )

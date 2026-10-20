@@ -10,8 +10,6 @@
 
 namespace Pol::Bscript::Compiler
 {
-ThisMemberAssignmentGatherer::ThisMemberAssignmentGatherer() {}
-
 void ThisMemberAssignmentGatherer::visit_member_assignment( MemberAssignment& node )
 {
   if ( node.children.empty() )
@@ -35,7 +33,7 @@ void ThisMemberAssignmentGatherer::visit_function_expression( FunctionExpression
   {
     if ( auto user_function = function_link->user_function() )
     {
-      for ( const auto param : user_function->parameters() )
+      for ( const auto& param : user_function->parameters() )
       {
         if ( Clib::caseInsensitiveEqual( param.get().name.string(), "this" ) )
         {
@@ -45,6 +43,6 @@ void ThisMemberAssignmentGatherer::visit_function_expression( FunctionExpression
     }
   }
 
-visit_children( node );
+  visit_children( node );
 }
 }  // namespace Pol::Bscript::Compiler

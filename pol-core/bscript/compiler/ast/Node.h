@@ -88,6 +88,7 @@ public:
   }
 
   NodeVector children;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
   std::unique_ptr<Node> unoptimized_node;
 
   const SourceLocation source_location;

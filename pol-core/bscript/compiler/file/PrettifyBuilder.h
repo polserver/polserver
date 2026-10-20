@@ -15,6 +15,8 @@ class PrettifyBuilder
 public:
   PrettifyBuilder( Profile&, Report& );
 
+  // format_range: Analysis only: used by vscode-escript, not by ecompile or pol.
+  // `ecompile -F` passes std::nullopt.
   std::string build( SourceFileLoader& source_loader, const std::string& pathname, bool is_module,
                      std::optional<Range> format_range );
 

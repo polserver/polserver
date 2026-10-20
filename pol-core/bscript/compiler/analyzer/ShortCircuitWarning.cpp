@@ -23,7 +23,10 @@
 
 namespace Pol::Bscript::Compiler
 {
-ShortCircuitWarning::ShortCircuitWarning( Report& report ) : visitor( report ) {}
+ShortCircuitWarning::ShortCircuitWarning( Report& report, bool analysis_mode )
+    : visitor( report, analysis_mode )
+{
+}
 
 void ShortCircuitWarning::warn( CompilerWorkspace& workspace )
 {
@@ -51,13 +54,21 @@ void ShortCircuitWarning::visit_binary_operator_short_circuit( BinaryOperatorSho
 
 ///////
 
-ShortCircuitReporter::ShortCircuitReporter( Report& report ) : report( report ) {}
+ShortCircuitReporter::ShortCircuitReporter( Report& report, bool analysis_mode )
+    : report( report ), analysis_mode( analysis_mode )
+{
+}
 
 void ShortCircuitReporter::trigger( Node& op )
 {
-  report.warning( op.source_location,
-                  "Short circuit change: \"{}\" will potentially not been executed.",
-                  op.describe() );
+  if ( analysis_mode )
+    report.warning( op.source_location,
+                    "Short circuit change: \"{}\" will potentially not been executed.",
+                    op.describe() );
+  else
+    report.warning( op.source_location,
+                    "Short circuit change: \"{}\" will potentially not been executed.\n{}",
+                    op.describe(), op.source_location.getSourceLine() );
 }
 
 void ShortCircuitReporter::visit_binary_operator( BinaryOperator& op )

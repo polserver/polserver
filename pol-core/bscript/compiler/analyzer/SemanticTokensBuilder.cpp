@@ -19,6 +19,8 @@ void SemanticTokensBuilder::build()
   }
 }
 
+namespace
+{
 void define( CompilerWorkspace& workspace, antlr4::Token* symbol, SemanticTokenType type )
 {
   // Since we no longer fast-fail after parser errors, it is possible that nodes
@@ -45,6 +47,7 @@ void define( CompilerWorkspace& workspace, antlr4::tree::TerminalNode* node,
     }
   }
 }
+}  // namespace
 
 antlrcpp::Any SemanticTokensBuilder::visitModuleFunctionParameter(
     EscriptParser::ModuleFunctionParameterContext* ctx )

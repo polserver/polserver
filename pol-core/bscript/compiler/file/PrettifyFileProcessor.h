@@ -177,6 +177,8 @@ public:
   antlrcpp::Any visitWhileStatement(
       EscriptGrammar::EscriptParser::WhileStatementContext* ctx ) override;
 
+  // format_range: Analysis only: used by vscode-escript, not by ecompile or pol.
+  // `ecompile -F` passes std::nullopt.
   antlrcpp::Any process_compilation_unit( SourceFile&, std::optional<Range> format_range );
   antlrcpp::Any process_module_unit( SourceFile&, std::optional<Range> format_range );
 

@@ -1746,17 +1746,8 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
     // Case 1: `format_range` is completely inside a skipline.
     // If so, do not format anything, ie. have only one skipline covering the entire file.
     if ( format_range.has_value() )
-    {
-      for ( auto itr = skiplines.begin(); itr < skiplines.end(); ++itr )
-      {
-        auto& skipline = *itr;
-        if ( skipline.contains( format_range.value() ) )
-        {
-          skipAll = true;
-          break;
-        }
-      }
-    }
+      skipAll = std::ranges::any_of(
+          skiplines, [&]( const auto& skipline ) { return skipline.contains( *format_range ); } );
 
     if ( skipAll )
     {
@@ -1858,7 +1849,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
                                   } ),
                   comments.end() );
   linebuilder.setComments( std::move( comments ) );
-  linebuilder.setSkipLines( std::move( skiplines ) );
+  linebuilder.setSkipLines( std::move( skiplines ), format_range.has_value() );
   linebuilder.setRawLines( std::move( rawlines ) );
 }
 

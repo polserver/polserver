@@ -1,8 +1,7 @@
 #ifndef POLSERVER_SEMANTICTOKENS_H
 #define POLSERVER_SEMANTICTOKENS_H
 
-#include <list>
-#include <memory>
+#include <cstddef>
 #include <vector>
 
 namespace antlr4
@@ -41,21 +40,6 @@ enum class SemanticTokenType
   OPERATOR
 };
 
-class SemanticTokenType2
-{
-public:
-  enum Value : uint8_t
-  {
-    Apple,
-    Pear,
-    Banana,
-    Strawberry
-  };
-};
-
-// void foo() {
-//   // SemanticTokenType2::Apple;
-// }
 // FIXME: truncate list after identifying proper usages
 enum SemanticTokenModifier
 {
@@ -77,12 +61,12 @@ struct SemanticToken
   size_t character_column;
   size_t length;
   SemanticTokenType type;
-  std::list<SemanticTokenModifier> modifiers;
+  std::vector<SemanticTokenModifier> modifiers;
 
-  static std::unique_ptr<std::list<SemanticToken>> from_lexer_token( const antlr4::Token& );
+  static void append_from_lexer_token( const antlr4::Token&, std::vector<SemanticToken>& );
 };
 
-using SemanticTokens = std::list<SemanticToken>;
+using SemanticTokens = std::vector<SemanticToken>;
 }  // namespace Pol::Bscript::Compiler
 
 #endif
