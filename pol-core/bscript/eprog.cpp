@@ -11,6 +11,7 @@
 #include <iomanip>
 
 #include "bscript/escriptv.h"
+#include "bscript/fmodule.h"
 #include "clib/refptr.h"
 #include "clib/stlutil.h"
 

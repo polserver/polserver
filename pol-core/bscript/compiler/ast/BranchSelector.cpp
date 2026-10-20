@@ -4,6 +4,7 @@
 #include "bscript/compiler/ast/Expression.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

@@ -7,6 +7,7 @@
 #include "bscript/compiler/ast/Statement.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/model/ClassLink.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

@@ -2,6 +2,7 @@
 
 
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/SpreadElement.h"
 
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

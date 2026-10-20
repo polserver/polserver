@@ -1,5 +1,6 @@
 #include "bscript/compiler/ast/IndexBinding.h"
 
+#include <iterator>
 #include <ranges>
 
 #include "bscript/compiler/ast/ElementIndexes.h"

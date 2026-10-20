@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/ForeachLoop.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/Block.h"

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <fmt/format.h>
+#include <iterator>
 
 #include "clib/binaryfile.h"
 #include "clib/clib.h"

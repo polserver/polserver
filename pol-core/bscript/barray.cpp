@@ -18,6 +18,7 @@
 #include "bscript/str.h"
 
 #include <fmt/compile.h>
+#include <iterator>
 
 namespace Pol::Bscript
 {

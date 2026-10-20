@@ -15,6 +15,7 @@
 
 #include <fmt/ranges.h>
 #include <fmt/std.h>
+#include <iterator>
 
 #include "ecompile/EfswFileWatchListener.h"
 #include "ecompile/ProgressIndicator.h"

@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/FunctionCall.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/Argument.h"

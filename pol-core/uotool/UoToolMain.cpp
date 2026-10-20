@@ -19,6 +19,7 @@
 #include "clib/strutil.h"
 #include "plib/clientfiles/uoclientfiles.h"
 #include "plib/polfile.h"
+#include "plib/poltype.h"
 #include "plib/realmdescriptor.h"
 #include "plib/staticblock.h"
 #include "plib/systemstate.h"

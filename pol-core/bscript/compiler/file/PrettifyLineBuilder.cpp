@@ -5,6 +5,7 @@
 #include <EscriptGrammar/EscriptLexer.h>
 
 #include <algorithm>
+#include <iterator>
 #include <optional>
 #include <utility>
 

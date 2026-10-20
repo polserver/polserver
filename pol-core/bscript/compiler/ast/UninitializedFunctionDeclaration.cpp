@@ -1,5 +1,6 @@
 #include "bscript/compiler/ast/UninitializedFunctionDeclaration.h"
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/FunctionParameterDeclaration.h"

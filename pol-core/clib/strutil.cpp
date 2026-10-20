@@ -15,6 +15,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/case_conv.hpp>
 #include <boost/algorithm/string/trim.hpp>
+#include <iterator>
 #include <utf8cpp/utf8.h>
 
 #include "clib/logfacility.h"

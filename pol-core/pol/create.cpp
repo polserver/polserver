@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cstring>
 #include <fmt/ranges.h>
+#include <iterator>
 #include <string>
 #include <utility>
 #include <vector>

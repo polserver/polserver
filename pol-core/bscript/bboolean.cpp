@@ -5,6 +5,7 @@
 
 #include <fmt/compile.h>
 #include <istream>
+#include <iterator>
 
 namespace Pol::Bscript
 {

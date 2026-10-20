@@ -14,6 +14,7 @@
  */
 
 
+#include <iterator>
 #include <stddef.h>
 
 #include "clib/rawtypes.h"

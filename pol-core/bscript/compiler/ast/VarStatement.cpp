@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/VarStatement.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/Expression.h"

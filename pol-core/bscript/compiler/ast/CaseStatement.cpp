@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/CaseStatement.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/CaseDispatchGroup.h"

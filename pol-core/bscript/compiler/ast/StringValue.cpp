@@ -3,6 +3,7 @@
 
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "clib/strutil.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

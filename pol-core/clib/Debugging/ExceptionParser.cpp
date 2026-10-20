@@ -31,6 +31,7 @@
 #endif
 
 #include <boost/stacktrace.hpp>
+#include <iterator>
 
 #define MAX_STACK_TRACE_DEPTH 200
 #define MAX_STACK_TRACE_STEP_LENGTH 512

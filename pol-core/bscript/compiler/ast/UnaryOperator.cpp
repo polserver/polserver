@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/UnaryOperator.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"

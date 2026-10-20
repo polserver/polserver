@@ -2,6 +2,7 @@
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 
+#include <iterator>
 #include <utility>
 
 namespace Pol::Bscript::Compiler

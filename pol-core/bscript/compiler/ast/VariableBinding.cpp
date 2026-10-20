@@ -3,6 +3,7 @@
 #include "bscript/compiler/ast/Node.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
 #include "bscript/compiler/model/ScopableName.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

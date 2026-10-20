@@ -164,6 +164,7 @@
 #include <fmt/std.h>
 #include <fstream>
 #include <iosfwd>
+#include <iterator>
 #include <string>
 
 namespace Pol

@@ -11,6 +11,7 @@
 #include <cerrno>
 #include <exception>
 #include <filesystem>
+#include <iterator>
 
 #include "clib/Debugging/ExceptionParser.h"
 #include "clib/Program/ProgramConfig.h"

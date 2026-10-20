@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/UserFunction.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/FunctionBody.h"

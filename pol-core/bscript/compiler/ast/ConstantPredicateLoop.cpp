@@ -3,6 +3,7 @@
 
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/NodeVisitor.h"
+#include <iterator>
 
 namespace Pol::Bscript::Compiler
 {

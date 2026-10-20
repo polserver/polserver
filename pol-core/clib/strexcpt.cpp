@@ -10,6 +10,7 @@
 
 #include "clib/Program/ProgramConfig.h"
 #include "clib/logfacility.h"
+#include <iterator>
 #include <pol_global_config.h>
 
 #if defined( WINDOWS )

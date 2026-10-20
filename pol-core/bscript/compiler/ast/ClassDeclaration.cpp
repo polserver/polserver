@@ -9,6 +9,7 @@
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/FunctionLink.h"
 
+#include <iterator>
 #include <ranges>
 
 namespace Pol::Bscript::Compiler

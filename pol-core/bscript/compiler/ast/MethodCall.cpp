@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/MethodCall.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/MethodCallArgumentList.h"

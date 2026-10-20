@@ -16,6 +16,7 @@
 
 #include "pol/packetscrobj.h"
 
+#include <iterator>
 #include <stddef.h>
 
 #include "bscript/berror.h"

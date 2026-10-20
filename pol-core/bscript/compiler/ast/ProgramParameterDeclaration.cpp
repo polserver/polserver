@@ -1,6 +1,7 @@
 #include "bscript/compiler/ast/ProgramParameterDeclaration.h"
 
 
+#include <iterator>
 #include <utility>
 
 #include "bscript/compiler/ast/NodeVisitor.h"
