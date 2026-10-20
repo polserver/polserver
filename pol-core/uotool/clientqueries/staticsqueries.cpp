@@ -37,19 +37,21 @@ void readstatics( const Pol::Plib::UoClientFiles& uof, Pol::Plib::StaticList& ve
 
   for ( const auto& srec : srecarr )
   {
+    // USTRUCT_STATIC is packed, so graphic must not bind to a reference
+    const u16 graphic = srec.graphic;
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
       INFO_PRINTLN( "static: {} {} {} {}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
+                    int( srec.z ), graphic );
     }
 #endif
 
     if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) &&
-         ( uof.tile_uoflags_read( srec.graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
+         ( uof.tile_uoflags_read( graphic ) & USTRUCT_TILE::FLAG_WALKBLOCK ) )
     {
-      vec.emplace_back( srec.graphic, srec.z, uof.tile_uoflags_read( srec.graphic ),
-                        uof.tileheight_read( srec.graphic ) );
+      vec.emplace_back( graphic, srec.z, uof.tile_uoflags_read( graphic ),
+                        uof.tileheight_read( graphic ) );
     }
   }
 }
@@ -65,19 +67,20 @@ void readstatics( const Pol::Plib::UoClientFiles& uof, Pol::Plib::StaticList& ve
 
   for ( const auto& srec : srecarr )
   {
+    const u16 graphic = srec.graphic;
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
       INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
+                    int( srec.z ), graphic );
     }
 #endif
 
     if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
     {
-      const unsigned int uoflags = uof.tile_uoflags_read( srec.graphic );
+      const unsigned int uoflags = uof.tile_uoflags_read( graphic );
       if ( uoflags & flags )
-        vec.emplace_back( srec.graphic, srec.z, uoflags, uof.tileheight_read( srec.graphic ) );
+        vec.emplace_back( graphic, srec.z, uoflags, uof.tileheight_read( graphic ) );
     }
   }
 }
@@ -94,18 +97,19 @@ void readallstatics( const Pol::Plib::UoClientFiles& uof, Pol::Plib::StaticList&
 
   for ( const auto& srec : srecarr )
   {
+    const u16 graphic = srec.graphic;
 #if ENABLE_POLTEST_OUTPUT
     if ( static_debug_on )
     {
       INFO_PRINTLN( "static: {} {} {} {:#x}", int( srec.x_offset ), int( srec.y_offset ),
-                    int( srec.z ), srec.graphic );
+                    int( srec.z ), graphic );
     }
 #endif
 
     if ( ( srec.x_offset == x_offset ) && ( srec.y_offset == y_offset ) )
     {
-      vec.emplace_back( srec.graphic, srec.z, uof.tile_uoflags_read( srec.graphic ),
-                        uof.tileheight_read( srec.graphic ) );
+      vec.emplace_back( graphic, srec.z, uof.tile_uoflags_read( graphic ),
+                        uof.tileheight_read( graphic ) );
     }
   }
 }

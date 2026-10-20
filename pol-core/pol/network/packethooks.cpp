@@ -38,10 +38,11 @@
 #include "pol/packetscrobj.h"
 #include "pol/syshook.h"
 
+namespace Pol::Network
+{
 // helper functions
 namespace
 {
-using namespace Pol::Network;
 bool is_fixed_length( const PacketHookData* phd )
 {
   return phd->length > 0;
@@ -51,7 +52,7 @@ size_t message_length( const unsigned char* message, const PacketHookData* phd )
 {
   if ( is_fixed_length( phd ) )
     return static_cast<size_t>( phd->length );
-  return cfBEu16( *( reinterpret_cast<const u16*>( &message[1] ) ) );
+  return cfBEu16( Clib::load_unaligned<u16>( &message[1] ) );
 }
 
 size_t subcmd_width( const PacketHookData* phd )
@@ -76,15 +77,12 @@ std::optional<u32> GetSubCmd( const unsigned char* message, const PacketHookData
   if ( width == 1 )
     return *( reinterpret_cast<const u8*>( &message[phd->sub_command_offset] ) );
   else if ( width == 2 )
-    return cfBEu16( *( reinterpret_cast<const u16*>( &message[phd->sub_command_offset] ) ) );
+    return cfBEu16( Clib::load_unaligned<u16>( &message[phd->sub_command_offset] ) );
   else
-    return cfBEu32( *( reinterpret_cast<const u32*>( &message[phd->sub_command_offset] ) ) );
+    return cfBEu32( Clib::load_unaligned<u32>( &message[phd->sub_command_offset] ) );
   return {};
 }
 }  // namespace
-
-namespace Pol::Network
-{
 
 // Gets the packet hook for a specific packet version
 PacketHookData* get_packethook( u8 msgid, PacketVersion version = PacketVersion::Default )
@@ -220,17 +218,17 @@ void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int&
   else  // packet is variable length
   {
     // discover packet length, and create new packet
-    unsigned short len = cfBEu16( *( reinterpret_cast<const unsigned short*>( &message[1] ) ) );
+    unsigned short len = cfBEu16( Clib::load_unaligned<u16>( &message[1] ) );
     outpacket.set( new Core::BPacket( message, len, true ) );
     // if function returns 0, we need to call the default handler
 
     if ( phd->outgoing_function->call( calling_ref, outpacket.get() ) == 0 )
     {
       // the buffer size may have changed in the script, make sure the packet gets the right size
-      u16* sizeptr = reinterpret_cast<u16*>(
-          &outpacket->buffer[1] );  // var-length packets always have length at 2nd and 3rd byte
+      // var-length packets always have length at 2nd and 3rd byte
+      u8* sizeptr = &outpacket->buffer[1];
       u16 buflen = static_cast<u16>( outpacket->buffer.size() );
-      u16 encoded = cfBEu16( *sizeptr );
+      u16 encoded = cfBEu16( Clib::load_unaligned<u16>( sizeptr ) );
 
       // an encoded length below the buffer size truncates the packet, one the buffer cannot back
       // is rejected and the whole buffer is sent instead
@@ -240,7 +238,7 @@ void CallOutgoingPacketExportedFunction( Client* client, const void*& data, int&
             "Packet hook for message {:#x} left an encoded length of {} on a {} byte packet, "
             "sending {} bytes.",
             (int)outpacket->buffer[0], encoded, buflen, buflen );
-        *sizeptr = ctBEu16( buflen );
+        Clib::store_unaligned<u16>( sizeptr, ctBEu16( buflen ) );
         encoded = buflen;
       }
 

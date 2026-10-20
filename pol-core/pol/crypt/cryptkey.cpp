@@ -55,12 +55,17 @@ void CalculateCryptKeys( const std::string& name, TCryptInfo& infoCrypt )
       int minor = atoi( name.substr( dot1 + 1, dot2 - dot1 - 1 ).c_str() );
       int build = atoi( name.substr( dot2 + 1, len - dot2 - 1 ).c_str() );
 
-      int temp = ( ( major << 9 | minor ) << 10 | build ) ^ ( ( build * build ) << 5 );
-      infoCrypt.uiKey1 = ( temp << 4 ) ^ ( minor * minor ) ^ ( minor * 0x0B000000 ) ^
-                         ( build * 0x380000 ) ^ 0x2C13A5FD;
-      temp = ( ( ( major << 9 | build ) << 10 | minor ) * 8 ) ^ ( build * build * 0x0c00 );
+      // The key formulas overflow 32 bits by design; unsigned arithmetic wraps where int would not
+      unsigned int umajor = static_cast<unsigned int>( major );
+      unsigned int uminor = static_cast<unsigned int>( minor );
+      unsigned int ubuild = static_cast<unsigned int>( build );
+      unsigned int temp =
+          ( ( umajor << 9 | uminor ) << 10 | ubuild ) ^ ( ( ubuild * ubuild ) << 5 );
+      infoCrypt.uiKey1 = ( temp << 4 ) ^ ( uminor * uminor ) ^ ( uminor * 0x0B000000 ) ^
+                         ( ubuild * 0x380000 ) ^ 0x2C13A5FD;
+      temp = ( ( ( umajor << 9 | ubuild ) << 10 | uminor ) * 8 ) ^ ( ubuild * ubuild * 0x0c00 );
       infoCrypt.uiKey2 =
-          temp ^ ( minor * minor ) ^ ( minor * 0x6800000 ) ^ ( build * 0x1c0000 ) ^ 0x0A31D527F;
+          temp ^ ( uminor * uminor ) ^ ( uminor * 0x6800000 ) ^ ( ubuild * 0x1c0000 ) ^ 0x0A31D527F;
 
       if ( compareVersion( 1, 25, 35, major, minor, build ) )
         infoCrypt.eType = CRYPT_OLD_BLOWFISH;

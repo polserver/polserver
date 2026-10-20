@@ -174,8 +174,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     {
       if ( !has_space( offset + sizeof( u16 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      u16* data = reinterpret_cast<u16*>( &buffer[offset] );
-      return new BLong( cfBEu16( *data ) );
+      return new BLong( cfBEu16( Clib::load_unaligned<u16>( &buffer[offset] ) ) );
     }
     break;
   }
@@ -189,8 +188,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     {
       if ( !has_space( offset + sizeof( u32 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      u32* data = reinterpret_cast<u32*>( &buffer[offset] );
-      return new BLong( cfBEu32( *data ) );
+      return new BLong( cfBEu32( Clib::load_unaligned<u32>( &buffer[offset] ) ) );
     }
     break;
   }
@@ -204,8 +202,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     {
       if ( !has_space( offset + sizeof( u16 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      u16* data = reinterpret_cast<u16*>( &buffer[offset] );
-      return new BLong( cfLEu16( *data ) );
+      return new BLong( cfLEu16( Clib::load_unaligned<u16>( &buffer[offset] ) ) );
     }
     break;
   }
@@ -219,8 +216,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     {
       if ( !has_space( offset + sizeof( u32 ) ) )  // don't allow getting bytes past end of buffer
         return new BError( "Offset too high" );
-      u32* data = reinterpret_cast<u32*>( &buffer[offset] );
-      return new BLong( cfLEu32( *data ) );
+      return new BLong( cfLEu32( Clib::load_unaligned<u32>( &buffer[offset] ) ) );
     }
     break;
   }
@@ -329,8 +325,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       if ( auto* err = ensure_space( offset + sizeof( u16 ) ) )
         return err;
 
-      u16* bufptr = reinterpret_cast<u16*>( &buffer[offset] );
-      *bufptr = ctBEu16( static_cast<u16>( value ) );
+      Clib::store_unaligned<u16>( &buffer[offset], ctBEu16( static_cast<u16>( value ) ) );
       return new BLong( 1 );
     }
     break;
@@ -347,8 +342,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       if ( auto* err = ensure_space( offset + sizeof( u32 ) ) )
         return err;
 
-      u32* bufptr = reinterpret_cast<u32*>( &buffer[offset] );
-      *bufptr = ctBEu32( static_cast<u32>( lvalue ) );
+      Clib::store_unaligned<u32>( &buffer[offset], ctBEu32( static_cast<u32>( lvalue ) ) );
       return new BLong( 1 );
     }
     break;
@@ -364,8 +358,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
       if ( auto* err = ensure_space( offset + sizeof( u16 ) ) )
         return err;
 
-      u16* bufptr = reinterpret_cast<u16*>( &buffer[offset] );
-      *bufptr = ctLEu16( static_cast<u16>( value ) );
+      Clib::store_unaligned<u16>( &buffer[offset], ctLEu16( static_cast<u16>( value ) ) );
       return new BLong( 1 );
     }
     break;
@@ -381,8 +374,7 @@ BObjectImp* BPacket::call_polmethod_id( const int id, UOExecutor& ex, bool /*for
     {
       if ( auto* err = ensure_space( offset + sizeof( u32 ) ) )
         return err;
-      u32* bufptr = reinterpret_cast<u32*>( &buffer[offset] );
-      *bufptr = ctLEu32( static_cast<u32>( lvalue ) );
+      Clib::store_unaligned<u32>( &buffer[offset], ctLEu32( static_cast<u32>( lvalue ) ) );
       return new BLong( 1 );
     }
     break;
@@ -554,8 +546,7 @@ bool BPacket::SetSize( u16 newsize )
     return false;
   newsize = std::max( newsize, 3_u16 );
   buffer.resize( newsize );
-  u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );
-  *sizeptr = ctBEu16( newsize );
+  Clib::store_unaligned<u16>( &buffer[1], ctBEu16( newsize ) );
   return true;
 }
 
@@ -567,8 +558,7 @@ BObjectImp* BPacket::SetSize( u16 newsize, bool /*giveReturn*/ )
     return new BError( "Variable length packets cannot be smaller than 3 bytes" );
   unsigned short oldsize = static_cast<unsigned short>( buffer.size() );
   buffer.resize( newsize );
-  u16* sizeptr = reinterpret_cast<u16*>( &buffer[1] );
-  *sizeptr = ctBEu16( newsize );
+  Clib::store_unaligned<u16>( &buffer[1], ctBEu16( newsize ) );
   return new BLong( oldsize );
 }
 }  // namespace Pol::Core

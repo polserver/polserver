@@ -28,7 +28,7 @@ private:
   int integer_at( unsigned offset ) const;
   [[nodiscard]] uint16_t uint16_t_at( unsigned offset ) const;
   std::string string_at( unsigned offset ) const;
-  const Pol::Bscript::DebugToken& debug_token_at( unsigned offset ) const;
+  Pol::Bscript::DebugToken debug_token_at( unsigned offset ) const;
   void decode_casejmp_table( std::string&, unsigned offset ) const;
 
   const std::vector<ModuleDescriptor>& module_descriptors;

@@ -1,5 +1,6 @@
 #include "bscript/compiler/format/ListingWriter.h"
 
+#include <algorithm>
 #include <fmt/ostream.h>
 #include <fstream>
 #include <string_view>
@@ -43,7 +44,8 @@ struct SourceLinePrintInfo
           { .line_number = debug.line_number, .character_column = 1, .token_index = 0 } } };
     auto line = loc.getSourceLine();
     std::string_view lineview = line;
-    lineview.remove_prefix( lineview.find_first_not_of( " \t"sv ) );
+    // a blank line has no first non-blank character
+    lineview.remove_prefix( std::min( lineview.find_first_not_of( " \t"sv ), lineview.size() ) );
     fmt::print( ofs, "# {} :{}\n# {}\n", file->pathname, debug.line_number, lineview );
   }
 };

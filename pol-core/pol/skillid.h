@@ -11,7 +11,9 @@
 
 namespace Pol::Core
 {
-enum USKILLID
+// Fixed underlying type: Attribute::skillid holds -1 for "no skill" and uoskills.cfg ids up to
+// 499, both outside the range of the enumerators.
+enum USKILLID : int
 {
   SKILLID__LOWEST = 0,
   SKILLID__CLIENT_LOWEST = 0,
@@ -80,6 +82,6 @@ enum USKILLID
   SKILLID__HIGHEST = 57,
   SKILLID__COUNT  // use for array sizes, etc.
 };
-}
+}  // namespace Pol::Core
 
 #endif

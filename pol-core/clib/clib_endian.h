@@ -10,6 +10,8 @@
 
 #include "clib/rawtypes.h"
 
+#include <cstring>
+
 #ifndef U_BIG_ENDIAN
 #define U_LITTLE_ENDIAN
 #endif
@@ -46,5 +48,24 @@
 #define ctBEu16( x ) flipEndian16( x )
 
 #endif
+
+namespace Pol::Clib
+{
+// Packet buffers hold multi-byte fields at any offset. Dereferencing a cast pointer there is
+// undefined behaviour on a misaligned address; memcpy is not, and compiles to a plain load.
+template <typename T>
+T load_unaligned( const void* p )
+{
+  T value;
+  std::memcpy( &value, p, sizeof( T ) );
+  return value;
+}
+
+template <typename T>
+void store_unaligned( void* p, T value )
+{
+  std::memcpy( p, &value, sizeof( T ) );
+}
+}  // namespace Pol::Clib
 
 #endif

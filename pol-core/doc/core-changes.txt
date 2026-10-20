@@ -1,4 +1,10 @@
 -- POL100.3.0 --
+10-18-2026 Turley:
+    Fixed: items of an objtype without an itemdesc.cfg entry that the core creates itself, such
+           as hair and beards at character creation, ignored servspecopt.cfg DefaultDecayTime and
+           DefaultDoubleclickRange.
+    Fixed: reloading the configuration did not apply changed servspecopt.cfg DefaultDecayTime
+           and DefaultDoubleclickRange to objtypes without an itemdesc.cfg entry.
 09-29-2026 Nando:
     Fixed: sending a client a packet of more than about 57 KB, such as a large gump or custom
            house design, could corrupt server memory and crash the server.

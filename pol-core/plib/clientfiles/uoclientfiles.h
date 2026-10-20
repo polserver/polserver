@@ -7,14 +7,14 @@
 #include <span>
 #include <vector>
 
+#include "clib/rawtypes.h"
 #include "plib/clidata.h"
+#include "plib/clientfiles/RawMap.h"
+#include "plib/clientfiles/staticscache.h"
+#include "plib/clientfiles/tiledatacache.h"
 #include "plib/uconst.h"
 #include "plib/udatfile.h"
 #include "plib/ustruct.h"
-#include "plib/clientfiles/RawMap.h"
-#include "clib/rawtypes.h"
-#include "plib/clientfiles/staticscache.h"
-#include "plib/clientfiles/tiledatacache.h"
 
 namespace Pol::Plib
 {
@@ -146,10 +146,12 @@ public:
            srec.y_offset < 0 || srec.y_offset >= static_cast<int>( STATICBLOCK_CHUNK ) )
         continue;
 
-      const unsigned int uoflags = tile_uoflags_read( srec.graphic );
+      // USTRUCT_STATIC is packed, so graphic must not bind to emplace_back's reference
+      const u16 graphic = srec.graphic;
+      const unsigned int uoflags = tile_uoflags_read( graphic );
       if ( uoflags & flags )
         buckets[srec.x_offset * STATICBLOCK_CHUNK + srec.y_offset].emplace_back(
-            srec.graphic, srec.z, uoflags, tileheight_read( srec.graphic ) );
+            graphic, srec.z, uoflags, tileheight_read( graphic ) );
     }
   }
   // The open staidx/statics handles, for the uotool diagnostics that scan them

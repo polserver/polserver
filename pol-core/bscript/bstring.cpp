@@ -1166,37 +1166,37 @@ std::string String::fromUTF16( unsigned short code )
 std::string String::fromUTF16( const unsigned short* code, size_t len, bool big_endian )
 {
   std::string s;
-  size_t short_len = 0;
-  // convert until the first null terminator
-  while ( code[short_len] != 0 && short_len < len )
-    ++short_len;
-
-  // minimum incomplete iterator implementation, just for the internal usage with utf8lib to
-  // directly decode flipped bytes
-  struct BigEndianIterator
+  // minimum incomplete iterator implementation, just for the internal usage with utf8lib.
+  // `code` usually points into a packet buffer and need not be 2-byte aligned.
+  struct UnitIterator
   {
     const u16* ptr;
-    BigEndianIterator( const u16* begin ) : ptr( begin ) {};
-    BigEndianIterator& operator++()
+    bool big_endian;
+    UnitIterator& operator++()
     {
       ++ptr;
       return *this;
     };
-    BigEndianIterator operator++( int )
+    UnitIterator operator++( int )
     {
-      BigEndianIterator itr( ptr );
+      UnitIterator itr = *this;
       ++ptr;
       return itr;
     };
-    u16 operator*() { return cfBEu16( *ptr ); };
-    bool operator!=( const BigEndianIterator& o ) { return ptr != o.ptr; };
-    bool operator==( const BigEndianIterator& o ) { return ptr == o.ptr; };
+    u16 operator*() const
+    {
+      u16 c = Clib::load_unaligned<u16>( ptr );
+      return big_endian ? cfBEu16( c ) : c;
+    };
+    bool operator!=( const UnitIterator& o ) const { return ptr != o.ptr; };
+    bool operator==( const UnitIterator& o ) const { return ptr == o.ptr; };
   };
-  if ( big_endian )
-    utf8::unchecked::utf16to8( BigEndianIterator( code ), BigEndianIterator( code + short_len ),
-                               std::back_inserter( s ) );
-  else
-    utf8::unchecked::utf16to8( code, code + short_len, std::back_inserter( s ) );
+  UnitIterator begin{ code, big_endian };
+  UnitIterator end = begin;
+  // convert until the first null terminator
+  while ( end.ptr != code + len && *end != 0 )
+    ++end;
+  utf8::unchecked::utf16to8( begin, end, std::back_inserter( s ) );
   Clib::sanitizeUnicode( &s );
   return s;
 }
