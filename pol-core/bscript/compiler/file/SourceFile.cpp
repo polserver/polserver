@@ -8,7 +8,11 @@
 
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
+#include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/model/SemanticTokens.h"
 #include "bscript/compilercfg.h"
+#include "compilercfg.h"
 #include <EscriptGrammar/EscriptParserVisitor.h>
 
 using EscriptGrammar::EscriptLexer;
@@ -86,15 +90,14 @@ bool SourceFile::enforced_case_sensitivity_mismatch( const SourceLocation&, cons
 }
 #endif
 
-std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident, Profile& profile,
-                                              Report& report )
+std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
+                                              const SourceFileLoader& source_loader,
+                                              Profile& profile, Report& report )
 {
   const std::string& pathname = ident.pathname;
   try
   {
-    Clib::FileContents fc( pathname.c_str(), true );
-    std::string contents( fc.contents() );
-
+    auto contents = source_loader.get_contents( pathname );
     Clib::sanitizeUnicodeWithIso( &contents );
 
     if ( is_web_script( pathname.c_str() ) )
@@ -108,6 +111,18 @@ std::shared_ptr<SourceFile> SourceFile::load( const SourceFileIdentifier& ident,
   {
     report.error( ident, "Unable to read file '{}'.", pathname );
     return {};
+  }
+}
+
+void SourceFile::accept( EscriptParserVisitor& visitor )
+{
+  if ( compilation_unit )
+  {
+    visitor.visit( compilation_unit );
+  }
+  else if ( module_unit )
+  {
+    visitor.visit( module_unit );
   }
 }
 
@@ -206,6 +221,15 @@ antlr4::Token* SourceFile::get_token_at( const Position& position )
 std::vector<antlr4::Token*> SourceFile::get_all_tokens()
 {
   return token_stream.getTokens();
+}
+
+SemanticTokens SourceFile::get_tokens()
+{
+  SemanticTokens tokens;
+
+  for ( auto* lexer_token : token_stream.getTokens() )
+    SemanticToken::append_from_lexer_token( *lexer_token, tokens );
+  return tokens;
 }
 
 /**

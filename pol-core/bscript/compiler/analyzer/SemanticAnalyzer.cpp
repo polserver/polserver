@@ -57,14 +57,15 @@
 #include "bscript/compiler/ast/VariableBinding.h"
 #include "bscript/compiler/ast/WhileLoop.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
+#include "bscript/compiler/file/SourceLocation.h"
 #include "bscript/compiler/model/ClassLink.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeName.h"
 #include "bscript/compiler/model/Variable.h"
 #include "bscript/compiler/optimizer/ConstantValidator.h"
-#include "clib/strutil.h"
 #include "bscript/filefmt.h"
+#include "clib/strutil.h"
 
 namespace Pol::Bscript::Compiler
 {
@@ -76,8 +77,8 @@ SemanticAnalyzer::SemanticAnalyzer( CompilerWorkspace& workspace, Report& report
       captures( VariableScope::Capture, report ),
       break_scopes( locals, report ),
       continue_scopes( locals, report ),
-      local_scopes( locals, report ),
-      capture_scopes( captures, report )
+      local_scopes( workspace.scope_tree.get(), locals, report ),
+      capture_scopes( workspace.scope_tree.get(), captures, report )
 {
   current_scope_names.push( ScopeName::Global );
 }
@@ -96,6 +97,9 @@ void SemanticAnalyzer::register_const_declarations( CompilerWorkspace& workspace
 
 void SemanticAnalyzer::analyze()
 {
+  if ( workspace.scope_tree )
+    workspace.scope_tree->push_scope(
+        SourceLocation( workspace.referenced_source_file_identifiers[0].get(), 0, 0 ) );
   workspace.top_level_statements->accept( *this );
   if ( auto& program = workspace.program )
   {
@@ -119,6 +123,9 @@ void SemanticAnalyzer::analyze()
   }
 
   workspace.global_variable_names = globals.get_names();
+
+  if ( workspace.scope_tree )
+    workspace.scope_tree->set_globals( globals.remove_all_but( 0 ) );
 }
 
 void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
@@ -136,7 +143,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
   node.first().accept( *this );
   node.last().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.identifier, WarnOn::Never, node.source_location );
   scope.create( "_" + node.identifier + "_end", WarnOn::Never, node.source_location );
 
@@ -150,7 +157,7 @@ void SemanticAnalyzer::visit_basic_for_loop( BasicForLoop& node )
 
 void SemanticAnalyzer::visit_block( Block& block )
 {
-  LocalVariableScope scope( local_scopes, block.local_variable_scope_info );
+  LocalVariableScope scope( block.source_location, local_scopes, block.local_variable_scope_info );
 
   visit_children( block );
 }
@@ -653,7 +660,7 @@ void SemanticAnalyzer::visit_foreach_loop( ForeachLoop& node )
 
   node.expression().accept( *this );
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   scope.create( node.iterator_name, WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_expr", WarnOn::Never, node.source_location );
   scope.create( "_" + node.iterator_name + "_iter", WarnOn::Never, node.source_location );
@@ -793,7 +800,24 @@ void SemanticAnalyzer::visit_function_call( FunctionCall& fc )
   auto uf = fc.function_link->user_function();
 
   std::vector<std::unique_ptr<Argument>> arguments = fc.take_arguments();
-  auto parameters = fc.parameters();
+
+  // Since the function call's argument are taken via fc.take_arguments(),
+  // the children are nullptrs. This causes an issue with the subsequent
+  // ShortCircuitWarning node visitor, which would visit_children the
+  // FunctionCall.
+  fc.children.clear();
+
+  auto params = fc.parameters();
+  if ( !params )
+  {
+    // The error is reported via FunctionResolver when called by
+    // CompierWorkspaceBuilder::build_referenced_user_functions. We just need to
+    // skip all of this.
+    return;
+  }
+
+  const auto& parameters = *params;
+
   bool has_class_inst_parameter = false;
 
   bool in_super_func = false;
@@ -1173,7 +1197,7 @@ void SemanticAnalyzer::visit_function_expression( FunctionExpression& node )
     // visitor.
     {
       FunctionVariableScope new_capture_scope( captures );
-      LocalVariableScope capture_scope( capture_scopes,
+      LocalVariableScope capture_scope( node.source_location, capture_scopes,
                                         user_function->capture_variable_scope_info );
       FunctionVariableScope new_function_scope( locals );
       visit_user_function( *user_function );
@@ -1305,7 +1329,10 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
     }
   }
 
-  if ( !node.variable )
+  // Only report errors on unknown identifier if the `name` is not empty, ie.
+  // `super::` will not report an unknown identifier error, as it will report a
+  // parser error instead.
+  if ( !node.variable && !node.scoped_name.name.empty() )
   {
     report.error( node, "Unknown identifier '{}'.", name );
     return;
@@ -1315,7 +1342,7 @@ void SemanticAnalyzer::visit_identifier( Identifier& node )
 void SemanticAnalyzer::visit_variable_binding( VariableBinding& node )
 {
   if ( auto variable = create_variable( node.source_location, node.scoped_name.scope.string(),
-                                        node.scoped_name.name ) )
+                                        node.scoped_name.name, node.source_location ) )
   {
     node.variable = std::move( variable );
     visit_children( node );
@@ -1355,7 +1382,8 @@ void SemanticAnalyzer::visit_loop_statement( LoopStatement& loop )
 
 void SemanticAnalyzer::visit_program( Program& program )
 {
-  LocalVariableScope scope( local_scopes, program.local_variable_scope_info );
+  LocalVariableScope scope( program.source_location, local_scopes,
+                            program.local_variable_scope_info );
 
   visit_children( program );
 }
@@ -1393,6 +1421,7 @@ void SemanticAnalyzer::visit_return_statement( ReturnStatement& node )
       report.error( node, "Cannot return a value from a constructor function." );
     }
   }
+  // LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
 
   visit_children( node );
 }
@@ -1455,7 +1484,7 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
     }
   }
 
-  LocalVariableScope scope( local_scopes, node.local_variable_scope_info );
+  LocalVariableScope scope( node.source_location, local_scopes, node.local_variable_scope_info );
   visit_children( node );
   user_functions.pop();
   current_scope_names.pop();
@@ -1463,7 +1492,8 @@ void SemanticAnalyzer::visit_user_function( UserFunction& node )
 
 void SemanticAnalyzer::visit_var_statement( VarStatement& node )
 {
-  if ( auto variable = create_variable( node.source_location, node.scope, node.name ) )
+  if ( auto variable =
+           create_variable( node.source_location, node.scope, node.name, node.var_decl_location ) )
   {
     node.variable = std::move( variable );
     visit_children( node );
@@ -1502,9 +1532,9 @@ void SemanticAnalyzer::visit_constant_loop( ConstantPredicateLoop& node )
   visit_loop_statement( node );
 }
 
-std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocation& source_location,
-                                                             const std::string& scope,
-                                                             const std::string& name )
+std::shared_ptr<Variable> SemanticAnalyzer::create_variable(
+    const SourceLocation& source_location, const std::string& scope, const std::string& name,
+    const SourceLocation& var_decl_location )
 {
   auto maybe_scoped_name = ScopableName( scope, name ).string();
 
@@ -1522,7 +1552,8 @@ std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocatio
 
   if ( auto local_scope = local_scopes.current_local_scope() )
   {
-    return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location );
+    return local_scope->create( maybe_scoped_name, WarnOn::Never, source_location,
+                                var_decl_location );
   }
 
   if ( auto existing = globals.find( maybe_scoped_name ) )
@@ -1534,7 +1565,7 @@ std::shared_ptr<Variable> SemanticAnalyzer::create_variable( const SourceLocatio
     return {};
   }
 
-  return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location );
+  return globals.create( maybe_scoped_name, 0, WarnOn::Never, source_location, var_decl_location );
 }
 
 bool SemanticAnalyzer::report_function_name_conflict( const SourceLocation& referencing_loc,

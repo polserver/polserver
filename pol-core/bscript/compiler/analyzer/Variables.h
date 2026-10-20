@@ -24,7 +24,7 @@ public:
   Variables( VariableScope, Report& );
 
   std::shared_ptr<Variable> create( const std::string& name, BlockDepth, WarnOn,
-                                    const SourceLocation& );
+                                    const SourceLocation&, const SourceLocation& );
 
   std::shared_ptr<Variable> capture( std::shared_ptr<Variable>& );
 
@@ -36,7 +36,7 @@ public:
 
   void restore_shadowed( std::shared_ptr<Variable> );
 
-  void remove_all_but( unsigned count );
+  std::vector<std::shared_ptr<Variable>> remove_all_but( unsigned count );
 
   [[nodiscard]] const std::vector<std::string>& get_names() const;
   [[nodiscard]] unsigned count() const;

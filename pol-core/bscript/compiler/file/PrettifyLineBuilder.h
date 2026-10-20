@@ -98,7 +98,7 @@ struct FmtToken
         group( group ),
         token_type( token_type ),
         context( context ),
-        scope( scope ){};
+        scope( scope ) {};
 };
 
 class PrettifyLineBuilder
@@ -109,7 +109,7 @@ public:
 
   void setRawLines( std::vector<std::string> rawlines );
   void setComments( std::vector<FmtToken> comments );
-  void setSkipLines( std::vector<Range> skiplines );
+  void setSkipLines( std::vector<Range> skiplines, bool has_format_range );
   void addPart( FmtToken part );
   void buildLine( size_t current_indent );
   bool finalize();
@@ -144,6 +144,10 @@ private:
   size_t _packablelinestart = 0;
   bool _packableline_allowed = false;
   bool _packablelineend = 0;
+  // Only a partial format (vscode-escript's format range) may leave EOF untouched; a
+  // format-off block that runs to EOF still gets FormatterInsertNewlineAtEOF.
+  bool _has_format_range = false;
+  bool _rangeSkippedNewlineAtEOF = false;
   std::vector<std::string> _packable_switch_labels = {};
 
   void mergeRawContent( size_t nextlineno );

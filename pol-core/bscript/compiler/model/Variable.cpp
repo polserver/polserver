@@ -6,7 +6,7 @@ namespace Pol::Bscript::Compiler
 {
 Variable::Variable( VariableScope scope, std::string name, BlockDepth block_depth,
                     VariableIndex index, WarnOn warn_on, std::shared_ptr<Variable> capturing,
-                    const SourceLocation& source_location )
+                    const SourceLocation& source_location, const SourceLocation& var_decl_location )
     : scope( scope ),
       name( std::move( name ) ),
       block_depth( block_depth ),
@@ -14,6 +14,7 @@ Variable::Variable( VariableScope scope, std::string name, BlockDepth block_dept
       warn_on( warn_on ),
       source_location( source_location ),
       capturing( std::move( capturing ) ),
+      var_decl_location( var_decl_location ),
       used( false )
 {
 }
@@ -26,6 +27,20 @@ void Variable::mark_used()
 bool Variable::was_used() const
 {
   return used;
+}
+
+ScopableName Variable::scoped_name() const
+{
+  size_t pos = name.find( "::" );
+
+  if ( pos != std::string::npos )
+  {
+    return ScopableName( name.substr( 0, pos ), name.substr( pos + 2 ) );
+  }
+  else
+  {
+    return ScopableName( ScopeName::Global, name );
+  }
 }
 
 }  // namespace Pol::Bscript::Compiler

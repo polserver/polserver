@@ -14,7 +14,8 @@ Variables::Variables( VariableScope scope, Report& report )
 }
 
 std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth block_depth,
-                                             WarnOn warn_on, const SourceLocation& source_location )
+                                             WarnOn warn_on, const SourceLocation& source_location,
+                                             const SourceLocation& var_decl_location )
 {
   auto index = current().names_by_index.size();
   if ( index > std::numeric_limits<VariableIndex>::max() )
@@ -23,7 +24,7 @@ std::shared_ptr<Variable> Variables::create( const std::string& name, BlockDepth
   }
   auto variable =
       std::make_shared<Variable>( scope, name, block_depth, static_cast<VariableIndex>( index ),
-                                  warn_on, nullptr, source_location );
+                                  warn_on, nullptr, source_location, var_decl_location );
   current().variables_by_name[name] = variable;
   current().names_by_index.push_back( name );
   return variable;
@@ -40,9 +41,9 @@ std::shared_ptr<Variable> Variables::capture( std::shared_ptr<Variable>& other )
   // index
   // - If type == Local: if offset > function param count, add current function's capture count
   auto index = static_cast<VariableIndex>( current().names_by_index.size() );
-  auto captured =
-      std::make_shared<Variable>( VariableScope::Capture, other->name, other->block_depth, index,
-                                  other->warn_on, other, other->source_location );
+  auto captured = std::make_shared<Variable>( VariableScope::Capture, other->name,
+                                              other->block_depth, index, other->warn_on, other,
+                                              other->source_location, other->var_decl_location );
 
   current().variables_by_name[other->name] = captured;
   current().names_by_index.push_back( captured->name );
@@ -77,8 +78,9 @@ void Variables::restore_shadowed( std::shared_ptr<Variable> variable )
   current().variables_by_name[variable->name] = std::move( variable );
 }
 
-void Variables::remove_all_but( unsigned count )
+std::vector<std::shared_ptr<Variable>> Variables::remove_all_but( unsigned count )
 {
+  std::vector<std::shared_ptr<Variable>> removed;
   while ( current().names_by_index.size() > count )
   {
     std::string last_name = current().names_by_index.back();
@@ -96,10 +98,13 @@ void Variables::remove_all_but( unsigned count )
       {
         report.warning( removing->source_location, "local variable '{}' was not used.", last_name );
       }
+      removed.push_back( removing );
       current().variables_by_name.erase( itr );
     }
     current().names_by_index.pop_back();
   }
+
+  return removed;
 }
 
 const std::vector<std::string>& Variables::get_names() const
