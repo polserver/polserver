@@ -13,6 +13,7 @@
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeTree.h"
+#include "bscript/compiler/model/UserFunctionType.h"
 #include "bscript/compiler/model/Variable.h"
 #include "pol/testing/testcompileranalysis.h"
 #include "pol/testing/testenv.h"
@@ -346,6 +347,15 @@ void scope_variable_test( const ScopeTree& tree )
       },
       std::string( "Animal::class_var" ),
       "list_variables: class scope gives class variables only" );
+  UnitTest(
+      [&]()
+      {
+        return names(
+            tree.list_variables( query( "Animal", "", ScopeName::None, "" ), at( 41, 5 ) ),
+            name_of_variable );
+      },
+      std::string( "Animal::class_var,global_var,this" ),
+      "list_variables: inside a method, its class variables too" );
 }
 
 void scope_function_test( const ScopeTree& tree )
@@ -365,6 +375,10 @@ void scope_function_test( const ScopeTree& tree )
             std::string( "Animal::create" ), "find_user_function: scoped static function" );
   UnitTest( [&]() { return user_function( query( "", "", ScopeName::None, "speak" ) ); },
             std::string( "" ), "find_user_function: method not found from outside its class" );
+  UnitTest( [&]() { return user_function( query( "Dog", "Dog", ScopeName::Super, "fetch" ) ); },
+            std::string( "" ), "find_user_function: super:: does not find the class's own method" );
+  UnitTest( [&]() { return user_function( query( "Cat", "x", ScopeName::Super, "speak" ) ); },
+            std::string( "" ), "find_user_function: super:: from an unknown class" );
   UnitTest( [&]() { return user_function( query( "Dog", "Dog", ScopeName::Super, "speak" ) ); },
             std::string( "Animal::speak" ), "find_user_function: super:: finds the base method" );
 
@@ -394,6 +408,18 @@ void scope_function_test( const ScopeTree& tree )
       },
       std::string( "Animal::Animal,Animal::create,Animal::speak" ),
       "list_user_functions: super:: lists the base class's functions" );
+  // super() is offered only inside a constructor whose base class has a constructor.
+  auto offers_super = [&]( Position pos )
+  {
+    for ( auto* fn : tree.list_user_functions( query( "Dog", "", ScopeName::None, "" ), pos ) )
+      if ( fn->type == UserFunctionType::Super )
+        return true;
+    return false;
+  };
+  UnitTest( [&]() { return offers_super( at( 49, 5 ) ); }, true,
+            "list_user_functions: super inside a derived class's constructor" );
+  UnitTest( [&]() { return offers_super( at( 53, 5 ) ); }, false,
+            "list_user_functions: no super inside a method" );
 
   auto module_function = [&]( ScopeTreeQuery q ) -> std::string
   {
@@ -501,6 +527,7 @@ void scope_class_test( const ScopeTree& tree )
             "find_class_member: inherited from the base class" );
   UnitTest( [&]() { return member( "", "name" ); }, false,
             "find_class_member: needs a calling scope" );
+  UnitTest( [&]() { return member( "Cat", "name" ); }, false, "find_class_member: unknown class" );
   UnitTest(
       [&]()
       {
@@ -520,6 +547,19 @@ void scope_class_test( const ScopeTree& tree )
             "find_class_method: base class method" );
   UnitTest( [&]() { return method( "Animal", "fetch" ); }, std::string( "" ),
             "find_class_method: not a derived class's method" );
+  UnitTest( [&]() { return method( "", "speak" ); }, std::string( "" ),
+            "find_class_method: needs a calling scope" );
+  UnitTest( [&]() { return method( "Cat", "speak" ); }, std::string( "" ),
+            "find_class_method: unknown class" );
+  for ( const char* cls : { "", "Cat" } )
+  {
+    UnitTest( [&]()
+              { return tree.list_class_members( query( cls, "", ScopeName::None, "" ) ).size(); },
+              size_t{ 0 }, std::string( "list_class_members: none for class '" ) + cls + "'" );
+    UnitTest( [&]()
+              { return tree.list_class_methods( query( cls, "", ScopeName::None, "" ) ).size(); },
+              size_t{ 0 }, std::string( "list_class_methods: none for class '" ) + cls + "'" );
+  }
   UnitTest(
       [&]()
       {
@@ -547,6 +587,97 @@ void scope_class_test( const ScopeTree& tree )
             std::string( "Animal,Dog" ), "list_scopes: no super without a base class" );
   UnitTest( [&]() { return scopes( query( "", "", ScopeName( "Animal" ), "" ) ); },
             std::string( "" ), "list_scopes: nothing under a scope" );
+}
+
+// Bottom reaches Empty through both Left and Right. Kid's only base class has no functions.
+const char* const diamond_fixture =
+    "class Empty()\n"
+    "endclass\n"
+    "class Left( Empty )\n"
+    "  function Left( this )\n"
+    "  endfunction\n"
+    "  function from_left( this )\n"
+    "  endfunction\n"
+    "endclass\n"
+    "class Right( Empty )\n"
+    "  function Right( this )\n"
+    "  endfunction\n"
+    "endclass\n"
+    "class Bottom( Left, Right )\n"
+    "  function Bottom( this )\n"
+    "    super();\n"
+    "  endfunction\n"
+    "endclass\n"
+    "class Kid( Empty )\n"
+    "  function Kid( this )\n"
+    "  endfunction\n"
+    "  function play( this )\n"
+    "  endfunction\n"
+    "endclass\n"
+    "print( Bottom() + Kid() );\n";
+
+void test_scope_tree_diamond()
+{
+  auto a = analyze_src( "diamond.src", diamond_fixture );
+  if ( !a->workspace || !a->workspace->scope_tree )
+  {
+    UnitTest::inc_failures();
+    UnitTest::report_failure( "diamond fixture", "no scope tree", "a scope tree" );
+    return;
+  }
+  const auto& tree = *a->workspace->scope_tree;
+  auto scopes = [&]( ScopeTreeQuery q )
+  {
+    auto result = tree.list_scopes( q );
+    std::ranges::sort( result );
+    std::string joined;
+    for ( const auto& name : result )
+      joined += ( joined.empty() ? "" : "," ) + name;
+    return joined;
+  };
+  UnitTest(
+      [&]()
+      {
+        return names( tree.list_class_methods( query( "Bottom", "", ScopeName::None, "" ) ),
+                      name_of_function );
+      },
+      std::string( "Left::from_left" ), "list_class_methods: a shared base is visited once" );
+  UnitTest( [&]() { return scopes( query( "Bottom", "Bottom", ScopeName::None, "" ) ); },
+            std::string( "Bottom,Empty,Kid,Left,Right,super" ),
+            "list_scopes: super when a base class has functions" );
+  UnitTest( [&]() { return scopes( query( "Kid", "play", ScopeName::None, "" ) ); },
+            std::string( "Bottom,Empty,Kid,Left,Right" ),
+            "list_scopes: no super when the base class has no functions" );
+}
+
+// ecompile appends the source line to this warning. The extension marks the location itself, so
+// analysis keeps the message to one line.
+void test_short_circuit_warning()
+{
+  auto& cfg = Bscript::compilercfg;
+  const bool saved_eval = cfg.ShortCircuitEvaluation;
+  const bool saved_warning = cfg.ShortCircuitEvaluationWarning;
+  cfg.ShortCircuitEvaluation = true;
+  cfg.ShortCircuitEvaluationWarning = true;
+  auto a = analyze_src( "shortcircuit.src",
+                        "program p()\n"
+                        "  var a := 1;\n"
+                        "  if ( a && ( a := 2 ) )\n"
+                        "    print( a );\n"
+                        "  endif\n"
+                        "endprogram\n" );
+  cfg.ShortCircuitEvaluation = saved_eval;
+  cfg.ShortCircuitEvaluationWarning = saved_warning;
+
+  UnitTest(
+      [&]() -> std::string
+      {
+        for ( const auto& diagnostic : a->reporter.diagnostics )
+          if ( diagnostic.message.starts_with( "Short circuit change" ) )
+            return diagnostic.message.find( '\n' ) == std::string::npos ? "one line" : "two lines";
+        return "no warning";
+      },
+      std::string( "one line" ), "short-circuit warning: one line under analysis" );
 }
 
 void test_scope_tree()
@@ -582,5 +713,7 @@ void compiler_analysis_test()
   test_case_group_without_label();
   test_report_clear();
   test_scope_tree();
+  test_scope_tree_diamond();
+  test_short_circuit_warning();
 }
 }  // namespace Pol::Testing
