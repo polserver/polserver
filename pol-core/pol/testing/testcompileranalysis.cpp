@@ -4,25 +4,17 @@
  */
 
 #include <algorithm>
-#include <map>
-#include <memory>
 #include <string>
 
-#include "bscript/compiler/Compiler.h"
-#include "bscript/compiler/Profile.h"
-#include "bscript/compiler/Report.h"
 #include "bscript/compiler/ast/ClassDeclaration.h"
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/MemberAssignment.h"
 #include "bscript/compiler/ast/ModuleFunctionDeclaration.h"
 #include "bscript/compiler/ast/UserFunction.h"
-#include "bscript/compiler/file/SourceFileCache.h"
-#include "bscript/compiler/file/SourceFileLoader.h"
-#include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/model/FunctionLink.h"
 #include "bscript/compiler/model/ScopeTree.h"
 #include "bscript/compiler/model/Variable.h"
-#include "bscript/compilercfg.h"
+#include "pol/testing/testcompileranalysis.h"
 #include "pol/testing/testenv.h"
 
 // Compiler::analyze() is what vscode-escript calls for diagnostics, hover, completion and the
@@ -32,76 +24,10 @@
 namespace Pol::Testing
 {
 using namespace Bscript::Compiler;
+using namespace CompilerAnalysis;
 
 namespace
 {
-// No file exists under this prefix. The test sources live only in MemoryLoader.
-const std::string memdir = "inmemory/";
-
-// Serves the test sources from memory, the way the extension serves an unsaved buffer. Anything
-// else, like basic.em, comes from disk. A `use` or `include` checks the disk before it loads, so a
-// file that is used or included has to be written out.
-class MemoryLoader : public SourceFileLoader
-{
-public:
-  std::string get_contents( const std::string& pathname ) const override
-  {
-    auto itr = sources.find( pathname );
-    if ( itr != sources.end() )
-      return itr->second;
-    return SourceFileLoader::get_contents( pathname );
-  }
-  std::map<std::string, std::string> sources;
-};
-
-// One analysis, holding everything the workspace's diagnostics and AST point into.
-struct Analysis
-{
-  Analysis() : report( reporter ), em_cache( loader, profile ), inc_cache( loader, profile ) {}
-
-  DiagnosticReporter reporter;
-  Report report;
-  Profile profile;
-  MemoryLoader loader;
-  SourceFileCache em_cache;
-  SourceFileCache inc_cache;
-  std::unique_ptr<CompilerWorkspace> workspace;
-
-  std::string add_source( const std::string& name, const std::string& body )
-  {
-    const std::string path = memdir + name;
-    loader.sources[path] = body;
-    return path;
-  }
-
-  void run( const std::string& path, bool is_module, bool continue_on_error,
-            bool include_all_functions )
-  {
-    Compiler compiler( loader, em_cache, inc_cache, profile );
-    if ( include_all_functions )
-      compiler.set_include_compile_mode();
-    workspace = compiler.analyze( path, report, is_module, continue_on_error );
-  }
-
-  bool has_message( const std::string& text ) const
-  {
-    for ( const auto& diagnostic : reporter.diagnostics )
-      if ( diagnostic.message.find( text ) != std::string::npos )
-        return true;
-    return false;
-  }
-};
-
-std::unique_ptr<Analysis> analyze_src( const std::string& name, const std::string& body,
-                                       bool continue_on_error = true,
-                                       bool include_all_functions = true )
-{
-  auto analysis = std::make_unique<Analysis>();
-  analysis->run( analysis->add_source( name, body ), false /* is_module */, continue_on_error,
-                 include_all_functions );
-  return analysis;
-}
-
 void test_clean_source()
 {
   auto a = analyze_src( "clean.src",
@@ -644,10 +570,7 @@ void test_scope_tree()
 
 void compiler_analysis_test()
 {
-  // analyze() resolves modules through the global compiler config; the test shard's ecompile.cfg
-  // points ModuleDirectory at the shipped .em files.
-  const auto saved_cfg = Bscript::compilercfg;
-  Bscript::compilercfg.Read( "ecompile.cfg" );
+  ScopedCompilerConfig cfg;
 
   test_clean_source();
   test_module();
@@ -659,7 +582,5 @@ void compiler_analysis_test()
   test_case_group_without_label();
   test_report_clear();
   test_scope_tree();
-
-  Bscript::compilercfg = saved_cfg;
 }
 }  // namespace Pol::Testing

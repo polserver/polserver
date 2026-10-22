@@ -407,6 +407,8 @@ set (pol_sources  # sorted !
   testing/testboat.cpp
   testing/testclamp.cpp
   testing/testcompileranalysis.cpp
+  testing/testcompileranalysis.h
+  testing/testcompilertokens.cpp
   testing/testcfgfile.cpp
   testing/testclibmisc.cpp
   testing/testclibutil.cpp
