@@ -27,22 +27,18 @@ void ThisMemberAssignmentGatherer::visit_member_assignment( MemberAssignment& no
 
 void ThisMemberAssignmentGatherer::visit_function_expression( FunctionExpression& node )
 {
-  // Do not visit children if encountering a FunctionExpression that has shadows
-  // the `this` parameter instead of capturing it.
-  if ( auto function_link = node.function_link )
+  // The body is not a child of the FunctionExpression: it lives in the linked UserFunction.
+  auto user_function = node.function_link ? node.function_link->user_function() : nullptr;
+  if ( !user_function )
+    return;
+
+  // A `this` parameter shadows the class instance instead of capturing it.
+  for ( const auto& param : user_function->parameters() )
   {
-    if ( auto user_function = function_link->user_function() )
-    {
-      for ( const auto& param : user_function->parameters() )
-      {
-        if ( Clib::caseInsensitiveEqual( param.get().name.string(), "this" ) )
-        {
-          return;
-        }
-      }
-    }
+    if ( Clib::caseInsensitiveEqual( param.get().name.string(), "this" ) )
+      return;
   }
 
-  visit_children( node );
+  user_function->accept( *this );
 }
 }  // namespace Pol::Bscript::Compiler
