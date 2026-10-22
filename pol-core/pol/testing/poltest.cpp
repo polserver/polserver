@@ -74,6 +74,7 @@ bool run_pol_tests()
   RUNTEST( tokens_test )
   RUNTEST( compiler_analysis_test )
   RUNTEST( compiler_tokens_test )
+  RUNTEST( compiler_format_test )
   RUNTEST( dynthreadpool_test )
   //  RUNTEST( dummy )
 

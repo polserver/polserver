@@ -20,9 +20,10 @@ const std::vector<std::string>& PrettifyLineBuilder::formattedLines() const
   return _lines;
 }
 
-void PrettifyLineBuilder::setRawLines( std::vector<std::string> rawlines )
+void PrettifyLineBuilder::setRawLines( std::vector<std::string> rawlines, bool ends_with_newline )
 {
   _rawlines = std::move( rawlines );
+  _rawEndsWithNewline = ends_with_newline;
 }
 
 void PrettifyLineBuilder::setComments( std::vector<FmtToken> comments )
@@ -1388,9 +1389,10 @@ void PrettifyLineBuilder::mergeEOFNonTokens()
   if ( !_lines.empty() && !_lines.back().empty() && !_rawlines.empty() && _rawlines.back().empty() )
     _lines.emplace_back( "" );
 
-  // or add a new line if cfg says to do so when one does not exist _and_ a
-  // format range did not skiplines the EOF.
-  else if ( !_rangeSkippedNewlineAtEOF && compilercfg.FormatterInsertNewlineAtEOF &&
+  // or add a new line if cfg says to do so when one does not exist. When the text after a
+  // format range reaches EOF, it keeps the original file's ending instead.
+  else if ( ( _rangeSkippedNewlineAtEOF ? _rawEndsWithNewline
+                                        : compilercfg.FormatterInsertNewlineAtEOF ) &&
             !_lines.empty() && !_lines.back().empty() )
     _lines.emplace_back( "" );
 }
