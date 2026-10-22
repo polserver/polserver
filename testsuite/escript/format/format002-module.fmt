@@ -1,0 +1,4 @@
+// A module goes through its own formatter entry point.
+const FOO := 1;
+SomeFunc( a, b := 0 );
+Other();

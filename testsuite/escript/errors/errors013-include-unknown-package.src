@@ -1,0 +1,5 @@
+// An include from an unknown package stops the compile at once. Going on would report every use
+// of its constants and functions. The bare second line of the .err is printed only by that stop.
+include ":nosuchpkg:nosuchinclude";
+
+print( NO_SUCH_CONSTANT );

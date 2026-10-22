@@ -73,6 +73,22 @@ function (compareresult scriptname result optimized)
   cleanup(${scriptname})
 endfunction()
 
+# Only CR is dropped: unlike compareresult, the final newline is part of what the formatter must
+# get right.
+function (compareformatted formatted expectedfile)
+  file(READ "${formatted}" actual)
+  file(READ "${expectedfile}" expected)
+  string(REPLACE "\r" "" actual "${actual}")
+  string(REPLACE "\r" "" expected "${expected}")
+  if (NOT actual STREQUAL expected)
+    execute_process(
+      COMMAND ${git} diff --no-index ${expectedfile} ${formatted}
+      ERROR_QUIET
+    )
+    message(SEND_ERROR "${formatted} formatted differently than ${expectedfile}")
+  endif()
+endfunction()
+
 function (checkprocfailure output errorfile result)
   # correct error msg from process?
   file(READ "${errorfile}" contents)
@@ -126,6 +142,9 @@ function (testwithcompiler)
           RESULT_VARIABLE ecompile_format_res
           OUTPUT_VARIABLE ecompile_format_out
           ERROR_VARIABLE ecompile_format_out)
+        if (EXISTS "${testdir}/${scriptname}.fmt")
+          compareformatted("${script}" "${testdir}/${scriptname}.fmt")
+        endif()
       else()
         continue()
       endif()
@@ -188,6 +207,32 @@ function (testwithcompiler)
   endforeach()
 endfunction()
 
+# A module cannot be run, so a .em is only formatted and compared with its .fmt.
+function (testformatmodules)
+  file(GLOB modules RELATIVE ${testdir} ${testdir}/${subtest}/*.em)
+  foreach(module ${modules})
+    string(REPLACE ".em" "" modulename "${module}")
+    if (NOT EXISTS "${testdir}/${modulename}.fmt")
+      continue()
+    endif()
+    message("${module} [formatted]")
+    configure_file(${testdir}/${module} ${testdir}/${modulename}.unformatted.em COPYONLY)
+    execute_process( COMMAND ${ecompile} -Fi -q -C ecompile.cfg ${module}
+      RESULT_VARIABLE ecompile_format_res
+      OUTPUT_VARIABLE ecompile_format_out
+      ERROR_VARIABLE ecompile_format_out)
+    if (NOT "${ecompile_format_res}" STREQUAL "0")
+      message(SEND_ERROR "${module} did not format")
+      message(${ecompile_format_out})
+    else()
+      compareformatted("${module}" "${testdir}/${modulename}.fmt")
+    endif()
+    configure_file(${testdir}/${modulename}.unformatted.em ${testdir}/${module} COPYONLY)
+    file(REMOVE "${testdir}/${modulename}.unformatted.em")
+  endforeach()
+endfunction()
+
 testwithcompiler()
 testwithcompiler(SHORTCIRCUIT)
 testwithcompiler(FORMAT)
+testformatmodules()

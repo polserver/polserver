@@ -123,6 +123,7 @@ void cfgfile_test();
 void equip_colors_test();
 void uop_test();
 void tokens_test();
+void compiler_analysis_test();
 void dynthreadpool_test();
 }  // namespace Testing
 }  // namespace Pol

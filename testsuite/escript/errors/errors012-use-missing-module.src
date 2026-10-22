@@ -1,0 +1,5 @@
+// A module that cannot be loaded stops the compile at once. Going on would report every call
+// into it as an unknown function. The bare second line of the .err is printed only by that stop.
+use nosuchmodule;
+
+print( NoSuchFunction() );
