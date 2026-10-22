@@ -126,6 +126,7 @@ void tokens_test();
 void compiler_analysis_test();
 void compiler_tokens_test();
 void compiler_format_test();
+void compiler_typing_test();
 void dynthreadpool_test();
 }  // namespace Testing
 }  // namespace Pol

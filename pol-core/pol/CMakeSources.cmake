@@ -410,6 +410,7 @@ set (pol_sources  # sorted !
   testing/testcompileranalysis.h
   testing/testcompilerformat.cpp
   testing/testcompilertokens.cpp
+  testing/testcompilertyping.cpp
   testing/testcfgfile.cpp
   testing/testclibmisc.cpp
   testing/testclibutil.cpp
