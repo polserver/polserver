@@ -7,7 +7,7 @@
 	<version name="POL100.3.0">
 		<entry>
 			<date>10-28-2026</date>
-			<author>Ins:</author>
+			<author>dedo_rudo:</author>
 			<change type="Added">combat.cfg DisableRegenOnHit (milliseconds, default 2000). How long vital<br/>
 regeneration is paused after taking damage. 0 disables the pause.</change>
 		</entry>

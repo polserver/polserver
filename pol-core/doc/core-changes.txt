@@ -1,5 +1,5 @@
 -- POL100.3.0 --
-10-28-2026 Ins:
+10-28-2026 dedo_rudo:
     Added: combat.cfg DisableRegenOnHit (milliseconds, default 2000). How long vital
            regeneration is paused after taking damage. 0 disables the pause.
 10-18-2026 Turley:
