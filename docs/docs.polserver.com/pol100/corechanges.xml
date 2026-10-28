@@ -2,9 +2,15 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-18-2026</datemodified>
+		<datemodified>10-28-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>10-28-2026</date>
+			<author>Ins:</author>
+			<change type="Added">combat.cfg DisableRegenOnHit (milliseconds, default 2000). How long vital<br/>
+regeneration is paused after taking damage. 0 disables the pause.</change>
+		</entry>
 		<entry>
 			<date>10-18-2026</date>
 			<author>Turley:</author>

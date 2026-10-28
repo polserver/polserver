@@ -1,4 +1,7 @@
 -- POL100.3.0 --
+10-28-2026 Ins:
+    Added: combat.cfg DisableRegenOnHit (milliseconds, default 2000). How long vital
+           regeneration is paused after taking damage. 0 disables the pause.
 10-18-2026 Turley:
     Fixed: items of an objtype without an itemdesc.cfg entry that the core creates itself, such
            as hair and beards at character creation, ignored servspecopt.cfg DefaultDecayTime and

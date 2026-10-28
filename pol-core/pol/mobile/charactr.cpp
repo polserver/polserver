@@ -1808,7 +1808,8 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   if ( paralyzed() )
     mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
-  disable_regeneration_for( 2 );  // FIXME depend on amount?
+  if ( Core::settingsManager.combat_config.disable_regen_on_hit != 0 )
+    disable_regeneration_for( Core::settingsManager.combat_config.disable_regen_on_hit );
 
   // 0.xx is still 0
   VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );
@@ -3173,9 +3174,10 @@ void Character::select_opponent( Attackable opponent )
   }
 }
 
-void Character::disable_regeneration_for( int seconds )
+void Character::disable_regeneration_for( unsigned int milliseconds )
 {
-  time_t new_disable_time = Core::poltime() + seconds;
+  Core::polclock_t new_disable_time =
+      Core::polclock() + static_cast<Core::polclock_t>( milliseconds / 10 );
   if ( new_disable_time > disable_regeneration_until )
     disable_regeneration_until = new_disable_time;
 }
@@ -3193,7 +3195,7 @@ void Character::set_warmode( bool i_warmode )
 
   if ( warmode() != i_warmode )
   {
-    disable_regeneration_for( 2 );
+    disable_regeneration_for( 2000 );
   }
 
   mob_flags_.change( MOB_FLAGS::WARMODE, i_warmode );
@@ -4487,7 +4489,7 @@ size_t Character::estimatedSize() const
                 + sizeof( Core::Pos4d )                               /*lastpos*/
                 + sizeof( MOVEREASON )                                /*move_reason*/
                 + sizeof( Plib::MOVEMODE )                            /*movemode*/
-                + sizeof( time_t )                                    /*disable_regeneration_until*/
+                + sizeof( Core::polclock_t )                          /*disable_regeneration_until*/
                 + sizeof( u16 )                                       /*truecolor*/
                 + sizeof( u32 )                                       /*trueobjtype*/
                 + sizeof( Plib::UGENDER )                             /*gender*/

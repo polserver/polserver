@@ -50,6 +50,8 @@ void CombatConfig::read_combat_config()
       to_warmode_inhibits_regen_strategy( elem.remove_ushort( "WarmodeInhibitsRegen", 0 ) );
   settingsManager.combat_config.attack_self = elem.remove_bool( "SingleCombat", false );
   settingsManager.combat_config.warmode_delay = elem.remove_ulong( "WarModeDelay", 1 );
+  settingsManager.combat_config.disable_regen_on_hit =
+      elem.remove_ulong( "DisableRegenOnHit", 2000 );
   settingsManager.combat_config.core_hit_sounds = elem.remove_bool( "CoreHitSounds", false );
   settingsManager.combat_config.scripted_attack_checks =
       elem.remove_bool( "ScriptedAttackChecks", false );
