@@ -1808,8 +1808,8 @@ void Character::apply_raw_damage_hundredths( unsigned int amount, Character* sou
   if ( paralyzed() )
     mob_flags_.remove( MOB_FLAGS::PARALYZED );
 
-  if ( Core::settingsManager.combat_config.disable_regen_on_hit != 0 )
-    disable_regeneration_for( Core::settingsManager.combat_config.disable_regen_on_hit );
+  if ( Core::settingsManager.combat_config.regen_delay_after_damage != 0 )
+    disable_regeneration_for( Core::settingsManager.combat_config.regen_delay_after_damage );
 
   // 0.xx is still 0
   VitalValue& vv = vital( Core::gamestate.pVitalLife->vitalid );

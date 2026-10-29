@@ -806,7 +806,7 @@ ArmorZone
 [DisplayParrySuccessMessages (0/1) {default 0})]
 [WarmodeInhibitsRegen        (enumeration between 0-4) {default 0})]
 [WarModeDelay                (int Seconds) {default 1})]
-[DisableRegenOnHit           (int milliseconds {default 2000})]
+[RegenDelayAfterDamage       (int milliseconds {default 2000})]
 [SingleCombat                (0/1 {default 0})]
 [CoreHitSounds               (0/1 {default 0})]
 [ScriptedAttackChecks        (0/1 {default 0})]
@@ -818,7 +818,7 @@ ArmorZone
 </structure>
     <explain><i>WarmodeInhibitsRegen:</i> Determines if warmode stops vital regeneration and if so, what character types: none = 0 (default), both = 1, players only = 2, NPCs only = 3.</explain>
     <explain><i>WarModeDelay:</i> is a delay between ability to toggle war mode status via client. Does not affect using SetWarMode method.</explain>
-    <explain><i>DisableRegenOnHit:</i> How long vital regeneration is paused after taking damage, in milliseconds. Default 2000. 0 disables the pause.</explain>
+    <explain><i>RegenDelayAfterDamage:</i> How long vital regeneration is paused after taking damage, in milliseconds. Default 2000. 0 disables the pause.</explain>
     <explain><i>SingleCombat:</i> allows players to attack themselves.</explain>
     <explain><i>CoreHitSounds:</i> If enabled, the core handles sending sounds for hit on combat. When mobile hit is an NPC, it uses the NPC's DamagedSound from the NPCTemplate. If disabled, scripts must handle this.</explain>
     <explain><i>ScriptedAttackChecks:</i> If enabled, the combat hook must check distance, line of sight, visibility, and if both combatants are alive.</explain>
