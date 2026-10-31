@@ -21,13 +21,17 @@ using namespace CompilerAnalysis;
 
 namespace
 {
+// FormatterWindowsLineEndings defaults to on under Windows. Like vscode-escript's own formatter
+// test, compare without the CRs.
 std::string format_text( const std::string& name, const std::string& body, bool is_module,
                          std::optional<Range> range )
 {
   Analysis a;
   const auto path = a.add_source( name, body );
   Compiler compiler( a.loader, a.em_cache, a.inc_cache, a.profile );
-  return compiler.to_formatted_string( path, is_module, range );
+  auto formatted = compiler.to_formatted_string( path, is_module, range );
+  std::erase( formatted, '\r' );
+  return formatted;
 }
 
 // Two `#` mark the range, as in vscode-escript's format-srcs. The positions are what the extension
