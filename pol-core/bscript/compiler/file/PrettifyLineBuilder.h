@@ -107,7 +107,7 @@ public:
   PrettifyLineBuilder() = default;
   const std::vector<std::string>& formattedLines() const;
 
-  void setRawLines( std::vector<std::string> rawlines );
+  void setRawLines( std::vector<std::string> rawlines, bool ends_with_newline );
   void setComments( std::vector<FmtToken> comments );
   void setSkipLines( std::vector<Range> skiplines, bool has_format_range );
   void addPart( FmtToken part );
@@ -148,6 +148,7 @@ private:
   // format-off block that runs to EOF still gets FormatterInsertNewlineAtEOF.
   bool _has_format_range = false;
   bool _rangeSkippedNewlineAtEOF = false;
+  bool _rawEndsWithNewline = false;
   std::vector<std::string> _packable_switch_labels = {};
 
   void mergeRawContent( size_t nextlineno );

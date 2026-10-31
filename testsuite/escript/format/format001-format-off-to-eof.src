@@ -1,0 +1,10 @@
+// An unclosed format-off block runs to the end of the file. The formatter copies the block as
+// written and still ends the file with a single newline.
+program format_off_to_eof()
+  print(f());
+endprogram
+
+// format-off
+function   f( )
+  return  "ok";
+endfunction

@@ -1806,9 +1806,10 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
             format_range_skip_foot->start.line_number = skipline.start.line_number;
             itr = skiplines.erase( itr );
           }
-          // Case 6: Skipline is completely contained inside foot.
+          // Case 6: Skipline starts inside foot.
           // If so, remove skipline, as it will not be formatted anyway because of foot's range.
-          else if ( format_range_skip_foot->contains( skipline ) )
+          // Foot runs to EOF, so this includes an unclosed skipline, whose end lies past it.
+          else if ( format_range_skip_foot->contains( skipline.start ) )
           {
             itr = skiplines.erase( itr );
           }
@@ -1850,7 +1851,7 @@ void PrettifyFileProcessor::preprocess( SourceFile& sf, std::optional<Range> for
                   comments.end() );
   linebuilder.setComments( std::move( comments ) );
   linebuilder.setSkipLines( std::move( skiplines ), format_range.has_value() );
-  linebuilder.setRawLines( std::move( rawlines ) );
+  linebuilder.setRawLines( std::move( rawlines ), raw_ends_with_newline );
 }
 
 std::vector<std::string> PrettifyFileProcessor::load_raw_file()
@@ -1858,6 +1859,8 @@ std::vector<std::string> PrettifyFileProcessor::load_raw_file()
   // Clib::FileContents fc( source_file_identifier.pathname.c_str(), true );
   // const auto& contents = fc.str_contents();
   const auto contents = source_loader.get_contents( source_file_identifier.pathname );
+  raw_ends_with_newline =
+      !contents.empty() && ( contents.back() == '\n' || contents.back() == '\r' );
   std::vector<std::string> rawlines;
   std::string currline;
   for ( size_t i = 0; i < contents.size(); ++i )

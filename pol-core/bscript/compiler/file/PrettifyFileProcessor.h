@@ -201,6 +201,8 @@ private:
   void preprocess( SourceFile& sf, std::optional<Range> format_range );
   std::vector<FmtToken> collectComments( SourceFile& sf );
   std::vector<std::string> load_raw_file();
+  // Set by load_raw_file(): the split lines do not show whether the text ended with a newline.
+  bool raw_ends_with_newline = false;
 
   antlrcpp::Any expression_suffix( EscriptGrammar::EscriptParser::ExpressionContext*,
                                    EscriptGrammar::EscriptParser::ExpressionSuffixContext* );
