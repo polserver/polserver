@@ -1,4 +1,6 @@
-find_package(Python3 3.8 COMPONENTS Interpreter REQUIRED QUIET)
+# The interpreter configure found and checked for aiosmtpd. A find_package in script mode can
+# find a different one, which then lacks the module.
+set(Python3_EXECUTABLE "${python}")
 if(testemail)
   execute_process(
     COMMAND ${Python3_EXECUTABLE} ${testdir}/testclient/pyuo/testclient.py
