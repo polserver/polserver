@@ -177,7 +177,7 @@ LBRACK:             '[';
 RBRACK:             ']';
 LBRACE:             '{'
 {
-    if ( interpolatedStringLevel > 0 )
+    if ( interpolatedStringLevel > 0 && !curlyLevels.empty() )
       {
         auto currentLevel = curlyLevels.top();
         curlyLevels.pop();
@@ -186,7 +186,7 @@ LBRACE:             '{'
 };
 RBRACE:             '}'
 {
-    if ( interpolatedStringLevel > 0 )
+    if ( interpolatedStringLevel > 0 && !curlyLevels.empty() )
       {
         auto currentLevel = curlyLevels.top();
         curlyLevels.pop();

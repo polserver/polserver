@@ -7,12 +7,21 @@
 #include "bscript/compiler/ast/Program.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
+#include "bscript/compiler/astbuilder/BuilderWorkspace.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/FlowControlLabel.h"
 
 namespace Pol::Bscript::Compiler
 {
-CompilerWorkspace::CompilerWorkspace( Report& report ) : constants( report ) {}
+CompilerWorkspace::CompilerWorkspace( Report& report, SourceFileCache& em_cache,
+                                      SourceFileCache& inc_cache, bool continue_on_error,
+                                      bool analysis_mode, Profile& profile )
+    : constants( report ),
+      scope_tree( analysis_mode ? std::make_unique<ScopeTree>( *this ) : nullptr ),
+      builder_workspace( *this, em_cache, inc_cache, continue_on_error, analysis_mode, profile,
+                         report )
+{
+}
 
 CompilerWorkspace::~CompilerWorkspace() = default;
 

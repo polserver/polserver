@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "bscript/compiler/model/ScopableName.h"
 #include "bscript/compiler/model/SimpleTypes.h"
 #include "bscript/compiler/model/VariableScope.h"
 #include "bscript/compiler/model/WarnOn.h"
@@ -16,7 +17,8 @@ class Variable
 {
 public:
   Variable( VariableScope, std::string name, BlockDepth, VariableIndex, WarnOn,
-            std::shared_ptr<Variable> capturing, const SourceLocation& source_location );
+            std::shared_ptr<Variable> capturing, const SourceLocation& source_location,
+            const SourceLocation& var_decl_location );
 
 
   void mark_used();
@@ -29,6 +31,11 @@ public:
   const WarnOn warn_on;
   const SourceLocation& source_location;
   std::shared_ptr<Variable> capturing;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
+  const SourceLocation& var_decl_location;
+
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
+  ScopableName scoped_name() const;
 
 private:
   bool used;

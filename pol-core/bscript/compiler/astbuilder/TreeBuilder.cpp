@@ -9,9 +9,9 @@ namespace Pol::Bscript::Compiler
 {
 TreeBuilder::TreeBuilder( const SourceFileIdentifier& source_file_identifier,
                           BuilderWorkspace& workspace )
-  : report( workspace.report ),
-    source_file_identifier( source_file_identifier ),
-    workspace( workspace )
+    : report( workspace.report ),
+      source_file_identifier( source_file_identifier ),
+      workspace( workspace )
 {
 }
 
@@ -33,6 +33,8 @@ SourceLocation TreeBuilder::location_for( antlr4::tree::TerminalNode& ctx ) cons
 
 std::string TreeBuilder::text( antlr4::tree::TerminalNode* terminal )
 {
+  if ( !terminal )
+    return "";
   return terminal->getSymbol()->getText();
 }
 

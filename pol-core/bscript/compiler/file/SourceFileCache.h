@@ -10,13 +10,17 @@ namespace Pol::Bscript::Compiler
 {
 class SourceFile;
 class SourceFileIdentifier;
+class SourceFileLoader;
 class Profile;
 class Report;
 
 class SourceFileCache
 {
 public:
-  explicit SourceFileCache( Profile& profile ) : keep( 0 ), profile( profile ) {}
+  explicit SourceFileCache( SourceFileLoader& source_loader, Profile& profile )
+      : source_loader( source_loader ), keep( 0 ), profile( profile )
+  {
+  }
 
   void configure( unsigned keep );
 
@@ -26,6 +30,7 @@ public:
   void clear();
 
 private:
+  SourceFileLoader& source_loader;
   unsigned keep;
 
   std::mutex mutex;

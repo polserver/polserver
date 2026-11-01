@@ -13,6 +13,8 @@ public:
   std::atomic<long long> optimize_micros;
   std::atomic<long long> disambiguate_micros;
   std::atomic<long long> analyze_micros;
+  // Analysis only: used by vscode-escript, not by ecompile or pol.
+  std::atomic<long long> tokenize_micros;
   std::atomic<long long> codegen_micros;
   std::atomic<long long> prune_cache_select_micros;
   std::atomic<long long> prune_cache_delete_micros;

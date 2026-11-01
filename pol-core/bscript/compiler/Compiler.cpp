@@ -6,6 +6,7 @@
 #include "bscript/compiler/Report.h"
 #include "bscript/compiler/analyzer/Disambiguator.h"
 #include "bscript/compiler/analyzer/SemanticAnalyzer.h"
+#include "bscript/compiler/analyzer/SemanticTokensBuilder.h"
 #include "bscript/compiler/analyzer/ShortCircuitWarning.h"
 #include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/astbuilder/CompilerWorkspaceBuilder.h"
@@ -13,21 +14,26 @@
 #include "bscript/compiler/file/PrettifyBuilder.h"
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
+#include "bscript/compiler/file/SourceFileLoader.h"
 #include "bscript/compiler/format/CompiledScriptSerializer.h"
 #include "bscript/compiler/format/DebugStoreSerializer.h"
 #include "bscript/compiler/format/ListingWriter.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
 #include "bscript/compiler/optimizer/Optimizer.h"
 #include "bscript/compiler/representation/CompiledScript.h"
+#include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "bscript/compilercfg.h"
 
 namespace Pol::Bscript::Compiler
 {
-Compiler::Compiler( SourceFileCache& em_cache, SourceFileCache& inc_cache, Profile& profile )
-    : em_cache( em_cache ), inc_cache( inc_cache ), profile( profile )
+Compiler::Compiler( SourceFileLoader& source_loader, SourceFileCache& em_cache,
+                    SourceFileCache& inc_cache, Profile& profile )
+    : source_loader( source_loader ),
+      em_cache( em_cache ),
+      inc_cache( inc_cache ),
+      profile( profile )
 {
 }
 
@@ -95,11 +101,17 @@ bool Compiler::compile_file( const std::string& filename )
 {
   bool success;
   // Outside the try so the counts survive a throw from the compilation steps.
-  Report report( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning,
-                 true /* display errors */, compilercfg.DisplayDebugs );
+  ConsoleReporter reporter( compilercfg.DisplayWarnings || compilercfg.ErrorOnWarning,
+                            true /* display errors */, compilercfg.DisplayDebugs );
+  Report report( reporter );
+
   try
   {
     auto pathname = Clib::FullPath( filename.c_str() );
+    if ( pathname.empty() )
+    {
+      pathname = filename;
+    }
 
     compile_file_steps( pathname, report );
     display_outcome( pathname, report );
@@ -122,7 +134,9 @@ bool Compiler::compile_file( const std::string& filename )
 
 void Compiler::compile_file_steps( const std::string& pathname, Report& report )
 {
-  std::unique_ptr<CompilerWorkspace> workspace = build_workspace( pathname, report );
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( pathname, report, false /* is_module */, false /* continue_on_error */,
+                       false /* analysis_mode */ );
   if ( report.error_count() )
     return;
 
@@ -154,9 +168,10 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   if ( !Clib::filesize( filename.c_str() ) )
     return true;
 
-  Report report( false, true );
+  ConsoleReporter reporter( false, true );
+  Report report( reporter );
   PrettifyBuilder prettify_builder( profile, report );
-  auto formatted = prettify_builder.build( filename, is_module );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, {} );
   errors = report.error_count();
   warnings = report.warning_count();
   if ( report.error_count() )
@@ -173,12 +188,48 @@ bool Compiler::format_file( const std::string& filename, bool is_module, bool in
   return true;
 }
 
+std::unique_ptr<CompilerWorkspace> Compiler::analyze( const std::string& pathname, Report& report,
+                                                      bool is_module, bool continue_on_error )
+{
+  // Let's see how this explodes...
+  std::unique_ptr<CompilerWorkspace> workspace =
+      build_workspace( pathname, report, is_module, continue_on_error, true /* analysis_mode */ );
+  if ( workspace )
+  {
+    register_constants( *workspace, report );
+    optimize( *workspace, report );
+    disambiguate( *workspace, report );
+    analyze( *workspace, report );
+    check_short_circuit( *workspace, report );
+    tokenize( *workspace );
+    return workspace;
+  }
+  return {};
+}
+
+std::string Compiler::to_formatted_string( const std::string& filename, bool is_module,
+                                           std::optional<Range> format_range )
+{
+  DiagnosticReporter reporter;
+  Report report( reporter );
+  PrettifyBuilder prettify_builder( profile, report );
+  auto formatted = prettify_builder.build( source_loader, filename, is_module, format_range );
+  if ( report.error_count() )
+    throw std::runtime_error( reporter.diagnostics.front().message );
+
+  return formatted;
+}
+
 std::unique_ptr<CompilerWorkspace> Compiler::build_workspace( const std::string& pathname,
-                                                              Report& report )
+                                                              Report& report, bool is_module,
+                                                              bool continue_on_error,
+                                                              bool analysis_mode )
 {
   Pol::Tools::HighPerfTimer timer;
-  CompilerWorkspaceBuilder workspace_builder( em_cache, inc_cache, profile, report );
-  auto workspace = workspace_builder.build( pathname, user_function_inclusion );
+  CompilerWorkspaceBuilder workspace_builder( source_loader, em_cache, inc_cache, continue_on_error,
+                                              analysis_mode, profile, report );
+  auto workspace = is_module ? workspace_builder.build_module( pathname )
+                             : workspace_builder.build( pathname, user_function_inclusion );
   profile.build_workspace_micros += timer.ellapsed().count();
   return workspace;
 }
@@ -216,8 +267,16 @@ void Compiler::analyze( CompilerWorkspace& workspace, Report& report )
 
 void Compiler::check_short_circuit( CompilerWorkspace& workspace, Report& report )
 {
-  ShortCircuitWarning warn{ report };
+  ShortCircuitWarning warn{ report, workspace.builder_workspace.analysis_mode };
   warn.warn( workspace );
+}
+
+void Compiler::tokenize( CompilerWorkspace& workspace )
+{
+  Pol::Tools::HighPerfTimer timer;
+  SemanticTokensBuilder tokenizer( workspace );
+  tokenizer.build();
+  profile.tokenize_micros += timer.ellapsed().count();
 }
 
 std::unique_ptr<CompiledScript> Compiler::generate( std::unique_ptr<CompilerWorkspace> workspace,

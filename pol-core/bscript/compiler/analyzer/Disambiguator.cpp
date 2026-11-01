@@ -1,8 +1,6 @@
 #include "bscript/compiler/analyzer/Disambiguator.h"
 
 #include "bscript/compiler/analyzer/Constants.h"
-#include "bscript/compiler/ast/Program.h"
-#include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/Block.h"
 #include "bscript/compiler/ast/CaseDispatchGroup.h"
 #include "bscript/compiler/ast/CaseDispatchGroups.h"
@@ -10,6 +8,8 @@
 #include "bscript/compiler/ast/ConstDeclaration.h"
 #include "bscript/compiler/ast/Identifier.h"
 #include "bscript/compiler/ast/LabelableStatement.h"
+#include "bscript/compiler/ast/Program.h"
+#include "bscript/compiler/ast/TopLevelStatements.h"
 #include "bscript/compiler/ast/UserFunction.h"
 #include "bscript/compiler/astbuilder/SimpleValueCloner.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
@@ -17,7 +17,7 @@
 namespace Pol::Bscript::Compiler
 {
 Disambiguator::Disambiguator( Constants& constants, Report& report )
-  : constants( constants ), report( report )
+    : constants( constants ), report( report )
 {
 }
 
@@ -42,6 +42,9 @@ void Disambiguator::visit_case_dispatch_group( CaseDispatchGroup& dispatch_group
   // It is possible that the last CASE-label is actually supposed
   // to be attached to the first statement in the block.
   auto& selectors = dispatch_group.selectors();
+  // Parse-error recovery in analysis mode can build a group without a label.
+  if ( selectors.children.empty() )
+    return;
   auto& last_selector = selectors.children.back();
   auto last_selector_as_identifier = dynamic_cast<Identifier*>( last_selector.get() );
   if ( last_selector_as_identifier )
@@ -119,7 +122,7 @@ void Disambiguator::visit_case_dispatch_groups( CaseDispatchGroups& dispatch_gro
           auto new_selectors = std::make_unique<CaseDispatchSelectors>(
               dispatch_groups.source_location, std::move( selector_identifiers ) );
           auto new_block = std::make_unique<Block>( labelable_statement->source_location,
-                                                      std::move( new_block_statements ) );
+                                                    std::move( new_block_statements ) );
           auto new_dispatch_group = std::make_unique<CaseDispatchGroup>(
               dispatch_groups.source_location, std::move( new_selectors ), std::move( new_block ) );
           dispatch_groups.children.insert( dispatch_groups.children.begin() + i + 1,

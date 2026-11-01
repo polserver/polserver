@@ -16,11 +16,12 @@ class Profile;
 class Report;
 class SourceFileIdentifier;
 class SourceFile;
+class SourceFileLoader;
 
 class PrettifyFileProcessor : public EscriptGrammar::EscriptParserBaseVisitor
 {
 public:
-  PrettifyFileProcessor( const SourceFileIdentifier&, Profile&, Report& );
+  PrettifyFileProcessor( const SourceFileIdentifier&, SourceFileLoader&, Profile&, Report& );
 
   std::string prettify() const;
 
@@ -176,8 +177,10 @@ public:
   antlrcpp::Any visitWhileStatement(
       EscriptGrammar::EscriptParser::WhileStatementContext* ctx ) override;
 
-  antlrcpp::Any process_compilation_unit( SourceFile& );
-  antlrcpp::Any process_module_unit( SourceFile& );
+  // format_range: Analysis only: used by vscode-escript, not by ecompile or pol.
+  // `ecompile -F` passes std::nullopt.
+  antlrcpp::Any process_compilation_unit( SourceFile&, std::optional<Range> format_range );
+  antlrcpp::Any process_module_unit( SourceFile&, std::optional<Range> format_range );
 
 private:
   const SourceFileIdentifier& source_file_identifier;
@@ -187,6 +190,7 @@ private:
   bool _suppressnewline = false;
   FmtToken::Scope _currentscope = FmtToken::Scope::NONE;
   // Profile& profile;
+  SourceFileLoader& source_loader;
   Report& report;
   void addToken( std::string&& text, const Position& pos, int style, size_t token_type,
                  FmtContext context = FmtContext::NONE );
@@ -194,7 +198,7 @@ private:
                  FmtContext context = FmtContext::NONE );
   void addToken( std::string&& text, antlr4::Token* token, int style,
                  FmtContext context = FmtContext::NONE );
-  void preprocess( SourceFile& sf );
+  void preprocess( SourceFile& sf, std::optional<Range> format_range );
   std::vector<FmtToken> collectComments( SourceFile& sf );
   std::vector<std::string> load_raw_file();
 

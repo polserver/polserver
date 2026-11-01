@@ -15,10 +15,10 @@
 #include "bscript/compiler/file/SourceFileCache.h"
 #include "bscript/compiler/file/SourceFileIdentifier.h"
 #include "bscript/compiler/model/CompilerWorkspace.h"
+#include "bscript/compilercfg.h"
 #include "clib/fileutil.h"
 #include "clib/logfacility.h"
 #include "clib/timer.h"
-#include "bscript/compilercfg.h"
 #include "plib/pkg.h"
 
 using EscriptGrammar::EscriptParser;
@@ -62,7 +62,14 @@ void SourceFileProcessor::use_module( const std::string& module_name,
   {
     // This is fatal because if we keep going, we'll likely report a bunch of errors
     // that would just be noise, like missing module function declarations or constants.
-    report.fatal( including_location, "Unable to use module '{}'.", module_name );
+    // Analysis keeps going: vscode-escript still needs the rest of the file.
+    if ( !workspace.analysis_mode )
+      report.fatal( including_location, "Unable to use module '{}'.", module_name );
+    report.error( including_location, "Unable to use module '{}'.", module_name );
+    // Move the failed-to-load SourceFileIdentifier to the compiler to properly
+    // own diagnostic references.
+    workspace.compiler_workspace.referenced_source_file_identifiers.push_back( std::move( ident ) );
+    return;
   }
   workspace.source_files[pathname] = sf;
 
@@ -93,7 +100,7 @@ void SourceFileProcessor::process_source( SourceFile& sf )
   profile.parse_src_micros.fetch_add( parse_us_counted );
   profile.parse_src_count++;
 
-  if ( report.error_count() == 0 )
+  if ( workspace.continue_on_error || report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -112,7 +119,7 @@ void SourceFileProcessor::process_include( SourceFile& sf, long long* micros_cou
   profile.parse_inc_micros.fetch_add( parse_micros_elapsed );
   *micros_counted += parse_micros_elapsed;
 
-  if ( report.error_count() == 0 )
+  if ( workspace.continue_on_error || report.error_count() == 0 )
   {
     Pol::Tools::HighPerfTimer ast_timer;
     compilation_unit->accept( this );
@@ -132,6 +139,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     include_name = tree_builder.unquote( string_literal );
   else if ( auto identifier = ctx->stringIdentifier()->IDENTIFIER() )
     include_name = identifier->getSymbol()->getText();
+  else if ( workspace.continue_on_error )
+    return;
   else
     source_location.internal_error(
         "Unable to include module: expected a string literal or identifier.\n" );
@@ -159,6 +168,8 @@ void SourceFileProcessor::handle_include_declaration( EscriptParser::IncludeDecl
     {
       report.error( source_location, "Unable to include file '{}': failed to load.",
                     canonical_include_pathname );
+      workspace.compiler_workspace.referenced_source_file_identifiers.push_back(
+          std::move( ident ) );
       return;
     }
 
@@ -230,7 +241,11 @@ std::optional<std::string> SourceFileProcessor::locate_include_file(
     {
       // This is fatal because if we keep going, we'll likely report a bunch of errors
       // that would just be noise, like missing functions or constants.
-      report.fatal( source_location, "Unable to read include file '{}'", include_name );
+      // Analysis keeps going: vscode-escript still needs the rest of the file.
+      if ( !workspace.analysis_mode )
+        report.fatal( source_location, "Unable to read include file '{}'", include_name );
+      report.error( source_location, "Unable to read include file '{}'", include_name );
+      return {};
     }
   }
   else
@@ -287,7 +302,10 @@ antlrcpp::Any SourceFileProcessor::visitFunctionDeclaration(
 {
   auto loc = location_for( *ctx );
   bool force_reference = user_function_inclusion == UserFunctionInclusion::All;
-  workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
+  if ( ctx->IDENTIFIER() )
+  {
+    workspace.function_resolver.register_available_user_function( loc, ctx, force_reference );
+  }
   const std::string& function_name = tree_builder.text( ctx->IDENTIFIER() );
   workspace.compiler_workspace.all_function_locations.emplace( function_name, loc );
   return antlrcpp::Any();
@@ -356,7 +374,7 @@ antlrcpp::Any SourceFileProcessor::visitProgramDeclaration(
                   "  Other declaration: {}",
                   workspace.compiler_workspace.program->source_location );
   }
-  else
+  else if ( ctx->IDENTIFIER() )
   {
     workspace.compiler_workspace.program = tree_builder.program( ctx );
   }

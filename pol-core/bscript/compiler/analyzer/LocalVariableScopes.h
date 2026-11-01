@@ -7,12 +7,13 @@ namespace Pol::Bscript::Compiler
 {
 class LocalVariableScope;
 class Report;
+class ScopeTree;
 class Variables;
 
 class LocalVariableScopes
 {
 public:
-  LocalVariableScopes( Variables& locals, Report& report );
+  LocalVariableScopes( ScopeTree* scope_tree, Variables& locals, Report& report );
 
   LocalVariableScope* current_local_scope();
 
@@ -21,6 +22,8 @@ private:
 
   Variables& local_variables;
   std::vector<LocalVariableScope*> local_variable_scopes;
+  // Null outside analysis mode.
+  ScopeTree* tree;
   Report& report;
 };
 
