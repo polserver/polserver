@@ -48,10 +48,11 @@ void regen_stats()
 {
   THREAD_CHECKPOINT( tasks, 400 );
   time_t now = poltime();
+  polclock_t now_polclock = polclock();
   gameclock_t now_gameclock = read_gameclock();
   THREAD_CHECKPOINT( tasks, 401 );
 
-  auto stat_regen = [&now_gameclock, &now]( Mobile::Character* chr )
+  auto stat_regen = [&now_gameclock, &now, &now_polclock]( Mobile::Character* chr )
   {
     THREAD_CHECKPOINT( tasks, 402 );
 
@@ -108,7 +109,7 @@ void regen_stats()
     }
 
     // If regeneration is currently disabled, don't do it.
-    if ( now <= chr->disable_regeneration_until )
+    if ( now_polclock <= chr->disable_regeneration_until )
     {
       return;
     }

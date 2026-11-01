@@ -500,7 +500,7 @@ private:
 
   // ATTRIBUTES / VITALS
 public:
-  void disable_regeneration_for( int seconds );
+  void disable_regeneration_for( unsigned int milliseconds );
   void resetEquipableProperties();
   void updateEquipableProperties( Items::Item* item );
 
@@ -830,7 +830,7 @@ protected:
   Core::OneShotTask* swing_task;
   // ATTRIBUTES / VITALS
 public:
-  time_t disable_regeneration_until;
+  Core::polclock_t disable_regeneration_until;
   std::vector<AttributeValue> attributes;
   std::vector<VitalValue> vitals;
   // REPUTATION

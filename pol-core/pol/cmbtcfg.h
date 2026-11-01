@@ -27,6 +27,7 @@ struct CombatConfig
   WarmodeInhibitsRegenStrategy warmode_inhibits_regen;
   bool attack_self;
   unsigned int warmode_delay;
+  unsigned int regen_delay_after_damage;
 
   bool core_hit_sounds;
   bool scripted_attack_checks;
