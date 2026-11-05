@@ -1,4 +1,9 @@
 <?php
+	// Run by CI (php -f); the web deploy uploads it too, so refuse web requests
+	if (PHP_SAPI !== 'cli') {
+		http_response_code(404);
+		exit;
+	}
 	require_once 'include/global.inc';
 	$offline = 1;
 
@@ -21,6 +26,7 @@
 	{
 		global $ob_file;
 		fwrite($ob_file, $buffer);
+		return ''; // PHP 8.5 deprecates non-string returns
 	}
 
 	// generate Core Documentation

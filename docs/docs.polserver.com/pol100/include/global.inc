@@ -25,15 +25,19 @@ $offline = false;
 
 
 
-// Sets a default error handler, transforms any warning into a critical error
+// Sets a default error handler: when building the offline doc, transforms any
+// warning into a critical error. Online, errors are left to PHP (or to phpBB's
+// handler, which replaces this one once the official header is loaded), so
+// server paths are not shown to visitors.
 set_error_handler('XML_errorHandler');
 
-function XML_errorHandler ($errno, $errstr, $errfile, $errline, $errcontext)
+function XML_errorHandler ($errno, $errstr, $errfile, $errline)
 {
 	global $offline;
-	if( $offline ) {
-		@ob_end_clean();
+	if( !$offline || !(error_reporting() & $errno) ) {
+		return false;
 	}
+	@ob_end_clean();
 	die("ERROR $errno in \"$errfile\" at line $errline: \"$errstr\"\n");
 }
 

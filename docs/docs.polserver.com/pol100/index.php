@@ -2,16 +2,19 @@
 	require_once 'include/global.inc';
 
 	siteheader('POL Documentation Site');
+	$archivefile = '';
 	if (!$offline && $official) {
-		$files = scandir('archives', SCANDIR_SORT_DESCENDING);
+		$files = scandir('archives', SCANDIR_SORT_DESCENDING) ?: array();
 		foreach ($files as $file) {
 			if (substr($file,0,strlen("pol-docs"))=="pol-docs") {
 				$archivefile = $file;
 				break;
-			} 
+			}
 		}
-		$parts = explode("-",pathinfo($archivefile)["filename"],4);
-		$archivetime = end($parts);
+		if ($archivefile !== '') {
+			$parts = explode("-",pathinfo($archivefile)["filename"],4);
+			$archivetime = end($parts);
+		}
 	}
 
 ?>
@@ -30,11 +33,13 @@
 			<p>
 			I hope you find these documents useful!
 <?php if( ! $offline && $official ) { ?>
+<?php if( $archivefile !== '' ) { ?>
 				<hr>
 				Downloadable Version (100):
 				<a href="https://docs.polserver.com/pol100/archives/<?=$archivefile?>">
 					100 Offline Documentation <?=$archivetime?>
 				</a>
+<?php } ?>
 				<hr>
 <?php } else { ?>
 				<hr>

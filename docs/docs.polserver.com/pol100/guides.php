@@ -16,6 +16,9 @@
 	case 'gumpcmdlist':
 		$title = 'Turley\'s Gump-Command-List';
 		break;
+	default: // $guidefile is used in a require below: only the guides above
+		http_response_code(404);
+		exit('Unknown guide.');
 	}
 	siteheader($title);
 
