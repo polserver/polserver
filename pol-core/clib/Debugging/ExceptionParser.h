@@ -21,13 +21,6 @@ public:
   static std::string getTrace();
 
   /**
-   * @brief Reports a program abort to the program devs
-   * @param stackTrace the stack trace of the abort
-   * @param reason a descriptive text about the reason for the abort
-   */
-  static void reportProgramAbort( const std::string& stackTrace, const std::string& reason );
-
-  /**
    * @brief Logs stack traces of all threads to stdout and error output
    */
   static void logAllStackTraces();
@@ -36,17 +29,6 @@ public:
    * @brief Initiates globally the exception catching (signal handlers for Linux)
    */
   static void initGlobalExceptionCatching();
-
-  /**
-   * @brief Configures the bug reporting system
-   */
-  static void configureProgramAbortReportingSystem( bool active, std::string server,
-                                                    std::string url, std::string reporter );
-
-  /**
-   * @brief Returns true if the bug reporting is active
-   */
-  static bool programAbortReporting();
 
   /**
    * @brief Handles exceptions
@@ -69,10 +51,6 @@ private:
   // an atomic. It is one word and never changes after it is set, which is what lets the
   // handler read it with no lock at all.
   static std::atomic<const std::atomic<size_t>*> m_worldLockOwner;
-  static bool m_programAbortReporting;
-  static std::string m_programAbortReportingServer;
-  static std::string m_programAbortReportingUrl;
-  static std::string m_programAbortReportingReporter;
   static std::string m_programStart;
 };
 
