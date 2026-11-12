@@ -10,7 +10,7 @@
 
 	siteheader('POL Scripting Reference');
 	if (in_array($xmlfile, $modules, true) && file_exists($xmlfile.'.xml'))
-		xlstdocument('escript.xslt', $xmlfile.'.xml');
+		xlstdocument('escript.xslt', $xmlfile.'.xml', array('xmlfile' => $xmlfile, 'classes' => objrefclasses()));
 	else
 		echo "<p style='text-align: center; color: #F00; padding:2em;'>Error: unknown module name.</p>";
 

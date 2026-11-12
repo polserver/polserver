@@ -46,12 +46,14 @@
 	$xsl->load('escript.xslt');
 	$xsltproc->importStylesheet($xsl);
 	$xsltproc->setParameter('', 'offline', $offline);
+	$xsltproc->setParameter('', 'classes', objrefclasses());
 
 	$xml = simplexml_load_file('modules.xml');
 	foreach ($xml as $em)
 	{
 		$name=(string)$em['name'];
 		$nicename=(string)$em['nice'];
+		$xsltproc->setParameter('', 'xmlfile', $name);
 		$ob_file = fopen('offline/'.$name.'.html','w');
 		ob_start('ob_file_callback');
 		siteheader('POL Scripting Reference '.$nicename.'.em');
@@ -84,8 +86,11 @@
 	ob_end_flush();
 
 
+	/* search index and script */
+	file_put_contents('offline/searchindex.js', searchindexscript());
+	copy('docs.js','offline/docs.js');
+
 	/* copy files */
-	copy('style.css','offline/style.css');
 	copy('picture_gump_finish_1.jpg','offline/picture_gump_finish_1.jpg');
 	if (!is_dir('offline/images')) {
 		mkdir('offline/images');
@@ -100,11 +105,18 @@
 		closedir($dh);
 		}
 	}
-	copy('images/miniheader_bg.jpg','offline/images/miniheader_bg.jpg');
-	copy('images/sectionheader_bg.jpg','offline/images/sectionheader_bg.jpg');
-	copy('images/sectionheader_gold_bg.jpg','offline/images/sectionheader_gold_bg.jpg');
-	copy('images/sectionheader_small_bg.jpg','offline/images/sectionheader_small_bg.jpg');
-	copy('images/sectionheader_small_gold_bg.jpg','offline/images/sectionheader_small_gold_bg.jpg');
+
+	// The docs use the stylesheet of www.polserver.com (kept in the pol-websites
+	// repository), so the offline copy is taken from there. POL_STYLE_SOURCE can point
+	// to another URL or to a local public_html directory instead.
+	$stylesource = rtrim(getenv('POL_STYLE_SOURCE') ?: 'https://www.polserver.com', '/');
+	$stylefiles = array('style.css', 'images/quill_blue.png', 'images/quill_gold.png', 'images/miniheader_bg.jpg');
+	foreach ($stylefiles as $f) {
+		$data = @file_get_contents("$stylesource/$f");
+		if ($data === false || $data === '')
+			die("ERROR: could not fetch \"$stylesource/$f\" for the offline docs\n");
+		file_put_contents('offline/'.$f, $data);
+	}
 
 	/* Save archivetime */
 	date_default_timezone_set('America/Los_Angeles');
@@ -131,8 +143,8 @@
 			echo "Compressing $file...\n";
 			if( ! $this->addFile("$dirname/$file", $relpath) )
 				throw new Exception("ERROR while adding \"$dirname/$file\" to zip archive");
-			} elseif( is_dir($file) )
-			$this->addDirRecursive($file, $relpath);
+			} elseif( is_dir("$dirname/$file") )
+			$this->addDirRecursive("$dirname/$file", $relpath);
 		}
 		}
 	}
