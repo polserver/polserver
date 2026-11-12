@@ -32,7 +32,7 @@ jobs:
             build-type: RelWithDebInfo
             name: UndefinedSanitizer
 
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
 
     env:
       # Checks ASan has but leaves off by default; the other sanitizers ignore this variable.
@@ -71,7 +71,7 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          # The compiler version is preinstalled on ubuntu-latest. Uncomment for one the image lacks.
+          # The compiler version is preinstalled on ubuntu-24.04. Uncomment for one the image lacks.
           # if ($version -ne 'default') {
           #   sudo apt-get install "$compiler-$version" -y
           # }
@@ -167,7 +167,7 @@ jobs:
 
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -179,7 +179,7 @@ jobs:
           job: SanitizerBuilds
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -191,7 +191,7 @@ jobs:
           job: SanitizerBuilds
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled

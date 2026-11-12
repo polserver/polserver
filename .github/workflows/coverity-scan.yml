@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-latest"
+          - os: "ubuntu-24.04"
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 14
@@ -26,7 +26,7 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          # The compiler version is preinstalled on ubuntu-latest. Uncomment for one the image lacks.
+          # The compiler version is preinstalled on ubuntu-24.04. Uncomment for one the image lacks.
           # if ($version -ne 'default') {
           #   sudo apt-get install "$compiler-$version" -y
           # }

@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-latest"
+          - os: "ubuntu-24.04"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 20
@@ -52,7 +52,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Compiler and Dependencies (Linux)
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-24.04'
         shell: pwsh
         run: |
           sudo apt-get update
