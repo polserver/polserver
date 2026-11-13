@@ -136,8 +136,11 @@ jobs:
       - name: Coverage
         run: |
           mkdir -p bin-build/coverage
+          # Report lines only: gcov counts every exception path as a branch, and Coveralls
+          # adds branches into its overall percentage.
           gcovr --gcov-executable gcov-${{ matrix.config.compiler-version }} -j 4 \
             --root . --filter 'pol-core/' --exclude 'pol-core/pol/testing/' \
+            --exclude-branches-by-pattern '.*' \
             --html-nested bin-build/coverage/index.html --html-title PolCore \
             --lcov bin-build/pol-core.info --print-summary \
             bin-build
