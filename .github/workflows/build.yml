@@ -22,7 +22,7 @@ jobs:
             tests: true
             name: Windows CL
 
-          - os: "ubuntu-latest"
+          - os: "ubuntu-24.04"
             cxx-compiler: g++
             c-compiler: gcc
             compiler-version: 14
@@ -31,7 +31,7 @@ jobs:
             tests: true
             name: Linux GCC
 
-          - os: "ubuntu-latest"
+          - os: "ubuntu-24.04"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 18
@@ -50,7 +50,7 @@ jobs:
             tests: true
             name: MacOS Clang
 
-          - os: "ubuntu-latest"
+          - os: "ubuntu-24.04"
             cxx-compiler: clang++
             c-compiler: clang
             compiler-version: 18
@@ -89,7 +89,7 @@ jobs:
           key: ${{ matrix.config.os }}-${{ matrix.config.cxx-compiler }}-${{ matrix.config.compiler-version }}-cppdap-82beeea-2
 
       - name: Install Compiler and Dependencies (Linux)
-        if: matrix.config.os == 'ubuntu-latest'
+        if: matrix.config.os == 'ubuntu-24.04'
         shell: pwsh
         run: |
           sudo apt-get update
@@ -97,7 +97,7 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          # The compiler version is preinstalled on ubuntu-latest. Uncomment for one the image lacks.
+          # The compiler version is preinstalled on ubuntu-24.04. Uncomment for one the image lacks.
           # if ($version -ne 'default') {
           #   sudo apt-get install "$compiler-$version" -y
           # }
@@ -166,7 +166,7 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} -- -j 4
 
       - name: Start MySQL (linux)
-        if: matrix.config.os == 'ubuntu-latest' && matrix.config.tests
+        if: matrix.config.os == 'ubuntu-24.04' && matrix.config.tests
         shell: pwsh
         run: |
           sudo /etc/init.d/mysql start
@@ -261,7 +261,7 @@ jobs:
 
   release:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Download artefacts
@@ -308,7 +308,7 @@ jobs:
 
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -320,7 +320,7 @@ jobs:
           job: Building
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -332,7 +332,7 @@ jobs:
           job: Building
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-24.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled

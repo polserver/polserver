@@ -1,16 +1,11 @@
-<h1>
-  Racalac's eScript Reference and Guide (POL 100.2.0)
-  <div style="font-size: 0.82em">(Last Updated: November 15, 2025)</div>
-</h1>
-<br/>
+<h1>Racalac's eScript Reference and Guide</h1>
+<p class="doc-meta">POL 100.2.0 &middot; Last updated: November 15, 2025</p>
 
 <!-- TODO:
 	- talk about ecompile.cfg and recursive compiling, mention POL ignores
 	  files starting with '.'
 	- talk about escape sequences in string, do not forget "\xFF"
 -->
-
-<br/>
 
 <p><b>Foreword:</b><br>This reference is targeted to be used and understood by
 scripters who have at least a little experience in other procedural-type
@@ -21,102 +16,88 @@ programming from your local book store. Any of these methods will make learning
 and writing eScript easier and quicker for you. And on the other extreme, my
 apologies if I explain some things in annoyingly simple terms.</p>
 
-<br/>
+<!-- ====================================================================== -->
+
+<!-- toc -->
+<ul class="guide-toc">
+  <li><a href="#chap1">Chapter 1</a>
+    <ul>
+      <li><a href="#chap1a">Variable Declaration and Assignment</a></li>
+      <li><a href="#chap1aa">Sequence and Index Binding Statements</a></li>
+      <li><a href="#chap1b">Arithmetic</a></li>
+      <li><a href="#chap1c">Comments</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap2">Chapter 2: Brief Review of Data Structures</a>
+    <ul>
+      <li><a href="#chap2a">Arrays</a></li>
+      <li><a href="#chap2b">Structures</a></li>
+      <li><a href="#chap2c">Dictionaries</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap3">Chapter 3: Conditionals and Iteration</a>
+    <ul>
+      <li><a href="#chap3a">If-statements</a></li>
+      <li><a href="#chap3b">Binary Operators</a></li>
+      <li><a href="#chap3b2">Conditional (Ternary) Operator</a></li>
+      <li><a href="#chap3c">Case (switch) statements</a></li>
+      <li><a href="#chap3d">Iteration</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap4">Chapter 4</a>
+    <ul>
+      <li><a href="#chap4a">Functions and Parameters</a></li>
+      <li><a href="#chap4b">Including Code from Other Files</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap5">Chapter 5</a>
+    <ul>
+      <li><a href="#chap5a">Scripts</a></li>
+      <li><a href="#chap5b">Compiling</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap6">Chapter 6: Built-in Properties and the POL Object Reference</a></li>
+  <li><a href="#chap7">Chapter 7</a>
+    <ul>
+      <li><a href="#chap7a">CProps</a></li>
+      <li><a href="#chap7b">CProps on Accounts</a></li>
+    </ul>
+  </li>
+  <li><a href="#chap8">Chapter 8: Config File Usage and Access</a></li>
+  <li><a href="#chap9">Chapter 9: Packages</a></li>
+  <li><a href="#chap10">Chapter 10: Debugging</a></li>
+  <li><a href="#chap11">Chapter 11: Advanced Data Types and Functions</a>
+    <ul>
+      <li><a href="#chap11a">Global Properties</a></li>
+      <li><a href="#chap11b">Arrays</a></li>
+      <li><a href="#chap11c">Structs</a></li>
+      <li><a href="#chap11d">Dictionaries</a></li>
+      <li><a href="#chap11e">Function Calls by Reference</a></li>
+      <li><a href="#chap11f">Interpolated Strings</a></li>
+      <li><a href="#chap11g">Function Objects</a></li>
+      <li><a href="#chap11h">Function Expressions</a></li>
+      <li><a href="#chap11i">Spread Operator</a></li>
+      <li><a href="#chap11j">Regular Expressions</a></li>
+    </ul>
+  </li>
+  <li><a href="#app2">Appendix A: Gump Tag Descriptions</a></li>
+  <li><a href="#appB">Appendix B: Operator Precedence</a></li>
+  <li><a href="#appC">Appendix C: Functional Programming with Arrays</a></li>
+  <li><a href="#appD">Appendix D: Variadic User Functions</a></li>
+  <li><a href="#chap12">Chapter 12: Classes</a>
+    <ul>
+      <li><a href="#chap12a">Advanced Techniques</a></li>
+    </ul>
+  </li>
+  <li><a href="#appE">Appendix E: Iterable Objects</a></li>
+  <li><a href="#appX">Appendix X: Revision History</a></li>
+</ul>
+<!-- /toc -->
 
 <!-- ====================================================================== -->
 
-<h3>Table of Contents</h3>
-
-<p><b><a href="#chap1">Chapter 1:</a></b>
-</p><ul>
-  <li><a href="#chap1a">Variable Declaration and Assignment</a>
-  </li><li><a href="#chap1aa">Sequence and Index Binding Statements</a>
-  </li><li><a href="#chap1b">Arithmetic</a>
-  </li><li><a href="#chap1c">Comments</a></li></ul>
-<p></p>
-
-<p><a href="#chap2"><b>Chapter 2: Brief Review of Data Structures </b></a>
-</p><ul>
-  <li><a href="#chap2a">Arrays</a>
-  </li><li><a href="#chap2b">Structures</a></li><li><a href="#chap2c">Dictionaries</a></li></ul>
-<p></p>
-
-<p><b><a href="#chap3">Chapter 3: Conditionals and Iteration</a></b>
-</p><ul>
-  <li><a href="#chap3a">If-statements</a>
-  </li><li><a href="#chap3b">Binary Operators</a>
-  </li><li><a href="#chap3b2">Conditional (Ternary) Operator</a>
-  </li><li><a href="#chap3c">Case (switch) statements</a>
-  </li><li><a href="#chap3d">Iteration</a></li></ul>
-<p></p>
-
-<p><b><a href="#chap4">Chapter 4:</a></b>
-</p><ul>
-  <li><a href="#chap4a">Functions and Parameters</a>
-  </li><li><a href="#chap4b">Including Code from Other Files</a></li></ul>
-<p></p>
-
-<p><b><a href="#chap5">Chapter 5:</a></b>
-</p><ul>
-  <li><a href="#chap5a">Scripts</a>
-  </li><li><a href="#chap5b">Compiling</a></li></ul>
-<p></p>
-
-<p><b><a href="#chap6">Chapter 6: Built-in Properties and the POL Object Reference</a></b></p>
-
-<p><b><a href="#chap7">Chapter 7:</a></b>
-</p><ul>
-  <li><a href="#chap7a">CProps</a>
-  </li><li><a href="#chap7b">CProps on Accounts</a></li></ul>
-<p></p>
-
-<p><b><a href="#chap8">Chapter 8: Config File Usage and Access</a></b></p>
-
-<p><b><a href="#chap9">Chapter 9: Packages</a></b></p>
-
-<p><b><a href="#chap10">Chapter 10: Debugging</a></b></p>
-
-<p><b><a href="#chap11">Chapter 11: Advanced Data Types and Functions</a></b>
-
-</p>
-<ul>
-  <li><a href="#chap11a">Global Properties</a></li>
-  <li><a href="#chap11b">Arrays</a></li>
-  <li><a href="#chap11c">Structs</a></li>
-  <li><a href="#chap11d">Dictionaries</a></li>
-  <li><a href="#chap11e">Function Calls by Reference</a></li>
-  <li><a href="#chap11f">Interpolated Strings</a></li></li>
-  <li><a href="#chap11g">Function Objects</a></li></li>
-  <li><a href="#chap11h">Function Expressions</a></li></li>
-  <li><a href="#chap11i">Spread Operator</a></li>
-  <li><a href="#chap11j">Regular Expressions</a></li>
-</ul>
-
-<p><b><a href="#chap12">Chapter 12: Classes</a></b></p>
-<ul>
-  <li><a href="#chap12a">Advanced Techniques</a>
-</ul>
-
-
-<p><b><a href="#app2">Appendix A: Gump Tag Descriptions</a></b></p>
-
-<p><b><a href="#appB">Appendix B: Operator Precedence</a></b></p>
-
-<p><b><a href="#appC">Appendix C: Functional Programming with Arrays</a></b></p>
-
-<p><b><a href="#appD">Appendix D: Variadic User Functions</a></b></p>
-
-<p><b><a href="#appE">Appendix E: Iterable Objects</a></b></p>
-
-<p><b><a href="#appX">Appendix X: Revision History</a></b></p>
-
-<br/>
-
-<!-- ====================================================================== -->
-
-<h3><a name="chap1">Chapter 1</a></h3>
-<br/>
-<p><b><a name="chap1a">Variable Declaration and Assignment; Arithmetic</a></b></p>
+<h2 id="chap1">Chapter 1</h2>
+<h3 id="chap1a">Variable Declaration and Assignment; Arithmetic</h3>
 
 <p>There are no strict variable types in eScript, but there are a few types you
 can cast (convert) to: integer (whole number), real (float; integer with decimal
@@ -180,8 +161,6 @@ variables):</p>
 <div class="doc-guide-pre">
 <pre>CONST SIZE_OF_TRAY := 15;<br>var pies_in_tray := SIZE_OF_TRAY;</pre></div></p>
 
-<br/>
-
 <p>Constants can be logically grouped using an <code>enum</code> declaration:</p>
 
 <div class="doc-guide-pre">
@@ -212,8 +191,6 @@ print( TWO );  // prints 2
 </pre>
 
 </div>
-<br/>
-
 <p>Added in POL 100.2.0: An enum declaration can use the <code>class</code>
 keyword to create a class-like enum, which allows the constants to be scoped to the
 enum name:</p>
@@ -229,24 +206,16 @@ print( Races::HUMAN ); // Prints: "Human"
 </pre>
 </div>
 
-<br/>
-<p><b><a name="chap1aa">Sequence and Index Binding Statements</a></b></p>
+<h3 id="chap1aa">Sequence and Index Binding Statements</h3>
 
-<br />
 <p>Added in: POL 100.2.0</p>
-<br />
-
 <p>The binding statement syntax makes it possible to unpack values from into
 distinct variables either sequentially or by index accessor.</p>
-<br/>
-
 <p>A binding statement loops over the object's <i>iterator</i>, so any object
 <code>obj</code> that can be used in a <code>foreach value in obj</code>
 statement is supported. See <a href="#appE">Appendix E: Iterable Objects</a> for
 a list of supported iterable objects.
 </p>
-<br/>
-
 <p>For arrays and other sequential objects, the <strong>sequence
 binding</strong> syntax is:</p>
 
@@ -261,8 +230,6 @@ print( c ); // 3
 
 <p>This statement will iterate over the value on the right-hand side, and assign
 each value to the corresponding variable on the left-hand side sequentially.</p>
-<br/>
-
 <p>For accessing objects via an index, the <strong>index binding</strong> syntax
 is:</p>
 
@@ -276,8 +243,6 @@ print( c ); // 3</pre></div>
 <p>This statement will access the right-hand side, assigning each value to the
 corresponding variable on the left-hand side using the the subscript operator
 <code>[]</code> of the variable name.</p>
-<br/>
-
 <p>An index binding can be named differently than the accessing index. For
 example, we can access <code>b</code> from the dictionary, but name it as
 <code>b_value</code>:</p>
@@ -317,8 +282,6 @@ print( first ); // 1
 print( middle ); // {2, 3, 4}
 print( last ); // 5
 </pre></div>
-<br/>
-
 <p>For <strong>index bindings</strong>, the rest variable will be a dictionary,
 and <strong>must</strong> be placed at the end of the variable binding list:</p>
 
@@ -332,9 +295,7 @@ and <strong>must</strong> be placed at the end of the variable binding list:</p>
 
 print( other_details ); // dict{ "address" -> "123 Main St", "birthdate" -> "1990-01-01" }
 </pre></div>
-<br/>
-
-<p><b><a name="chap1b">Arithmetic</a></b></p>
+<h3 id="chap1b">Arithmetic</h3>
 
 <p>This stuff is easy, the expression on the left of the assignment operator is
 evaluated and placed into the variable on the right side.</p>
@@ -442,8 +403,8 @@ eScript are:</p>
   </tr>
 </table>
 
-<h3><b>Assign, Unary, and Bitwise Operators</b></h3>
-<h4><b>The Assign Operators:</b></h4>
+<h3>Assign, Unary, and Bitwise Operators</h3>
+<h4>The Assign Operators:</h4>
 
 <p>These operators perform the mathematical operation and then assign the result to the variable
 on the left. Using these operators simplifies coding. Instead of writing:</P>
@@ -457,7 +418,7 @@ you can write:
 x += 5.
 </pre></div>
 
-<h4><b>The Unary Operators:</b></h4>
+<h4>The Unary Operators:</h4>
 
 <p>For those unfamiliar with the unary operators, a brief explanation of their
 use is in order. Examples of unary operator syntax is, ++i, i++,--i, and i--.
@@ -497,7 +458,7 @@ this guide was written. So most, if not all, of the example code in
 this guide will use the longer forms of expressions, for readability, but mostly because
 we are too lazy to edit the entire guide.</p>
 
-<h4><b>The Bitwise (sometimes called Logical) Operators:</b></h4>
+<h4>The Bitwise (sometimes called Logical) Operators:</h4>
 
 <h4>Bitwise <b>AND</b></h4>
 The single &amp; (ampersand) symbol will perform a logical <b>AND</b> of the value on the left of the operator with the value on the right.
@@ -519,7 +480,6 @@ The result will equal 10. What is actually happening is that eScript will AND th
     	<td><b>AND</b> (10)</td><td>1</td><td>0</td><td>1</td><td>0</td>
     </tr>
 </table>
-<br>
 <h4>Bitwise <b>OR</b></h4>
 
 <p>The single | (bar) symbol will perform a logical <b>OR</b> of the value on the left of the operator with the value on the right. If we have a statement</P>
@@ -545,7 +505,6 @@ var value := 10 | 6;
     	<td>1</td><td>0</td>
     </tr>
 </table>
-<br>
 <h4>Bitwise <b>XOR</b></h4>
 <p>
 The ^ (caret) will perform a logical <strong>XOR</strong>, or exclusive <strong>OR</strong>, of the value on the left of the operator with the value on the right. If we have a statement:
@@ -574,7 +533,6 @@ The result will equal 6. This time eScript will <strong>XOR</strong> the binary 
     	<td>1</td><td>0</td>
     </tr>
 </table>
-<br>
 <h4><strong id="docs-internal-guid-f9b28dc1-7fff-cec3-02c5-0ed74c4fce53">Ones&rsquo; complement</strong></h4>
 <p>
 The ~ (tilde) symbol will perform a ones’ complement on the value to the right of the operator. A ones’ complement operation inverts all the bits in an integer. 1s are flipped to 0s and 0s are flipped to 1s. The following statement will return -2 or in hexadecimal 0xFFFFFFFE.
@@ -614,7 +572,7 @@ CAsc("A"); 	  	// Results in an integer of 65
 CChr(65); 	  	// Results in a string as "A"
 </pre></div>
 
-<p><b><a name="chap1c">Bonus Topic: Comments</a></b></p>
+<h3 id="chap1c">Bonus Topic: Comments</h3>
 
 <p>Commenting your code is of utmost importance. Comments allow you to add
 arbitrary text to explain whatever you need to without disrupting the script's
@@ -640,8 +598,7 @@ couple ways to comment your code:</p>
 
 <!-- ====================================================================== -->
 
-<h3><a name="chap2">Chapter 2</a></h3>
-<br/>
+<h2 id="chap2">Chapter 2: Brief Review of Data Structures</h2>
 <p><b>Brief Review of Data Structures</b></p>
 
 <p>Okay, so we can make integer, real, or string variables. To do any sort of
@@ -649,9 +606,7 @@ useful scripting, we also need some data structures. I will discuss arrays, stru
 and dictionaries in this chapter.<br>
 </p>
 
-<br/>
-
-<p><b><a name="chap2a">Arrays</a></b></p>
+<h3 id="chap2a">Arrays</h3>
 
 <p>Arrays are one-based, random access collections of objects. That means you
 can access any place in the array from 1 (the first element) up to X (the last
@@ -745,9 +700,7 @@ in the array or if it is not in the array in_array will be set to 0.<br><br>
 Also, there are a few array-specific functions that are
 explained later (such as array.Insert() and others).</p>
 
-<br/>
-
-<p><b><a name="chap2b">Structures</a></b></p>
+<h3 id="chap2b">Structures</h3>
 
 <p>Structures are an object-oriented data type with various members or
 properties that are part of them that contain the actual data.</p>
@@ -778,8 +731,7 @@ a.+width;
 
 // Assign an existing member
 a.width := 5;</pre></div>
-<br/>
-<p><a name="chap2c"><b>Dictionaries</b></a></p>
+<h3 id="chap2c">Dictionaries</h3>
 
 <p>Dictionaries are arrays whose elements are named. They are often referred to
 as 'associative arrays'</p>
@@ -808,13 +760,11 @@ a[&quot;width&quot;] := 100;</pre></div>
 
 <!-- ====================================================================== -->
 
-<h3><a name="chap3">Chapter 3</a></h3>
-<br/>
+<h2 id="chap3">Chapter 3: Conditionals and Iteration</h2>
 <p><b>Conditionals and Iteration</b></p>
 
 <p>We'll cover two topics in this chapter: IF-statements and loops. </p>
-<br/>
-<p><b><a name="chap3a">If-statements</a></b></p>
+<h3 id="chap3a">If-statements</h3>
 
 <p>If-statements are absolutely needed in every script so it's necessary you
 understand them. If statements simply let your script make decisions based on
@@ -835,8 +785,7 @@ endif</pre></div>
 <p>Notice you can have any number of (optional)"elseif" statements between the
 "if" and the (optional) "else".<br>
 The key part in the syntax above is "statement".
-When the script runs, it will check the first "statement" to see if it is true.
-<br>
+When the script runs, it will check the first "statement" to see if it is true.<br>
 If it is not, it'll proceed to check the next "statement" until either it finds
 one that is true, or hits the "else" statement (if any).</p>
 
@@ -936,9 +885,7 @@ endif</pre></div>
 if ( !valid ) //same as "if valid is non-zero, then false"
   // do stuff
 endif</pre></div>
-<br/>
-<p><b><a name="chap3b">Binary Operators</a></b></p>
-<br/>
+<h3 id="chap3b">Binary Operators</h3>
 <p><b>Elvis operator:</b></p>
 <p>Short-circuit binary operator EXPR_LHS ?: EXPR_RHS<br/>
 This operator evaluates the left-hand-side operand and keeps its value if it is a true value.<br/>
@@ -973,10 +920,8 @@ The <code>is</code> operator can be used to check if the left operand (typically
 a class instance) is an instance of the right operand (typically a function
 reference). See <a href="#chap12">Chapter 12</a> for more information.<br/>
 
-<p><b><a name="chap3b2">Conditional (Ternary) Operator</a></b></p>
-<br />
+<h3 id="chap3b2">Conditional (Ternary) Operator</h3>
 <p>Added in: POL 100.1.0</p>
-<br />
 <p>The conditional operator is a commonly used shortcut for the if statement, to
 use one of two values depending on a conditional. The operator takes three
 operands: a condition followed by a question mark (?), then an expression to
@@ -1006,7 +951,7 @@ function example()
 endfunction
 </pre></div>
 
-<p><b><a name="chap3c">Case (switch) statements</a></b></p>
+<h3 id="chap3c">Case (switch) statements</h3>
 
 <p>It is a common occurance in scripting when you need to make a equality
 decision based on a large number of possibilities (and the possibilities are
@@ -1059,7 +1004,6 @@ endfunction</pre></div>
 
 <p>The general structure of a case statement is:<br>
 
-<br>
 <div class="doc-guide-pre">
 <pre>
 case ( expression )
@@ -1114,9 +1058,7 @@ program to skip to the end of the case block.</p>
 <p>The behavior in the case of an empty block (like BLUE above) is known as
 <b>fall through</b>.</p>
 
-<br/>
-
-<p><b><a name="chap3d">Iteration</a></b></p>
+<h3 id="chap3d">Iteration</h3>
 
 <p>I mentioned "looping through an array" in the previous chapter. This is a
 very common function is most scripts. There are two popular ways of doing this,
@@ -1270,13 +1212,10 @@ while ( condition != 0 )
   condition:= condition * something;
 endwhile</pre></div>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap4">Chapter 4</a></h3>
-<br/>
-<p><b><a name="chap4a">Functions and Parameters</a></b></p>
+<h2 id="chap4">Chapter 4</h2>
+<h3 id="chap4a">Functions and Parameters</h3>
 
 <p>So far, all I've shown here is code segments which cannot be used by
 themselves. All code you write must be placed inside functions. If you are not
@@ -1402,9 +1341,7 @@ Prints:
 <pre>
 Teen
 Spirit</pre></div>
-<br/>
-
-<p><b><a name="chap4b">Including code from other files</a></b></p>
+<h3 id="chap4b">Including code from other files</h3>
 
 <p>Up to this point, all the code we've been messing with has been in one file.
 To import in code from other files (special files called "include files" whose
@@ -1434,21 +1371,16 @@ include files (found in /scripts/include), you'd use the syntax:</p>
 <div class="doc-guide-pre">
 <pre>include ":pkgName:filename";</pre></div>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap5">Chapter 5</a></h3>
-<br/>
+<h2 id="chap5">Chapter 5</h2>
 <p>REJOICE! Now for UO and POL stuff: *.em files and functions</p>
 
 <p>I'm glad you stuck through all that syntax discussion and didn't skip ahead
 to here. If you did skip ahead, good luck, because I won't be reviewing any of
 that syntax.</p>
 
-<br/>
-
-<p><b><a name="chap5a">Scripts</a></b></p>
+<h3 id="chap5a">Scripts</h3>
 
 <p>Okay, this is where we start learning to write real scripts for the UO-POL
 environment. Up to this point, you can write scripts that do stuff, but probably
@@ -1564,16 +1496,13 @@ reference passed to the function by POL:</p>
 
 <p>Now the message won't be sent to who sent it.</p>
 
-<br/>
-
-<p><b><a name="chap5b">Compiling</a></b></p>
+<h3 id="chap5b">Compiling</h3>
 
 <p>Alright, it's now time to get an actual running script. <i>POL cannot
 directly read the source code you write,</i> it must be compiled into a readable format
 before it can be executed. <br>
 Note: This also means that if you chance a .inc file, you must compile all *.src
-files that use it to update them.<br>
-<br>
+files that use it to update them.<br><br>
 The included program "ecompile" is used for just
 this. I will assume you have experience in the command shell that your operating
 system of choice uses. <br>
@@ -1585,7 +1514,7 @@ shell and change the directory to the /pol/scripts directory. Type "ecompile
 /?". You should see it give you a list of usage options.</p>
 
 <p>We don't need any of these fancy flags, just the basic usage of ecompile:
-"ecompile <filename.src>"</filename.src></p>
+"ecompile &lt;filename.src&gt;"</p>
 
 <p>We need to tell ecompile where the file we want to compile is so at your
 command line, type:</p>
@@ -1606,17 +1535,14 @@ compiling was successful and the script can now be run.</p>
 
 <p>To run, make sure POL is
 running and you're logged in with a GM character (or higher, like admin). Now
-type .bcast <message>. Now, if you did everything right up to here, you should
+type .bcast &lt;message&gt;. Now, if you did everything right up to here, you should
 see nothing. That's because we made it so you wouldn't receive your own
 broadcast. So to test, get a couple friends on your server and ask them if they
 got the message. If they did, congrats, your very first script.</message></p>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap6">Chapter 6</a></h3>
-<br/>
+<h2 id="chap6">Chapter 6: Built-in Properties and the POL Object Reference</h2>
 <p><b>Built-in Properties and the POL Object Reference</b></p>
 
 <p>Everything in POL is an object: characters, accounts, items, corpses, NPCs,
@@ -1650,13 +1576,10 @@ built-in properties and methods.</p>
 
 <p>Please refer to the POL Object Reference Chart for all the details.</p>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap7">Chapter 7</a></h3>
-<br/>
-<p><b><a name="chap7a">Much Ado about CProps and Stupid Chapter Names</a></b></p>
+<h2 id="chap7">Chapter 7</h2>
+<h3 id="chap7a">Much Ado about CProps and Stupid Chapter Names</h3>
 
 <p>CProps (Custom Properties) are what makes scripting with eScript so flexible.
 In addition to all the built-in properties in Appendix A, CProps let you store
@@ -1819,9 +1742,7 @@ command on an object like our unfortunate player, you'd see something like:
 before the value. This denotes the type of the data stored. We will revisit this
 next chapter.</p>
 
-<br/>
-
-<p><b><a name="chap7b">Cprops on accounts</a></b></p>
+<h3 id="chap7b">Cprops on accounts</h3>
 
 <p>You can also apply properties to accounts themselves (rather than specific
 characters in them), but you use a different syntax to do so. Rather than
@@ -1833,12 +1754,9 @@ read custom properties:</p>
 account.SetProp("PropName",value);
 account.GetProp("PropName");</pre></div>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap8">Chapter 8</a></h3>
-<br/>
+<h2 id="chap8">Chapter 8: Config File Usage and Access</h2>
 <p><b>Config File Usage and Access</b></p>
 
 <p>Configuration files (cfg files) in POL hold static data that is read at
@@ -1962,12 +1880,9 @@ config file takes a little more time to do, but the data is stored in only one p
 instead of many. Using CProps in a file with those bowery entries, for example,
 would not do anything, since no item is created from those elements.</p>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap9">Chapter 9</a></h3>
-<br/>
+<h2 id="chap9">Chapter 9: Packages</h2>
 <p><b>Packages</b></p>
 
 <p>You'll notice that up until now we've been putting files in the 'standard'
@@ -2056,12 +1971,9 @@ command is ".unloadcfg :pkgname:cfgname". That brings up another point: config
 files are cached by the system and must be unloaded for any online change to be
 seen.</p>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap10">Chapter 10</a></h3>
-<br/>
+<h2 id="chap10">Chapter 10: Debugging</h2>
 <p><b>Debugging</b></p>
 
 <p>Many books have been written on the subject of finding and fixing software
@@ -2164,12 +2076,9 @@ turn on debug mode, make sure you 'use os;' before you add the line</p>
 ecompile to compile with debug on. Do this with the '-i' switch. I.e. &gt;
 ecompile &#8211;i test.src .</p>
 
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap11">Chapter 11</a></h3>
-<br/>
+<h2 id="chap11">Chapter 11: Advanced Data Types and Functions</h2>
 <p><b>Advanced Data Types and Functions</b></p>
 
 <p>On the variable side, in this chapter we'll go into more detail on structs,
@@ -2178,9 +2087,7 @@ define global properties. On the functions side, we'll describe pass by
 reference and use of the "parms" array to get past limitations on what can be
 passed.</p>
 
-<br/>
-
-<p><b><a name="chap11a">Global Properties</a></b></p>
+<h3 id="chap11a">Global Properties</h3>
 
 <p>By now, you're familiar with CProps- custom properties. You're an old hand at
 applying them to items, to people, heck, even to accounts. But, what if you
@@ -2237,7 +2144,7 @@ mostly so you'll know what was meant when you read old changes.txts and see
 notices that certain things can now be persisted. In POL089, there was one type
 of data that could not be persisted- the mysterious ERROR type. This was the
 type you got if you tried to go something that should have returned a value but
-failed- instead you got <error>or <uninitialized object="">or somesuch. This caused
+failed- instead you got &lt;error&gt; or &lt;uninitialized object&gt; or somesuch. This caused
 a problem if you then tried to set the variable that just got assigned an error
 as a CProp- it wouldn't stick. It wouldn't persist. Nowadays, error types do
 persist, and they do so as though they were a struct.</uninitialized></error></p>
@@ -2245,9 +2152,7 @@ persist, and they do so as though they were a struct.</uninitialized></error></p
 <p>I'll go into a little more detail on data types you've already seen, now.
 </p>
 
-<br/>
-
-<p><b><a name="chap11b">Arrays</a></b></p>
+<h3 id="chap11b">Arrays</h3>
 <p>The prefered way to initialize an empty array is to use:</p>
 
 <div class="doc-guide-pre">
@@ -2299,8 +2204,8 @@ because it's cool like that. So what do the variables look like as of line 6?</p
 <pre>
   colours[1] = "green"
   colours[2] = "blue"
-  colours[3] = <uninitialized object>    <--- this is one of those error types.
-  colours[4] = <uninitialized object>
+  colours[3] = &lt;uninitialized object&gt;    &lt;--- this is one of those error types.
+  colours[4] = &lt;uninitialized object&gt;
   colours[5] = "shiny"
   csize = 5
 </pre></div>
@@ -2326,8 +2231,8 @@ array. Here's what the array looks like after that:</p>
 colours[1] = "green"
 colours[2] = "blue"
 colours[3] = "bronze"
-colours[4] = <uninitialized object>
-colours[5] = <uninitialized object>
+colours[4] = &lt;uninitialized object&gt;
+colours[5] = &lt;uninitialized object&gt;
 colours[6] = "shiny"
 csize = 6
 </pre></div>
@@ -2353,7 +2258,7 @@ have:</p>
 <pre>
 colours[1] = "green"
 colours[2] = "blue"
-colours[3] = <uninitialized object>
+colours[3] = &lt;uninitialized object&gt;
 colours[4] = "shiny"
 csize = 6
 </pre></div>
@@ -2367,7 +2272,7 @@ csize = 6
 <pre>
 colours[1] = "green"
 colours[2] = "blue"
-colours[3] = <uninitialized object>
+colours[3] = &lt;uninitialized object&gt;
 </pre></div>
 
 <div class="doc-guide-pre">
@@ -2379,7 +2284,7 @@ colours[3] = <uninitialized object>
 <div class="doc-guide-pre">
 <pre>
 colours[1] = "brown"
-colours[2] = <uninitialized object>
+colours[2] = &lt;uninitialized object&gt;
 colours[3] = "blue"
 colours[4] = "green"
 </pre></div>
@@ -2391,7 +2296,7 @@ colours[4] = "green"
 
 <div class="doc-guide-pre">
 <pre>
-colours[1] = <uninitialized object>
+colours[1] = &lt;uninitialized object&gt;
 colours[2] = "brown"
 </pre></div>
 
@@ -2428,15 +2333,13 @@ a.Sort();</pre></div>
 <p>printing out the array elements in order yielded:</p>
 
 <div class="doc-guide-pre">
-<pre>tunes <uninitialized object> show 4 7</pre></div>
+<pre>tunes &lt;uninitialized object&gt; show 4 7</pre></div>
 
 <p>Note also that an array element can be any data type- I can hold a number
 there, or a struct, or an error, or another array. Try to sort an array of
 arrays at your own risk.</p>
 
-<br/>
-
-<p><b><a name="chap11c">A Quick Review of Structs</a></b></p>
+<h3 id="chap11c">A Quick Review of Structs</h3>
 
 <p>A struct is similar to an array in that it contains a collection of values
 rather than just one. However, rather than an ordered list, structs are stored
@@ -2478,9 +2381,7 @@ elevator.riders.Erase(1);  // first it finds elevator.riders, sees that it is
 	                         // John gets off the elevator.
 </pre></div>
 
-<br/>
-
-<p><b><a name="chap11d">Dictionaries</a></b></p>
+<h3 id="chap11d">Dictionaries</h3>
 
 <p>Dictionaries are similar to both structs and arrays- they are, sort of, a
 bridge between the two types. You create a dictionary, unsurprisingly enough,
@@ -2575,9 +2476,7 @@ endprogram</pre></div>
 <p>The program knows how to react whether it was simply sent a scalar or if it
 was sent an array.</p>
 
-<br/>
-
-<p><b><a name="chap11e">Function Calls by Reference</a></b></p>
+<h3 id="chap11e">Function Calls by Reference</h3>
 
 <p>The final section of this chapter will cover passing variables to functions
 by reference rather than by value. What's the difference?</p>
@@ -2632,11 +2531,8 @@ by value, because it does not have to make and store a copy of the variable's
 value, and then destroy it when the function is done.</p>
 
 <p>
-<br/>
-<p><b><a name="chap11f">Interpolated Strings</a></b></p>
-<br />
+<h3 id="chap11f">Interpolated Strings</h3>
 <p>Added in: POL 100.1.0</p>
-<br />
 <p>Interpolated strings provide a clean and concise way to construct a string
 using multiple expressions. The following two statements are equivalent:</p>
 
@@ -2677,11 +2573,7 @@ specify <i>two</i> of the same brace:</p>
   Print($"{{ hello }}"); // will print "{ hello }"
 </pre></div>
 
-<br/>
-<br/>
-
-<p><b><a name="chap11g">Function Objects</a></b></p>
-<br />
+<h3 id="chap11g">Function Objects</h3>
 <p>A user function can be utilized as a value (eg. used as an argument to a
 function) by referencing the function with a <code>@</code> prefix. The
 referenced function can be executed via the 'call' method --
@@ -2717,13 +2609,8 @@ program main( who )
 endprogram
 </pre></div>
 
-<br/>
-<br/>
-
-<p><b><a name="chap11h">Function Expressions</a></b></p>
-<br />
+<h3 id="chap11h">Function Expressions</h3>
 <p>Added in: POL 100.2.0</p>
-<br />
 <p>A function expression is a convenient way of defining an anonymous function
 object (a closure) right at the location where it's invoked or created. A
 function expression is created via the syntax <code>@(param1, param2, ...,
@@ -2754,14 +2641,10 @@ variable's value will reflect in any other locations that access the variable.
 This is useful for creating closures that can be used to encapsulate stateful
 behavior.
 
-<br/>
-<br/>
 <!-- ====================================================================== -->
-<p><b><a name="chap11i">Spread Operator</a></b></p>
+<h3 id="chap11i">Spread Operator</h3>
 
-<br/>
 <p>Added in: POL 100.2.0</p>
-<br/>
 <p>
   The spread operator is a convenient way to expand an array into individual
   elements. This is useful when you want to pass an array as arguments to a
@@ -2884,23 +2767,16 @@ program main( who )
 endprogram
 </pre></div>
 
-<br/>
-<br/>
 <!-- ====================================================================== -->
-<p><b><a name="chap11j">Regular Expressions</a></b></p>
+<h3 id="chap11j">Regular Expressions</h3>
 
-<br/>
 <p>Added in: POL 100.2.0</p>
-<br/>
-
 <p>
   Regular expressions provide a powerful way to search, match, and manipulate
   strings based on specific patterns. EScript supports regular expressions via
   the <code>RegExp</code> object type used in string methods like
   <code>find</code>, <code>match</code>, and <code>replace</code>.
 </p>
-<br/>
-
 <p>
   <strong>NOTE:</strong> This guide will cover only the basics of regular
   expressions and Escript-specific implementation details. For a comprehensive
@@ -2910,8 +2786,6 @@ endprogram
   or the
   <a href="https://www.boost.org/doc/libs/1_86_0/libs/regex/doc/html/boost_regex/syntax/perl_syntax.html" target="_blank">Boost Regular Expression Syntax documentation</a>.
 </p>
-<br/>
-
 <p>
   To create a regular expression, use the either the <code>basic::RegExp(
   pattern, flags )</code> module function or the EScript language syntax
@@ -2947,8 +2821,6 @@ endif
   <li><code>g</code> - Global matching for String methods <code>match</code> and <code>replace</code></li>
   <li><code>u</code> - Unicode support</li>
 </ul>
-<br/>
-
 <p><b>Example: Finding Matches with <code>String.match</code></b></p>
 <p>
   The <code>String.match</code> method can be used to find all occurrences of a
@@ -2969,8 +2841,6 @@ foreach match_result in (input.match( regex ))
                                                  //         Found Moonglow at index 48
 endforeach
 </pre></div>
-<br/>
-
 <p><b>Example: Using a User Function for Replacement in <code>String.replace</code></b></p>
 
 <p>
@@ -2997,8 +2867,7 @@ Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.
 
 
 <!-- ====================================================================== -->
-</p><h3><a name="app2">Appendix A: GUMP Tag Descriptions</a></h3>
-<br/>
+<h2 id="app2">Appendix A: GUMP Tag Descriptions</h2>
 
 <table border="0" cellpadding="0" cellspacing="1">
   <tbody>
@@ -3197,13 +3066,9 @@ Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.
   <tr>
     <td colspan="3">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;RETURNVALUE of all the
       checked boxes can be found in result.keys[].</td></tr></tbody></table>
-<br/>
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="appB">Appendix B: Operator Precedence</a></h3>
-<br/>
+<h2 id="appB">Appendix B: Operator Precedence</h2>
 
 <table>
   <thead>
@@ -3291,14 +3156,9 @@ Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.
     </tr>
   </tbody>
 </table>
-<br/>
-<br/>
-
 <!-- ====================================================================== -->
-<h3><a name="appC">Functional Programming with Arrays</a></h3>
-<br/>
+<h2 id="appC">Appendix C: Functional Programming with Arrays</h2>
 <p>Added in: POL 100.2.0</p>
-<br/>
 <p>
   Arrays now offer several methods that accept a user function as an argument.
   This allows better use of functional programming within Escript. Functional
@@ -3310,10 +3170,7 @@ Print( output ); // Output: The values are 0xA, 0xFF, and 0x400.
   <code>findIndex</code>, and <code>reduce</code>. Let's take a look at what
   each of these does and how you can use them.
 </p>
-<br/>
-
 <h4><code>filter</code></h4>
-<br/>
 <p>
   The filter method lets you create a new array with only the elements that
   pass a test you provide.
@@ -3330,10 +3187,7 @@ var hidden_players := EnumerateOnlinePlayers()
   In this example, <code>filter</code> checks each player to see if it is hidden
   and creates a new array with only the hidden players.
 </p>
-<br/>
-
 <h4><code>map</code></h4>
-<br/>
 <p>
   The <code>map</code> method creates a new array by applying a function to each
   element of the original array.
@@ -3350,10 +3204,7 @@ var serials := ListItemsNearLocation( x, y, z, range )
   Here, <code>map</code> takes each item near location <code>(x, y, z)</code>
   and gets its serial, then puts the results in a new array.
 </p>
-<br/>
-
 <h4><code>find</code></h4>
-<br/>
 <p>
   The <code>find</code> method returns the first element in the array that
   passes a test you provide. If no elements pass the test, it returns
@@ -3368,10 +3219,7 @@ var locked_item := EnumerateItemsInContainer( container )
 </pre></div>
 
 <p>This example finds the locked item in the container.</p>
-<br/>
-
 <h4><code>findIndex</code></h4>
-<br/>
 <p>
   The <code>findIndex</code> method works like find, but instead of returning
   the element, it returns the index (position) of the first element that passes
@@ -3396,10 +3244,7 @@ var incomplete_quest_index := quests
   In this example, <code>findIndex</code> gives the position of the first
   incomplete quest in the array.
 </p>
-<br/>
-
 <h4><code>reduce</code></h4>
-<br/>
 <p>
   The <code>reduce</code> method combines all elements in the array into a
   single value by applying a function you provide. This is useful for tasks like
@@ -3438,10 +3283,7 @@ var total = array{ 1, 5, 12, 4 }
   function returns the sum of the two elements. This sum is then used as the
   new <code>sum</code> for the next iteration, and so on.
 </p>
-<br/>
-
-<h4><b>Advanced Techniques</b></h4>
-<br/>
+<h4>Advanced Techniques</h4>
 <p>
   Each of the functional array methods receive two additional arguments: the
   index of the current element and the array itself. This allows you to write more
@@ -3465,14 +3307,9 @@ var players_with_ranking := "".join(
   <code>EnumerateOnlinePlayers()</code> again to find their position!
 </p>
 
-<br/>
-<br/>
-
 <!-- ====================================================================== -->
-<h3><a name="appD">Variadic User Functions</a></h3>
-<br/>
+<h2 id="appD">Appendix D: Variadic User Functions</h2>
 <p>Added in: POL 100.2.0</p>
-<br/>
 <p>
   User functions can accept any number of arguments by using the 'rest
   parameter' syntax. This allows you to write functions that can take a variable
@@ -3520,15 +3357,10 @@ var players_with_ranking := "".join(
   SendMessageToPlayers( "Hello!", player1, player2, player3 );
 </pre></div>
 
-<br/>
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="chap12">Chapter 12</a></h3>
-<br/>
+<h2 id="chap12">Chapter 12: Classes</h2>
 <p>Added in: POL 100.1.0</p>
-<br/>
 <p>Classes in EScript are a powerful feature that allows you to create custom
 data structures with encapsulated behaviors, following an object-oriented
 programming (OOP) paradigm. Similar to Python and other object-oriented
@@ -3536,11 +3368,7 @@ languages, classes in EScript provide a way to bundle data (members) and
 functions (methods) that operate on that data into cohesive units called
 objects. This makes it easier to model real-world entities and complex systems
 by representing them as objects with properties and behaviors.</p>
-<br/>
-
 <p><b>Key Concepts</b></p>
-<br/>
-
 <ul>
 <li><strong>Class Definition</strong>: A class in EScript is defined using the
 <code>class</code> keyword followed by the class name. A class can include methods, which
@@ -3582,8 +3410,6 @@ class to define the functions' implementation. This is a similar concept to
 functions can only be used with class methods, ie. functions that have a first
 parameter named <code>this</code>.</li>
 </ul>
-<br/>
-
 <p><b>Example: Creating a Simple Class</b></p>
 
 <div class="doc-guide-pre"><pre>
@@ -3610,23 +3436,14 @@ Print( greeting ); // Output: Hello, my name is John and I am 30 years old.
 
 john.rename( "Johnny" ); // Output: Name changed to Johnny
 </pre></div>
-<br/>
-
 <p>The example above defines a class <code>Person</code> with a constructor that
 initializes the <code>name</code> and <code>age</code> attributes. It also
 includes two instance methods: <code>greeting</code> and <code>rename</code>. An
 object <code>john</code> is created from the <code>Person</code> class, and its
 methods are called to interact with the object's state.</p>
-<br/>
-
 <p>A class that does not define a constructor <strong>cannot</strong> be
 instantiated.</p>
-<br/>
-
-
 <p><b>Example: Scoped Variables and Functions</b></p>
-<br/>
-
 <p>Similar to scoping a module function call (eg. <code>basicio::Print</code>),
 a class' global variables and user functions are accessed with <code>::</code>.
 
@@ -3657,11 +3474,7 @@ cat.Print(); // Output: Animal 2 is a cat
 
 // print( animal_count ); // Compiler error!
 </pre></div>
-<br/>
-
 <p><b>Example: Inheritance in EScript</b></p>
-<br/>
-
 <p>EScript supports inheritance, allowing you to create new classes based on
 existing ones. Inheritance is a way to create new things by building on what's
 already there.</p>
@@ -3707,12 +3520,7 @@ aragorn.Attack(); // Output: Aragorn swings a sword!
 <p><b>NOTE:</b> It is important to call <code>super()</code> within your constructor to
 ensure the base class constructor(s) are called to set the attributes for the
 instance!</p>
-<br/>
-
-
 <p><b>Example: Uninitialized Functions</b></p>
-<br/>
-
 <p>To declare an uninitialized function within a class body, use the
 <code>uninit</code> keyword, providing no body for the function, and instead
 ending it with a semi-colon:</p>
@@ -3925,8 +3733,6 @@ greeter.greet( "Kevin", "Salutations" ); // Output: Salutations, Kevin!
 the constructors of the base classes are called in the order they are listed in the class definition. Likewise, the arguments passed to <code>super()</code>
 are passed to the base class constructors in the same order.</p>
 </p>
-<br/>
-
 <div class="doc-guide-pre"><pre>
 class Colorable()
   function Colorable( this, color )
@@ -3951,12 +3757,8 @@ var shape := Shape( "red", 1, 2 );
 print( $"{shape.color} {shape.x} {shape.y}" ); // Output: red 1 2
 </pre></div>
 
-<p><b><a name="chap12a">Advanced Techniques</a></b></p>
-<br/>
-
+<h3 id="chap12a">Advanced Techniques</h3>
 <p><b>Method versus Function Call</b></p>
-<br/>
-
 <p>There are multiple ways to call class instance methods in EScript. The most
 common way is to use the dot notation as a <i>method call</i>, as shown in the examples above. However,
 you can also use a <i>function call</i> on the instance, which is useful when you want to use named arguments.</p>
@@ -3969,11 +3771,7 @@ Person::rename( john, "Johnny" ); // Function call
 
 <p>This may be useful when you want to use named arguments, as named arguments
 cannot be used in a method call.</p>
-<br/>
-
 <p><b><code>super()</code> and Constructor Order</b></p>
-<br/>
-
 <p>When a class inherits from another class, using <code>super()</code> is a
 convenient way to call the constructor of the base class(es). Each base class
 constructor will be called in the order they are listed in the class definition.</p>
@@ -4019,8 +3817,6 @@ var c := C(); // Output: B constructor, A constructor, C constructor
 </pre></div>
 
 <p><b><code>super()</code> and Argument Order</b></p>
-<br/>
-
 <p>Arguments used to a <code>super()</code> call are passed in order of the base
 classes listed in the class definition. Additionally, you can use named
 arguments to specify each base class constructor's arguments, allowing you to
@@ -4064,8 +3860,6 @@ print( $"{item.color} {item.description}" ); // Output: red dagger
 </pre></div>
 
 <p><b><code>is</code> Operator</b></p>
-<br/>
-
 <p>You can use the <code>is</code> binary operator to check if a class instance
 is of the class type provided (via function reference). The test includes any
 ancestor class. Continuing the above example with <code>A</code>,
@@ -4097,8 +3891,6 @@ Print( b is @C ); // Output: 0
 </pre></div>
 
 <p><b>Class Instance <code>function</code> Member</b></p>
-<br/>
-
 <p>A class instance has a <code>function</code> member that is a function
 reference to its constructor. To construct a new instance, use the
 <code>new()</code> method on the function reference. This allows creating new
@@ -4119,13 +3911,9 @@ var other_person := person.function.new( "Bob", 30 );
 print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob is 30 years old.
 </pre></div>
 
-<br/>
-<br/>
-
 <!-- ====================================================================== -->
 
-<h3><a name="appE">Iterable Objects</a></h3>
-<br/>
+<h2 id="appE">Appendix E: Iterable Objects</h2>
 
 <p>The following objects are <i>iterable</i>, meaning they can be used in the following contexts:</p>
 <ul>
@@ -4133,8 +3921,6 @@ print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob
   <li><a href="#chap1aa">binding statements</a></li>
   <li><a href="#chap11i">spread operator</a></li>
 </ul>
-<br/>
-
 <table border="1" cellpadding="2" cellspacing="0" style="border-collapse: collapse" bordercolor="#111111">
   <thead>
     <tr>
@@ -4201,15 +3987,10 @@ print( $"{other_person.name} is {other_person.age} years old." ); // Output: Bob
     </tr>
   </tbody>
 </table>
-<br/>
-
 <p>*: Iterator support added in POL 100.2.0</p>
 
-<br/>
-<br/>
 <!-- ====================================================================== -->
-<h3><a name="appX">Appendix X: Revision History</a></h3>
-<br/>
+<h2 id="appX">Appendix X: Revision History</h2>
 
 <p>
 	v0.1: 6/27/2000<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

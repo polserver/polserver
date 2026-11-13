@@ -22,25 +22,45 @@
 	}
 	siteheader($title);
 
-	if( $offline ) {
-?>
-	<div id="main"><div class="container">
-<?php } ?>
-
-	<div class="doc-mainbox">
-
-<?php if( $offline ) { ?>
-		<div class='doc-home'><a href='index.html'>Home</a></div>
-<?php } else { ?>
-		<div class='doc-home'><a href='index.php'>Home</a></div>
-<?php } ?>
-			<br/>
-			<?php require 'include/'.$guidefile.'.inc'; ?>
-		</div>
-
-<?php if( $offline ) { ?>
-	</div></div>
-<?php
+	// A guide marks its table of contents with <!-- toc --> ... <!-- /toc -->; it is
+	// shown beside the text (and as a folding menu on narrow screens).
+	ob_start();
+	require 'include/'.$guidefile.'.inc';
+	$guide = ob_get_clean();
+	$toc = '';
+	$tocstart = strpos($guide, '<!-- toc -->');
+	$tocend = strpos($guide, '<!-- /toc -->');
+	if ($tocstart !== false && $tocend !== false && $tocend > $tocstart) {
+		$toc = substr($guide, $tocstart, $tocend - $tocstart);
+		$guide = substr($guide, 0, $tocstart) . substr($guide, $tocend + strlen('<!-- /toc -->'));
 	}
+?>
 
+	<div class="doc-crumbs">
+		<a href="index.<?=$offline ? 'html' : 'php'?>">Documentation</a> &#8250;
+		<a href="index.<?=$offline ? 'html' : 'php'?>#guides">Guides</a> &#8250;
+		<?=htmlspecialchars($title)?>
+	</div>
+
+<?php if ($toc !== '') { ?>
+	<div class="doc-layout doc-guide-layout">
+		<div class="doc-side">
+			<details class="smallbox doc-menu" open="open">
+				<summary><h1>Contents</h1></summary>
+				<?=$toc?>
+			</details>
+		</div>
+		<div class="doc-main">
+			<div class="doc-mainbox doc-guide">
+				<?=$guide?>
+			</div>
+		</div>
+	</div>
+<?php } else { ?>
+	<div class="doc-mainbox doc-guide">
+		<?=$guide?>
+	</div>
+<?php } ?>
+
+<?php
 	sitefooter();

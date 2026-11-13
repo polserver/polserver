@@ -5,16 +5,22 @@
 <?php if ($offline) {echo("<a href='escriptguide.html'>");}else{echo("<a href='guides.php?guidefile=escriptguide'>");}
 	?>Racalac's eScript guide</a> before reading this.
 </p>
-<br/>
-<h2>Table of Contents:</h2>
-<ul>
-	<li><a href="#runaway">Runaway scripts</a></li>
-	<li><a href="#polcore">PolCore()</a></li>
-	<li><a href="#scriptopts">Runtime script options</a></li>
+<!-- toc -->
+<ul class="guide-toc">
+  <li><a href="#runaway">Runaway scripts</a></li>
+  <li><a href="#polcore">PolCore()</a></li>
+  <li><a href="#scriptopts">Runtime script options</a></li>
+  <li><a href="#examples">Example code</a>
+    <ul>
+      <li><a href="#runawaysquare">runawaysquare.src</a></li>
+      <li><a href="#runawaysquarelisting">runawaysquare.lst</a></li>
+      <li><a href="#logprofile">Logged script profile</a></li>
+    </ul>
+  </li>
 </ul>
-<hr />
-<br/>
-<a name="runaway"></a><h2>Runaway scripts</h2>
+<!-- /toc -->
+
+<h2 id="runaway">Runaway scripts</h2>
 <p>
 	Apart from "doesn't work", a runaway script is usually the first runtime problem you have to deal with.<br />
 	I have made an example text command that goes runaway for high parameters, click <a name="runawaysquareref" href="#runawaysquare">here</a> to view it.<br />
@@ -105,11 +111,7 @@ sum := sum + 1;
 	The ones without numbers in front are lines from your source code. All your lines may not be including, for instance there's no "endfor" in the above list, but you should get enough to figure out where it happens.
 </p>
 
-<hr />
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-
-<a name="polcore"></a><h2>PolCore()</h2>
-<br />
+<h2 id="polcore">PolCore()</h2>
 <p>
 	This section is about the PolCore() commands, most of them are only listed with name + a short description, but they're all used in <a href="_tmp_fix">this example code</a>.<br />
 </p>
@@ -357,10 +359,7 @@ PolCore().log_script_variables( "scripts/ai/spellkillpcs.ecl" );
 
 </p>
 
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-
-<hr />
-<a name="scriptopts"></a><h2>Runtime script options</h2>
+<h2 id="scriptopts">Runtime script options</h2>
 		set_priority( priority )<br />
 		This sets a scripts priority (the number of instructions it runs at a time). A higher number means your script gets run faster, on behalf of all the other scripts. The default number is 1, and the function returns the previous priority.
 
@@ -409,11 +408,9 @@ endprogram
 		For instance this could be when you creating and modifying an object and it all has to happen at once so nothing can happen on the shard between creation and when you're done setting properties (remember to set_critical(0)!).
 		Another example would be if you are using a global prop and you have to be sure it doesn't change. These situations usually can, and should, be avoided.
 
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
---- various code ---
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-<a name="runawaysquare">runawaysquare.src</a> <a href="#runawaysquareref">(Back)</a>
-<br/><div class="doc-guide-pre"><pre>
+<h2 id="examples">Example code</h2>
+<h3 id="runawaysquare">runawaysquare.src <a class="doc-back" href="#runawaysquareref">(Back)</a></h3>
+<div class="doc-guide-pre"><pre>
 use uo;
 // this is *not* the right way to compute squares ;)
 program runawaysquare(who, text)
@@ -428,10 +425,8 @@ program runawaysquare(who, text)
 endprogram
 </pre></div>
 <a href="#runawaysquareref">(Back)</a>
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-<a name="runawaysquarelisting">runawaysquare.lst</a> <a href="#runawaysquarelistingref">(Back)</a>
-<br/><div class="doc-guide-pre"><pre>
+<h3 id="runawaysquarelisting">runawaysquare.lst <a class="doc-back" href="#runawaysquarelistingref">(Back)</a></h3>
+<div class="doc-guide-pre"><pre>
 program runawaysquare(who, text)
 use uo;
 0: get arg 'who'
@@ -503,9 +498,8 @@ SendSysMessage(who, i + "^2 = " + sum);
 60: progend
 </pre></div>
 <a href="#runawaysquarelistingref">(Back)</a>
-<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
-<a name="logprofile">Example of logged script profile</a> <a href="#logfileref">(Back)</a>
-<br/><div class="doc-guide-pre"><pre>
+<h3 id="logprofile">Example of logged script profile <a class="doc-back" href="#logprofileref">(Back)</a></h3>
+<div class="doc-guide-pre"><pre>
 Script passes:    89469002
 Script                                       cycles  invoc    cyc/invoc      %
 scripts/misc/chrdeath.ecl                     59049    114          517      0
@@ -586,6 +580,6 @@ scripts/misc/logon.ecl                        48058     32         1501      0
 scripts/NPCKeeper.ecl                        648469   2376          272      2
 </pre></div>
 <a href="#logprofileref">(Back)</a>
-<p style="text-align: right; font-size: xx-small;">
+<p class="doc-meta">
 	The above guide was written by ToGu. No animals were hurt during the making of this document.
 </p>
