@@ -64,6 +64,7 @@ function(set_compile_flags target is_executable)
       -g
       -O0
       -fprofile-arcs
+      -fprofile-update=atomic
       -ftest-coverage
     >
   )

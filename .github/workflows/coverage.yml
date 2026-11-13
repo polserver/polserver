@@ -57,7 +57,6 @@ jobs:
           # }
           sudo apt-get install kwstyle -y
           sudo apt-get install uuid-dev -y
-          sudo apt-get install lcov -y
           pip install aiosmtpd
 
           $ninja_version = "1.12.1"
@@ -70,7 +69,7 @@ jobs:
 
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          pip install fastcov
+          pip install gcovr
           echo "$Env:GITHUB_WORKSPACE/bin-build" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -136,9 +135,13 @@ jobs:
           cmake --build . --config ${{ matrix.config.build-type }} --target test_ecompile_watch
       - name: Coverage
         run: |
+          mkdir -p bin-build/coverage
+          gcovr --gcov-executable gcov-${{ matrix.config.compiler-version }} -j 4 \
+            --root . --filter 'pol-core/' --exclude 'pol-core/pol/testing/' \
+            --html-nested bin-build/coverage/index.html --html-title PolCore \
+            --lcov bin-build/pol-core.info --print-summary \
+            bin-build
           cd bin-build
-          fastcov -g gcov-${{ matrix.config.compiler-version }} -t PolCore --lcov -i pol-core -e pol-core/pol/testing/ -o pol-core.info
-          genhtml --demangle-cpp -o coverage pol-core.info
           cmake -E tar c coverage.zip --format=zip coverage
       - name: Upload shard test log
         uses: actions/upload-artifact@v7
