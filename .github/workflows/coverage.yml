@@ -140,7 +140,7 @@ jobs:
           # adds branches into its overall percentage.
           gcovr --gcov-executable gcov-${{ matrix.config.compiler-version }} -j 4 \
             --root . --filter 'pol-core/' --exclude 'pol-core/pol/testing/' \
-            --exclude-branches-by-pattern '.*' \
+            --exclude-branches-by-pattern '.*' --merge-lines \
             --html-nested bin-build/coverage/index.html --html-title PolCore \
             --lcov bin-build/pol-core.info --print-summary \
             bin-build
