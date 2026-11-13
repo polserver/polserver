@@ -1,4 +1,9 @@
 -- POL100.3.0 --
+11-06-2026 Nando:
+  Removed: automatic crash reports. The pol.cfg settings ReportCrashsAutomatically,
+           ReportAdminEmail, ReportServer and ReportURL are now ignored, and polserver.com no
+           longer accepts reports. A crash still prints its report to the console, to post on
+           the forum.
 10-28-2026 dedo_rudo:
     Added: combat.cfg RegenDelayAfterDamage (milliseconds, default 2000). How long vital
            regeneration is paused after taking damage. 0 disables the pause.

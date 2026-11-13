@@ -2,9 +2,17 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-28-2026</datemodified>
+		<datemodified>11-06-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>11-06-2026</date>
+			<author>Nando:</author>
+			<change type="Removed">automatic crash reports. The pol.cfg settings ReportCrashsAutomatically,<br/>
+ReportAdminEmail, ReportServer and ReportURL are now ignored, and polserver.com no<br/>
+longer accepts reports. A crash still prints its report to the console, to post on<br/>
+the forum.</change>
+		</entry>
 		<entry>
 			<date>10-28-2026</date>
 			<author>dedo_rudo:</author>

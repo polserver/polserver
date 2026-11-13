@@ -94,22 +94,6 @@ void passert_failed( const char* expr, const std::string& reason, const char* fi
 #endif
   }
 
-  /**
-   * use the program abort reporting system
-   */
-  if ( Pol::Clib::ExceptionParser::programAbortReporting() )
-  {
-    char reportedReason[512];
-    if ( snprintf( reportedReason, arsize( reportedReason ),
-                   "ASSERT(%s, reason: \"%s\") failed in %s:%d", expr, reason.c_str(), file,
-                   line ) > 0 )
-      ExceptionParser::reportProgramAbort( ExceptionParser::getTrace(),
-                                           std::string( reportedReason ) );
-    else
-      ExceptionParser::reportProgramAbort( ExceptionParser::getTrace(), "ASSERT failed" );
-  }
-
-
   if ( passert_shutdown )
   {
     POLLOG_ERRORLN( "Shutting down due to assertion failure." );
