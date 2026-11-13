@@ -1,0 +1,17 @@
+sort with uninit entries
+1
+{ , , 1, 2, 3 }
+sort subindex with uninit entry
+1
+{ { 0, , 9 }, { 0, 1 }, { 0, 3 } }
+sorted_insert next to uninit entries
+{ , 1, 2, 3, 5 }
+{ , 0, 1, 2, 3, 5 }
+sorted_insert reverse with uninit entry
+{ 5, 3, 1,  }
+{ 5, 4, 3, 1,  }
+{ 5, 4, 3, 1, 0,  }
+sorted_insert subindex with uninit entry
+{ { 0, , 9 }, { 0, 1 }, { 0, 2 }, { 0, 3 } }
+{ { 0, 4 }, { 0, 3 }, { 0, 2 }, { 0, 1 }, { 0, , 9 } }
+{ { 0, 4 }, { 0, 3 }, { 0, 2 }, { 0, 1 }, { 0, 0 }, { 0, , 9 } }
