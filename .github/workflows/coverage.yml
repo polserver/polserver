@@ -137,10 +137,11 @@ jobs:
         run: |
           cd bin-build
           lcov --capture --directory . --gcov-tool gcov-${{ matrix.config.compiler-version }} \
-            --parallel 4 --test-name PolCore --filter brace \
+            --parallel 4 --test-name PolCore \
             --include '*/pol-core/*' --exclude '*/pol-core/pol/testing/*' \
             --output-file pol-core.info
-          genhtml --demangle-cpp --output-directory coverage pol-core.info
+          genhtml --demangle-cpp --rc check_data_consistency=0 \
+            --output-directory coverage pol-core.info
           cmake -E tar c coverage.zip --format=zip coverage
       - name: Upload shard test log
         uses: actions/upload-artifact@v7
