@@ -137,7 +137,7 @@ jobs:
         run: |
           cd bin-build
           lcov --capture --directory . --gcov-tool gcov-${{ matrix.config.compiler-version }} \
-            --parallel 4 --test-name PolCore \
+            --parallel 4 --test-name PolCore --filter brace \
             --include '*/pol-core/*' --exclude '*/pol-core/pol/testing/*' \
             --output-file pol-core.info
           genhtml --demangle-cpp --output-directory coverage pol-core.info
