@@ -2,9 +2,16 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>10-28-2026</datemodified>
+		<datemodified>11-13-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
+		<entry>
+			<date>11-13-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">array.sort() and array.sort(sub_index) could crash the server on an array with<br/>
+uninitialised entries. These entries now sort before every value, also in<br/>
+array.sorted_insert().</change>
+		</entry>
 		<entry>
 			<date>10-28-2026</date>
 			<author>dedo_rudo:</author>

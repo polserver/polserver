@@ -12,10 +12,10 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-24.04"
+          - os: "ubuntu-26.04"
             cxx-compiler: g++
             c-compiler: gcc
-            compiler-version: 14
+            compiler-version: 15
             build-type: RelWithDebInfo
     runs-on: ${{ matrix.config.os }}
 
@@ -51,7 +51,7 @@ jobs:
           $compiler = "${{ matrix.config.cxx-compiler }}"
           $version = "${{ matrix.config.compiler-version }}"
 
-          # The compiler version is preinstalled on ubuntu-24.04. Uncomment for one the image lacks.
+          # The compiler version is preinstalled on the runner image. Uncomment for one the image lacks.
           # if ($version -ne 'default') {
           #   sudo apt-get install "$compiler-$version" -y
           # }
@@ -70,7 +70,6 @@ jobs:
 
           chmod +x bin-build/ninja
           chmod +x "$cmake_archive/bin/cmake"
-          pip install fastcov
           echo "$Env:GITHUB_WORKSPACE/bin-build" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
           echo "$Env:GITHUB_WORKSPACE/$cmake_archive/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
@@ -100,7 +99,7 @@ jobs:
       - name: Start MySQL
         shell: pwsh
         run: |
-          sudo /etc/init.d/mysql start
+          sudo systemctl start mysql.service
           mysql -e "CREATE DATABASE IF NOT EXISTS poltest;" -uroot -proot
           echo "POLCORE_TESTSQL=1" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
       - name: Test (EScript)
@@ -137,8 +136,12 @@ jobs:
       - name: Coverage
         run: |
           cd bin-build
-          fastcov -g gcov-${{ matrix.config.compiler-version }} -t PolCore --lcov -i pol-core -e pol-core/pol/testing/ -o pol-core.info
-          genhtml --demangle-cpp -o coverage pol-core.info
+          lcov --capture --directory . --gcov-tool gcov-${{ matrix.config.compiler-version }} \
+            --parallel 4 --test-name PolCore \
+            --include '*/pol-core/*' --exclude '*/pol-core/pol/testing/*' \
+            --output-file pol-core.info
+          genhtml --demangle-cpp --rc check_data_consistency=0 \
+            --output-directory coverage pol-core.info
           cmake -E tar c coverage.zip --format=zip coverage
       - name: Upload shard test log
         uses: actions/upload-artifact@v7
@@ -158,7 +161,7 @@ jobs:
 
   notify_on_failure:
     needs: build
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -170,7 +173,7 @@ jobs:
           job: Coverage Report
   notify_on_success:
     needs: build
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -182,7 +185,7 @@ jobs:
           job: Coverage Report
   notify_on_cancel:
     needs: build
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled

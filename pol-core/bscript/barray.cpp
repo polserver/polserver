@@ -466,14 +466,21 @@ class objref_cmp
 public:
   bool operator()( const BObjectRef& x1, const BObjectRef& x2 ) const
   {
-    const BObject* b1 = x1.get();
-    const BObject* b2 = x2.get();
-    if ( b1 == nullptr || b2 == nullptr )
-      return ( &x1 < &x2 );
+    return less( x1.get(), x2.get() );
+  }
 
-    const BObject& r1 = *b1;
-    const BObject& r2 = *b2;
-    return ( r1 < r2 );
+  static bool less( const BObject* b1, const BObject* b2 )
+  {
+    if ( b1 == nullptr || b2 == nullptr )
+      return b1 == nullptr && b2 != nullptr;
+    return *b1 < *b2;
+  }
+
+  static bool greater( const BObject* b1, const BObject* b2 )
+  {
+    if ( b1 == nullptr || b2 == nullptr )
+      return b1 != nullptr && b2 == nullptr;
+    return *b1 > *b2;
   }
 };
 
@@ -620,13 +627,8 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
               {
                 auto sub_arr1 = x1.get()->impptr<ObjArray>();
                 auto sub_arr2 = x2.get()->impptr<ObjArray>();
-                auto sub1 = sub_arr1->ref_arr[sub_index - 1];
-                auto sub2 = sub_arr2->ref_arr[sub_index - 1];
-                const BObject* b1 = sub1.get();
-                const BObject* b2 = sub2.get();
-                if ( b1 == nullptr || b2 == nullptr )
-                  return ( &x1 < &x2 );
-                return ( *b1 < *b2 );
+                return objref_cmp::less( sub_arr1->ref_arr[sub_index - 1].get(),
+                                         sub_arr2->ref_arr[sub_index - 1].get() );
               } );
         return new BLong( 1 );
       }
@@ -1064,15 +1066,7 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
       {
         ref_arr.insert( std::lower_bound( ref_arr.begin(), ref_arr.end(), item,
                                           []( const BObjectRef& x1, const BObjectRef& x2 ) -> bool
-                                          {
-                                            const BObject* b1 = x1.get();
-                                            const BObject* b2 = x2.get();
-                                            if ( b1 == nullptr || b2 == nullptr )
-                                              return ( &x1 > &x2 );
-                                            const BObject& r1 = *b1;
-                                            const BObject& r2 = *b2;
-                                            return ( r1 > r2 );
-                                          } ),
+                                          { return objref_cmp::greater( x1.get(), x2.get() ); } ),
                         item );
       }
       else
@@ -1095,20 +1089,9 @@ BObjectImp* ObjArray::call_method_id( const int id, Executor& ex, bool /*forcebu
           return false;
         if ( sub_arr2->ref_arr.size() < static_cast<size_t>( sub_index ) )
           return false;
-        auto sub1 = sub_arr1->ref_arr[sub_index - 1];
-        auto sub2 = sub_arr2->ref_arr[sub_index - 1];
-        const BObject* b1 = sub1.get();
-        const BObject* b2 = sub2.get();
-        if ( !reverse )
-        {
-          if ( b1 == nullptr || b2 == nullptr )
-            return ( &x1 < &x2 );
-          return ( *b1 < *b2 );
-        }
-
-        if ( b1 == nullptr || b2 == nullptr )
-          return ( &x1 > &x2 );
-        return ( *b1 > *b2 );
+        const BObject* b1 = sub_arr1->ref_arr[sub_index - 1].get();
+        const BObject* b2 = sub_arr2->ref_arr[sub_index - 1].get();
+        return reverse ? objref_cmp::greater( b1, b2 ) : objref_cmp::less( b1, b2 );
       };
       if ( reverse )
       {
