@@ -19,6 +19,7 @@
 #include "clib/streamsaver.h"
 #include "plib/systemstate.h"
 #include "pol/cmdlevel.h"
+#include "pol/globals/network.h"
 #include "pol/globals/settings.h"
 #include "pol/globals/uvars.h"
 #include "pol/mobile/charactr.h"
@@ -233,6 +234,15 @@ int Account::numchars() const
     if ( characters_[i].get() )
       ++num;
   return num;
+}
+
+// Also true for a client on the server or character list, which no character slot points at.
+bool Account::connected() const
+{
+  for ( auto* client : Core::networkManager.clients )
+    if ( client->acct == this )
+      return true;
+  return false;
 }
 
 int Account::getnextfreeslot() const
