@@ -1,4 +1,8 @@
 -- POL100.3.0 --
+11-13-2026 Turley:
+    Fixed: array.sort() and array.sort(sub_index) could crash the server on an array with
+           uninitialised entries. These entries now sort before every value, also in
+           array.sorted_insert().
 10-28-2026 dedo_rudo:
     Added: combat.cfg RegenDelayAfterDamage (milliseconds, default 2000). How long vital
            regeneration is paused after taking damage. 0 disables the pause.

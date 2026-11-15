@@ -12,7 +12,7 @@ jobs:
       fail-fast: false
       matrix:
         config:
-          - os: "ubuntu-24.04"
+          - os: "ubuntu-26.04"
     runs-on: ${{ matrix.config.os }}
 
     steps:
@@ -22,8 +22,8 @@ jobs:
         shell: pwsh
         run: |
           sudo apt-get update
-          sudo apt-get install clang-format-15 -y
-          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-15 800
+          sudo apt-get install clang-format-22 -y
+          sudo update-alternatives --install /usr/bin/clang-format clang-format /usr/bin/clang-format-22 800
       - name: Stylecheck
         run: |
           cd testsuite/style
@@ -32,7 +32,7 @@ jobs:
 
   notify_on_failure:
     needs: stylecheck
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: failure()
     steps:
       - name: Discord notification failure
@@ -44,7 +44,7 @@ jobs:
           job: StyleCheck
   notify_on_success:
     needs: stylecheck
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: success()
     steps:
       - name: Discord notification success
@@ -56,7 +56,7 @@ jobs:
           job: StyleCheck
   notify_on_cancel:
     needs: stylecheck
-    runs-on: "ubuntu-24.04"
+    runs-on: "ubuntu-26.04"
     if: cancelled()
     steps:
       - name: Discord notification cancelled
