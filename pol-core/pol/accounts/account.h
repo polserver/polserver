@@ -43,6 +43,7 @@ public:
   bool banned() const;
 
   int numchars() const;
+  bool connected() const;
   int getnextfreeslot() const;
 
   Mobile::Character* get_character( int index );

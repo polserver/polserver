@@ -1,4 +1,11 @@
 -- POL100.3.0 --
+11-15-2026 Ins:
+    Added: account.connected - true while a client is logged in to the account, including one
+           still on the server or character list.
+  Changed: account.delete() fails with "Account is in use." while a client is logged in to the
+           account. Close that client first.
+    Fixed: account.delete() on an account whose client was still on the character list could
+           crash the server on that client's next action.
 11-13-2026 Turley:
     Fixed: array.sort() and array.sort(sub_index) could crash the server on an array with
            uninitialised entries. These entries now sort before every value, also in

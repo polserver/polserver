@@ -1,0 +1,95 @@
+include "communication";
+include "testutil";
+
+use os;
+use uo;
+
+// A client logged in to an account but still on the character list has no character, yet it
+// holds a pointer to the account. account.delete() must refuse while such a client is there,
+// and account.connected lets a script see it.
+
+const CHARLIST_ACCOUNT := "delcharlist";
+const CHARLIST_ID := 6;
+
+var clientcon := getClientConnection();
+
+program test_account_delete()
+  return 1;
+endprogram
+
+exported function delete_refused_on_charlist( unused resources )
+  var acct := CreateAccount( CHARLIST_ACCOUNT, "pass", 1 );
+  if ( !acct )
+    return ret_error( $"could not create {CHARLIST_ACCOUNT}: {acct.errortext}" );
+  endif
+  clientcon.sendevent( struct{ todo := "charlist", account := CHARLIST_ACCOUNT, psw := "pass",
+                               id := CHARLIST_ID } );
+  var res := charlist_delete_checks( acct );
+  clientcon.sendevent( struct{ todo := "disconnect", id := CHARLIST_ID } );
+  if ( !res )
+    wait_connected( acct, 0, 20 );
+    acct.delete();
+    return res;
+  endif
+
+  var waited := wait_connected( acct, 0, 20 );
+  if ( !waited )
+    return waited;
+  endif
+  res := acct.delete();
+  if ( !res )
+    return ret_error( $"delete after the client left returned {res}" );
+  endif
+  if ( FindAccount( CHARLIST_ACCOUNT ) )
+    return ret_error( "the account is still there after a successful delete" );
+  endif
+  return 1;
+endfunction
+
+// The world client of setup.src makes its account connected, and an idle account is not.
+exported function connected_sees_clients( unused resources )
+  var busy := FindAccount( "testclient0" );
+  if ( !busy )
+    return ret_error( "could not find testclient0" );
+  endif
+  if ( TypeOf( busy.connected ) != "Integer" || busy.connected != 1 )
+    return ret_error( $"testclient0 is logged in but connected is {busy.connected}" );
+  endif
+
+  var idle := CreateAccount( "delnobody", "pass", 1 );
+  if ( !idle )
+    return ret_error( $"could not create delnobody: {idle.errortext}" );
+  endif
+  var state := idle.connected;
+  idle.delete();
+  if ( TypeOf( state ) != "Integer" || state != 0 )
+    return ret_error( $"an account nobody is logged in to has connected {state}" );
+  endif
+  return 1;
+endfunction
+
+function charlist_delete_checks( acct )
+  var waited := wait_connected( acct, 1, 20 );
+  if ( !waited )
+    return waited;
+  endif
+  var res := acct.delete();
+  if ( res || res.errortext != "Account is in use." )
+    return ret_error( $"delete with a client on the character list returned {res}" );
+  endif
+  if ( !FindAccount( CHARLIST_ACCOUNT ) )
+    return ret_error( "the account went away while its client was on the character list" );
+  endif
+  return 1;
+endfunction
+
+// Polls once a second, since the test client logs in and out on its own.
+function wait_connected( acct, state, timeout )
+  for i := 1 to timeout
+    if ( acct.connected == state )
+      return 1;
+    endif
+    sleep( 1 );
+  endfor
+  return ret_error( $"connected is {acct.connected} after {timeout}s, expected {state}" );
+endfunction
