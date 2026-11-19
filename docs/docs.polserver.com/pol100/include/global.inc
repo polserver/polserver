@@ -53,7 +53,8 @@ if( isset($request) )
 
 // The official header does not like to be put into a function, so what i am
 // doing instead is caching the output now and using it later
-if( file_exists(OFFICIAL_HEADER_PATH) ) {
+// (a page that outputs no header, like searchindex.php, defines OFFICIAL_HEADER_SKIP)
+if( !defined('OFFICIAL_HEADER_SKIP') && file_exists(OFFICIAL_HEADER_PATH) ) {
 	ob_start();
 	include OFFICIAL_HEADER_PATH;
 	$header = ob_get_contents();
@@ -114,8 +115,9 @@ function sitefooter()
 *
 * @param $docname string: The .xslt file name
 * @param $tplname string: The .xml template file name
+* @param $params array: Extra stylesheet parameters (name => value)
 */
-function xlstdocument($docname, $tplname)
+function xlstdocument($docname, $tplname, $params = array())
 {
 	global $offline;
 
@@ -126,7 +128,60 @@ function xlstdocument($docname, $tplname)
 	$xml_doc = new DomDocument;
 	$xml_doc->load($tplname);
 	$xsltproc->setParameter('', 'offline', $offline);
+	foreach ($params as $name => $value)
+		$xsltproc->setParameter('', $name, $value);
 
 	if ($html = $xsltproc->transformToXML($xml_doc))
 		echo $html;
+}
+
+/**
+* Returns the class names of the object reference as "|Name|Name|...|", the form
+* escript.xslt takes them in to link "<Class> Reference" parameter types.
+* (The stylesheet does not read objref.xml itself: its DTD pulls in an external one.)
+*/
+function objrefclasses()
+{
+	$names = array();
+	$xml = simplexml_load_file('objref.xml');
+	if ($xml !== false)
+		foreach ($xml->class as $class)
+			$names[] = (string)$class['name'];
+	return '|' . implode('|', $names) . '|';
+}
+
+/**
+* Returns the first sentence of a text, with whitespace collapsed
+*/
+function firstsentence($text)
+{
+	$text = trim(preg_replace('/\s+/', ' ', (string)$text));
+	$parts = preg_split('/(?<=\.)\s/', $text, 2);
+	return $parts[0];
+}
+
+/**
+* Builds the search index used by docs.js: every module and every function,
+* as a script that sets window.POL_DOCS_INDEX. Each entry is
+* [name, module file, module nice name, first sentence of the description];
+* modules have an empty name.
+*
+* @return string: The script source
+*/
+function searchindexscript()
+{
+	$index = array();
+	foreach (simplexml_load_file('modules.xml') as $em) {
+		$file = (string)$em['name'];
+		$nice = (string)$em['nice'];
+		$xml = simplexml_load_file($file.'.xml');
+		if ($xml === false)
+			continue;
+		$index[] = array('', $file, $nice, firstsentence($xml->fileheader->filedesc));
+		foreach ($xml->function as $function)
+			$index[] = array((string)$function['name'], $file, $nice, firstsentence($function->explain[0]));
+	}
+	return 'window.POL_DOCS_INDEX = '
+		. json_encode($index, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG)
+		. ";\n";
 }

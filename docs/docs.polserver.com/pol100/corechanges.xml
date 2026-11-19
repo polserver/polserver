@@ -2,16 +2,33 @@
 <ESCRIPT>
 	<header>
 		<topic>Latest Core Changes</topic>
-		<datemodified>11-06-2026</datemodified>
+		<datemodified>11-19-2026</datemodified>
 	</header>
 	<version name="POL100.3.0">
 		<entry>
-			<date>11-06-2026</date>
+			<date>11-19-2026</date>
 			<author>Nando:</author>
 			<change type="Removed">automatic crash reports. The pol.cfg settings ReportCrashsAutomatically,<br/>
 ReportAdminEmail, ReportServer and ReportURL are now ignored, and polserver.com no<br/>
 longer accepts reports. A crash still prints its report to the console, to post on<br/>
 the forum.</change>
+		</entry>
+		<entry>
+			<date>11-15-2026</date>
+			<author>Ins:</author>
+			<change type="Added">account.connected - true while a client is logged in to the account, including one<br/>
+still on the server or character list.</change>
+			<change type="Changed">account.delete() fails with &quot;Account is in use.&quot; while a client is logged in to the<br/>
+account. Close that client first.</change>
+			<change type="Fixed">account.delete() on an account whose client was still on the character list could<br/>
+crash the server on that client's next action.</change>
+		</entry>
+		<entry>
+			<date>11-13-2026</date>
+			<author>Turley:</author>
+			<change type="Fixed">array.sort() and array.sort(sub_index) could crash the server on an array with<br/>
+uninitialised entries. These entries now sort before every value, also in<br/>
+array.sorted_insert().</change>
 		</entry>
 		<entry>
 			<date>10-28-2026</date>

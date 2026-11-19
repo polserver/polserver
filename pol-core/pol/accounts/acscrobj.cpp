@@ -399,6 +399,8 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod_id( const int id, Core::UOExe
         return new BError( "You must delete all Character first." );
       if ( _result == -2 )  // Should never happen ;o)
         return new BError( "Invalid Account Name." );
+      if ( _result == -3 )
+        return new BError( "Account is in use." );
     }
     else
       return new BError( "account.Delete() doesn't take parameters." );
@@ -560,6 +562,7 @@ Bscript::BObjectImp* AccountObjImp::call_polmethod( const char* methodname, Core
 ///   name      string    read-only
 ///   enabled     boolean   read-only
 ///   banned      boolean   read-only
+///   connected   boolean   read-only
 ///
 
 Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test
@@ -584,6 +587,9 @@ Bscript::BObjectRef AccountObjImp::get_member_id( const int id )  // id test
     break;
   case MBR_DEFAULTCMDLEVEL:
     return BObjectRef( new BLong( obj_->default_cmdlevel_ ) );
+    break;
+  case MBR_CONNECTED:
+    return BObjectRef( new BLong( obj_->connected() ) );
     break;
   default:
     return BObjectRef( UninitObject::create() );

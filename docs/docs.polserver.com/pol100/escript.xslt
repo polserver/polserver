@@ -1,312 +1,358 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+	Module reference page (fullfunc.php?xmlfile=..., or <module>.html offline).
+	The classes used here are styled by the polserver.com stylesheet; the filter, the
+	"current function" highlight and the folding menus on narrow screens are in docs.js.
+-->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 	<xsl:output method="html" encoding="utf-8"/>
 	<xsl:param name="offline" select="0"/>
 	<xsl:param name="xmlfile"/>
+	<!-- the class names of the object reference, as "|Name|Name|...|" (see objrefclasses()) -->
+	<xsl:param name="classes"/>
+
+	<xsl:variable name="ext">
+		<xsl:choose>
+			<xsl:when test="$offline=1">html</xsl:when>
+			<xsl:otherwise>php</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+
 	<xsl:template match="/">
 		<xsl:for-each select="ESCRIPT/fileheader">
-			<div class="container">
-				<div id="doc-mini-header">
-					<div class="doc-home">
-						<a>
-							<xsl:choose>
-								<xsl:when test="$offline=1">
-									<xsl:attribute name="href">index.html</xsl:attribute>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:attribute name="href">index.php</xsl:attribute>
-								</xsl:otherwise>
-							</xsl:choose>
-							Home
-						</a>
-					</div>
-					<h1>
-						<a name="TOP"/>
-						File:
-						<xsl:value-of select="@fname"/>
-					</h1>
-					<p>
-						Description:
-						<xsl:value-of select="filedesc"/>
-						<br/>
-						<b>
-							Last Modified:
-							<xsl:value-of select="datemodified"/>
-						</b>
-					</p>
+			<div class="doc-head">
+				<div class="crumbs">
+					<a href="index.{$ext}">Documentation</a>
+					<xsl:text> &#8250; Modules &#8250; </xsl:text>
+					<xsl:value-of select="@fname"/>
+				</div>
+				<h1 id="TOP">
+					<xsl:text>File: </xsl:text>
+					<xsl:value-of select="@fname"/>
+				</h1>
+				<p>
+					<xsl:value-of select="filedesc"/>
+				</p>
+				<div class="meta">
+					<xsl:text>Last modified: </xsl:text>
+					<xsl:value-of select="datemodified"/>
 				</div>
 			</div>
-			<xsl:if test="constant">
-				<div class="container">
-					<div class="doc-mainbox">
-						<div class="expander">
-							<a href="javascript:ExpandContract('Constants')" id="bullet_Constants">[-]</a>
-						</div>
-						<center>
-							<h2>File Constants:</h2>
-						</center>
-						<span id="span_Constants">
-							<pre>
-								<xsl:for-each select="constant">
-									<xsl:value-of select="current()"/>
-									<xsl:if test="position() != last()">
-										<br/>
-									</xsl:if>
-								</xsl:for-each>
-							</pre>
-						</span>
-					</div>
-				</div>
-			</xsl:if>
 		</xsl:for-each>
-		<div id="main">
-			<div class="container">
-				<div class="doc-col_2">
-					<div class="doc-smallbox">
-						<div class="expander">
-							<a href="javascript:ExpandContract('Functions')" id="bullet_Functions">[-]</a>
-						</div>
-						<center>
-							<h2>Functions:</h2>
-						</center>
-						<span id="span_Functions">
-							<ul>
-								<xsl:for-each select="ESCRIPT/function">
-									<xsl:sort select="prototype"/>
-									<li>
-										<a href="#{@name}">
-											<xsl:value-of select="@name"/>
-										</a>
-									</li>
-								</xsl:for-each>
-							</ul>
-						</span>
-					</div>
-					<div class="doc-smallbox-gold">
-						<div class="expander">
-							<a href="javascript:ExpandContract('Modules')" id="bullet_Modules">[-]</a>
-						</div>
-						<center>
-							<h2>Modules:</h2>
-						</center>
-						<span id="span_Modules">
-							<ul>
-								<xsl:for-each select="document('modules.xml')//MODULES/em">
-									<xsl:variable name="classname">
-										<xsl:choose>
-											<xsl:when test="$xmlfile=@name">treenodeopen</xsl:when>
-											<xsl:otherwise>treenode</xsl:otherwise>
-										</xsl:choose>
-									</xsl:variable>
-									<xsl:variable name="filename" select="@name"/>
-									<li class="{$classname}">
-										<a href="javascript:void(0)">[+] </a>
-										<xsl:choose>
-											<xsl:when test="$xmlfile=@name">
-												<xsl:value-of select="@nice"/>
-											</xsl:when>
-											<xsl:otherwise>
-												<a>
-													<xsl:choose>
-														<xsl:when test="$offline=1">
-															<xsl:attribute name="href"><xsl:value-of select="@name"/>.html</xsl:attribute>
-														</xsl:when>
-														<xsl:otherwise>
-															<xsl:attribute name="href">fullfunc.php?xmlfile=<xsl:value-of select="@name"/></xsl:attribute>
-														</xsl:otherwise>
-													</xsl:choose>
-													<xsl:value-of select="@nice"/>
-												</a>
-											</xsl:otherwise>
-										</xsl:choose>
 
-										<ul>
-											<xsl:for-each select="document(concat(@name,'.xml'))//ESCRIPT/function">
-												<xsl:sort select="prototype"/>
-												<xsl:choose>
-													<xsl:when test="$xmlfile=$filename">
-													<li><a href="#{@name}"><xsl:value-of select="@name"/></a></li>
-												</xsl:when>
-												<xsl:otherwise>
-													<li><a>
-													<xsl:choose>
-														<xsl:when test="$offline=1">
-															<xsl:attribute name="href"><xsl:value-of select="$filename"/>.html#<xsl:value-of select="@name"/></xsl:attribute>
-														</xsl:when>
-														<xsl:otherwise>
-															<xsl:attribute name="href">fullfunc.php?xmlfile=<xsl:value-of select="$filename"/>#<xsl:value-of select="@name"/></xsl:attribute>
-														</xsl:otherwise>
-													</xsl:choose>
-													<xsl:value-of select="@name"/>
-												</a></li>
-											</xsl:otherwise>
-										</xsl:choose>
-									</xsl:for-each>
-								</ul>
+		<div class="doc-layout">
+			<div class="doc-side">
+				<details class="smallbox doc-menu" open="open">
+					<summary>
+						<h1>
+							<xsl:text>Functions</xsl:text>
+							<span class="cur" id="fn-current"/>
+						</h1>
+					</summary>
+					<ul class="fn-list">
+						<li class="filter">
+							<input type="search" id="fn-filter" placeholder="Filter functions" aria-label="Filter functions" autocomplete="off"/>
+						</li>
+						<xsl:for-each select="ESCRIPT/function">
+							<xsl:sort select="@name"/>
+							<li>
+								<a href="#{@name}">
+									<xsl:value-of select="@name"/>
+								</a>
 							</li>
 						</xsl:for-each>
 					</ul>
-				</span>
+				</details>
+				<details class="smallbox-gold doc-menu">
+					<summary>
+						<h1>Modules</h1>
+					</summary>
+					<ul class="mod-links">
+						<xsl:for-each select="document('modules.xml')//MODULES/em">
+							<li>
+								<xsl:choose>
+									<xsl:when test="$xmlfile=@name">
+										<b>
+											<xsl:value-of select="@nice"/>
+										</b>
+									</xsl:when>
+									<xsl:otherwise>
+										<a>
+											<xsl:call-template name="module-href"/>
+											<xsl:value-of select="@nice"/>
+										</a>
+									</xsl:otherwise>
+								</xsl:choose>
+							</li>
+						</xsl:for-each>
+					</ul>
+				</details>
+			</div>
+
+			<div class="doc-main">
+				<xsl:if test="ESCRIPT/fileheader/constant">
+					<details class="mainbox doc-consts">
+						<summary>
+							<h1>File Constants</h1>
+						</summary>
+						<pre class="doc-code">
+							<xsl:for-each select="ESCRIPT/fileheader/constant">
+								<xsl:value-of select="."/>
+								<xsl:if test="position() != last()">
+									<xsl:text>&#10;</xsl:text>
+								</xsl:if>
+							</xsl:for-each>
+						</pre>
+					</details>
+				</xsl:if>
+
+				<xsl:for-each select="ESCRIPT/function">
+					<xsl:sort select="@name"/>
+					<div class="fn" id="{@name}">
+						<h2 class="fn-sig">
+							<xsl:choose>
+								<xsl:when test="contains(prototype, '(')">
+									<b>
+										<xsl:value-of select="normalize-space(substring-before(prototype, '('))"/>
+									</b>
+									<xsl:text>(</xsl:text>
+									<xsl:call-template name="sig-args">
+										<xsl:with-param name="s" select="substring-after(prototype, '(')"/>
+									</xsl:call-template>
+								</xsl:when>
+								<xsl:otherwise>
+									<b>
+										<xsl:value-of select="prototype"/>
+									</b>
+								</xsl:otherwise>
+							</xsl:choose>
+							<a class="perma" href="#{@name}" title="Link to this function">#</a>
+						</h2>
+
+						<xsl:if test="parameter">
+							<div class="fn-row">
+								<h3>Parameters</h3>
+								<div>
+									<table class="fn-params">
+										<xsl:for-each select="parameter">
+											<tr>
+												<td>
+													<var>
+														<xsl:value-of select="@name"/>
+													</var>
+												</td>
+												<td>
+													<xsl:call-template name="type">
+														<xsl:with-param name="t" select="@value"/>
+													</xsl:call-template>
+												</td>
+											</tr>
+										</xsl:for-each>
+									</table>
+								</div>
+							</div>
+						</xsl:if>
+
+						<xsl:if test="explain">
+							<div class="fn-row">
+								<h3>Explanation</h3>
+								<div>
+									<xsl:apply-templates select="explain"/>
+								</div>
+							</div>
+						</xsl:if>
+
+						<xsl:if test="return">
+							<div class="fn-row">
+								<h3>Return values</h3>
+								<div>
+									<xsl:for-each select="return">
+										<div class="p">
+											<xsl:value-of select="."/>
+										</div>
+									</xsl:for-each>
+								</div>
+							</div>
+						</xsl:if>
+
+						<xsl:if test="error">
+							<div class="fn-row">
+								<h3>Errors</h3>
+								<div>
+									<ul class="inline">
+										<xsl:for-each select="error">
+											<li>
+												<xsl:value-of select="."/>
+											</li>
+										</xsl:for-each>
+									</ul>
+								</div>
+							</div>
+						</xsl:if>
+
+						<xsl:if test="related">
+							<div class="fn-row">
+								<h3>Related</h3>
+								<div>
+									<ul class="inline">
+										<xsl:for-each select="related">
+											<li>
+												<a href="objref.{$ext}#{.}">
+													<xsl:value-of select="."/>
+												</a>
+											</li>
+										</xsl:for-each>
+									</ul>
+								</div>
+							</div>
+						</xsl:if>
+
+						<xsl:if test="relatedcfg">
+							<div class="fn-row">
+								<h3>Related config</h3>
+								<div>
+									<ul class="inline">
+										<xsl:for-each select="relatedcfg">
+											<li>
+												<a href="configfiles.{$ext}#{.}">
+													<xsl:value-of select="."/>
+												</a>
+											</li>
+										</xsl:for-each>
+									</ul>
+								</div>
+							</div>
+						</xsl:if>
+					</div>
+				</xsl:for-each>
 			</div>
 		</div>
-		<div class="doc-col_23">
-			<xsl:for-each select="ESCRIPT/function">
-				<xsl:sort select="prototype"/>
-				<div class="doc-mainbox-gold">
-					<div class="doc-anchor">
-						<a href="#TOP">[^]</a>
-					</div>
-					<table class="doc-table" frame="void" rules="groups" width="100%" border="1" CELLPADDING="1" CELLSPACING="0">
-						<tbody>
-							<tr>
-								<th align="center" colspan="2">
-									<a name="{@name}">
-										<xsl:value-of select="prototype"/>
-									</a>
-								</th>
-							</tr>
-						</tbody>
-						<xsl:if test="parameter">
-							<tbody>
-								<tr class="doc-table-dark">
-									<th align="left" colspan="2">Parameters:</th>
-								</tr>
-							</tbody>
-							<tbody>
-								<tr class="doc-table-med">
-									<td>Name</td>
-									<td>Type</td>
-								</tr>
-							</tbody>
-							<tbody>
-								<xsl:for-each select="parameter">
-									<tr>
-										<td width="50%">
-											<var>
-												<xsl:value-of select="@name"/>
-											</var>
-										</td>
-										<td>
-											<xsl:value-of select="@value"/>
-										</td>
-									</tr>
-								</xsl:for-each>
-							</tbody>
-						</xsl:if>
-						<tbody>
-							<tr class="doc-table-dark">
-								<th align="left" colspan="2">Explanation</th>
-							</tr>
-						</tbody>
-						<tbody>
-							<xsl:for-each select="(explain | explain/code)">
-								<tr>
-									<td colspan="2">
-										<xsl:choose>
-											<xsl:when test="name() != 'code'">
-												<xsl:value-of select="text()"/>
-											</xsl:when>
-											<xsl:otherwise>
-												<pre>
-													<xsl:value-of select="."/>
-												</pre>
-											</xsl:otherwise>
-										</xsl:choose>
-									</td>
-								</tr>
-							</xsl:for-each>
-						</tbody>
-						<tbody>
-							<tr class="doc-table-dark">
-								<th align="left" colspan="2">Return values</th>
-							</tr>
-						</tbody>
-						<tbody>
-							<xsl:for-each select="return">
-								<tr>
-									<td colspan="2">
-										<xsl:value-of select="current()"/>
-									</td>
-								</tr>
-							</xsl:for-each>
-						</tbody>
-						<xsl:if test="error">
-							<tbody>
-								<tr class="doc-table-dark">
-									<th align="left" colspan="2">Errors</th>
-								</tr>
-							</tbody>
-							<tbody>
-								<xsl:for-each select="error">
-									<tr>
-										<td colspan="2">
-											<xsl:value-of select="current()"/>
-										</td>
-									</tr>
-								</xsl:for-each>
-							</tbody>
-						</xsl:if>
-						<xsl:if test="related">
-							<tbody>
-								<tr class="doc-table-dark">
-									<th align="left" colspan="2">Related</th>
-								</tr>
-							</tbody>
-							<tbody>
-								<xsl:for-each select="related">
-									<tr>
-										<td colspan="2">
-											<a>
-												<xsl:choose>
-													<xsl:when test="$offline=1">
-														<xsl:attribute name="href">objref.html#<xsl:value-of select="current()"/></xsl:attribute>
-													</xsl:when>
-													<xsl:otherwise>
-														<xsl:attribute name="href">objref.php#<xsl:value-of select="current()"/></xsl:attribute>
-													</xsl:otherwise>
-												</xsl:choose>
-												<b>
-													<xsl:value-of select="current()"/>
-												</b>
-											</a>
-										</td>
-									</tr>
-								</xsl:for-each>
-							</tbody>
-						</xsl:if>
-						<xsl:if test="relatedcfg">
-							<tbody>
-								<tr class="doc-table-dark">
-									<th align="left" colspan="2">Related Configs</th>
-								</tr>
-							</tbody>
-							<tbody>
-								<xsl:for-each select="relatedcfg">
-									<tr>
-										<td colspan="2">
-											<a>
-												<xsl:choose>
-													<xsl:when test="$offline=1">
-														<xsl:attribute name="href">configfiles.html#<xsl:value-of select="current()"/></xsl:attribute>
-													</xsl:when>
-													<xsl:otherwise>
-														<xsl:attribute name="href">configfiles.php#<xsl:value-of select="current()"/></xsl:attribute>
-													</xsl:otherwise>
-												</xsl:choose>
-												<b>
-													<xsl:value-of select="current()"/>
-												</b>
-											</a>
-										</td>
-									</tr>
-								</xsl:for-each>
-							</tbody>
-						</xsl:if>
-					</table>
-				</div>
+	</xsl:template>
+
+	<!-- href of a module page; the context node is an <em> of modules.xml -->
+	<xsl:template name="module-href">
+		<xsl:attribute name="href">
+			<xsl:choose>
+				<xsl:when test="$offline=1"><xsl:value-of select="@name"/>.html</xsl:when>
+				<xsl:otherwise>fullfunc.php?xmlfile=<xsl:value-of select="@name"/></xsl:otherwise>
+			</xsl:choose>
+		</xsl:attribute>
+	</xsl:template>
+
+	<!-- One paragraph of the explanation. "Notes:", "Tip:" and "Warning:" paragraphs become
+	     call-outs; <code> children become code blocks. -->
+	<xsl:template match="explain">
+		<xsl:variable name="first" select="normalize-space(text()[1])"/>
+		<xsl:variable name="prefix">
+			<xsl:choose>
+				<xsl:when test="starts-with($first, 'Notes:')">Notes:</xsl:when>
+				<xsl:when test="starts-with($first, 'Note:')">Note:</xsl:when>
+				<xsl:when test="starts-with($first, 'NOTE:')">NOTE:</xsl:when>
+				<xsl:when test="starts-with($first, 'Tip:')">Tip:</xsl:when>
+				<xsl:when test="starts-with($first, 'Warning:')">Warning:</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+		<div>
+			<xsl:attribute name="class">
+				<xsl:choose>
+					<xsl:when test="$prefix != ''">p note</xsl:when>
+					<xsl:otherwise>p</xsl:otherwise>
+				</xsl:choose>
+			</xsl:attribute>
+			<xsl:if test="$prefix != ''">
+				<b>
+					<xsl:choose>
+						<xsl:when test="$prefix = 'Tip:'">Tip</xsl:when>
+						<xsl:when test="$prefix = 'Warning:'">Warning</xsl:when>
+						<xsl:otherwise>Note</xsl:otherwise>
+					</xsl:choose>
+				</b>
+			</xsl:if>
+			<xsl:for-each select="node()">
+				<xsl:choose>
+					<xsl:when test="self::code">
+						<pre class="doc-code">
+							<xsl:value-of select="."/>
+						</pre>
+					</xsl:when>
+					<xsl:when test="self::text() and position() = 1 and $prefix != ''">
+						<xsl:value-of select="substring-after(., $prefix)"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="."/>
+					</xsl:otherwise>
+				</xsl:choose>
 			</xsl:for-each>
 		</div>
-	</div>
-</div>
-</xsl:template>
+	</xsl:template>
+
+	<!-- A parameter type. "<Class> Reference" links to that class in the object reference
+	     when the class exists there. -->
+	<xsl:template name="type">
+		<xsl:param name="t"/>
+		<xsl:variable name="class" select="substring-before($t, ' Reference')"/>
+		<xsl:choose>
+			<xsl:when test="$class != '' and not(contains($class, ' ')) and contains($classes, concat('|', $class, '|'))">
+				<a href="objref.{$ext}#{$class}">
+					<xsl:value-of select="$class"/>
+					<xsl:text> Reference</xsl:text>
+				</a>
+				<xsl:value-of select="substring-after($t, ' Reference')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$t"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<!-- The argument list of a prototype (everything after the opening parenthesis),
+	     with default values marked up so they can be shown muted. -->
+	<xsl:template name="sig-args">
+		<xsl:param name="s"/>
+		<xsl:choose>
+			<xsl:when test="contains($s, ',')">
+				<xsl:call-template name="sig-arg">
+					<xsl:with-param name="a" select="substring-before($s, ',')"/>
+				</xsl:call-template>
+				<xsl:text>,</xsl:text>
+				<xsl:call-template name="sig-args">
+					<xsl:with-param name="s" select="substring-after($s, ',')"/>
+				</xsl:call-template>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:variable name="last" select="normalize-space($s)"/>
+				<xsl:choose>
+					<xsl:when test="$last = ')'">
+						<xsl:text>)</xsl:text>
+					</xsl:when>
+					<xsl:when test="substring($last, string-length($last)) = ')'">
+						<xsl:text> </xsl:text>
+						<xsl:call-template name="sig-arg">
+							<xsl:with-param name="a" select="normalize-space(substring($last, 1, string-length($last) - 1))"/>
+						</xsl:call-template>
+						<xsl:text> )</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="$s"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template name="sig-arg">
+		<xsl:param name="a"/>
+		<xsl:choose>
+			<xsl:when test="contains($a, ':=')">
+				<xsl:value-of select="substring-before($a, ':=')"/>
+				<span class="dim">
+					<xsl:text>:=</xsl:text>
+					<xsl:value-of select="substring-after($a, ':=')"/>
+				</span>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$a"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
 </xsl:stylesheet>

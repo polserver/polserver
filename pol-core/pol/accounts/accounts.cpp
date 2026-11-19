@@ -169,16 +169,17 @@ int delete_account( const char* acctname )
     Account* account = ( *itr ).get();
     if ( stricmp( account->name(), acctname ) == 0 )
     {
-      if ( account->numchars() == 0 )
-      {
-        Core::gamestate.accounts.erase( itr );
-        if ( Plib::systemstate.config.account_save == -1 )
-          write_account_data();
-        else
-          Plib::systemstate.accounts_txt_dirty = true;
-        return 1;
-      }
-      return -1;
+      if ( account->numchars() != 0 )
+        return -1;
+      // A client on the character list holds a raw Account*, which the erase would free.
+      if ( account->connected() )
+        return -3;
+      Core::gamestate.accounts.erase( itr );
+      if ( Plib::systemstate.config.account_save == -1 )
+        write_account_data();
+      else
+        Plib::systemstate.accounts_txt_dirty = true;
+      return 1;
     }
   }
   return -2;

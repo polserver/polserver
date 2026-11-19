@@ -504,6 +504,8 @@ class PolServer:
     self.clients=[]
     self.tasks=[]
     self.brains=[]
+    ## Clients held on the character list, by id: setting the event logs one out
+    self.charlist_holds={}
     self.server=None
     self.reader=None
     self.writer=None
@@ -611,6 +613,12 @@ class PolServer:
               name="client{}".format(res["id"]))
         t.add_done_callback(self._clientDone)
         self.tasks.append(t)
+      elif todo=="charlist":
+        self.charlist_holds[res["id"]] = asyncio.Event()
+        t = asyncio.create_task(self.holdcharlist(res["account"], res["psw"], res["id"]),
+                                name="charlist{}".format(res["id"]))
+        t.add_done_callback(self._clientDone)
+        self.tasks.append(t)
       elif todo=="exit":
         # Logged per step: this process is one stage of cmake's execute_process pipeline, so if a
         # client never ends, the join below holds up the whole job and the only symptom is a
@@ -619,6 +627,8 @@ class PolServer:
                       len(self.brains))
         for b in self.brains:
           b.addTodo({"todo":"disconnect"})
+        for release in self.charlist_holds.values():
+          release.set()
         for i, t in enumerate(self.tasks):
           self.log.info("LIFECYCLE joining client task %d/%d (%s)",
                         i + 1, len(self.tasks), t.get_name())
@@ -643,6 +653,8 @@ class PolServer:
         self.sendEvent(brain.Event(brain.Event.EVT_EXIT,clientid=0))
         self.log.info("LIFECYCLE run() returning")
         return
+      elif todo=="disconnect" and clientid in self.charlist_holds:
+        self.charlist_holds[clientid].set()
       else:
         for b in self.brains:
           if b.id == clientid:
@@ -670,6 +682,22 @@ class PolServer:
     b = TestBrain(c,self)
     await client.supervise(self.log, c.start(b),
                            asyncio.create_task(b.run(), name="brain{}".format(id)))
+
+  async def holdcharlist(self, user, psw, id):
+    ''' Logs in and stays on the character list, with no brain, until a disconnect todo '''
+    c = client.Client(id)
+    self.clients.append(c)
+    try:
+      await c.connect(self.lconf.get('ip'), self.lconf.getint('port'), user, psw)
+      await c.selectServer(self.lconf.getint('serveridx'))
+      await self.charlist_holds[id].wait()
+    finally:
+      self.charlist_holds.pop(id, None)
+      net = getattr(c, 'net', None)
+      if net is not None:
+        net.close()
+        await net.wait_closed()
+      self.log.info("LIFECYCLE charlist client %s logged out", id)
 
   def _clientDone(self, task):
     ''' Says what became of a client, since nothing else looks at a task's result '''

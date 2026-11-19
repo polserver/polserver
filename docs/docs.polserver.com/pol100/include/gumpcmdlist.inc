@@ -1,40 +1,36 @@
 <h1>Gump Command List</h1>
-<div class="container">
-  <div class="doc-col_2">
-    <ul>
-      <li><a href="#noclose">NoClose</a></li>
-      <li><a href="#nodispose">NoDispose</a></li>
-      <li><a href="#nomove">NoMove</a></li>
-      <li><a href="#group">Group</a></li>
-      <li><a href="#endgroup">EndGroup</a></li>
-      <li><a href="#page">Page</a></li>
-      <li><a href="#mastergump">MasterGump</a></li>
-    </ul>
-    <br/>
 
-    <ul>
-      <li><a href="#button">Button</a></li>
-      <li><a href="#buttontileart">ButtonTileArt</a></li>
-      <li><a href="#checkbox">CheckBox</a></li>
-      <li><a href="#checkertrans">CheckerTrans</a></li>
-      <li><a href="#croppedtext">CroppedText</a></li>
-      <li><a href="#gumppic">GumpPic</a></li>
-      <li><a href="#gumppictiled">GumpPicTiled</a></li>
-      <li><a href="#htmlgump">HtmlGump</a></li>
-      <li><a href="#radio">Radio</a></li>
-      <li><a href="#resizepic">ResizePic</a></li>
-      <li><a href="#text">Text</a></li>
-      <li><a href="#textentry">TextEntry</a></li>
-      <li><a href="#textentrylimited">TextEntryLimited</a></li>
-      <li><a href="#tilepic">TilePic</a></li>
-      <li><a href="#tilepichue">TilePicHue</a></li>
-      <li><a href="#tooltip">Tooltip</a></li>
-      <li><a href="#xmfhtmlgump">XmfHtmlGump</a></li>
-      <li><a href="#xmfhtmlgumpcolor">XmfHtmlGumpColor</a></li>
-      <li><a href="#xmfhtmltok">XmfHtmlTok</a></li>
-    </ul>
-  </div>
-  <div class="doc-col_23">
+<!-- toc -->
+<ul class="guide-toc">
+  <li><a href="#noclose">NoClose</a></li>
+  <li><a href="#nodispose">NoDispose</a></li>
+  <li><a href="#nomove">NoMove</a></li>
+  <li><a href="#group">Group</a></li>
+  <li><a href="#endgroup">EndGroup</a></li>
+  <li><a href="#page">Page</a></li>
+  <li><a href="#mastergump">MasterGump</a></li>
+  <li class="gap"><a href="#button">Button</a></li>
+  <li><a href="#buttontileart">ButtonTileArt</a></li>
+  <li><a href="#checkbox">CheckBox</a></li>
+  <li><a href="#checkertrans">CheckerTrans</a></li>
+  <li><a href="#croppedtext">CroppedText</a></li>
+  <li><a href="#gumppic">GumpPic</a></li>
+  <li><a href="#gumppictiled">GumpPicTiled</a></li>
+  <li><a href="#htmlgump">HtmlGump</a></li>
+  <li><a href="#radio">Radio</a></li>
+  <li><a href="#resizepic">ResizePic</a></li>
+  <li><a href="#text">Text</a></li>
+  <li><a href="#textentry">TextEntry</a></li>
+  <li><a href="#textentrylimited">TextEntryLimited</a></li>
+  <li><a href="#tilepic">TilePic</a></li>
+  <li><a href="#tilepichue">TilePicHue</a></li>
+  <li><a href="#tooltip">Tooltip</a></li>
+  <li><a href="#xmfhtmlgump">XmfHtmlGump</a></li>
+  <li><a href="#xmfhtmlgumpcolor">XmfHtmlGumpColor</a></li>
+  <li><a href="#xmfhtmltok">XmfHtmlTok</a></li>
+</ul>
+<!-- /toc -->
+
     <p>A short compilation of available gump commands.</p>
 
     <table width="98%">
@@ -585,6 +581,3 @@ With this you can specify texts that will be added to the CliLoc entry.</td>
       </tr>
       <tr><td align="right"><b>Copyright ©2009 Turley</b></td></tr>
     </table>
-  </div>
-</div>
-      
