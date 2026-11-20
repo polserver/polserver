@@ -163,11 +163,6 @@ void PolConfig::read( bool initial_load )
   show_warning_cursor_seq = elem.remove_bool( "ShowWarningCursorSequence", true );
   show_warning_boat_move = elem.remove_bool( "ShowWarningBoatMove", true );
 
-  report_active = elem.remove_bool( "ReportCrashsAutomatically", false );
-  report_admin_email = elem.remove_string( "ReportAdminEmail", "" );
-  report_server = elem.remove_string( "ReportServer", "polserver.com" );
-  report_url = elem.remove_string( "ReportURL", "/pol/report_program_abort.php" );
-
   debug_level = elem.remove_ushort( "DebugLevel", 0 );
 
   auto allowed_environmentvariables_access_str =

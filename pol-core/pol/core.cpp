@@ -12,7 +12,6 @@
 #include <stddef.h>
 
 #include "bscript/config.h"
-#include "clib/Debugging/ExceptionParser.h"
 #include "clib/clib.h"
 #include "clib/compilerspecifics.h"
 #include "clib/mdump.h"
@@ -96,10 +95,6 @@ void apply_polcfg( bool initial )
 #ifdef _WIN32
   Clib::MiniDumper::SetMiniDumpType( config.minidump_type );
 #endif
-
-  Clib::ExceptionParser::configureProgramAbortReportingSystem(
-      config.report_active, config.report_server, config.report_url, config.report_admin_email );
-
 
   /// The profiler needs to gather some data before the pol.cfg file gets loaded, so when it
   /// turns out to be disabled, or when it was enabled before, but is being disabled now,

@@ -104,14 +104,6 @@ struct PolConfig
   bool show_warning_cursor_seq;
   bool show_warning_boat_move;
 
-  /**
-   * crash reporting system with some early default values
-   */
-  bool report_active;
-  std::string report_admin_email;
-  std::string report_server;
-  std::string report_url;
-
   std::vector<std::string> allowed_environmentvariables_access;
 
   bool enable_colored_output;

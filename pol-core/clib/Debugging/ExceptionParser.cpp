@@ -16,15 +16,10 @@
 #include <string_view>
 
 #ifndef WINDOWS
-#include <arpa/inet.h>
 #include <cxxabi.h>
 #include <execinfo.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <sys/mman.h>
 #include <unistd.h>
-
-#define SOCKET int
 #else
 #include "clib/Header_Windows.h"
 #include <shlwapi.h>
@@ -43,10 +38,6 @@ using namespace std;
 ///////////////////////////////////////////////////////////////////////////////
 
 std::atomic<const std::atomic<size_t>*> ExceptionParser::m_worldLockOwner{ nullptr };
-bool ExceptionParser::m_programAbortReporting = false;
-std::string ExceptionParser::m_programAbortReportingServer = "";
-std::string ExceptionParser::m_programAbortReportingUrl = "";
-std::string ExceptionParser::m_programAbortReportingReporter = "";
 std::string ExceptionParser::m_programStart = Pol::Clib::Logging::LogSink::getTimeStamp();
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -210,167 +201,7 @@ string getCompilerVersion()
 
   return result;
 }
-
-void doHttpPOST( const string& host, const string& url, const string& content )
-{
-#define MAXLINE 4096
-  char request[MAXLINE + 1];
-  SOCKET socketFD;
-  char targetIP[INET6_ADDRSTRLEN];
-
-/**
- * prepare the request
- */
-#ifdef _MSC_VER
-  _snprintf(
-#else
-  snprintf(
-#endif
-      request, MAXLINE,
-      "POST %s HTTP/1.0\r\n"
-      "Host: %s\r\n"
-      "Content-Type: application/x-www-form-urlencoded\r\n"
-      "User-Agent: POL in-app abort reporting system, %s\r\n"
-      "Content-length: %d\r\n\r\n"
-      "%s",
-      url.c_str(), host.c_str(), POL_VERSION_ID, (int)content.size(), content.c_str() );
-
-  /**
-   * DNS lookup if needed
-   */
-  struct addrinfo* serverAddr;
-  struct addrinfo hints;
-  memset( &hints, 0, sizeof hints );
-  hints.ai_family = AF_UNSPEC;  // IPv4 or IPv6
-  hints.ai_flags = AI_ADDRCONFIG;
-  hints.ai_socktype = SOCK_STREAM;
-  int res = getaddrinfo( host.c_str(), "http", &hints, &serverAddr );
-  if ( res != 0 )
-  {
-    fprintf( stderr, "getaddrinfo() failed for \"%s\" due to \"%s\"(code: %d)\n", host.c_str(),
-             gai_strerror( res ), res );
-    std::_Exit( 1 );
-  }
-
-  switch ( serverAddr->ai_addr->sa_family )
-  {
-  case AF_INET:
-    if ( inet_ntop( AF_INET, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET_ADDRSTRLEN ) == nullptr )
-      std::_Exit( 1 );
-    break;
-
-  case AF_INET6:
-    if ( inet_ntop( AF_INET6, &( (struct sockaddr_in*)serverAddr->ai_addr )->sin_addr, targetIP,
-                    INET6_ADDRSTRLEN ) == nullptr )
-      std::_Exit( 1 );
-    break;
-
-  default:
-    fprintf( stderr, "Unknown address family found for %s\n", host.c_str() );
-    std::_Exit( 1 );
-  }
-
-  // create the socket
-  socketFD = socket( serverAddr->ai_family, serverAddr->ai_socktype, serverAddr->ai_protocol );
-
-  /**
-   * connect to the bug tracking server
-   */
-  if ( ( res = connect( socketFD, serverAddr->ai_addr, (int)serverAddr->ai_addrlen ) ) != 0 )
-  {
-    fprintf( stderr, "connect() failed for server \"%s\"(IP: %s) due \"%s\"(%d)\n", host.c_str(),
-             targetIP, strerror( errno ), errno );
-    std::_Exit( 1 );
-  }
-
-  freeaddrinfo( serverAddr );  // not needed anymore
-
-/**
- * send the request
- */
-#if !defined( _WIN32 ) && !defined( __APPLE__ )
-  send( socketFD, request, strlen( request ), MSG_NOSIGNAL );
-#else
-  send( socketFD, request, (int)strlen( request ), 0 );
-#endif
-  printf( "Abort report was sent to %s%s (IP: %s)\n", host.c_str(), url.c_str(), targetIP );
-
-  /**
-   * wait for some answers and print them on the screen
-   */
-  ssize_t readBytes;
-  char answer[MAXLINE + 1];
-
-#if !defined( _WIN32 ) && !defined( __APPLE__ )
-  while ( ( readBytes = recv( socketFD, answer, MAXLINE, MSG_NOSIGNAL ) ) > 0 )
-  {
-#else
-  while ( ( readBytes = recv( socketFD, answer, MAXLINE, 0 ) ) > 0 )
-  {
-#endif
-    answer[readBytes] = '\0';
-    printf( "Answer from bug tracking server:\n%s\n", answer );
-    // skip the received answer and proceed
-  }
-
-// close the socket to the bug tracking server
-#ifndef _WIN32
-  close( socketFD );
-#else
-  closesocket( socketFD );
-#endif
-}
 }  // namespace
-
-void ExceptionParser::reportProgramAbort( const string& stackTrace, const string& reason )
-{
-  /**
-   * set some default values if the abort occurs too early and pol.cfg wasn't parsed yet
-   */
-  string host = "polserver.com";
-  string url = "/pol/report_program_abort.php";
-  if ( !m_programAbortReportingServer.empty() )
-  {
-    host = m_programAbortReportingServer;
-    if ( !m_programAbortReportingUrl.empty() )
-      url = m_programAbortReportingUrl;
-  }
-
-  // create the abort description for the subsequent POST request
-  string content = "email=" + m_programAbortReportingReporter +
-                   "&"
-                   "bin=" +
-                   PROG_CONFIG::programName() +
-                   "&"
-                   "start_time=" +
-                   m_programStart +
-                   "&"
-                   "abort_time=" +
-                   Pol::Clib::Logging::LogSink::getTimeStamp() +
-                   "&"
-                   "reason=" +
-                   reason +
-                   "&"
-                   "trace=" +
-                   stackTrace +
-                   "&"
-                   "comp=" +
-                   getCompilerVersion() +
-                   "&"
-                   "comp_time=" +
-                   ProgramConfig::build_datetime() +
-                   "&"
-                   "build_target=" +
-                   ProgramConfig::build_target() +
-                   "&"
-                   "build_revision=" POL_VERSION_ID
-                   "&"
-                   "misc=";
-
-  // execute the POST request
-  doHttpPOST( host, url, content );
-}
 
 namespace
 {
@@ -411,12 +242,9 @@ void ExceptionParser::handleExceptionSignal( int signal )
     printf(
         "########################################################################################"
         "\n" );
-    if ( m_programAbortReporting )
-      printf( "POL will exit now. The following will be sent to the POL developers:\n\n" );
-    else
-      printf(
-          "POL will exit now. Please, post the following to the forum: "
-          "http://forums.polserver.com/.\n" );
+    printf(
+        "POL will exit now. Please, post the following to the forum: "
+        "http://forums.polserver.com/.\n" );
     // Everything cheap goes out and is flushed before the stack trace is walked. That walk
     // symbolizes and allocates, and the crashes where it matters most -- a corrupted heap, a
     // fault taken inside the allocator -- are exactly the ones where it hangs or faults again.
@@ -438,7 +266,6 @@ void ExceptionParser::handleExceptionSignal( int signal )
       else
         printf( "World lock: free\n" );
     }
-    printf( "Admin contact: %s\n", m_programAbortReportingReporter.c_str() );
     printf( "Executable: %s\n", PROG_CONFIG::programName().c_str() );
     printf( "Start time: %s\n", m_programStart.c_str() );
     printf( "Current time: %s\n", Pol::Clib::Logging::LogSink::getTimeStamp().c_str() );
@@ -460,20 +287,6 @@ void ExceptionParser::handleExceptionSignal( int signal )
         "########################################################################################"
         "\n" );
     fflush( stdout );
-
-    /**
-     * use the program abort reporting system
-     */
-    if ( m_programAbortReporting )
-    {
-      string signalName;
-      string signalDescription;
-
-      getSignalDescription( signal, signalName, signalDescription );
-      ExceptionParser::reportProgramAbort(
-          tStackTrace, "CRASH caused by signal " + signalName + " (" + signalDescription +
-                           ") in thread \"" + threadhelp::current_thread_name() + "\"" );
-    }
 
     // finally, go to hell
     std::_Exit( 1 );
@@ -646,20 +459,6 @@ std::string indent_stack_block( const std::string& block, size_t max_lines )
     fmt::format_to( std::back_inserter( result ), "  ... ({} more)\n", dropped );
 
   return result;
-}
-
-void ExceptionParser::configureProgramAbortReportingSystem( bool active, std::string server,
-                                                            std::string url, std::string reporter )
-{
-  m_programAbortReporting = active;
-  m_programAbortReportingServer = std::move( server );
-  m_programAbortReportingUrl = std::move( url );
-  m_programAbortReportingReporter = std::move( reporter );
-}
-
-bool ExceptionParser::programAbortReporting()
-{
-  return m_programAbortReporting;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
